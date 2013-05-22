@@ -1,0 +1,22 @@
+{
+ main: {
+   "source-stp": {
+     "network-id": "urn:ogf:network:nsa:es.net",
+     "local-id": "foo"
+   },
+
+   "destination-stp": {
+       "network-id": "urn:ogf:network:nsa:es.net",
+       "local-id": "bar"
+     },
+
+
+   "start-time": "2012-11-24T12:32:52.000Z",
+   "end-time": "2012-11-24T12:32:52.000Z",
+   "bandwidth": 100,
+   "reply-to": "http://jupiter.es.net:8401/pathreply",
+   "correlation-id": "dd405615-217f-4c49-8e6f-f7fadf4e029f",
+   "algorithm": "chain",
+   "constraints": [ ]
+ }
+ }
