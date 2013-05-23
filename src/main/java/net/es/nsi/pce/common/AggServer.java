@@ -2,6 +2,7 @@ package net.es.nsi.pce.common;
 
 
 import net.es.nsi.pce.common.FindPathServiceImpl;
+import net.es.nsi.pce.config.HttpConfig;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
@@ -16,6 +17,12 @@ public class AggServer {
     public static AggServer getInstance(String url, String configFile) throws Exception {
         if (instance == null) {
             instance = new AggServer(url, configFile);
+        }
+        return instance;
+    }
+    public static AggServer getInstance(HttpConfig conf) throws Exception {
+        if (instance == null) {
+            instance = new AggServer(conf.url, conf.bus);
         }
         return instance;
     }

@@ -1,0 +1,11 @@
+{
+    "pce": {
+        "url": "http://jupiter.es.net:8400/",
+        "bus": "config/jetty.xml"
+    },
+    "agg": {
+        "url": "http://jupiter.es.net:8400/",
+        "bus": "config/jetty.xml"
+    }
+
+}

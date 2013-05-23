@@ -1,6 +1,7 @@
 package net.es.nsi.pce.common;
 
 
+import net.es.nsi.pce.config.HttpConfig;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
@@ -18,6 +19,14 @@ public class PCEServer {
         }
         return instance;
     }
+
+    public static PCEServer getInstance(HttpConfig conf) throws Exception {
+        if (instance == null) {
+            instance = new PCEServer(conf.url, conf.bus);
+        }
+        return instance;
+    }
+
 
     private PCEServer(String url, String configFile) throws Exception {
         SpringBusFactory factory = new SpringBusFactory();
