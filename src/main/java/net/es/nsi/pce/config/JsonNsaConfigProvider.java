@@ -9,7 +9,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Set;
 
-public class JsonNsaConfigProvider {
+public class JsonNsaConfigProvider  extends JsonConfigProvider {
     private HashMap<String, NsaConfig> configs = new  HashMap<String, NsaConfig>();
 
     static JsonNsaConfigProvider instance;
@@ -23,9 +23,9 @@ public class JsonNsaConfigProvider {
         return instance;
     }
 
-    public void loadConfig(String filename) throws Exception {
+    public void loadConfig() throws Exception {
 
-        File configFile = new File(filename);
+        File configFile = new File(this.getFilename());
         String json = FileUtils.readFileToString(configFile);
         Gson gson = new Gson();
         Type type = new TypeToken<HashMap<String, NsaConfig>>() {}.getType();

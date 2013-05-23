@@ -3,12 +3,14 @@ package net.es.nsi.pce.common;
 import net.es.nsi.pce.config.HttpConfig;
 import net.es.nsi.pce.config.JsonHttpConfigProvider;
 import net.es.nsi.pce.config.JsonNsaConfigProvider;
+import net.es.nsi.pce.sched.PCEScheduler;
 
 public class Invoker {
     public static void main(String args[]) throws Exception {
         JsonHttpConfigProvider htProv = JsonHttpConfigProvider.getInstance();
         System.out.print("Loading HTTP config... ");
-        htProv.loadConfig("config/http.json");
+        htProv.setFilename("config/http.json");
+        htProv.loadConfig();
         HttpConfig pceConf = htProv.getConfig("pce");
         HttpConfig aggConf = htProv.getConfig("agg");
 
@@ -20,11 +22,16 @@ public class Invoker {
 
         System.out.print("Loading NSA config... ");
         JsonNsaConfigProvider nsaprov = JsonNsaConfigProvider.getInstance();
-        nsaprov.loadConfig("config/nsa.json");
+        nsaprov.setFilename("config/nsa.json");
+        nsaprov.loadConfig();
         System.out.println("done.");
 
+        System.out.print("Starting task scheduler...");
+        PCEScheduler.getInstance().start();
+        System.out.println(" done.");
 
-        System.out.println("PCE running...");
+        System.out.println("PCE running.");
+
         while (true) {
             Thread.sleep(1);
         }

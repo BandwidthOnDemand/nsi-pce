@@ -14,7 +14,8 @@ public class NsaConfigTest {
         System.out.println("testing NSA config");
 
         JsonNsaConfigProvider prov = JsonNsaConfigProvider.getInstance();
-        prov.loadConfig("src/test/resources/config/nsa.json");
+        prov.setFilename("src/test/resources/config/nsa.json");
+        prov.loadConfig();
 
         for (String nsaId: prov.getNsaIds()) {
             System.out.println("loaded config for nsa "+nsaId);
@@ -28,7 +29,8 @@ public class NsaConfigTest {
     public void testAuthConfig() throws Exception {
         System.out.println("testing auth credential");
         JsonNsaConfigProvider prov = JsonNsaConfigProvider.getInstance();
-        prov.loadConfig("src/test/resources/config/nsa.json");
+        prov.setFilename("src/test/resources/config/nsa.json");
+        prov.loadConfig();
         NsaConfigAuthProvider ap = NsaConfigAuthProvider.getInstance();
 
         for (String nsaId: prov.getNsaIds()) {

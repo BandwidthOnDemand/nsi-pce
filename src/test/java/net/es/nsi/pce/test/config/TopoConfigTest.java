@@ -10,7 +10,8 @@ public class TopoConfigTest {
 
 
         JsonTopoConfigProvider prov = JsonTopoConfigProvider.getInstance();
-        prov.loadConfig("src/test/resources/config/topo.json");
+        prov.setFilename("src/test/resources/config/topo.json");
+        prov.loadConfig();
 
         for (String networkId: prov.getNetworkIds()) {
             System.out.println("loaded config for network "+networkId);

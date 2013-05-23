@@ -9,7 +9,7 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
-public class JsonHttpConfigProvider {
+public class JsonHttpConfigProvider extends JsonConfigProvider {
 
 
     private HashMap<String, HttpConfig> configs = new HashMap<String, HttpConfig>();
@@ -25,9 +25,9 @@ public class JsonHttpConfigProvider {
     private JsonHttpConfigProvider() {
     }
 
-    public void loadConfig(String filename) throws Exception {
+    public void loadConfig() throws Exception {
 
-        File configFile = new File(filename);
+        File configFile = new File(this.getFilename());
         String json = FileUtils.readFileToString(configFile);
         Gson gson = new Gson();
         Type type = new TypeToken<HashMap<String, HttpConfig>>() {}.getType();
