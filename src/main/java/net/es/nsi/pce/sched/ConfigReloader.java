@@ -1,8 +1,8 @@
 package net.es.nsi.pce.sched;
 
 
-import net.es.nsi.pce.config.JsonNsaConfigProvider;
-import net.es.nsi.pce.topo.JsonTopoConfigProvider;
+import net.es.nsi.pce.config.nsa.JsonNsaConfigProvider;
+import net.es.nsi.pce.config.topo.JsonTopoConfigProvider;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

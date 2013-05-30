@@ -1,11 +1,11 @@
 package net.es.nsi.pce.test.client;
 
-import net.es.nsi.pce.api.FindPathAlgorithm;
-import net.es.nsi.pce.api.FindPathRequest;
-import net.es.nsi.pce.api.StpObject;
-import net.es.nsi.pce.api.FindPathService;
-import net.es.nsi.pce.common.PCEServer;
-import net.es.nsi.pce.common.AggServer;
+import net.es.nsi.pce.svc.PCEServer;
+import net.es.nsi.pce.svc.AggServer;
+import net.es.nsi.pce.svc.api.FindPathAlgorithm;
+import net.es.nsi.pce.svc.api.FindPathRequest;
+import net.es.nsi.pce.svc.api.FindPathService;
+import net.es.nsi.pce.svc.api.StpObject;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;

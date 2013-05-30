@@ -44,9 +44,16 @@
             <version>6.7</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- graphs -->
         <dependency>
             <groupId>net.sf.jung</groupId>
             <artifactId>jung-algorithms</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.jung</groupId>
+            <artifactId>jung-graph-impl</artifactId>
             <version>2.0.1</version>
         </dependency>
 
@@ -110,7 +117,6 @@
             <version>${cxf.version}</version>
         </dependency>
 
-
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
@@ -142,7 +148,7 @@
                 <executions>
                     <execution>
                         <configuration>
-                            <mainClass>net.es.nsi.pce.common.Invoker</mainClass>
+                            <mainClass>net.es.nsi.pce.svc.Invoker</mainClass>
                             <classifier>onejar</classifier>
                         </configuration>
                         <goals>

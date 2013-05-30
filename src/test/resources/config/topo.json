@@ -1,6 +1,12 @@
 {
   "urn:ogf:network:stp:es.net": {
-    "links": [
+    "stps": [
+      {
+        "localId": "esnet-edge-one"
+      },
+      {
+        "localId": "esnet-edge-two"
+      },
       {
         "localId": "to-surfnet",
         "remoteNetworkId": "urn:ogf:network:stp:surfnet.nl",
@@ -18,7 +24,10 @@
 
 
   "urn:ogf:network:stp:internet2.edu": {
-    "links": [
+    "stps": [
+      {
+        "localId": "i2-edge"
+      },
       {
         "localId": "to-esnet",
         "remoteNetworkId": "urn:ogf:network:stp:es.net",
@@ -30,7 +39,10 @@
 
 
   "urn:ogf:network:stp:surfnet.nl": {
-    "links": [
+    "stps": [
+      {
+        "localId": "surfnet-edge"
+      },
       {
         "localId": "to-esnet",
         "remoteNetworkId": "urn:ogf:network:stp:es.net",

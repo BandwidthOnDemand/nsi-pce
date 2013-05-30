@@ -1,6 +1,9 @@
 package net.es.nsi.pce.test.config;
 
-import net.es.nsi.pce.topo.JsonTopoConfigProvider;
+import net.es.nsi.pce.config.topo.JsonTopoConfigProvider;
+import net.es.nsi.pce.pf.api.topo.JsonTopologyProvider;
+import net.es.nsi.pce.pf.api.topo.Stp;
+import net.es.nsi.pce.pf.api.topo.Topology;
 import org.testng.annotations.Test;
 
 public class TopoConfigTest {
@@ -11,12 +14,27 @@ public class TopoConfigTest {
 
         JsonTopoConfigProvider prov = JsonTopoConfigProvider.getInstance();
         prov.setFilename("src/test/resources/config/topo.json");
-        prov.loadConfig();
+        try {
+            prov.loadConfig();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
         for (String networkId: prov.getNetworkIds()) {
-            System.out.println("loaded config for network "+networkId);
-
+            System.out.println("loaded config for Network "+networkId);
         }
+
+        JsonTopologyProvider jtp = JsonTopologyProvider.getInstance();
+        Topology to = jtp.getTopology();
+        for (String netId : to.getNetworkIds()) {
+            System.out.println(netId);
+            for (String stpId : to.getNetwork(netId).getStpIds()) {
+                Stp stp = to.getNetwork(netId).getStp(stpId);
+                System.out.println("  "+stp.localId+" -- "+stp.remote.localId);
+            }
+        }
+
+
     }
 
 }

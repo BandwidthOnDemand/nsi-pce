@@ -11,10 +11,10 @@ public class JsonConfigProvider {
 
     protected boolean isFileUpdated( File file ) {
         this.file = file;
-        this.timeStamp = file.lastModified();
+        long lastModified = file.lastModified();
 
-        if( this.timeStamp != timeStamp ) {
-            this.timeStamp = timeStamp;
+        if( this.timeStamp != lastModified ) {
+            this.timeStamp = lastModified;
             //Yes, file is updated
             return true;
         }

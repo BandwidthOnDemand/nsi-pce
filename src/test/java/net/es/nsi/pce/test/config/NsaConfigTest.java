@@ -1,9 +1,9 @@
 package net.es.nsi.pce.test.config;
 
 
-import net.es.nsi.pce.auth.AuthCredential;
-import net.es.nsi.pce.config.JsonNsaConfigProvider;
-import net.es.nsi.pce.config.NsaConfigAuthProvider;
+import net.es.nsi.pce.config.nsa.auth.AuthCredential;
+import net.es.nsi.pce.config.nsa.JsonNsaConfigProvider;
+import net.es.nsi.pce.config.nsa.auth.NsaConfigAuthProvider;
 import org.testng.annotations.Test;
 
 import java.util.Map;
@@ -19,7 +19,7 @@ public class NsaConfigTest {
 
         for (String nsaId: prov.getNsaIds()) {
             System.out.println("loaded config for nsa "+nsaId);
-            System.out.println("network: "+prov.getConfig(nsaId).networkId);
+            System.out.println("Network: "+prov.getConfig(nsaId).networkId);
             System.out.println("method: "+prov.getConfig(nsaId).auth.method);
 
         }
