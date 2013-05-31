@@ -42,5 +42,21 @@ public class JsonNsaConfigProvider  extends JsonConfigProvider {
         return configs.keySet();
     }
 
+    public NsaConfig getConfigFromNetworkId(String networkId) {
+        for (NsaConfig config : configs.values()) {
+            if (config.networkId.equals(networkId))
+                return config;
+        }
+        return null;
+    }
+
+    public String getNsaId(String networkId) {
+        for (String nsaId : configs.keySet()) {
+            NsaConfig conf = configs.get(nsaId);
+            if (conf.networkId.equals(networkId))
+                return nsaId;
+        }
+        return null;
+    }
 
 }

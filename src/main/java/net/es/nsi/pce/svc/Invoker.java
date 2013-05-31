@@ -14,6 +14,12 @@ public class Invoker {
         HttpConfig pceConf = htProv.getConfig("pce");
         HttpConfig aggConf = htProv.getConfig("agg");
 
+        JsonNsaConfigProvider nsaConf = JsonNsaConfigProvider.getInstance();
+        nsaConf.setFilename("config/nsa.conf");
+        nsaConf.loadConfig();
+
+
+
         System.out.print("done. Starting HTTP servers...\n");
         PCEServer.getInstance(pceConf);
         AggServer.getInstance(aggConf);
