@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 public class Network extends TopoObject {
-    String networkId;
+    private String networkId;
     private HashMap<String, Stp> stps = new HashMap<String, Stp>();
 
     public void put(String stpId, Stp stp) {
@@ -18,4 +18,11 @@ public class Network extends TopoObject {
         return stps.keySet();
     }
 
+    public String getNetworkId() {
+        return networkId;
+    }
+
+    public void setNetworkId(String networkId) {
+        this.networkId = networkId;
+    }
 }

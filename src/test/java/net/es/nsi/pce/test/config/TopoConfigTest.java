@@ -25,12 +25,16 @@ public class TopoConfigTest {
         }
 
         JsonTopologyProvider jtp = JsonTopologyProvider.getInstance();
-        Topology to = jtp.getTopology();
-        for (String netId : to.getNetworkIds()) {
+        Topology topo = jtp.getTopology();
+        for (String netId : topo.getNetworkIds()) {
             System.out.println(netId);
-            for (String stpId : to.getNetwork(netId).getStpIds()) {
-                Stp stp = to.getNetwork(netId).getStp(stpId);
-                System.out.println("  "+stp.localId+" -- "+stp.remote.localId);
+            for (String stpId : topo.getNetwork(netId).getStpIds()) {
+                Stp stp = topo.getNetwork(netId).getStp(stpId);
+                if (stp.remote == null) {
+                    System.out.println("  "+stp.localId);
+                } else {
+                    System.out.println("  "+stp.localId+" -- "+stp.remote.localId);
+                }
             }
         }
 

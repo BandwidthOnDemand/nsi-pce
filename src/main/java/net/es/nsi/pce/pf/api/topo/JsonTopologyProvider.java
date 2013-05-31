@@ -21,7 +21,7 @@ public class JsonTopologyProvider implements TopologyProvider {
         Topology topo = new Topology();
         for (String networkId : cfg.getNetworkIds()) {
             Network net = new Network();
-            net.networkId = networkId;
+            net.setNetworkId(networkId);
             topo.setNetwork(networkId, net);
 
             for (TopoStpConfig stpConfig : cfg.getConfig(networkId).stps) {
