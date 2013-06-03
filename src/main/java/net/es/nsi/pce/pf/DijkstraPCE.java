@@ -8,10 +8,7 @@ import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.pf.api.cons.PathEndpoints;
-import net.es.nsi.pce.pf.api.topo.JsonTopologyProvider;
-import net.es.nsi.pce.pf.api.topo.Network;
-import net.es.nsi.pce.pf.api.topo.Stp;
-import net.es.nsi.pce.pf.api.topo.Topology;
+import net.es.nsi.pce.pf.api.topo.*;
 
 import java.util.List;
 
@@ -50,26 +47,30 @@ public class DijkstraPCE implements PCEModule {
             System.out.println("edges for network "+netId);
             Network net = topo.getNetwork(netId);
             Stp networkVertex = new Stp();
-            networkVertex.network = net;
-            networkVertex.localId = netId;
+            networkVertex.setNetwork(net);
+            networkVertex.setLocalId(netId);
 
             for (String stpId : net.getStpIds()) {
                 Stp stp = net.getStp(stpId);
-                Stp remote = stp.remote;
-                String netEdge      = "  "+stp.localId+" -- "+networkVertex.localId;
-                String netEdgeInv   = "  "+networkVertex.localId+" -- "+stp.localId;
+                String netEdge      = "  "+stp.getLocalId()+" -- "+networkVertex.getLocalId();
+                String netEdgeInv   = "  "+networkVertex.getLocalId()+" -- "+stp.getLocalId();
+                System.out.println(netEdge);
+                System.out.println(netEdgeInv);
 
                 g.addEdge(netEdge,      stp, networkVertex, EdgeType.DIRECTED);
                 g.addEdge(netEdgeInv,   networkVertex, stp, EdgeType.DIRECTED);
 
-                if (remote != null) {
-                    String remEdge      = "  "+stp.localId+" -- "+remote.localId;
-                    g.addEdge(remEdge,      stp, stp.remote, EdgeType.DIRECTED);
-                    System.out.println(remEdge);
+                for (StpConnection conn: net.getConnectionsFrom(stp)) {
+                    Stp remote = conn.getZ();
+
+                    if (remote != null) {
+                        String remEdge      = "  "+stp.getLocalId()+" -- "+remote.getLocalId();
+                        g.addEdge(remEdge,  stp, remote, EdgeType.DIRECTED);
+                        System.out.println(remEdge);
+                    }
+
                 }
 
-                System.out.println(netEdge);
-                System.out.println(netEdgeInv);
             }
         }
 

@@ -8,9 +8,7 @@ import net.es.nsi.pce.config.nsa.auth.NsaConfigAuthProvider;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.PathEndpoints;
-import net.es.nsi.pce.pf.api.topo.Network;
-import net.es.nsi.pce.pf.api.topo.Stp;
-import net.es.nsi.pce.svc.api.AuthMethod;
+
 import net.es.nsi.pce.svc.api.AuthObject;
 import net.es.nsi.pce.svc.api.PathObject;
 import net.es.nsi.pce.svc.api.StpObject;

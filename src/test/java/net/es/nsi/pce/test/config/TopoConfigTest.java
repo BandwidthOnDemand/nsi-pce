@@ -1,9 +1,7 @@
 package net.es.nsi.pce.test.config;
 
 import net.es.nsi.pce.config.topo.JsonTopoConfigProvider;
-import net.es.nsi.pce.pf.api.topo.JsonTopologyProvider;
-import net.es.nsi.pce.pf.api.topo.Stp;
-import net.es.nsi.pce.pf.api.topo.Topology;
+import net.es.nsi.pce.pf.api.topo.*;
 import org.testng.annotations.Test;
 
 public class TopoConfigTest {
@@ -28,12 +26,17 @@ public class TopoConfigTest {
         Topology topo = jtp.getTopology();
         for (String netId : topo.getNetworkIds()) {
             System.out.println(netId);
-            for (String stpId : topo.getNetwork(netId).getStpIds()) {
-                Stp stp = topo.getNetwork(netId).getStp(stpId);
-                if (stp.remote == null) {
-                    System.out.println("  "+stp.localId);
+            Network net = topo.getNetwork(netId);
+            for (String stpId : net.getStpIds()) {
+                Stp stp = net.getStp(stpId);
+
+                if (net.getConnectionsFrom(stp).isEmpty()) {
+                    System.out.println("  "+stp.getLocalId());
                 } else {
-                    System.out.println("  "+stp.localId+" -- "+stp.remote.localId);
+                    for (StpConnection conn : net.getConnectionsFrom(stp)) {
+                        System.out.println("  "+stp.getLocalId()+" -- "+conn.getZ().getLocalId());
+
+                    }
                 }
             }
         }

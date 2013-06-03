@@ -26,9 +26,9 @@ public class JsonTopologyProvider implements TopologyProvider {
 
             for (TopoStpConfig stpConfig : cfg.getConfig(networkId).stps) {
                 Stp stp = new Stp();
-                stp.localId = stpConfig.localId;
-                stp.network = net;
-                net.put(stp.localId, stp);
+                stp.setLocalId(stpConfig.localId);
+                stp.setNetwork(net);
+                net.put(stp.getLocalId(), stp);
             }
         }
 
@@ -43,7 +43,11 @@ public class JsonTopologyProvider implements TopologyProvider {
                     String l = stpConfig.localId;
                     Network n = topo.getNetwork(networkId);
                     Stp stp = n.getStp(l);
-                    stp.remote = rstp;
+                    StpConnection conn = new StpConnection();
+                    conn.setA(stp);
+                    conn.setZ(rstp);
+                    n.getStpConnections().add(conn);
+
                 }
             }
         }
