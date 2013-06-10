@@ -43,14 +43,14 @@ public class PathfinderCore {
         PCEData result = pretend.apply(pceData);
 
         for (StpPair stpPair: result.getPath().getStpPairs() ) {
-            String networkId = stpPair.getA().network.getNetworkId();
+            String networkId = stpPair.getA().getNetwork().getNetworkId();
 
             PathObject pathObj = new PathObject();
             StpObject aStpObj = new StpObject();
-            aStpObj.localId = stpPair.getA().localId;
+            aStpObj.localId = stpPair.getA().getLocalId();
             aStpObj.networkId = networkId;
             StpObject zStpObj = new StpObject();
-            zStpObj.localId = stpPair.getZ().localId;
+            zStpObj.localId = stpPair.getZ().getLocalId();
             zStpObj.networkId = networkId;
 
             pathObj.sourceStp = aStpObj;

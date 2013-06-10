@@ -25,11 +25,11 @@ public class PretendPCE implements PCEModule {
             Network srcNet = new Network();
             srcNet.setNetworkId(pe.getSrcNetwork());
             Stp a = new Stp();
-            a.localId = pe.getSrcLocal();
-            a.network = srcNet;
+            a.setLocalId(pe.getSrcLocal());
+            a.setNetwork(srcNet);
             Stp z = new Stp();
-            z.localId = pe.getDstLocal();
-            z.network = srcNet;
+            z.setLocalId(pe.getDstLocal());
+            z.setNetwork(srcNet);
             StpPair stpPair = new StpPair();
             stpPair.setA(a);
             stpPair.setZ(z);
@@ -42,21 +42,21 @@ public class PretendPCE implements PCEModule {
             Network dstNet = new Network();
             dstNet.setNetworkId(pe.getDstNetwork());
             Stp a = new Stp();
-            a.localId = pe.getSrcLocal();
-            a.network = srcNet;
+            a.setLocalId(pe.getSrcLocal());
+            a.setNetwork(srcNet);
 
             Stp b = new Stp();
-            b.localId = "pretend-B";
-            b.network = srcNet;
+            b.setLocalId("pretend-B");
+            b.setNetwork(srcNet);
 
 
             Stp y = new Stp();
-            y.localId = "pretend-Y";
-            y.network = dstNet;
+            y.setLocalId("pretend-Y");
+            y.setNetwork(dstNet);
 
             Stp z = new Stp();
-            z.localId = pe.getDstLocal();
-            z.network = dstNet;
+            z.setLocalId(pe.getDstLocal());
+            z.setNetwork(dstNet);
 
             StpPair first = new StpPair();
             first.setA(a);
