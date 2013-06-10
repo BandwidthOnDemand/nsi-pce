@@ -10,19 +10,9 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Set;
 
-public class JsonNsaConfigProvider  extends JsonConfigProvider {
+public class JsonNsaConfigProvider  extends JsonConfigProvider implements NsaConfigProvider {
     private HashMap<String, NsaConfig> configs = new  HashMap<String, NsaConfig>();
 
-    static JsonNsaConfigProvider instance;
-    private JsonNsaConfigProvider() {
-
-    }
-    public static JsonNsaConfigProvider getInstance() {
-        if (instance == null) {
-            instance = new JsonNsaConfigProvider();
-        }
-        return instance;
-    }
 
     public void loadConfig() throws Exception {
 
@@ -33,6 +23,12 @@ public class JsonNsaConfigProvider  extends JsonConfigProvider {
 
         configs = gson.fromJson(json, type);
     }
+
+    public void afterPropertiesSet() throws Exception {
+        this.loadConfig();
+    }
+
+
 
     public NsaConfig getConfig(String nsaId) {
         return configs.get(nsaId);

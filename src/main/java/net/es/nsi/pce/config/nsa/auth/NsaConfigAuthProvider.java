@@ -1,6 +1,8 @@
 package net.es.nsi.pce.config.nsa.auth;
 
+import net.es.nsi.pce.config.SpringContext;
 import net.es.nsi.pce.config.nsa.JsonNsaConfigProvider;
+import net.es.nsi.pce.config.nsa.NsaConfigProvider;
 import net.es.nsi.pce.svc.api.AuthMethod;
 
 import java.util.HashMap;
@@ -17,15 +19,22 @@ public class NsaConfigAuthProvider implements AuthProvider {
     }
 
 
+    public void afterPropertiesSet() throws Exception {
+        return;
+    }
+
     public AuthMethod getMethod(String nsaId) {
-        JsonNsaConfigProvider prov = JsonNsaConfigProvider.getInstance();
-        return prov.getConfig(nsaId).auth.method;
+        SpringContext sc = SpringContext.getInstance();
+        NsaConfigProvider ncp = (NsaConfigProvider) sc.getContext().getBean("nsaConfigProvider");
+
+        return ncp.getConfig(nsaId).auth.method;
     }
 
     public Map<AuthCredential, String> getCredentials(String nsaId) {
-        JsonNsaConfigProvider prov = JsonNsaConfigProvider.getInstance();
+        SpringContext sc = SpringContext.getInstance();
+        NsaConfigProvider ncp = (NsaConfigProvider) sc.getContext().getBean("nsaConfigProvider");
 
-        AuthConfig ac = prov.getConfig(nsaId).auth;
+        AuthConfig ac = ncp.getConfig(nsaId).auth;
         HashMap<AuthCredential, String> res = new HashMap<AuthCredential, String>();
         if (ac.username != null) {
             res.put(AuthCredential.USERNAME, ac.username);

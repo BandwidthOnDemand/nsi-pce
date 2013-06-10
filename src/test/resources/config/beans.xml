@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="nsaConfigProvider" class="net.es.nsi.pce.config.nsa.JsonNsaConfigProvider" scope="singleton">
+        <property name="filename" value="src/test/resources/config/nsa.json"/>
+    </bean>
+    <bean id="authProvider" class="net.es.nsi.pce.config.nsa.auth.NsaConfigAuthProvider" scope="singleton">
+    </bean>
+    <bean id="httpConfigProvider"
+          class="net.es.nsi.pce.config.http.JsonHttpConfigProvider"
+          init-method="loadConfig"
+          scope="singleton">
+        <property name="filename" value="src/test/resources/config/http.json"/>
+    </bean>
+    <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.JsonTopologyProvider" scope="singleton">
+        <property name="filename" value="src/test/resources/config/topo.json"/>
+    </bean>
+
+</beans>

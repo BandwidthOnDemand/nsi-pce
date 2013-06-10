@@ -3,7 +3,9 @@ package net.es.nsi.pce.pf;
 
 import net.es.nsi.pce.config.nsa.JsonNsaConfigProvider;
 import net.es.nsi.pce.config.nsa.NsaConfig;
+import net.es.nsi.pce.config.nsa.NsaConfigProvider;
 import net.es.nsi.pce.config.nsa.auth.AuthCredential;
+import net.es.nsi.pce.config.nsa.auth.AuthProvider;
 import net.es.nsi.pce.config.nsa.auth.NsaConfigAuthProvider;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.StpPair;
@@ -12,6 +14,8 @@ import net.es.nsi.pce.pf.api.cons.PathEndpoints;
 import net.es.nsi.pce.svc.api.AuthObject;
 import net.es.nsi.pce.svc.api.PathObject;
 import net.es.nsi.pce.svc.api.StpObject;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -20,13 +24,11 @@ public class PathfinderCore {
 
     public ArrayList<PathObject> findPath(StpObject src, StpObject dst) throws Exception {
         ArrayList<PathObject> po = new ArrayList<PathObject>();
-        JsonNsaConfigProvider nsaConfProvider = JsonNsaConfigProvider.getInstance();
-        NsaConfigAuthProvider authConfProvider = NsaConfigAuthProvider.getInstance();
 
-        nsaConfProvider.loadConfig();
+        ApplicationContext context = new ClassPathXmlApplicationContext("config/beans.xml");
 
-
-
+        NsaConfigProvider ncp = (NsaConfigProvider) context.getBean("nsaConfigProvider");
+        AuthProvider ap = (AuthProvider) context.getBean("authProvider");
 
 
         PCEData pceData = new PCEData();
@@ -37,7 +39,6 @@ public class PathfinderCore {
         pe.setDstLocal(dst.localId);
         pe.setDstNetwork(dst.networkId);
         pceData.getConstraints().add(pe);
-
 
         PretendPCE pretend = new PretendPCE();
         PCEData result = pretend.apply(pceData);
@@ -56,14 +57,14 @@ public class PathfinderCore {
             pathObj.sourceStp = aStpObj;
             pathObj.destinationStp = zStpObj;
 
-            String nsaId = nsaConfProvider.getNsaId(networkId);
-            NsaConfig nsaConfig = nsaConfProvider.getConfigFromNetworkId(networkId);
+            String nsaId = ncp.getNsaId(networkId);
+            NsaConfig nsaConfig = ncp.getConfigFromNetworkId(networkId);
             pathObj.nsa = nsaId;
             pathObj.providerUrl = nsaConfig.providerUrl;
 
             AuthObject ao = new AuthObject();
-            Map<AuthCredential, String> credentials = authConfProvider.getCredentials(nsaId);
-            ao.method = authConfProvider.getMethod(nsaId);
+            Map<AuthCredential, String> credentials = ap.getCredentials(nsaId);
+            ao.method = ap.getMethod(nsaId);
 
             if (credentials.containsKey(AuthCredential.TOKEN)) {
                 ao.token = credentials.get(AuthCredential.TOKEN);

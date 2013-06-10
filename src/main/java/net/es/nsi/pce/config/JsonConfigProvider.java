@@ -3,7 +3,7 @@ package net.es.nsi.pce.config;
 
 import java.io.File;
 
-public class JsonConfigProvider {
+public abstract class JsonConfigProvider implements ConfigProvider {
     private String filename;
 
     private long timeStamp;
@@ -29,4 +29,6 @@ public class JsonConfigProvider {
     public void setFilename(String filename) {
         this.filename = filename;
     }
+
+
 }

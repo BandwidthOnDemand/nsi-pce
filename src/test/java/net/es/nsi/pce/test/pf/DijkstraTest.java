@@ -1,21 +1,31 @@
 package net.es.nsi.pce.test.pf;
 
-import net.es.nsi.pce.config.topo.JsonTopoConfigProvider;
+import net.es.nsi.pce.config.SpringContext;
 import net.es.nsi.pce.pf.DijkstraPCE;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.cons.PathEndpoints;
-import net.es.nsi.pce.pf.api.topo.JsonTopologyProvider;
 import net.es.nsi.pce.pf.api.topo.Topology;
+import net.es.nsi.pce.pf.api.topo.TopologyProvider;
+import org.springframework.context.ApplicationContext;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
 public class DijkstraTest {
+    private ApplicationContext context;
+
+
+    @BeforeSuite(groups = {"pf"})
+    public void loadSpring() {
+        SpringContext sc = SpringContext.getInstance();
+        context = sc.initContext("src/test/resources/config/beans.xml");
+    }
+
     @Test(groups = "pf")
     public void testDijkstra() throws Exception {
-        JsonTopoConfigProvider prov = JsonTopoConfigProvider.getInstance();
-        prov.setFilename("src/test/resources/config/topo.json");
-        JsonTopologyProvider jtp = JsonTopologyProvider.getInstance();
+        TopologyProvider prov = (TopologyProvider) context.getBean("topologyProvider");
+        prov.loadTopology();
 
-        Topology topo = jtp.getTopology();
+        Topology topo = prov.getTopology();
 
         PCEData pceData = new PCEData();
 

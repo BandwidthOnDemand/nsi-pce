@@ -10,21 +10,11 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
-public class JsonHttpConfigProvider extends JsonConfigProvider {
+public class JsonHttpConfigProvider  extends JsonConfigProvider implements HttpConfigProvider {
 
 
     private HashMap<String, HttpConfig> configs = new HashMap<String, HttpConfig>();
 
-    private static JsonHttpConfigProvider instance = new JsonHttpConfigProvider();
-
-
-
-    public static JsonHttpConfigProvider getInstance() {
-        return instance;
-    }
-
-    private JsonHttpConfigProvider() {
-    }
 
     public void loadConfig() throws Exception {
 
