@@ -11,17 +11,24 @@ import java.util.HashMap;
 import java.util.Set;
 
 public class JsonNsaConfigProvider  extends JsonConfigProvider implements NsaConfigProvider {
-    private HashMap<String, NsaConfig> configs = new  HashMap<String, NsaConfig>();
+    private HashMap<String, NsaConfig> configs = new  HashMap<>();
 
 
     public void loadConfig() throws Exception {
 
         File configFile = new File(this.getFilename());
+        // System.out.println("file: "+this.getFilename());
+
         String json = FileUtils.readFileToString(configFile);
         Gson gson = new Gson();
         Type type = new TypeToken<HashMap<String, NsaConfig>>() {}.getType();
 
         configs = gson.fromJson(json, type);
+        for (String nsaId : configs.keySet()) {
+            NsaConfig cfg = configs.get(nsaId);
+            // System.out.println(nsaId + " "+cfg.networkId);
+        }
+
     }
 
     public void afterPropertiesSet() throws Exception {

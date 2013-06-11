@@ -1,13 +1,13 @@
 package net.es.nsi.pce.pf;
 
 
-import net.es.nsi.pce.config.nsa.JsonNsaConfigProvider;
+import net.es.nsi.pce.config.SpringContext;
 import net.es.nsi.pce.config.nsa.NsaConfig;
 import net.es.nsi.pce.config.nsa.NsaConfigProvider;
 import net.es.nsi.pce.config.nsa.auth.AuthCredential;
 import net.es.nsi.pce.config.nsa.auth.AuthProvider;
-import net.es.nsi.pce.config.nsa.auth.NsaConfigAuthProvider;
 import net.es.nsi.pce.pf.api.PCEData;
+import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.PathEndpoints;
 
@@ -15,7 +15,6 @@ import net.es.nsi.pce.svc.api.AuthObject;
 import net.es.nsi.pce.svc.api.PathObject;
 import net.es.nsi.pce.svc.api.StpObject;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -24,8 +23,8 @@ public class PathfinderCore {
 
     public ArrayList<PathObject> findPath(StpObject src, StpObject dst) throws Exception {
         ArrayList<PathObject> po = new ArrayList<PathObject>();
-
-        ApplicationContext context = new ClassPathXmlApplicationContext("config/beans.xml");
+        SpringContext sc  = SpringContext.getInstance();
+        ApplicationContext context = sc.getContext();
 
         NsaConfigProvider ncp = (NsaConfigProvider) context.getBean("nsaConfigProvider");
         AuthProvider ap = (AuthProvider) context.getBean("authProvider");
@@ -40,8 +39,13 @@ public class PathfinderCore {
         pe.setDstNetwork(dst.networkId);
         pceData.getConstraints().add(pe);
 
-        PretendPCE pretend = new PretendPCE();
-        PCEData result = pretend.apply(pceData);
+
+
+        PCEModule pce = (PCEModule) context.getBean("entryPCE");
+        PCEData result = pce.apply(pceData);
+
+
+
 
         for (StpPair stpPair: result.getPath().getStpPairs() ) {
             String networkId = stpPair.getA().getNetwork().getNetworkId();
