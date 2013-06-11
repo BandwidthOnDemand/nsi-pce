@@ -30,9 +30,22 @@
                   value="src/test/resources/config/topo.json"/>
     </bean>
 
+    <bean id="DijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="singleton">
+    </bean>
+    <bean id="AuthPCE" class="net.es.nsi.pce.pf.AuthPCE" scope="singleton">
+    </bean>
+    <bean id="PretendPCE" class="net.es.nsi.pce.pf.PretendPCE" scope="singleton">
+    </bean>
+
     <bean id="entryPCE"
-          class="net.es.nsi.pce.pf.ComposerPCE"
+          class="net.es.nsi.pce.pf.SequentialPCE"
           scope="singleton">
+        <property name="moduleList">
+            <list>
+                <ref bean="AuthPCE" />
+                <ref bean="DijkstraPCE" />
+            </list>
+        </property>
     </bean>
 
 </beans>
