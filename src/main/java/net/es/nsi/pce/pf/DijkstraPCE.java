@@ -7,7 +7,7 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.cons.Constraint;
-import net.es.nsi.pce.pf.api.cons.PathEndpoints;
+import net.es.nsi.pce.pf.api.cons.TopoPathEndpoints;
 import net.es.nsi.pce.pf.api.topo.*;
 
 import java.util.List;
@@ -15,10 +15,10 @@ import java.util.List;
 public class DijkstraPCE implements PCEModule {
 
     public PCEData apply(PCEData pceData) throws Exception {
-        PathEndpoints pe = null;
+        TopoPathEndpoints pe = null;
         for (Constraint c : pceData.getConstraints()) {
-            if (c instanceof PathEndpoints) {
-                pe = (PathEndpoints) c;
+            if (c instanceof TopoPathEndpoints) {
+                pe = (TopoPathEndpoints) c;
             }
         }
 

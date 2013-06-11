@@ -5,16 +5,16 @@ import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.Constraint;
-import net.es.nsi.pce.pf.api.cons.PathEndpoints;
+import net.es.nsi.pce.pf.api.cons.TopoPathEndpoints;
 import net.es.nsi.pce.pf.api.topo.Network;
 import net.es.nsi.pce.pf.api.topo.Stp;
 
 public class PretendPCE implements PCEModule {
     public PCEData apply(PCEData pceData) throws Exception {
-        PathEndpoints pe = null;
+        TopoPathEndpoints pe = null;
         for (Constraint c : pceData.getConstraints()) {
-            if (c instanceof PathEndpoints) {
-                pe = (PathEndpoints) c;
+            if (c instanceof TopoPathEndpoints) {
+                pe = (TopoPathEndpoints) c;
             }
         }
         Path path = new Path();

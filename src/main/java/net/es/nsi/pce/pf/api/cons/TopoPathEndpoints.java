@@ -1,7 +1,7 @@
 package net.es.nsi.pce.pf.api.cons;
 
 
-public class PathEndpoints extends Constraint {
+public class TopoPathEndpoints extends TopoConstraint {
     private String srcLocal;
     private String srcNetwork;
 

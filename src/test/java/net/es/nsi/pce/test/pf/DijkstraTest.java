@@ -4,7 +4,7 @@ import net.es.nsi.pce.config.SpringContext;
 import net.es.nsi.pce.pf.DijkstraPCE;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
-import net.es.nsi.pce.pf.api.cons.PathEndpoints;
+import net.es.nsi.pce.pf.api.cons.TopoPathEndpoints;
 import net.es.nsi.pce.pf.api.topo.Topology;
 import net.es.nsi.pce.pf.api.topo.TopologyProvider;
 import org.springframework.context.ApplicationContext;
@@ -33,7 +33,7 @@ public class DijkstraTest {
         pceData.setTopo(topo);
 
 
-        PathEndpoints pe = new PathEndpoints();
+        TopoPathEndpoints pe = new TopoPathEndpoints();
         pe.setSrcLocal("surfnet-edge");
         pe.setSrcNetwork("urn:ogf:network:stp:surfnet.nl");
         pe.setDstLocal("esnet-edge-one");
@@ -57,14 +57,14 @@ public class DijkstraTest {
         pceData.setTopo(topo);
 
 
-        PathEndpoints pe = new PathEndpoints();
+        TopoPathEndpoints pe = new TopoPathEndpoints();
         pe.setSrcLocal("surfnet-edge");
         pe.setSrcNetwork("urn:ogf:network:stp:surfnet.nl");
         pe.setDstLocal("esnet-edge-one");
         pe.setDstNetwork("urn:ogf:network:stp:es.net");
         pceData.getConstraints().add(pe);
 
-        PCEModule pce = (PCEModule) context.getBean("entryPCE");
+        PCEModule pce = (PCEModule) context.getBean("chainPCE");
         pce.apply(pceData);
 
     }

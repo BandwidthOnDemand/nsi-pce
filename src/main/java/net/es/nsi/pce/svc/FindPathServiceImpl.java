@@ -21,7 +21,7 @@ public class FindPathServiceImpl implements FindPathService {
 
         PathfinderCore pathfinderCore = new PathfinderCore();
         try {
-            resp.path = pathfinderCore.findPath(request.sourceStp, request.destinationStp);
+            resp.path = pathfinderCore.findPath(request.sourceStp, request.destinationStp, request.algorithm);
             resp.status = FindPathStatus.SUCCESS;
             resp.message = "all good!";
         } catch (Exception ex) {

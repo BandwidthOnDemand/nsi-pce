@@ -1,10 +1,10 @@
 {
     "pce": {
-        "url": "http://jupiter.es.net:8400/",
+        "url": "http://localhost:8400/",
         "bus": "config/jetty.xml"
     },
     "agg": {
-        "url": "http://jupiter.es.net:8400/",
+        "url": "http://localhost:8401/",
         "bus": "config/jetty.xml"
     }
 

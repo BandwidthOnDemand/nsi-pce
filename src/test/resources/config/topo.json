@@ -1,55 +1,62 @@
 {
-  "urn:ogf:network:stp:es.net": {
-    "stps": [
-      {
-        "localId": "esnet-edge-one"
-      },
-      {
-        "localId": "esnet-edge-two"
-      },
-      {
-        "localId": "to-surfnet",
-        "remoteNetworkId": "urn:ogf:network:stp:surfnet.nl",
-        "remoteLocalId": "to-esnet",
-        "cost": 100
-      },
-      {
-        "localId": "to-internet2",
-        "remoteNetworkId": "urn:ogf:network:stp:internet2.edu",
-        "remoteLocalId": "to-esnet",
-        "cost": 100
-      }
-    ]
-  },
+    "urn:ogf:network:stp:es.net": {
+        "stps": [
+            {
+                "localId": "esnet-edge-one"
+            },
+            {
+                "localId": "esnet-edge-two"
+            },
+            {
+                "localId": "to-surfnet",
+                "remoteNetworkId": "urn:ogf:network:stp:surfnet.nl",
+                "remoteLocalId": "to-esnet",
+                "cost": 100
+            },
+            {
+                "localId": "to-internet2",
+                "remoteNetworkId": "urn:ogf:network:stp:internet2.edu",
+                "remoteLocalId": "to-esnet",
+                "cost": 100
+            }
+        ]
+    },
 
 
-  "urn:ogf:network:stp:internet2.edu": {
-    "stps": [
-      {
-        "localId": "i2-edge"
-      },
-      {
-        "localId": "to-esnet",
-        "remoteNetworkId": "urn:ogf:network:stp:es.net",
-        "remoteLocalId": "to-internet2",
-        "cost": 100
-      }
-    ]
-  },
+    "urn:ogf:network:stp:internet2.edu": {
+        "stps": [
+            {
+                "localId": "i2-edge"
+            },
+            {
+                "localId": "to-esnet",
+                "remoteNetworkId": "urn:ogf:network:stp:es.net",
+                "remoteLocalId": "to-internet2",
+                "cost": 100
+            }
+        ]
+    },
 
+    "urn:ogf:network:stp:surfnet.nl": {
+        "stps": [
+            {
+                "localId": "surfnet-edge"
+            },
+            {
+                "localId": "to-esnet",
+                "remoteNetworkId": "urn:ogf:network:stp:es.net",
+                "remoteLocalId": "to-surfnet",
+                "cost": 100
+            }
+        ]
+    },
 
-  "urn:ogf:network:stp:surfnet.nl": {
-    "stps": [
-      {
-        "localId": "surfnet-edge"
-      },
-      {
-        "localId": "to-esnet",
-        "remoteNetworkId": "urn:ogf:network:stp:es.net",
-        "remoteLocalId": "to-surfnet",
-        "cost": 100
-      }
-    ]
-  }
+    "urn:ogf:network:stp:manlan.internet2.edu": {
+        "stps": [
+            {
+                "localId": "manlan-edge"
+            }
+        ]
+    }
 
 }

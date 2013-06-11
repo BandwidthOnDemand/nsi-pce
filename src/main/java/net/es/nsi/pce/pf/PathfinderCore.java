@@ -9,9 +9,10 @@ import net.es.nsi.pce.config.nsa.auth.AuthProvider;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.StpPair;
-import net.es.nsi.pce.pf.api.cons.PathEndpoints;
+import net.es.nsi.pce.pf.api.cons.TopoPathEndpoints;
 
 import net.es.nsi.pce.svc.api.AuthObject;
+import net.es.nsi.pce.svc.api.FindPathAlgorithm;
 import net.es.nsi.pce.svc.api.PathObject;
 import net.es.nsi.pce.svc.api.StpObject;
 import org.springframework.context.ApplicationContext;
@@ -21,7 +22,8 @@ import java.util.Map;
 
 public class PathfinderCore {
 
-    public ArrayList<PathObject> findPath(StpObject src, StpObject dst) throws Exception {
+
+    public ArrayList<PathObject> findPath(StpObject src, StpObject dst, FindPathAlgorithm algorithm) throws Exception {
         ArrayList<PathObject> po = new ArrayList<PathObject>();
         SpringContext sc  = SpringContext.getInstance();
         ApplicationContext context = sc.getContext();
@@ -32,19 +34,26 @@ public class PathfinderCore {
 
         PCEData pceData = new PCEData();
 
-        PathEndpoints pe = new PathEndpoints();
+        TopoPathEndpoints pe = new TopoPathEndpoints();
         pe.setSrcLocal(src.localId);
         pe.setSrcNetwork(src.networkId);
+
         pe.setDstLocal(dst.localId);
         pe.setDstNetwork(dst.networkId);
         pceData.getConstraints().add(pe);
 
+        PCEModule pce;
+        if (algorithm.equals(FindPathAlgorithm.CHAIN)) {
+            pce = (PCEModule) context.getBean("chainPCE");
 
+        } else if (algorithm.equals(FindPathAlgorithm.TREE)) {
+            pce = (PCEModule) context.getBean("treePCE");
 
-        PCEModule pce = (PCEModule) context.getBean("entryPCE");
+        } else {
+            throw new Exception("no algorithm in request");
+        }
+
         PCEData result = pce.apply(pceData);
-
-
 
 
         for (StpPair stpPair: result.getPath().getStpPairs() ) {

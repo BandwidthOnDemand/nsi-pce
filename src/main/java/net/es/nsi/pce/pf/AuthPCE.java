@@ -28,7 +28,10 @@ public class AuthPCE implements PCEModule {
             AuthMethod method = ap.getMethod(nsaId);
             Map<AuthCredential, String> credentials = ap.getCredentials(nsaId);
 
-            if (method.equals(AuthMethod.NONE)) {
+            if (method == null) {
+                System.out.println("no auth method known for network "+networkId+", not including it in topology");
+
+            } else if (method.equals(AuthMethod.NONE)) {
                 newTopo.setNetwork(networkId, topo.getNetwork(networkId));
             } else {
                 if (credentials == null || credentials.isEmpty()) {
@@ -37,7 +40,6 @@ public class AuthPCE implements PCEModule {
                     newTopo.setNetwork(networkId, topo.getNetwork(networkId));
                 }
             }
-
         }
 
 

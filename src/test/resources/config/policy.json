@@ -1,0 +1,40 @@
+{
+    "entries": [
+        {
+            "matchAny": [
+                "isEsnet"
+            ],
+            "action": "reject"
+        },
+        {
+            "matchAll": [
+                "isSurfnet",
+                "highCost"
+            ],
+            "action": "reject"
+        }
+    ],
+
+    "criteria": {
+        "isEsnet": {
+            "topoInNetwork": "urn:ogf:network:stp:es.net"
+        },
+        "isSurfnet": {
+            "topoInNetwork": "urn:ogf:network:stp:surfnet.nl"
+        },
+        "isNotGreen": {
+            "stringAttrContains": {
+                "name": "green",
+                "inverse": true
+            }
+        },
+        "highCost": {
+            "numAttrComparesTo": {
+                "name": "cost",
+                "val": 100,
+                "comparison": "GREATER_THAN"
+
+            }
+        }
+    }
+}
