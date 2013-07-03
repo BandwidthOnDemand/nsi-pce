@@ -13,7 +13,7 @@ import net.es.nsadb.nsa.svc.api.NsaListResponse;
 import net.es.nsadb.nsa.svc.api.NsaProviderService;
 import net.es.nsi.pce.config.SpringContext;
 import net.es.nsi.pce.config.nsa.auth.AuthCredential;
-import net.es.nsi.pce.config.nsa.auth.NsaDbClientAuthProvider;
+import net.es.nsi.pce.config.nsa.auth.DbClientAuthProvider;
 import net.es.nsi.pce.svc.api.AuthMethod;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.springframework.context.ApplicationContext;
@@ -37,11 +37,11 @@ public class NsaDbTest {
     public void testAuthConfig() throws Exception {
         System.out.println("**********\ntesting NSA db");
 
-        NsaDbClientAuthProvider ap = (NsaDbClientAuthProvider) context.getBean("dbAuthProvider");
+        DbClientAuthProvider ap = (DbClientAuthProvider) context.getBean("dbAuthProvider");
 
         String nsaId = "foo.net";
         Map<String, Long> ids;
-        ids = this.insertRecords(ap, nsaId);
+        ids = this.insertRecords(nsaId);
 
         AuthMethod am = ap.getMethod(nsaId);
         System.out.println(nsaId+ " method: "+am);
@@ -63,13 +63,14 @@ public class NsaDbTest {
         ids.put("auth", 5L);
         ids.put("nsa", 3L);
         */
-        this.deleteRecords(ap, ids);
+        this.deleteRecords(ids);
 
         System.out.println("testing NSA db done\n**********");
 
     }
 
-    private Map<String, Long> insertRecords(NsaDbClientAuthProvider ap, String nsaId) throws Exception {
+    private Map<String, Long> insertRecords(String nsaId) throws Exception {
+        DbClientAuthProvider ap = (DbClientAuthProvider) context.getBean("dbAuthProvider");
 
         String networkId = "fooNetworkId";
 
@@ -130,7 +131,8 @@ public class NsaDbTest {
 
     }
 
-    private void deleteRecords(NsaDbClientAuthProvider ap, Map<String, Long> ids) {
+    private void deleteRecords(Map<String, Long> ids) {
+        DbClientAuthProvider ap = (DbClientAuthProvider) context.getBean("dbAuthProvider");
         String nsaDbUrl = ap.getNsaDbUrl();
         String authDbUrl = ap.getAuthDbUrl();
 

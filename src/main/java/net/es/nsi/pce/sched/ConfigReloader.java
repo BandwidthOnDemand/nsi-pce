@@ -2,7 +2,6 @@ package net.es.nsi.pce.sched;
 
 
 import net.es.nsi.pce.config.SpringContext;
-import net.es.nsi.pce.config.nsa.NsaConfigProvider;
 import net.es.nsi.pce.pf.api.topo.TopologyProvider;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -15,8 +14,6 @@ public class ConfigReloader implements Job {
 
         // System.out.println("running config reloader");
         try {
-            NsaConfigProvider ncp = (NsaConfigProvider) sc.getContext().getBean("nsaConfigProvider");
-            ncp.loadConfig();
             TopologyProvider tp = (TopologyProvider) sc.getContext().getBean("topologyProvider");
             tp.loadTopology();
 

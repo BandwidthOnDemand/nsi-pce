@@ -17,18 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class NsaDbClientAuthProvider implements AuthProvider {
+public class DbClientAuthProvider implements AuthProvider {
     private String nsaDbUrl;
     private String authDbUrl;
-
-    private static NsaDbClientAuthProvider instance;
-    private NsaDbClientAuthProvider() {}
-    public static NsaDbClientAuthProvider getInstance() {
-        if (instance == null) {
-            instance = new NsaDbClientAuthProvider();
-        }
-        return instance;
-    }
 
     public AuthMethod getMethod(String nsaId) {
 

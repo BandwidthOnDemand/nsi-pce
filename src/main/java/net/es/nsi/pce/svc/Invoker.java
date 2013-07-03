@@ -3,13 +3,9 @@ package net.es.nsi.pce.svc;
 import net.es.nsi.pce.config.SpringContext;
 import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.config.http.HttpConfigProvider;
-import net.es.nsi.pce.config.http.JsonHttpConfigProvider;
-import net.es.nsi.pce.config.nsa.JsonNsaConfigProvider;
-import net.es.nsi.pce.config.nsa.NsaConfigProvider;
-import net.es.nsi.pce.config.nsa.auth.AuthProvider;
+import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
 import net.es.nsi.pce.sched.PCEScheduler;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class Invoker {
     public static void main(String args[]) throws Exception {
@@ -30,8 +26,8 @@ public class Invoker {
         System.out.println("HTTP servers started.");
 
 
-        System.out.print("Loading NSA config... ");
-        NsaConfigProvider ncp = (NsaConfigProvider) context.getBean("nsaConfigProvider");
+        System.out.print("Loading SI config... ");
+        ServiceInfoProvider sip = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
         System.out.println("done.");
 
         System.out.print("Starting task scheduler...");

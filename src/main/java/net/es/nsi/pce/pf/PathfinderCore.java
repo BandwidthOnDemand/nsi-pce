@@ -2,8 +2,9 @@ package net.es.nsi.pce.pf;
 
 
 import net.es.nsi.pce.config.SpringContext;
-import net.es.nsi.pce.config.nsa.NsaConfig;
-import net.es.nsi.pce.config.nsa.NsaConfigProvider;
+
+import net.es.nsi.pce.config.nsa.ServiceInfo;
+import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
 import net.es.nsi.pce.config.nsa.auth.AuthCredential;
 import net.es.nsi.pce.config.nsa.auth.AuthProvider;
 import net.es.nsi.pce.pf.api.PCEData;
@@ -28,7 +29,7 @@ public class PathfinderCore {
         SpringContext sc  = SpringContext.getInstance();
         ApplicationContext context = sc.getContext();
 
-        NsaConfigProvider ncp = (NsaConfigProvider) context.getBean("nsaConfigProvider");
+        ServiceInfoProvider sip = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
         AuthProvider ap = (AuthProvider) context.getBean("authProvider");
 
 
@@ -70,14 +71,15 @@ public class PathfinderCore {
             pathObj.sourceStp = aStpObj;
             pathObj.destinationStp = zStpObj;
 
-            String nsaId = ncp.getNsaId(networkId);
-            NsaConfig nsaConfig = ncp.getConfigFromNetworkId(networkId);
-            pathObj.nsa = nsaId;
-            pathObj.providerUrl = nsaConfig.providerUrl;
+            ServiceInfo si = sip.byNetworkId(networkId);
+
+            pathObj.nsa = si.getNsaId();
+            pathObj.providerUrl = si.getProviderUrl();
+
 
             AuthObject ao = new AuthObject();
-            Map<AuthCredential, String> credentials = ap.getCredentials(nsaId);
-            ao.method = ap.getMethod(nsaId);
+            Map<AuthCredential, String> credentials = ap.getCredentials(si.getNsaId());
+            ao.method = ap.getMethod(si.getNsaId());
 
             if (credentials.containsKey(AuthCredential.TOKEN)) {
                 ao.token = credentials.get(AuthCredential.TOKEN);

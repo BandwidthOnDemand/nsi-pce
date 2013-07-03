@@ -4,13 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.es.nsi.pce.config.JsonConfigProvider;
 import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.InitializingBean;
 
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Set;
 
-public class JsonNsaConfigProvider  extends JsonConfigProvider implements NsaConfigProvider {
+public class JsonNsaConfigProvider  extends JsonConfigProvider implements ServiceInfoProvider, InitializingBean {
     private HashMap<String, NsaConfig> configs = new  HashMap<>();
 
 
@@ -35,31 +36,52 @@ public class JsonNsaConfigProvider  extends JsonConfigProvider implements NsaCon
         this.loadConfig();
     }
 
-
-
     public NsaConfig getConfig(String nsaId) {
         return configs.get(nsaId);
     }
+
 
     public Set<String> getNsaIds() {
         return configs.keySet();
     }
 
-    public NsaConfig getConfigFromNetworkId(String networkId) {
-        for (NsaConfig config : configs.values()) {
-            if (config.networkId.equals(networkId))
-                return config;
+    public ServiceInfo byNsaId(String nsaId) {
+        if (!configs.containsKey(nsaId)) {
+            return null;
         }
-        return null;
+        ServiceInfo si = new ServiceInfo();
+        NsaConfig cfg = configs.get(nsaId);
+        si.setNetworkId(cfg.networkId);
+        si.setNsaId(nsaId);
+        si.setProviderUrl(cfg.providerUrl);
+        return si;
     }
 
-    public String getNsaId(String networkId) {
-        for (String nsaId : configs.keySet()) {
-            NsaConfig conf = configs.get(nsaId);
-            if (conf.networkId.equals(networkId))
-                return nsaId;
+    public ServiceInfo byNetworkId(String networkId) {
+        NsaConfig cfg = null;
+        String nsaId = null;
+        for (String tmp : configs.keySet()) {
+            NsaConfig config = configs.get(tmp);
+            if (config.networkId.equals(networkId)) {
+                cfg = config;
+                nsaId = tmp;
+                break;
+            }
         }
-        return null;
+        // System.out.println("+++networkId:"+networkId+" nsa:"+nsaId);
+        if (cfg == null) {
+            // System.out.println("no cfg");
+            return null;
+        }
+
+        ServiceInfo si = new ServiceInfo();
+        si.setNetworkId(cfg.networkId);
+        si.setProviderUrl(cfg.providerUrl);
+        si.setNsaId(nsaId);
+        return si;
     }
+
+
+
 
 }

@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-    <bean id="nsaConfigProvider"
+    <bean id="serviceInfoProvider"
           init-method="loadConfig"
           class="net.es.nsi.pce.config.nsa.JsonNsaConfigProvider"
           scope="singleton">
@@ -18,7 +18,7 @@
     </bean>
 
     <bean id="dbAuthProvider"
-          class="net.es.nsi.pce.config.nsa.auth.NsaDbClientAuthProvider"
+          class="net.es.nsi.pce.config.nsa.auth.DbClientAuthProvider"
           scope="singleton">
         <property name="authDbUrl" value="http://localhost:8402/" />
         <property name="nsaDbUrl" value="http://localhost:8403/" />
