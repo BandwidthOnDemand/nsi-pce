@@ -16,6 +16,14 @@
           class="net.es.nsi.pce.config.nsa.auth.NsaConfigAuthProvider"
           scope="singleton">
     </bean>
+
+    <bean id="dbAuthProvider"
+          class="net.es.nsi.pce.config.nsa.auth.NsaDbClientAuthProvider"
+          scope="singleton">
+        <property name="authDbUrl" value="http://localhost:8402/" />
+        <property name="nsaDbUrl" value="http://localhost:8403/" />
+    </bean>
+
     <bean id="httpConfigProvider"
           class="net.es.nsi.pce.config.http.JsonHttpConfigProvider"
           init-method="loadConfig"
