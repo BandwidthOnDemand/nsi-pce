@@ -12,6 +12,7 @@ import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.TopoPathEndpoints;
 
+import net.es.nsi.pce.pf.api.topo.TopologyProvider;
 import net.es.nsi.pce.svc.api.AuthObject;
 import net.es.nsi.pce.svc.api.FindPathAlgorithm;
 import net.es.nsi.pce.svc.api.PathObject;
@@ -31,7 +32,8 @@ public class PathfinderCore {
 
         ServiceInfoProvider sip = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
         AuthProvider ap = (AuthProvider) context.getBean("authProvider");
-
+        TopologyProvider tp = (TopologyProvider) context.getBean("topologyProvider");
+        tp.loadTopology();
 
         PCEData pceData = new PCEData();
 
@@ -42,6 +44,7 @@ public class PathfinderCore {
         pe.setDstLocal(dst.localId);
         pe.setDstNetwork(dst.networkId);
         pceData.getConstraints().add(pe);
+        pceData.setTopo(tp.getTopology());
 
         PCEModule pce;
         if (algorithm.equals(FindPathAlgorithm.CHAIN)) {
@@ -51,11 +54,17 @@ public class PathfinderCore {
             pce = (PCEModule) context.getBean("treePCE");
 
         } else {
-            throw new Exception("no algorithm in request");
+            pce = (PCEModule) context.getBean("chainPCE");
         }
 
         PCEData result = pce.apply(pceData);
 
+        if (result == null) {
+            throw new Exception("null result");
+        } else if (result.getPath() == null) {
+
+            throw new Exception("null path");
+        }
 
         for (StpPair stpPair: result.getPath().getStpPairs() ) {
             String networkId = stpPair.getA().getNetwork().getNetworkId();

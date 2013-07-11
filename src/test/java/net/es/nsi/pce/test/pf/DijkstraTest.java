@@ -15,13 +15,13 @@ public class DijkstraTest {
     private ApplicationContext context;
 
 
-    @BeforeSuite(groups = {"pf"})
+    @BeforeSuite(groups = {"pf", "dijkstra"})
     public void loadSpring() {
         SpringContext sc = SpringContext.getInstance();
         context = sc.initContext("src/test/resources/config/beans.xml");
     }
 
-    @Test(groups = "pf")
+    @Test(groups = {"pf", "dijkstra"})
     public void testDijkstra() throws Exception {
         TopologyProvider prov = (TopologyProvider) context.getBean("topologyProvider");
         prov.loadTopology();

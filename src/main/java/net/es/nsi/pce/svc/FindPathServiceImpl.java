@@ -25,6 +25,7 @@ public class FindPathServiceImpl implements FindPathService {
             resp.status = FindPathStatus.SUCCESS;
             resp.message = "all good!";
         } catch (Exception ex) {
+            ex.printStackTrace();
             resp.path = null;
             resp.status = FindPathStatus.FAILED;
             resp.message = "oops!";

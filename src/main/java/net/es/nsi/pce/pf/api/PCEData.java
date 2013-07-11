@@ -8,9 +8,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class PCEData {
-    private Path path;
+    private Path path = new Path();
     private Set<Constraint> constraints = new HashSet<Constraint>();
-    private Topology topo;
+    private Topology topo = new Topology();
 
     public Path getPath() {
         return path;

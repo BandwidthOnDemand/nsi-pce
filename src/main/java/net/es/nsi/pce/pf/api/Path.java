@@ -1,7 +1,6 @@
 package net.es.nsi.pce.pf.api;
 
 
-import net.es.nsi.pce.pf.api.topo.Network;
 
 import java.util.ArrayList;
 import java.util.List;
