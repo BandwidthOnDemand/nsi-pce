@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlElement;
 import java.util.ArrayList;
 
 public class StpObject {
-    @XmlElement(name = "Network-id")
+    @XmlElement(name = "network-id")
     public String networkId;
     @XmlElement(name = "local-id")
     public String localId;

@@ -8,6 +8,7 @@ import java.util.UUID;
 import javax.ws.rs.core.Response;
 
 import net.es.nsi.pce.config.SpringContext;
+import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.svc.AggServer;
 import net.es.nsi.pce.svc.PCEServer;
 import net.es.nsi.pce.svc.api.FindPathAlgorithm;
@@ -30,8 +31,14 @@ public class FindPathTest {
     public void init() throws Exception {
         SpringContext sc = SpringContext.getInstance();
         context = sc.initContext("src/test/resources/config/beans.xml");
-        PCEServer.getInstance(testUrl, "testJetty.xml");
-        AggServer.getInstance(testAggUrl, "testJetty.xml");
+        HttpConfig pceConfig = new HttpConfig();
+        pceConfig.bus = "testJetty.xml";
+        pceConfig.url = testUrl;
+        HttpConfig aggConfig = new HttpConfig();
+        aggConfig.bus = "testJetty.xml";
+        aggConfig.url = testAggUrl;
+        PCEServer.makeServer(pceConfig);
+        AggServer.makeServer(aggConfig);
 
         Thread.sleep(1000);
     }

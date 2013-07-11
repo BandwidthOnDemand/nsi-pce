@@ -47,12 +47,14 @@ public class PathfinderCore {
         pceData.setTopo(tp.getTopology());
 
         PCEModule pce;
-        if (algorithm.equals(FindPathAlgorithm.CHAIN)) {
+        if (algorithm == null) {
+            pce = (PCEModule) context.getBean("chainPCE");
+
+        } else if (algorithm.equals(FindPathAlgorithm.CHAIN)) {
             pce = (PCEModule) context.getBean("chainPCE");
 
         } else if (algorithm.equals(FindPathAlgorithm.TREE)) {
             pce = (PCEModule) context.getBean("treePCE");
-
         } else {
             pce = (PCEModule) context.getBean("chainPCE");
         }

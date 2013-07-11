@@ -14,13 +14,10 @@ public class AggServer {
 
     private static AggServer instance;
 
-    public static AggServer getInstance(String url, String configFile) throws Exception {
-        if (instance == null) {
-            instance = new AggServer(url, configFile);
-        }
+    public static AggServer getInstance() {
         return instance;
     }
-    public static AggServer getInstance(HttpConfig conf) throws Exception {
+    public static AggServer makeServer(HttpConfig conf) throws Exception {
         if (instance == null) {
             instance = new AggServer(conf.url, conf.bus);
         }

@@ -13,14 +13,11 @@ public class PCEServer {
 
     private static PCEServer instance;
 
-    public static PCEServer getInstance(String url, String configFile) throws Exception {
-        if (instance == null) {
-            instance = new PCEServer(url, configFile);
-        }
+    public static PCEServer getInstance() {
         return instance;
     }
 
-    public static PCEServer getInstance(HttpConfig conf) throws Exception {
+    public static PCEServer makeServer(HttpConfig conf) throws Exception {
         if (instance == null) {
             instance = new PCEServer(conf.url, conf.bus);
         }
