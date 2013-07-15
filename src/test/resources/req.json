@@ -1,5 +1,4 @@
 {
- main: {
    "source-stp": {
      "network-id": "urn:ogf:network:stp:es.net",
      "local-id": "esnet-edge-one"
@@ -14,9 +13,8 @@
    "start-time": "2012-11-24T12:32:52.000Z",
    "end-time": "2012-11-24T12:32:52.000Z",
    "bandwidth": 100,
-   "reply-to": "http://localhost:8401/pathreply",
+   "reply-to": "http://localhost:8401/",
    "correlation-id": "dd405615-217f-4c49-8e6f-f7fadf4e029f",
    "algorithm": "chain",
    "constraints": [ ]
- }
  }

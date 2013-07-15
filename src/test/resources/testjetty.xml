@@ -14,7 +14,10 @@
 
 
     <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.json.JSONProvider">
+        <property name="supportUnwrapped" value="true"/>
+        <property name="dropRootElement" value="true"/>
     </bean>
+
 
 
     <httpj:engine-factory bus="cxf">

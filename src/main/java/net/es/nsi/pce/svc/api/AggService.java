@@ -12,7 +12,6 @@ public interface AggService {
 
 
     @POST
-    @Path("/pathreply/")
     @Produces( "application/json" )
     @Consumes( "application/json" )
     Response pathReply(FindPathResponse response);

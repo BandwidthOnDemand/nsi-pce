@@ -43,13 +43,8 @@ public class FindPathServiceImpl implements FindPathService {
             r = Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        // terrible hack
-        aggUrl = aggUrl.replace("pathreply", "");
-
-
         AggService agg = JAXRSClientFactory.create(aggUrl, AggService.class);
         agg.pathReply(resp);
-
 
         return r;
     }

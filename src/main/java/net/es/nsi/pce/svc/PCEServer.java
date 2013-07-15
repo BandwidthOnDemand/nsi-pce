@@ -7,6 +7,7 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
+import org.apache.cxf.jaxrs.provider.json.JSONProvider;
 
 public class PCEServer {
     private org.apache.cxf.endpoint.Server server;
@@ -35,6 +36,11 @@ public class PCEServer {
         sf.setResourceClasses(FindPathServiceImpl.class);
         sf.setResourceProvider(FindPathServiceImpl.class,
                 new SingletonResourceProvider(new FindPathServiceImpl()));
+
+        JSONProvider provider = new JSONProvider();
+        provider.setDropRootElement(true);
+        provider.setSupportUnwrapped(true);
+        sf.setProvider(provider);
         sf.setAddress(url);
         server = sf.create();
     }

@@ -2,10 +2,13 @@ package net.es.nsi.pce.test.client;
 
 import static org.testng.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.Provider;
 
 import net.es.nsi.pce.config.SpringContext;
 import net.es.nsi.pce.config.http.HttpConfig;
@@ -17,6 +20,7 @@ import net.es.nsi.pce.svc.api.FindPathService;
 import net.es.nsi.pce.svc.api.StpObject;
 
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
+import org.apache.cxf.jaxrs.provider.json.JSONProvider;
 import org.springframework.context.ApplicationContext;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -56,14 +60,20 @@ public class FindPathTest {
         Date now = new Date();
         Date tenmin = new Date(now.getTime() + 10*60*1000);
 
-        FindPathService pce = JAXRSClientFactory.create(testUrl, FindPathService.class);
+        List<JSONProvider> provs = new ArrayList<>();
+        JSONProvider provider = new JSONProvider();
+        provider.setDropRootElement(true);
+        provider.setSupportUnwrapped(true);
+        provs.add(provider);
+
+        FindPathService pce = JAXRSClientFactory.create(testUrl, FindPathService.class, provs);
         FindPathRequest req = new FindPathRequest();
         req.correlationId = UUID.randomUUID().toString();
         req.algorithm = FindPathAlgorithm.CHAIN;
         req.bandwidth = 100L;
         req.destinationStp = destStp;
         req.sourceStp = srcStp;
-        req.replyTo = testAggUrl+"pathreply/";
+        req.replyTo = testAggUrl;
 
         req.startTime = now;
         req.endTime = tenmin;
