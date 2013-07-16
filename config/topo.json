@@ -43,6 +43,9 @@
                 "localId": "surfnet-edge"
             },
             {
+                "localId": "13"
+            },
+            {
                 "localId": "to-esnet",
                 "remoteNetworkId": "urn:ogf:network:stp:es.net",
                 "remoteLocalId": "to-surfnet",
