@@ -7,6 +7,9 @@ import org.apache.cxf.BusFactory;
 import org.apache.cxf.bus.spring.SpringBusFactory;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
+import org.apache.cxf.jaxrs.provider.json.JSONProvider;
+
+import java.util.Arrays;
 
 
 public class AggServer {
@@ -33,6 +36,12 @@ public class AggServer {
         sf.setResourceClasses(AggServiceImpl.class);
         sf.setResourceProvider(AggServiceImpl.class,
                 new SingletonResourceProvider(new AggServiceImpl()));
+        JSONProvider provider = new JSONProvider();
+        provider.setDropRootElement(true);
+        provider.setSupportUnwrapped(true);
+        provider.setArrayKeys(Arrays.asList("path"));
+        provider.setConvertTypesToStrings(true);
+        sf.setProvider(provider);
         sf.setAddress(url);
         server = sf.create();
     }

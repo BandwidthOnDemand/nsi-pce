@@ -4,9 +4,11 @@ package net.es.nsi.pce.svc;
 import net.es.nsi.pce.pf.PathfinderCore;
 import net.es.nsi.pce.svc.api.*;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
+import org.apache.cxf.jaxrs.provider.json.JSONProvider;
 
 
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
 
 public class FindPathServiceImpl implements FindPathService {
 
@@ -43,7 +45,13 @@ public class FindPathServiceImpl implements FindPathService {
             r = Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        AggService agg = JAXRSClientFactory.create(aggUrl, AggService.class);
+        JSONProvider provider = new JSONProvider();
+        provider.setDropRootElement(true);
+        provider.setSupportUnwrapped(true);
+        provider.setArrayKeys(Arrays.asList("path"));
+        provider.setConvertTypesToStrings(true);
+
+        AggService agg = JAXRSClientFactory.create(aggUrl, AggService.class, Arrays.asList(provider));
         agg.pathReply(resp);
 
         return r;

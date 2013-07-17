@@ -2,10 +2,7 @@ package net.es.nsi.pce.test.client;
 
 import static org.testng.Assert.assertEquals;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
@@ -60,13 +57,13 @@ public class FindPathTest {
         Date now = new Date();
         Date tenmin = new Date(now.getTime() + 10*60*1000);
 
-        List<JSONProvider> provs = new ArrayList<>();
         JSONProvider provider = new JSONProvider();
         provider.setDropRootElement(true);
         provider.setSupportUnwrapped(true);
-        provs.add(provider);
+        provider.setArrayKeys(Arrays.asList("path"));
+        provider.setConvertTypesToStrings(true);
 
-        FindPathService pce = JAXRSClientFactory.create(testUrl, FindPathService.class, provs);
+        FindPathService pce = JAXRSClientFactory.create(testUrl, FindPathService.class, Arrays.asList(provider));
         FindPathRequest req = new FindPathRequest();
         req.correlationId = UUID.randomUUID().toString();
         req.algorithm = FindPathAlgorithm.CHAIN;

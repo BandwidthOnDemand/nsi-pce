@@ -9,6 +9,8 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.provider.json.JSONProvider;
 
+import java.util.Arrays;
+
 public class PCEServer {
     private org.apache.cxf.endpoint.Server server;
 
@@ -40,6 +42,8 @@ public class PCEServer {
         JSONProvider provider = new JSONProvider();
         provider.setDropRootElement(true);
         provider.setSupportUnwrapped(true);
+        provider.setArrayKeys(Arrays.asList("path"));
+        provider.setConvertTypesToStrings(true);
         sf.setProvider(provider);
         sf.setAddress(url);
         server = sf.create();

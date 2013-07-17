@@ -14,16 +14,6 @@
 
 
 
-    <bean id="jaxbProvider" class="org.apache.cxf.jaxrs.provider.json.JSONProvider">
-        <property name="supportUnwrapped" value="true"/>
-        <property name="dropRootElement" value="true"/>
-        <property name="convertTypesToStrings" value="true"/>
-        <property name="arrayKeys">
-            <list>
-                <value>path</value>
-            </list>
-        </property>
-    </bean>
 
 <!--
     <httpj:engine-factory bus="cxf">
