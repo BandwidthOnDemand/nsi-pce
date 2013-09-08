@@ -1,11 +1,6 @@
 {
     "pce": {
-        "url": "http://localhost:8600/",
-        "bus": "config/jetty.xml"
-    },
-    "agg": {
-        "url": "http://localhost:8601/",
-        "bus": "config/jetty.xml"
+        "url": "http://localhost:8400/",
+        "packageName": "net.es.nsi.pce.api"
     }
-
 }

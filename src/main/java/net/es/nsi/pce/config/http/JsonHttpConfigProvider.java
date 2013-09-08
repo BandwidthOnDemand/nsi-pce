@@ -9,13 +9,20 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import net.es.nsi.pce.config.SpringContext;
 
 public class JsonHttpConfigProvider  extends JsonConfigProvider implements HttpConfigProvider {
 
 
     private HashMap<String, HttpConfig> configs = new HashMap<String, HttpConfig>();
 
+    public static JsonHttpConfigProvider getInstance() {
+        SpringContext sc = SpringContext.getInstance();
+        JsonHttpConfigProvider provider = (JsonHttpConfigProvider) sc.getContext().getBean("httpConfigProvider");
+        return provider;
+    }
 
+    @Override
     public void loadConfig() throws Exception {
 
         File configFile = new File(this.getFilename());
@@ -26,6 +33,7 @@ public class JsonHttpConfigProvider  extends JsonConfigProvider implements HttpC
         configs = gson.fromJson(json, type);
     }
 
+    @Override
     public HttpConfig getConfig(String id) {
         return configs.get(id);
     }

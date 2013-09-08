@@ -1,6 +1,6 @@
 {
     "urn:ogf:network:nsa:es.net": {
-        "networkId": "urn:ogf:network:stp:es.net",
+        "networkId": "urn:ogf:network:es.net",
         "providerUrl": "http://oscars.es.net/nsi/ConnectionService",
         "auth": {
             "method": "BASIC",
@@ -9,20 +9,28 @@
         }
     },
     "urn:ogf:network:nsa:internet2.edu": {
-        "networkId": "urn:ogf:network:stp:internet2.edu",
+        "networkId": "urn:ogf:network:internet2.edu",
         "providerUrl": "http://oscars.internet2.edu/provider",
         "auth": {
             "method": "NONE"
         }
     },
     "urn:ogf:network:nsa:surfnet.nl": {
-        "networkId": "urn:ogf:network:stp:surfnet.nl",
+        "networkId": "urn:ogf:network:surfnet.nl",
         "providerUrl":  "http://bod.surfnet.nl/nsi/v11/ConnectionService",
         "auth": {
             "method": "OAUTH2",
             "token": "1192931-1132"
         }
+    },
+    "urn:ogf:network:manlan.internet2.edu": {
+        "networkId": "urn:ogf:network:manlan.internet2.edu",
+        "providerUrl": "http://ion.manlan.internet2.edu/nsi/ConnectionService",
+        "auth": {
+            "method": "BASIC",
+            "username": "Bobby",
+            "password": "Boogie"
+        }
     }
-
 }
 

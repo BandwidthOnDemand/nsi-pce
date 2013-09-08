@@ -1,9 +1,9 @@
 package net.es.nsi.pce.config.nsa.auth;
 
-import net.es.nsi.pce.svc.api.AuthMethod;
+import net.es.nsi.pce.api.jaxb.AuthMethodType;
 
 public class AuthConfig {
-    public AuthMethod method;
+    public AuthMethodType method;
     public String username;
     public String password;
     public String token;

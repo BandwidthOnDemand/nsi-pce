@@ -1,6 +1,10 @@
 package net.es.nsi.pce.sched;
 
-import org.quartz.*;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SchedulerFactory;
+import org.quartz.SimpleTrigger;
 import org.quartz.impl.StdSchedulerFactory;
 
 public class PCEScheduler {
@@ -13,14 +17,15 @@ public class PCEScheduler {
 
     private PCEScheduler() {
     }
+    
     public void start() throws Exception {
         SchedulerFactory schedFact = new StdSchedulerFactory();
         this.scheduler = schedFact.getScheduler();
 
-        // reload config from files every second
+        // reload config from files every 10 seconds
         SimpleTrigger cfgReloadTrigger = new SimpleTrigger("ConfigReloaderTrigger", "ConfigReloader");
         cfgReloadTrigger.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
-        cfgReloadTrigger.setRepeatInterval(1000);
+        cfgReloadTrigger.setRepeatInterval(10000);
         JobDetail cfgReloadJobDetail = new JobDetail("ConfigReloader", "ConfigReloader", ConfigReloader.class);
         this.scheduler.scheduleJob(cfgReloadJobDetail, cfgReloadTrigger);
 

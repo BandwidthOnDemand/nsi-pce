@@ -1,6 +1,6 @@
 package net.es.nsi.pce.pf.api.topo;
 
-public class StpConnection extends TopoObject {
+public class StpConnection extends TopologyObject {
     private Stp a;
     private Stp z;
 

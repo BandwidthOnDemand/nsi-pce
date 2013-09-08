@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Schema definitions for the Path Computation Engine PCE messaging API.
+-->
+<xsd:schema targetNamespace="http://schemas.es.net/nsi/2013/08/pce/messages"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:srv="http://schemas.ogf.org/nsi/2013/07/services/point2point"
+    xmlns:types="http://schemas.ogf.org/nsi/2013/07/services/types"
+    xmlns:tns="http://schemas.es.net/nsi/2013/08/pce/messages">
+
+    <xsd:annotation>
+        <xsd:documentation xml:lang="en">
+            This is an XML schema document describing the PCE
+            messaging API.
+        </xsd:documentation>
+    </xsd:annotation>
+
+    <!-- Element definitions for PCE messages types. -->
+    <xsd:element name="findPathRequest" type="tns:FindPathRequestType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                Request the Path Computation Engine perform a path resolution.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <!-- Element definitions for PCE messages types. -->
+    <xsd:element name="findPathError" type="tns:FindPathErrorType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                Returned when error occur in format of the findPathRequest.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    
+    <xsd:complexType name="FindPathErrorType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+ 
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="message" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:element name="findPathResponse" type="tns:FindPathResponseType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                The path resolution result returned to the requesting client.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <!-- Type definitions for PCE message types. -->
+    <xsd:complexType name="FindPathRequestType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                Type definition for the path resolution request.
+                
+                Elements:
+                
+                correlationId - The correlation identifier for the request.
+                This will be referenced in the response.
+                
+                replyTo - The endpoint of the requesting client (aggregator).
+                When path computation is completed an HTTP POST is expected to
+                this url with the resulting path information.
+                
+                algorithm - The path finding algorithm to utilize when resolving
+                this request.
+                
+                startTime - Reservation start time. If not specified then
+                the reservation is to start immediately reservation.
+                
+                endTime - Reservation end time.  If endTime is not specified
+                then the schedule end is indefinite.
+                
+                serviceType - The specific service type of this reservation. 
+                This service type string maps into the list of supported
+                service descriptions defined by the network providers, and in
+                turn, to the specific service elements carried in this request.  
+                
+                constraints - Constraints placed on the path finder for this
+                path resolution request.
+                
+                any - Additional elements not defined in this name space such
+                as service specific element definitions.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="correlationId" type="xsd:string"/>
+            <xsd:element name="replyTo" type="tns:ReplyToType"/>
+            <xsd:element name="algorithm" type="tns:FindPathAlgorithmType" minOccurs="0"/>
+            <xsd:element name="startTime" type="xsd:dateTime" minOccurs="0"/>
+            <xsd:element name="endTime" type="xsd:dateTime" minOccurs="0"/>
+            <xsd:element name="serviceType" type="xsd:string"/>
+            <xsd:element name="constraints" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:any namespace="##other"  processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="FindPathResponseType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                Type definition for the path resolution response.
+                
+                Elements:
+                
+                correlationId - The correlation identifier corresponding to the
+                original path resolution request.
+                
+                status - Indicated whether the path request was a success,
+                failure, or is in-progress.
+                
+                message - An optional message indicating the reason for a
+                status of FAILED.
+                
+                path - The individual path segments resolved for the path
+                request.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="correlationId" type="xsd:string"/>
+            <xsd:element name="status" type="tns:FindPathStatusType"/>
+            <xsd:element name="message" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="path" type="tns:ResolvedPathType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="ReplyToType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                Type definition for the path resolution response.
+                
+                Elements:
+                
+                url - The HTTP endpoint of the client receiving the reply.
+                
+                mediaType - The media type that should be used for encoding
+                the response. 
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="url" type="xsd:anyURI"/>
+            <xsd:element name="mediaType" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="ResolvedPathType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                Type definition for information related to the resolved path segment.
+                
+                Elements:
+                
+                nsa - The target NSA managing the resolved path segment.
+                
+                csProviderURL - Connection services provider endpoint for the target NSA.
+                
+                credentials - Authorization information for the target NSA.
+                
+                serviceType - The type of service for this resolved path segment.
+                
+                any - The service specific schema for this resolved path segment.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="nsa" type="xsd:anyURI"/>
+            <xsd:element name="csProviderURL" type="xsd:anyURI"/>
+            <xsd:element name="crendentials" type="tns:AuthObjectType"/>
+            <xsd:element name="serviceType" type="xsd:string"/>
+            <xsd:any namespace="##other"  processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="AuthObjectType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                Authentication/authorization information associated with an
+                NSA-to-NSA interface.
+                
+                Elements:
+                
+                method - The method of authenitcation to use when communicating
+                with the NSA.
+                
+                username - The username for HTTP BASIC authentication mechanism.
+                
+                password - The password for HTTP BASIC authentication mechanism.
+                
+                token - The token for OAuth2 authentication/authorization.
+                
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="method" type="tns:AuthMethodType"/>
+            <xsd:element name="username" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="password" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="token" type="xsd:string" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:simpleType name="AuthMethodType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                The authentication/autorization mechanism to use for NSA-to-NSA
+                comminications.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="NONE"/>
+            <xsd:enumeration value="BASIC"/>
+            <xsd:enumeration value="OAUTH2"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:simpleType name="FindPathAlgorithmType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                The type of path finding algorithm to use in the path resolution
+                process.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="TREE"/>
+            <xsd:enumeration value="CHAIN"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="FindPathStatusType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                The status of the path resolution.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="SUCCESS"/>
+            <xsd:enumeration value="FAILED"/>
+            <xsd:enumeration value="INPROGRESS"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+</xsd:schema>

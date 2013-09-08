@@ -9,19 +9,21 @@ import net.es.nsadb.auth.svc.api.AuthProviderService;
 import net.es.nsadb.nsa.svc.api.NsaByFilterRequest;
 import net.es.nsadb.nsa.svc.api.NsaListResponse;
 import net.es.nsadb.nsa.svc.api.NsaProviderService;
-import net.es.nsi.pce.svc.api.AuthMethod;
+
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import net.es.nsi.pce.api.jaxb.AuthMethodType;
 
 public class DbClientAuthProvider implements AuthProvider {
     private String nsaDbUrl;
     private String authDbUrl;
 
-    public AuthMethod getMethod(String nsaId) {
+    @Override
+    public AuthMethodType getMethod(String nsaId) {
 
         String networkId = this.getNetworkId(nsaId);
         if (networkId == null) {
@@ -38,12 +40,12 @@ public class DbClientAuthProvider implements AuthProvider {
         }
         net.es.nsadb.auth.beans.AuthMethod am = recs.get(0).getMethod();
         if (am.equals(net.es.nsadb.auth.beans.AuthMethod.BASIC)) {
-            return AuthMethod.BASIC;
+            return AuthMethodType.BASIC;
         } else if (am.equals(net.es.nsadb.auth.beans.AuthMethod.NONE)) {
-            return AuthMethod.NONE;
+            return AuthMethodType.NONE;
 
         } else if (am.equals(net.es.nsadb.auth.beans.AuthMethod.OAUTH2)) {
-            return AuthMethod.OAUTH2;
+            return AuthMethodType.OAUTH_2;
         }
 
         return null;
@@ -51,6 +53,7 @@ public class DbClientAuthProvider implements AuthProvider {
 
     }
 
+    @Override
     public Map<AuthCredential, String> getCredentials(String nsaId) {
         String networkId = this.getNetworkId(nsaId);
 

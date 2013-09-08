@@ -3,15 +3,16 @@ package net.es.nsi.pce.config.nsa.auth;
 import net.es.nsi.pce.config.SpringContext;
 import net.es.nsi.pce.config.nsa.JsonNsaConfigProvider;
 import net.es.nsi.pce.config.nsa.NsaConfig;
-import net.es.nsi.pce.svc.api.AuthMethod;
 
 import java.util.HashMap;
 import java.util.Map;
+import net.es.nsi.pce.api.jaxb.AuthMethodType;
 
 public class NsaConfigAuthProvider implements AuthProvider {
 
 
-    public AuthMethod getMethod(String nsaId) {
+    @Override
+    public AuthMethodType getMethod(String nsaId) {
         SpringContext sc = SpringContext.getInstance();
         JsonNsaConfigProvider ncp = (JsonNsaConfigProvider) sc.getContext().getBean("serviceInfoProvider");
         NsaConfig nc = ncp.getConfig(nsaId);
@@ -25,6 +26,7 @@ public class NsaConfigAuthProvider implements AuthProvider {
         return nc.auth.method;
     }
 
+    @Override
     public Map<AuthCredential, String> getCredentials(String nsaId) {
         SpringContext sc = SpringContext.getInstance();
         JsonNsaConfigProvider ncp = (JsonNsaConfigProvider) sc.getContext().getBean("serviceInfoProvider");

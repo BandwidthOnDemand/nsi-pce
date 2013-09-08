@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Network extends TopoObject {
+public class Network extends TopologyObject {
     private String networkId;
     private HashMap<String, Stp> stps = new HashMap<String, Stp>();
     private Set<StpConnection> stpConnections = new HashSet<StpConnection>();

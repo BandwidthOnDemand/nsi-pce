@@ -1,7 +1,11 @@
 package net.es.nsi.pce.pf.api.cons;
 
-
-public class AttrConstraint {
+/**
+ * Defines a basic PCE constraint modeling an attribute with a name.
+ * 
+ * @author hacksaw
+ */
+public abstract class AttrConstraint extends Constraint {
     private String attrName;
 
     public String getAttrName() {

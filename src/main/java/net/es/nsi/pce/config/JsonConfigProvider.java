@@ -22,10 +22,12 @@ public abstract class JsonConfigProvider implements ConfigProvider {
         return false;
     }
 
+    @Override
     public String getFilename() {
         return filename;
     }
 
+    @Override
     public void setFilename(String filename) {
         this.filename = filename;
     }

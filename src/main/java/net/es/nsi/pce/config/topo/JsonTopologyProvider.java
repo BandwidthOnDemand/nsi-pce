@@ -11,8 +11,12 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JsonTopologyProvider  extends JsonConfigProvider implements TopologyProvider {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+    
     private HashMap<String, TopoNetworkConfig> configs = new HashMap<String, TopoNetworkConfig>();
 
     @Override
@@ -58,19 +62,22 @@ public class JsonTopologyProvider  extends JsonConfigProvider implements Topolog
         return topo;
     }
 
+    @Override
     public void setTopologySource(String source) {
         this.setFilename(source);
     }
+    @Override
     public void loadTopology() throws Exception {
         this.loadConfig();
     }
 
+    @Override
     public void loadConfig() throws Exception {
         // System.out.println("loading "+this.getFilename());
 
         File configFile = new File(this.getFilename());
         String ap = configFile.getAbsolutePath();
-        // System.out.println("loaded "+ap);
+        log.info("JsonTopologyProvider: loading topology " + ap);
 
         if (isFileUpdated(configFile)) {
             // System.out.println("file updated, loading");
@@ -86,6 +93,7 @@ public class JsonTopologyProvider  extends JsonConfigProvider implements Topolog
         return configs.get(networkId);
     }
 
+    @Override
     public Set<String> getNetworkIds() {
         return configs.keySet();
     }

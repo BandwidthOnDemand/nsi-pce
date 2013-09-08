@@ -13,9 +13,15 @@ import net.es.nsi.pce.pf.api.topo.*;
 
 import java.util.HashMap;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * @author hacksaw
+ */
 public class DijkstraPCE implements PCEModule {
-
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public PCEData apply(PCEData pceData) throws Exception {
         TopoPathEndpoints pe = null;
@@ -25,31 +31,40 @@ public class DijkstraPCE implements PCEModule {
             }
         }
 
-        Topology topo = pceData.getTopo();
+        if (pe == null) {
+            throw new Exception("DijkstraPCE.apply: No path endpoints found.");
+        }
+                
+        Topology topo = pceData.getTopology();
 
         Network srcNet = topo.getNetwork(pe.getSrcNetwork());
         Network dstNet = topo.getNetwork(pe.getDstNetwork());
+        
         if (srcNet == null) {
-            throw new Exception("unknown src network "+pe.getSrcNetwork());
-        } else if (dstNet == null) {
-            throw new Exception("unknown dst network "+pe.getDstNetwork());
+            throw new Exception("DijkstraPCE.apply: Unknown src network " + pe.getSrcNetwork());
         }
+        else if (dstNet == null) {
+            throw new Exception("DijkstraPCE.apply: Unknown dst network " + pe.getDstNetwork());
+        }
+        
         Stp srcStp = srcNet.getStp(pe.getSrcLocal());
         Stp dstStp = dstNet.getStp(pe.getDstLocal());
 
         if (srcStp == null) {
-            throw new Exception("unknown src stp "+pe.getSrcLocal());
-        } else if (dstStp == null) {
-            throw new Exception("unknown dst stp "+pe.getDstLocal());
+            throw new Exception("DijkstraPCE.apply: Unknown src stp " + pe.getSrcLocal());
         }
-        System.out.println("src stp:"+srcStp);
-        System.out.println("dst stp:"+dstStp);
+        else if (dstStp == null) {
+            throw new Exception("DijkstraPCE.apply: Unknown dst stp " + pe.getDstLocal());
+        }
+        
+        log.debug("DijkstraPCE.apply: src stp:" + srcStp);
+        log.debug("DijkstraPCE.apply: dst stp:" + dstStp);
 
         DirectedSparseMultigraph<String, String> g = new DirectedSparseMultigraph<String, String>();
         HashMap<String, StpPair> pairMap = new HashMap<>();
 
         for (String netId : topo.getNetworkIds()) {
-            System.out.println("edges for network "+netId);
+            log.debug("DijkstraPCE.apply: Edges for network " + netId);
 
             Network net = topo.getNetwork(netId);
 
@@ -57,7 +72,7 @@ public class DijkstraPCE implements PCEModule {
 
                 Stp stp = net.getStp(stpId);
                 if (stp == null) {
-                    throw new Exception("no stp found for "+stpId);
+                    throw new Exception("DijkstraPCE.apply: No stp found for " + stpId);
                 }
                 g.addVertex(stp.toString());
 

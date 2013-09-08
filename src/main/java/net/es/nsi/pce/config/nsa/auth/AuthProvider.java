@@ -1,11 +1,11 @@
 package net.es.nsi.pce.config.nsa.auth;
 
-import net.es.nsi.pce.svc.api.AuthMethod;
 
 import java.util.Map;
+import net.es.nsi.pce.api.jaxb.AuthMethodType;
 
 
 public interface AuthProvider {
-    public AuthMethod getMethod(String nsaId);
+    public AuthMethodType getMethod(String nsaId);
     public Map<AuthCredential, String> getCredentials(String nsaId);
 }
