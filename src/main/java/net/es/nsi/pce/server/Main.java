@@ -1,7 +1,5 @@
 package net.es.nsi.pce.server;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.es.nsi.pce.config.ConfigurationManager;
 import org.slf4j.LoggerFactory;
 
