@@ -206,28 +206,4 @@ public class FindPathService {
         
         return Response.accepted().build();
     }
-
-    private boolean myPathFinder(EthernetVlanType evts, List<ResolvedPathType> result) {
- 
-        // Create a simple mirrored response for testing.
-        ResolvedPathType path = new ResolvedPathType();
-        
-        path.setNsa("urn:ogf:network:stp:es.net");
-        path.setCsProviderURL("http://oscars.es.net/nsi/ConnectionService");
-        
-        AuthObjectType auth = new AuthObjectType();
-        auth.setMethod(AuthMethodType.BASIC);
-        auth.setUsername("foo");
-        auth.setPassword("bar");
-        path.setCrendentials(auth);
-        
-        // Send back the original service parameters.
-        path.getAny().add(evts);
-        
-        result.add(path);
-        
-        return true;
-    }
-    
-
 }
