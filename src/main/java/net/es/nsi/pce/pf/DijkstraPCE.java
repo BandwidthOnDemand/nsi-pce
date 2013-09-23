@@ -107,7 +107,7 @@ public class DijkstraPCE implements PCEModule {
                     // System.out.println("edge in net: "+stp.toString()+" "+otherStp.toString());
                 }
 
-                for (StpConnection conn: net.getConnectionsFrom(stp)) {
+                for (Sdp conn: net.getSdpFrom(stp)) {
                     StpPair remPair = new StpPair();
                     Stp remote = conn.getZ();
                     if (remote != null) {

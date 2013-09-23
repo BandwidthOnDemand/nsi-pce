@@ -18,46 +18,33 @@
   <xs:import schemaLocation="nmlbase.xsd" 
              namespace="http://schemas.ogf.org/nml/2013/05/base#"/>
 
+
+     
   <xs:complexType name="NSARelationType">
     <xs:choice>
       <xs:element  ref="nsi:NSA"  minOccurs="1"  maxOccurs="unbounded"/>
+      <xs:any      namespace="##other"  processContents="lax"  minOccurs="1"  maxOccurs="unbounded"/>  <!-- the place for xCard -->
     </xs:choice>
     <xs:attribute  name="type"  use="required">
       <xs:simpleType>
         <xs:restriction  base="xs:string">
           <xs:enumeration  value="http://schemas.ogf.org/nsi/2013/09/topology#managedBy"/>
           <xs:enumeration  value="http://schemas.ogf.org/nsi/2013/09/topology#peersWith"/>
+          <xs:enumeration  value="http://schemas.ogf.org/nsi/2013/09/topology#adminContact"/>
+          <!-- in case of adminContact relation the content is the rfc6351 xCard structures  -->
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
   </xs:complexType>
 
 
-  <!-- address: rfc6351 xCard: vCard XML Representation -->
-  <xs:element name="adminContact">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:any namespace="##other"  processContents="lax"  minOccurs="1"  maxOccurs="unbounded"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-
-
-  <xs:group name="BaseNSAContent">
-    <xs:sequence>
-      <xs:element  name="Service"  type="nsi:NsiServiceType"  minOccurs="0"  maxOccurs="unbounded"/> 
-      <xs:element  ref="nsi:adminContact"  minOccurs="0"  maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:group>
-
-
   <xs:complexType name="NSAType">
     <xs:complexContent>
       <xs:extension  base="nml:NetworkObject">
         <xs:sequence>
-          <xs:group  ref="nsi:BaseNSAContent"/>
-          <xs:element  name="Relation"  type="nsi:NSARelationType"   minOccurs="0"  maxOccurs="unbounded"/>
-          <xs:element ref="nml:Topology" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element  name="Service"  type="nsi:NsiServiceType"  minOccurs="0"  maxOccurs="unbounded"/>
+          <xs:element  name="Relation"  type="nsi:NSARelationType"  minOccurs="0"  maxOccurs="unbounded"/>
+          <xs:element  ref="nml:Topology"  minOccurs="0"  maxOccurs="unbounded"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

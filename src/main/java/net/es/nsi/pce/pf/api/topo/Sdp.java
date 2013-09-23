@@ -1,6 +1,12 @@
 package net.es.nsi.pce.pf.api.topo;
 
-public class StpConnection extends TopologyObject {
+/**
+ * An SDP is a logical link between to connected STP.  An SDP is only created
+ * when both an A and Z end STP have connectivity defined.
+ * 
+ * @author hacksaw
+ */
+public class Sdp extends TopologyObject {
     private Stp a;
     private Stp z;
 

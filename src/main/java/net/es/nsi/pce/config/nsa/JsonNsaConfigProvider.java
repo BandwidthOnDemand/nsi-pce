@@ -2,7 +2,7 @@ package net.es.nsi.pce.config.nsa;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import net.es.nsi.pce.config.JsonConfigProvider;
+import net.es.nsi.pce.config.FileBasedConfigProvider;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.InitializingBean;
 
@@ -11,7 +11,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Set;
 
-public class JsonNsaConfigProvider  extends JsonConfigProvider implements ServiceInfoProvider, InitializingBean {
+public class JsonNsaConfigProvider  extends FileBasedConfigProvider implements ServiceInfoProvider, InitializingBean {
     private HashMap<String, NsaConfig> configs = new  HashMap<>();
 
 

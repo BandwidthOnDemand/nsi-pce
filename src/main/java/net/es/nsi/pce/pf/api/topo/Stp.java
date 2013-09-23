@@ -1,9 +1,6 @@
 package net.es.nsi.pce.pf.api.topo;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import net.es.nsi.pce.topology.jaxb.LabelGroupType;
+import net.es.nsi.pce.config.topo.nml.Directionality;
 
 /**
  * Defines the NSI CS STP construct used within Topology graph.
@@ -12,8 +9,17 @@ import net.es.nsi.pce.topology.jaxb.LabelGroupType;
  */
 public class Stp extends TopologyObject {
     private Network network;
+    private String networkId;
     private String localId;
-    private ArrayList<LabelGroupType> labelGroups = new ArrayList<LabelGroupType>();
+    private Directionality directionality;
+    private int vlanId;
+    
+    // Links to the remote STP as derived from topology.
+    private Stp remoteStp;
+
+    public String getId() {
+        return localId + ":vlan=" + vlanId;
+    }
     
     public boolean equals(Object other) {
         if (this == other) {
@@ -32,11 +38,7 @@ public class Stp extends TopologyObject {
             return false;
         }
         
-        Set<LabelGroupType> thisSet = new HashSet<LabelGroupType>();
-        thisSet.addAll(this.getLabelGroups());
-        Set<LabelGroupType> thatSet = new HashSet<LabelGroupType>();
-        thatSet.addAll(that.getLabelGroups());
-        if (!thisSet.equals(thatSet)) {
+        if (this.vlanId != that.getVlanId()) {
             return false;
         }
         
@@ -66,16 +68,69 @@ public class Stp extends TopologyObject {
     }
 
     /**
-     * @return the labels
+     * @return the networkId
      */
-    public ArrayList<LabelGroupType> getLabelGroups() {
-        return labelGroups;
+    public String getNetworkId() {
+        return networkId;
     }
 
     /**
-     * @param labels the labels to set
+     * @param networkId the networkId to set
      */
-    public void setLableGroups(ArrayList<LabelGroupType> labelGroups) {
-        this.labelGroups = labelGroups;
+    public void setNetworkId(String networkId) {
+        this.networkId = networkId;
+    }
+
+    /**
+     * @return the unidirectional
+     */
+    public boolean isUnidirectional() {
+        return (directionality == Directionality.unidirectional);
+    }
+
+    public boolean isBidirectional() {
+        return (directionality == Directionality.bidirectional);
+    }
+        
+    /**
+     * @return the directionality
+     */
+    public Directionality getDirectonality() {
+        return directionality;
+    }
+
+    /**
+     * @param directionality the directionality to set
+     */
+    public void setDirectonality(Directionality directionality) {
+        this.directionality = directionality;
+    }
+
+    /**
+     * @return the vlanId
+     */
+    public int getVlanId() {
+        return vlanId;
+    }
+
+    /**
+     * @param vlanId the vlanId to set
+     */
+    public void setVlanId(int vlanId) {
+        this.vlanId = vlanId;
+    }
+
+    /**
+     * @return the remoteStp
+     */
+    public Stp getRemoteStp() {
+        return remoteStp;
+    }
+
+    /**
+     * @param remoteStp the remoteStp to set
+     */
+    public void setRemoteStp(Stp remoteStp) {
+        this.remoteStp = remoteStp;
     }
 }

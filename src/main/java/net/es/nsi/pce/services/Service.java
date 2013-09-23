@@ -23,12 +23,14 @@ public enum Service {
     final static String EVTS_AGOLE = "http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE";
     
     // Lists of service elements associated with the EVTS AGOLE service.
-    private final static List<Service> EVTS_AGOLE_LIST = new ArrayList() {
+    private final static List<Service> EVTS_AGOLE_LIST = new ArrayList<Service>() {
+        private static final long serialVersionUID = 1L;
         { add(EVTS); }
     };
     
     // Master list of supported services and mappings to elements.
-    private final static HashMap<String, List<Service>> typeToServiceMap = new HashMap() {
+    private final static HashMap<String, List<Service>> typeToServiceMap = new HashMap<String, List<Service>>() {
+        private static final long serialVersionUID = 1L;
         { 
             put(EVTS_AGOLE, EVTS_AGOLE_LIST);
         }

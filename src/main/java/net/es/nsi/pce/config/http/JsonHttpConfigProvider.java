@@ -3,7 +3,7 @@ package net.es.nsi.pce.config.http;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import net.es.nsi.pce.config.JsonConfigProvider;
+import net.es.nsi.pce.config.FileBasedConfigProvider;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -11,7 +11,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import net.es.nsi.pce.config.SpringContext;
 
-public class JsonHttpConfigProvider  extends JsonConfigProvider implements HttpConfigProvider {
+public class JsonHttpConfigProvider  extends FileBasedConfigProvider implements HttpConfigProvider {
 
 
     private HashMap<String, HttpConfig> configs = new HashMap<String, HttpConfig>();
