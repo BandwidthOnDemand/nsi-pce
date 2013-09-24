@@ -82,7 +82,6 @@ public enum ConfigurationManager {
                 // Load topology database.
                 log.info("Loading topology...");
                 tp = (TopologyProvider) context.getBean("topologyProvider");
-                tp.loadTopology();
                 log.info("...Topology loaded.");
 
                 // Start the task scheduler.

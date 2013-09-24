@@ -6,6 +6,4 @@ public interface ServiceInfoProvider {
     public ServiceInfo byNsaId(String nsaId);
     public ServiceInfo byNetworkId(String networkId);
     public Set<String> getNsaIds();
-
-
 }

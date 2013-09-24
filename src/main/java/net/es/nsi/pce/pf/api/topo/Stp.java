@@ -21,6 +21,7 @@ public class Stp extends TopologyObject {
         return localId + ":vlan=" + vlanId;
     }
     
+    @Override
     public boolean equals(Object other) {
         if (this == other) {
             return true;
@@ -48,7 +49,7 @@ public class Stp extends TopologyObject {
     
     @Override
     public String toString() {
-        return network.getNetworkId()+"::"+localId;
+        return getId();
     }
 
     public Network getNetwork() {

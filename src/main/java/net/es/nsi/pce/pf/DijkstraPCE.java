@@ -1,9 +1,8 @@
 package net.es.nsi.pce.pf;
 
-
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.SparseMultigraph;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.StpPair;
@@ -11,8 +10,9 @@ import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.pf.api.cons.TopoPathEndpoints;
 import net.es.nsi.pce.pf.api.topo.*;
 
-import java.util.HashMap;
 import java.util.List;
+import net.es.nsi.pce.config.topo.nml.Directionality;
+import net.es.nsi.pce.services.Point2Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,9 @@ import org.slf4j.LoggerFactory;
 public class DijkstraPCE implements PCEModule {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    @Override
     public PCEData apply(PCEData pceData) throws Exception {
+        // Get path endpoints from constraints.
         TopoPathEndpoints pe = null;
         for (Constraint c : pceData.getConstraints()) {
             if (c instanceof TopoPathEndpoints) {
@@ -31,8 +33,9 @@ public class DijkstraPCE implements PCEModule {
             }
         }
 
+        // Malformed request.
         if (pe == null) {
-            throw new Exception("DijkstraPCE.apply: No path endpoints found.");
+            throw new IllegalArgumentException("DijkstraPCE.apply: No path endpoints found.");
         }
                 
         Topology topo = pceData.getTopology();
@@ -41,131 +44,150 @@ public class DijkstraPCE implements PCEModule {
         Network dstNet = topo.getNetwork(pe.getDstNetwork());
         
         if (srcNet == null) {
-            throw new Exception("DijkstraPCE.apply: Unknown src network " + pe.getSrcNetwork());
+            throw new IllegalArgumentException("DijkstraPCE.apply: Unknown src network " + pe.getSrcNetwork());
         }
         else if (dstNet == null) {
-            throw new Exception("DijkstraPCE.apply: Unknown dst network " + pe.getDstNetwork());
+            throw new IllegalArgumentException("DijkstraPCE.apply: Unknown dst network " + pe.getDstNetwork());
         }
         
-        Stp srcStp = srcNet.getStp(pe.getSrcLocal());
-        Stp dstStp = dstNet.getStp(pe.getDstLocal());
+        // Build the Ethernet STP identifiers using local Id and vlan Ids.
+        String srcStpId = pe.getSrcLocal();
+        String dstStpId = pe.getDstLocal();
+        Integer srcVlan = Point2Point.getVlanLabel(pe.getSrcLabels());
+        Integer dstVlan = Point2Point.getVlanLabel(pe.getDstLabels());
+        
+        log.debug("DijkstraPCE.apply: source STP " + srcStpId + " source vlan=" + srcVlan);
+        log.debug("DijkstraPCE.apply: destination STP " + dstStpId + " destination vlan=" + dstVlan);
+        
+        if (srcStpId != null && srcVlan != null) {
+            srcStpId = srcStpId + ":vlan=" + srcVlan.toString();
+            log.debug("DijkstraPCE.apply: bulding source STP Id " + srcStpId);
+        }
+        
+        if (dstStpId != null && dstVlan != null) {
+            dstStpId = dstStpId + ":vlan=" + dstVlan.toString();
+            log.debug("DijkstraPCE.apply: bulding destination STP Id " + dstStpId);
+        }
+        
+        Stp srcStp = srcNet.getStp(srcStpId);
+        Stp dstStp = dstNet.getStp(dstStpId);
 
         if (srcStp == null) {
-            throw new Exception("DijkstraPCE.apply: Unknown src stp " + pe.getSrcLocal());
+            throw new IllegalArgumentException("DijkstraPCE.apply: Unknown source STP " + pe.getSrcLocal() + ", vlan=" + srcVlan);
         }
         else if (dstStp == null) {
-            throw new Exception("DijkstraPCE.apply: Unknown dst stp " + pe.getDstLocal());
+            throw new IllegalArgumentException("DijkstraPCE.apply: Unknown destination STP " + pe.getDstLocal() + ", vlan=" + dstVlan);
         }
         
-        log.debug("DijkstraPCE.apply: src stp:" + srcStp);
-        log.debug("DijkstraPCE.apply: dst stp:" + dstStp);
-
-        DirectedSparseMultigraph<String, String> g = new DirectedSparseMultigraph<String, String>();
-        HashMap<String, StpPair> pairMap = new HashMap<>();
-
-        for (String netId : topo.getNetworkIds()) {
-            log.debug("DijkstraPCE.apply: Edges for network " + netId);
-
-            Network net = topo.getNetwork(netId);
-
-            for (String stpId : net.getStpIds()) {
-
-                Stp stp = net.getStp(stpId);
-                if (stp == null) {
-                    throw new Exception("DijkstraPCE.apply: No stp found for " + stpId);
-                }
-                g.addVertex(stp.toString());
-
-                for (String otherStpId : net.getStpIds()) {
-
-                    if (stpId.equals(otherStpId)) {
-                        continue;
-                    }
-
-                    Stp otherStp = net.getStp(otherStpId);
-                    if (otherStp == null) {
-                        throw new Exception("no stp found for "+otherStpId);
-                    }
-                    g.addVertex(otherStp.toString());
-
-                    StpPair az = new StpPair();
-                    az.setA(stp);
-                    az.setZ(otherStp);
-                    String azEdge = az.toString();
-                    pairMap.put(azEdge, az);
-
-                    StpPair za = new StpPair();
-                    za.setA(otherStp);
-                    za.setZ(stp);
-                    String zaEdge = za.toString();
-                    pairMap.put(zaEdge, za);
-
-
-                    g.addEdge(azEdge,   stp.toString(), otherStp.toString(), EdgeType.DIRECTED);
-                    g.addEdge(zaEdge,   otherStp.toString(), stp.toString(), EdgeType.DIRECTED);
-
-                    // System.out.println("edge in net: "+stp.toString()+" "+otherStp.toString());
-                }
-
-                for (Sdp conn: net.getSdpFrom(stp)) {
-                    StpPair remPair = new StpPair();
-                    Stp remote = conn.getZ();
-                    if (remote != null) {
-                        remPair.setA(stp);
-                        remPair.setZ(remote);
-
-                        String edge = remPair.toString();
-                        pairMap.put(edge, remPair);
-
-                        // System.out.println("remote edge: "+stp.toString()+ " "+remote.toString());
-
-                        g.addEdge(edge, stp.toString(), remote.toString(), EdgeType.DIRECTED);
-                    }
-
-                }
-
+        log.debug("DijkstraPCE.apply: source STP:" + srcStp.getId());
+        log.debug("DijkstraPCE.apply: destination STP:" + dstStp.getId());
+        
+        // We can save time by handling the special case of A and Z STP in same
+        // network.
+        if (srcNet.equals(dstNet)) {
+            // At the moment the VLANs must match (we should check if
+            // interchange is possible in the domain).
+            if ((srcVlan == null && dstVlan != null) ||
+                    (dstVlan == null && srcVlan != null)) {
+                // One VLAN specified is bad for now.
+                IllegalArgumentException ex = new IllegalArgumentException("Path computation failed: source and destination VLAN mismatch");
+                log.error("Path computation failed", ex);
+                throw ex;
+            }
+            else if ((srcVlan == null && dstVlan == null) ||
+                    srcVlan.compareTo(dstVlan) == 0) {
+                // VLANs are matching which is good.
+                StpPair pathPair = new StpPair();
+                pathPair.setA(srcStp);
+                pathPair.setZ(dstStp);
+                pceData.getPath().getStpPairs().add(pathPair);
+                return pceData;
+            }
+            else {
+                // Catch all bad for not matching VLANs.
+                IllegalArgumentException ex = new IllegalArgumentException("Path computation failed: source and destination VLAN mismatch");
+                log.error("Path computation failed", ex);
+                throw ex;  
             }
         }
 
-        if (!g.containsVertex(srcStp.toString())) {
-            throw new Exception("source stp is not contained in topology");
-        } else if (!g.containsVertex(dstStp.toString())) {
-            throw new Exception("dest stp is not contained in topology");
+        // Graph<V, E> where V is the type of the vertices and E is the type of the edges.
+        Graph<Network, Sdp> graph = new SparseMultigraph<Network, Sdp>();
+        
+        // Add Networks as verticies.
+        for (Network network : topo.getNetworks()) {
+            log.debug("Adding Vertex: " + network.getNetworkId());
+            graph.addVertex(network);
+        }        
+
+        // Add bidirectional SDP as edges.
+        for (Sdp sdp : topo.getSdps()) {
+            if (sdp.getDirectionality() == Directionality.bidirectional) {
+                // If we have a VLAN restriction then filter SDP based on what is usable.
+                if (srcVlan != null) {
+                    if (sdp.getA().getVlanId() == srcVlan.intValue()) {
+                        log.debug("Adding vlan filtered bidirectional edge to graph: " + sdp.getId());
+                        graph.addEdge(sdp, sdp.getA().getNetwork(), sdp.getZ().getNetwork());                        
+                    }
+                }
+                else {
+                    log.debug("Adding bidirectional edge: " + sdp.getId());
+                    graph.addEdge(sdp, sdp.getA().getNetwork(), sdp.getZ().getNetwork());
+                }
+            }
+        }
+ 
+        // Verify that the source and destination STP are still in our topology.
+        if (!graph.containsVertex(srcStp.getNetwork())) {
+            throw new IllegalArgumentException("Source STP is not contained in topology: " + srcStp);
+        } else if (!graph.containsVertex(dstStp.getNetwork())) {
+            throw new IllegalArgumentException("Destination STP is not contained in topology: " + dstStp);
         }
 
-        List<String> path;
-        DijkstraShortestPath<String, String> alg = new DijkstraShortestPath(g);
+        @SuppressWarnings("unchecked")
+        DijkstraShortestPath<Network,Sdp> alg = new DijkstraShortestPath(graph);
+        
+        List<Sdp> path;
         try {
-            path = alg.getPath(srcStp.toString(), dstStp.toString());
+            path = alg.getPath(srcStp.getNetwork(), dstStp.getNetwork());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            log.error("Path computation failed", ex);
             throw ex;
         }
 
+        log.debug("Path computation completed with " + path.size() + " SDP returned.");
+        
+        // Check to see if there is a valid path.
+        if (path.isEmpty()) {
+            throw new Exception("No path found.");
+        }
+        
         int i = 0;
-        for (String edge: path) {
-            StpPair p = pairMap.get(edge);
-            if (p.getA().getNetwork().getNetworkId().equals(p.getZ().getNetwork().getNetworkId())) {
-                //System.out.println("path edge "+edge);
-                StpPair pathPair = new StpPair();
-                pathPair.setA(p.getA());
-                pathPair.setZ(p.getZ());
-                pceData.getPath().getStpPairs().add(i, pathPair);
-                i++;
-            } else {
-                // System.err.println("not adding edge "+edge);
+        StpPair pathPair = new StpPair();
+        pathPair.setA(srcStp);
+        for (Sdp edge: path) {
+            log.debug("--- Edge: " + edge.getId());
+            StpPair nextPathPair = new StpPair();
+            
+            if (pathPair.getA().getNetworkId().equalsIgnoreCase(edge.getA().getNetworkId())) {
+                pathPair.setZ(edge.getA());
+                nextPathPair.setA(edge.getZ());
+            }
+            else {
+                pathPair.setZ(edge.getZ());
+                nextPathPair.setA(edge.getA());
             }
 
+            pceData.getPath().getStpPairs().add(i, pathPair);
+            pathPair = nextPathPair;
+            i++;
         }
-        /*
-        System.out.println("**** PATH **** (length "+pceData.getPath().getStpPairs().size()+")");
+        pathPair.setZ(dstStp);
+        pceData.getPath().getStpPairs().add(i, pathPair);
+
         for (StpPair pair : pceData.getPath().getStpPairs()) {
-            System.out.println(pair.getA().toString()+ " -- "+ pair.getZ().toString());
+            log.debug("Pair: " + pair.getA() + " -- " + pair.getZ());
         }
-        */
-
-
-
         return pceData;
     }
 

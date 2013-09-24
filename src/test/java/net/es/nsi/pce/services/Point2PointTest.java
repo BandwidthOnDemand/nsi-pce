@@ -30,15 +30,15 @@ public class Point2PointTest {
         
         // Format the source STP.
         StpType srcStp = new StpType();
-        srcStp.setLocalId("i2-edge");
-        srcStp.setNetworkId("urn:ogf:network:internet2.edu");
+        srcStp.setLocalId("urn:ogf:network:uvalight.net:2013:bi-ps");
+        srcStp.setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
         evts.setSourceSTP(srcStp);
         evts.setSourceVLAN(1780);
         
         // Format the destination STP.
         StpType destStp = new StpType();
-        destStp.setLocalId("esnet-edge-one");
-        destStp.setNetworkId("urn:ogf:network:es.net");
+        destStp.setLocalId("urn:ogf:network:es.net:2013:ps:sunn:1");
+        destStp.setNetworkId("urn:ogf:network:es.net:2013");
         evts.setDestSTP(destStp);
         evts.setDestVLAN(1780);
         

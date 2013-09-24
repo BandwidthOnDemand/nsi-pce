@@ -4,6 +4,7 @@
  */
 package net.es.nsi.pce.services;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import net.es.nsi.pce.api.jaxb.DirectionalityType;
@@ -97,5 +98,21 @@ public class Point2Point {
         constraints.add(pe);
         
         return constraints;
+    }
+    
+    /**
+     * Find and return the VLAN label from within the Label list.
+     * 
+     * @param labels List of labels associated with an STP.
+     * @return VLAN value if found, null otherwise.
+     */
+    public static Integer getVlanLabel(ArrayList<LabelType> labels) {
+        for (LabelType label : labels) {
+            if (label.getLabeltype().equalsIgnoreCase(VLAN)) {
+                return Integer.valueOf(label.getValue());
+            }
+        }
+        
+        return null;
     }
 }

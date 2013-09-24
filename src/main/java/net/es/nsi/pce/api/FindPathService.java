@@ -15,8 +15,6 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
-import net.es.nsi.pce.api.jaxb.AuthMethodType;
-import net.es.nsi.pce.api.jaxb.AuthObjectType;
 import net.es.nsi.pce.api.jaxb.EthernetVlanType;
 import net.es.nsi.pce.api.jaxb.EthernetBaseType;
 import net.es.nsi.pce.api.jaxb.P2PServiceBaseType;
@@ -26,7 +24,6 @@ import net.es.nsi.pce.api.jaxb.FindPathResponseType;
 import net.es.nsi.pce.api.jaxb.FindPathStatusType;
 import net.es.nsi.pce.api.jaxb.ObjectFactory;
 import net.es.nsi.pce.api.jaxb.ReplyToType;
-import net.es.nsi.pce.api.jaxb.ResolvedPathType;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.jersey.RestServer;
 import net.es.nsi.pce.jersey.Utilities;
@@ -35,7 +32,6 @@ import net.es.nsi.pce.pf.PathfinderCore;
 import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.services.Service;
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.filter.LoggingFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,6 +163,8 @@ public class FindPathService {
                         }
                         catch (Exception ex) {
                             log.error("findPath: findPath EVTS failed", ex);
+                            resp.setStatus(FindPathStatusType.FAILED);
+                            resp.setMessage(ex.getMessage());
                         }
                     }
                     else if (inService.equals(Service.ETS)) {
@@ -175,7 +173,8 @@ public class FindPathService {
                             pathfinderCore.findPath(serviceType, ets, algorithm, resp.getPath());
                         }
                         catch (Exception ex) {
-                            log.error("findPath: findPath EVTS failed", ex);
+                            resp.setStatus(FindPathStatusType.FAILED);
+                            resp.setMessage(ex.getMessage());
                         }
                     }
                     else if (inService.equals(Service.P2PS)) {
@@ -184,7 +183,8 @@ public class FindPathService {
                             pathfinderCore.findPath(serviceType, p2ps, algorithm, resp.getPath());
                         }
                         catch (Exception ex) {
-                            log.error("findPath: findPath EVTS failed", ex);
+                            resp.setStatus(FindPathStatusType.FAILED);
+                            resp.setMessage(ex.getMessage());
                         }
                     }
                 }

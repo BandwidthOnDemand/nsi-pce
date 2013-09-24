@@ -48,7 +48,7 @@ public class PathfinderCore {
         sip = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
         ap = (AuthProvider) context.getBean("authProvider");
         tp = (TopologyProvider) context.getBean("topologyProvider");
-        tp.loadTopology();        
+        //tp.loadTopology();        
     }
     
     /**
@@ -150,7 +150,7 @@ public class PathfinderCore {
                 ao.setPassword(credentials.get(AuthCredential.PASSWORD));
             }
 
-            pathObj.setCrendentials(ao);
+            pathObj.setCredentials(ao);
 
             po.add(pathObj);
         }
@@ -240,7 +240,7 @@ public class PathfinderCore {
                 ao.setPassword(credentials.get(AuthCredential.PASSWORD));
             }
 
-            pathObj.setCrendentials(ao);
+            pathObj.setCredentials(ao);
 
             po.add(pathObj);
 

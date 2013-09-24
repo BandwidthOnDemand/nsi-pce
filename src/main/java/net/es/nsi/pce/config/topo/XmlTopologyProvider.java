@@ -6,7 +6,12 @@ package net.es.nsi.pce.config.topo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.Integer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -14,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.config.FileBasedConfigProvider;
 import net.es.nsi.pce.config.topo.nml.BidirectionalEthernetPort;
+import net.es.nsi.pce.config.topo.nml.Directionality;
 import net.es.nsi.pce.config.topo.nml.EthernetPort;
 import net.es.nsi.pce.pf.api.topo.Network;
 import net.es.nsi.pce.pf.api.topo.Sdp;
@@ -23,13 +29,14 @@ import net.es.nsi.pce.pf.api.topo.TopologyProvider;
 import net.es.nsi.pce.topology.jaxb.TopologyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 
         
 /**
  *
  * @author hacksaw
  */
-public class XmlTopologyProvider extends FileBasedConfigProvider implements TopologyProvider {
+public class XmlTopologyProvider extends FileBasedConfigProvider implements TopologyProvider, InitializingBean {
     private final Logger log = LoggerFactory.getLogger(getClass());
     
     // Location of topology files to load and monitor.
@@ -45,7 +52,12 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
     private Map<String, EthernetPort> ethernetPorts = new ConcurrentHashMap<String, EthernetPort>();    
 
     private Topology nsiTopology = new Topology();
-            
+    
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        this.loadTopology();
+    }
+    
     /**
      * @return the sourceDirectory
      */
@@ -62,6 +74,10 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
         
     @Override
     public void loadConfig() throws JAXBException, FileNotFoundException {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = new Date();
+        log.debug("----------------------------------------------------------");
+        log.debug("XmlTopologyProvider.loadConfig(): Starting " + dateFormat.format(date));
  
         // Get a list of files for supplied directory.
         File folder = new File(sourceDirectory);
@@ -143,8 +159,12 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
                 }
                 
                 // We need valid connectivity information before we can consolidate links.
-                if (remoteOutbound == null || remoteInbound == null) {
-                    log.error("Bidirectional port " + biPort.getPortId() + " cannot be consolidated due to missing port reference.");
+                if (remoteOutbound == null && remoteInbound == null) {
+                    // This must be a client "Uni" port with not connectivity information.
+                    log.debug("Bidirectional port " + biPort.getPortId() + " has no unidirectional port references.");
+                }
+                else if (remoteOutbound == null || remoteInbound == null) {
+                    log.error("Bidirectional port " + biPort.getPortId() + " cannot be consolidated due one missing unidirectional port reference.");
                 }
                 else {
                     // Verify the remote ports also think they are connected to these ports.
@@ -171,6 +191,10 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
                 }
             }
         }
+        
+        date = new Date();
+        log.debug("XmlTopologyProvider.loadConfig(): Ending " + dateFormat.format(date));
+        log.debug("----------------------------------------------------------");
     }
    
     private BidirectionalEthernetPort findBidirectionalEthernetPortByMemberId(String inbound, String outbound) {
@@ -188,8 +212,20 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
         return null;
     }
     
+    /**
+     * Take the NML topology for the set of interconnected networks and compute
+     * the NSI related topology objects (Network, STP, and SDP) used for path
+     * calculations.
+     * 
+     * @throws Exception If there are invalid topologies.
+     */
     @Override
     public void loadTopology() throws Exception {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = new Date();
+        log.debug("----------------------------------------------------------");
+        log.debug("XmlTopologyProvider.loadTopology(): Starting " + dateFormat.format(date));
+        
         // Load the NML topology model.
         loadConfig();
 
@@ -204,73 +240,99 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
             nsiTopology.setNetwork(networkId, net);
         }
 
-        // Add each bidirectional port the the STP topology.
+        // Add each bidirectional port as a bidirectional STP in the NSI topology.
         Map<String, EthernetPort> ethPorts = new ConcurrentHashMap<String, EthernetPort>(ethernetPorts);
         for (String key : ethPorts.keySet()) {
             EthernetPort localPort = ethPorts.remove(key);
             
-            // Make sure we have not already processed the port.
+            // Make sure we have not already processed the port as a remote end
+            // of a previous iteration.
             if (localPort != null && localPort.isBidirectional()) {
                 log.debug("Converting Ethernet port to STP: " + localPort.getPortId());
                 
                 BidirectionalEthernetPort localBiPort = (BidirectionalEthernetPort) localPort;
                 Network localNetwork = nsiTopology.getNetwork(localBiPort.getTopologyId());
+                
+                // This should never happen but skip the port if it does.
                 if (localNetwork == null) {
                     log.error("Could not find network " + localBiPort.getTopologyId());
+                    continue;
                 }
+
+                // We create an STP per vlan for the local Ethernet port.  There
+                // are created even if the remote end does not have a matching
+                // STP.  Why?  Logically these unconnected STP exist even though
+                // they can never be used.
+                HashMap<Integer, Stp> processedStp = new HashMap<Integer, Stp>();
                 
-                // We only process remote end STP if one exists!
-                BidirectionalEthernetPort remoteBiPort = localBiPort.getRemotePort();
-                Network remoteNetwork = null;
-                if (remoteBiPort != null) {
-                    // Remove remote port matching the local port.
-                    ethPorts.remove(remoteBiPort.getPortId());
-                    remoteNetwork = nsiTopology.getNetwork(remoteBiPort.getTopologyId());
-                }
-                else {
-                    log.error("No topology link for port " + localPort.getPortId());
-                }
-                
-                // We create an STP per vlan.  We already verified vlans match on both ends.
                 for (Integer vlanId : localBiPort.getVlans()) {
                     log.debug("Converting local port " + localBiPort.getPortId() + " vlan = " + vlanId);
                     
                     // Create the local STP and store in network topology.
                     Stp localStp = localNetwork.newStp(localBiPort, vlanId);
-                    localNetwork.put(localStp.getId(), localStp);                    
+                    localNetwork.put(localStp.getId(), localStp);
                     
-                    // If we have a remote port then create an STP, link them, and created associated SDP.
-                    if (remoteBiPort != null && remoteNetwork != null) {
+                    // Save it for SDP processing.
+                    processedStp.put(vlanId, localStp);
+                }
+                
+                // We only process remote end STP if one exists.  If there is
+                // no remote end then we do not create an SDP either.
+                BidirectionalEthernetPort remoteBiPort = localBiPort.getRemotePort();
+                Network remoteNetwork = null;
+                if (remoteBiPort != null) {
+                    // Remove remote port matching the local port so we do not
+                    // process it twice.
+                    ethPorts.remove(remoteBiPort.getPortId());
+                    remoteNetwork = nsiTopology.getNetwork(remoteBiPort.getTopologyId());
+                    
+                    // Create the remote STP so we don't need to do it later
+                    // when visiting the remote network.
+                    for (Integer vlanId : remoteBiPort.getVlans()) {
                         log.debug("Converting remote port " + remoteBiPort.getPortId() + " vlan = " + vlanId);
+
+                        // Create the remote STP and store in remote network topology.
                         Stp remoteStp = remoteNetwork.newStp(remoteBiPort, vlanId);
-                    
-                        // Save a remote cross reference.
-                        localStp.setRemoteStp(remoteStp);
-                        remoteStp.setRemoteStp(localStp);
-                    
-                        // Store remote STP in associated network topology.
                         remoteNetwork.put(remoteStp.getId(), remoteStp);
-                    
-                        // Create the SDP links for local STP.
-                        Sdp localSdp = new Sdp();
-                        localSdp.setA(localStp);
-                        localSdp.setZ(remoteStp);
-                        localNetwork.getSdp().add(localSdp);
-                    
-                        // Create the SDP links for remote STP.
-                        Sdp remoteSdp = new Sdp();
-                        remoteSdp.setA(remoteStp);
-                        remoteSdp.setZ(localStp);
-                        remoteNetwork.getSdp().add(remoteSdp);
-                    }
+                        
+                        // Create an SDP if there is a matching local STP.
+                        Stp localStp = processedStp.get(vlanId);
+                        if (localStp != null) {
+                            Sdp sdp = new Sdp();
+                            sdp.setA(localStp);
+                            sdp.setZ(remoteStp);
+                            sdp.setDirectionality(Directionality.bidirectional);
+                            nsiTopology.addSdp(sdp);
+                            log.debug("Added SDP: " + sdp.getId());                            
+                        }
+                    }          
+                }
+                else {
+                    // This is okay if the port is considered a client UNI port.
+                    log.info("No topology link for port " + localPort.getPortId());
                 }
             }
         }
+ 
+        // Dump Netoworks for debug.
+        log.debug("The following Networks were created:");
+        for (Network network : nsiTopology.getNetworks()) {
+            log.debug("    " + network.getNetworkId());
+        }
+        
+        // Dump SDP links for debug.
+        log.debug("The following SDP links were created:");
+        for (Sdp sdp : nsiTopology.getSdps()) {
+            log.debug("    " + sdp.getId());
+        }
+        
+        date = new Date();
+        log.debug("XmlTopologyProvider.loadTopology(): Ending " + dateFormat.format(date));
+        log.debug("----------------------------------------------------------");
     }
     
     @Override
-    public Topology getTopology() throws Exception {
-        loadTopology();
+    public Topology getTopology() {
         return nsiTopology;
     }
     

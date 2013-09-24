@@ -5,6 +5,7 @@ public class ServiceInfo {
     protected String nsaId;
     protected String providerUrl;
     protected String networkId;
+    
     public ServiceInfo() {
 
     }

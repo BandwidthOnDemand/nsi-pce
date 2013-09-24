@@ -14,8 +14,8 @@ public class ConfigReloader implements Job {
 
         // System.out.println("running config reloader");
         try {
-            TopologyProvider tp = (TopologyProvider) sc.getContext().getBean("topologyProvider");
-            tp.loadTopology();
+            //TopologyProvider tp = (TopologyProvider) sc.getContext().getBean("topologyProvider");
+            //tp.loadTopology();
 
         } catch (Exception ex) {
             //

@@ -209,8 +209,8 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
                                 log.debug("Unidirectional port: " + pg.getId());
                                 EthernetPort uniPort = getEthernetPorts().get(pg.getId());
                                 if (uniPort == null) {
-                                    log.error("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.");
-                                    throw new NoSuchElementException("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.");
+                                    log.error("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.  Dropping topology!");
+                                    throw new NoSuchElementException("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.   Dropping topology!");
                                 }
                                 
                                 if (uniPort.getOrientation() == Orientation.inbound) {

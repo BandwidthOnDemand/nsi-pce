@@ -2,9 +2,11 @@ package net.es.nsi.pce.pf.api.topo;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import net.es.nsi.pce.config.topo.nml.EthernetPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Defines an NSI network object consisting of a network identifier, a list
@@ -13,16 +15,20 @@ import net.es.nsi.pce.config.topo.nml.EthernetPort;
  * @author hacksaw
  */
 public class Network extends TopologyObject {
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private String name;
     private String networkId;
     private HashMap<String, Stp> stps = new HashMap<String, Stp>();
-    private Set<Sdp> sdpLinks = new HashSet<Sdp>();
 
     public void put(String stpId, Stp stp) {
         stps.put(stpId, stp);
     }
     
     public Stp getStp(String stpId) {
+        log.debug("getStp: Key dump");
+        for (String stp : stps.keySet()) {
+            log.debug("---- " + stp);
+        }
         return stps.get(stpId);
     }
     
@@ -34,18 +40,6 @@ public class Network extends TopologyObject {
         return stps.keySet();
     }
 
-    public Set<Sdp> getSdp() {
-        return sdpLinks;
-    }
-    public Set<Sdp> getSdpFrom(Stp stp) {
-        HashSet<Sdp> result = new HashSet<Sdp>();
-        for (Sdp conn : sdpLinks) {
-            if (conn.getA().equals(stp)) {
-                result.add(conn);
-            }
-        }
-        return result;
-    }
     
     public Stp newStp(EthernetPort port, Integer vlanId) {
         Stp stp = new Stp();
@@ -60,6 +54,11 @@ public class Network extends TopologyObject {
     public String getNetworkId() {
         return networkId;
     }
+    
+    public String getId() {
+        return networkId;
+    }
+
 
     public void setNetworkId(String networkId) {
         this.networkId = networkId;
@@ -77,5 +76,36 @@ public class Network extends TopologyObject {
      */
     public void setName(String name) {
         this.name = name;
+    }
+    
+    @Override
+    public String toString() {
+        return networkId;
+    }
+    
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        
+        if (! (other instanceof Network) ) {
+            return false;
+        }
+
+        Network that = (Network) other;
+        if (this.getId().contentEquals(that.getId())) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.name);
+        hash = 97 * hash + Objects.hashCode(this.networkId);
+        return hash;
     }
 }

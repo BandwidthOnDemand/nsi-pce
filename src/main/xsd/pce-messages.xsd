@@ -174,7 +174,7 @@
         <xsd:sequence>
             <xsd:element name="nsa" type="xsd:anyURI"/>
             <xsd:element name="csProviderURL" type="xsd:anyURI"/>
-            <xsd:element name="crendentials" type="tns:AuthObjectType"/>
+            <xsd:element name="credentials" type="tns:AuthObjectType"/>
             <xsd:element name="serviceType" type="xsd:string"/>
             <xsd:any namespace="##other"  processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>

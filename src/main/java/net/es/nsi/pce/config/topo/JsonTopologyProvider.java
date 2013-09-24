@@ -56,7 +56,7 @@ public class JsonTopologyProvider  extends FileBasedConfigProvider implements To
                     Sdp conn = new Sdp();
                     conn.setA(stp);
                     conn.setZ(rstp);
-                    n.getSdp().add(conn);
+                    topo.getSdpLinks().put(conn.getId(), conn);
 
                 }
             }

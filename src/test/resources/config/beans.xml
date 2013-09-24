@@ -10,7 +10,7 @@
           init-method="loadConfig"
           scope="singleton">
         <property name="filename"
-                  value="src/test/resources/config/nsa.json"/>
+                  value="config/nsa.json"/>
     </bean>
     <bean id="authProvider"
           class="net.es.nsi.pce.config.nsa.auth.NsaConfigAuthProvider"
@@ -21,13 +21,13 @@
           init-method="loadConfig"
           scope="singleton">
         <property name="filename"
-                  value="src/test/resources/config/http.json"/>
+                  value="config/http.json"/>
     </bean>
     <bean id="topologyProvider"
-          class="net.es.nsi.pce.config.topo.JsonTopologyProvider"
+          class="net.es.nsi.pce.config.topo.XmlTopologyProvider"
           scope="singleton">
-        <property name="filename"
-                  value="src/test/resources/config/topo.json"/>
+        <property name="topologySource"
+                  value="config/topology"/>
     </bean>
 
     <bean id="DijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="singleton">

@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
 import net.es.nsi.pce.api.jaxb.AuthMethodType;
+import net.es.nsi.pce.pf.api.topo.Sdp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,10 +61,18 @@ public class AuthPCE implements PCEModule {
                         newTopo.setNetwork(networkId, topo.getNetwork(networkId));
                     }
                 }
-
             }
         }
 
+        // Now we prune bidirectional SDP from the list that have had their networks removed.
+        for (Sdp sdp : topo.getSdps()) {
+            if (newTopo.getNetwork(sdp.getA().getNetwork().getNetworkId()) != null &&
+                    newTopo.getNetwork(sdp.getZ().getNetwork().getNetworkId()) != null) {
+                log.debug("AuthPCE.apply: Adding SDP " + sdp.getId());
+                newTopo.addSdp(sdp);
+            }
+        }
+        
         PCEData result = pceData;
         result.setTopology(newTopo);
         return result;

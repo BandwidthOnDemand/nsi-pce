@@ -32,6 +32,7 @@ public class JsonNsaConfigProvider  extends FileBasedConfigProvider implements S
 
     }
 
+    @Override
     public void afterPropertiesSet() throws Exception {
         this.loadConfig();
     }
