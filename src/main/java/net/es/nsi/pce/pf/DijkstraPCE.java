@@ -35,7 +35,7 @@ public class DijkstraPCE implements PCEModule {
 
         // Malformed request.
         if (pe == null) {
-            throw new IllegalArgumentException("DijkstraPCE.apply: No path endpoints found.");
+            throw new IllegalArgumentException("No path endpoints found.");
         }
                 
         Topology topo = pceData.getTopology();
@@ -44,10 +44,10 @@ public class DijkstraPCE implements PCEModule {
         Network dstNet = topo.getNetwork(pe.getDstNetwork());
         
         if (srcNet == null) {
-            throw new IllegalArgumentException("DijkstraPCE.apply: Unknown src network " + pe.getSrcNetwork());
+            throw new IllegalArgumentException("Unknown src network " + pe.getSrcNetwork());
         }
         else if (dstNet == null) {
-            throw new IllegalArgumentException("DijkstraPCE.apply: Unknown dst network " + pe.getDstNetwork());
+            throw new IllegalArgumentException("Unknown dst network " + pe.getDstNetwork());
         }
         
         // Build the Ethernet STP identifiers using local Id and vlan Ids.
@@ -56,31 +56,29 @@ public class DijkstraPCE implements PCEModule {
         Integer srcVlan = Point2Point.getVlanLabel(pe.getSrcLabels());
         Integer dstVlan = Point2Point.getVlanLabel(pe.getDstLabels());
         
-        log.debug("DijkstraPCE.apply: source STP " + srcStpId + " source vlan=" + srcVlan);
-        log.debug("DijkstraPCE.apply: destination STP " + dstStpId + " destination vlan=" + dstVlan);
+        log.debug("source STP " + srcStpId + " source vlan=" + srcVlan);
+        log.debug("destination STP " + dstStpId + " destination vlan=" + dstVlan);
         
         if (srcStpId != null && srcVlan != null) {
             srcStpId = srcStpId + ":vlan=" + srcVlan.toString();
-            log.debug("DijkstraPCE.apply: bulding source STP Id " + srcStpId);
         }
         
         if (dstStpId != null && dstVlan != null) {
             dstStpId = dstStpId + ":vlan=" + dstVlan.toString();
-            log.debug("DijkstraPCE.apply: bulding destination STP Id " + dstStpId);
         }
         
         Stp srcStp = srcNet.getStp(srcStpId);
         Stp dstStp = dstNet.getStp(dstStpId);
 
         if (srcStp == null) {
-            throw new IllegalArgumentException("DijkstraPCE.apply: Unknown source STP " + pe.getSrcLocal() + ", vlan=" + srcVlan);
+            throw new IllegalArgumentException("Unknown source STP " + pe.getSrcLocal() + ", vlan=" + srcVlan);
         }
         else if (dstStp == null) {
-            throw new IllegalArgumentException("DijkstraPCE.apply: Unknown destination STP " + pe.getDstLocal() + ", vlan=" + dstVlan);
+            throw new IllegalArgumentException("Unknown destination STP " + pe.getDstLocal() + ", vlan=" + dstVlan);
         }
         
-        log.debug("DijkstraPCE.apply: source STP:" + srcStp.getId());
-        log.debug("DijkstraPCE.apply: destination STP:" + dstStp.getId());
+        log.debug("source STP:" + srcStp.getId());
+        log.debug("destination STP:" + dstStp.getId());
         
         // We can save time by handling the special case of A and Z STP in same
         // network.

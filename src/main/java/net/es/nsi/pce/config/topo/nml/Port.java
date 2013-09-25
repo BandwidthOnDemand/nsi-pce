@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.config.topo.nml;
 
 import java.util.ArrayList;
@@ -10,7 +6,8 @@ import net.es.nsi.pce.topology.jaxb.LabelGroupType;
 import net.es.nsi.pce.topology.jaxb.LabelType;
 
 /**
- *
+ * This class models an NML port object.
+ * 
  * @author hacksaw
  */
 public class Port {

@@ -160,7 +160,7 @@
             <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1:out">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:manlan.net:2013:netherlight:in"/>
+                    <nml:PortGroup id="urn:ogf:network:manlan.internet2.net:2013:netherlight:in"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>
@@ -168,7 +168,7 @@
             <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1:in">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:manlan.net:2013:netherlight:out"/>
+                    <nml:PortGroup id="urn:ogf:network:manlan.internet2.net:2013:netherlight:out"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>

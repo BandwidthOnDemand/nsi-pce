@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.Set;
 import net.es.nsi.pce.config.topo.nml.EthernetPort;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Defines an NSI network object consisting of a network identifier, a list
@@ -15,7 +13,6 @@ import org.slf4j.LoggerFactory;
  * @author hacksaw
  */
 public class Network extends TopologyObject {
-    private final Logger log = LoggerFactory.getLogger(getClass());
     private String name;
     private String networkId;
     private HashMap<String, Stp> stps = new HashMap<String, Stp>();
@@ -25,10 +22,6 @@ public class Network extends TopologyObject {
     }
     
     public Stp getStp(String stpId) {
-        log.debug("getStp: Key dump");
-        for (String stp : stps.keySet()) {
-            log.debug("---- " + stp);
-        }
         return stps.get(stpId);
     }
     

@@ -1,5 +1,6 @@
 package net.es.nsi.pce.pf.api.topo;
 
+import java.util.Objects;
 import net.es.nsi.pce.config.topo.nml.Directionality;
 
 /**
@@ -19,37 +20,6 @@ public class Stp extends TopologyObject {
 
     public String getId() {
         return localId + ":vlan=" + vlanId;
-    }
-    
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        
-        if (! (other instanceof Stp) ) {
-            return false;
-        }
-
-        Stp that = (Stp) other;
-        if (!this.getNetwork().equals(that.getNetwork())) {
-            return false;
-        }
-        else if (!this.getLocalId().equals(that.getLocalId())) {
-            return false;
-        }
-        
-        if (this.vlanId != that.getVlanId()) {
-            return false;
-        }
-        
-        return true;
-
-    }
-    
-    @Override
-    public String toString() {
-        return getId();
     }
 
     public Network getNetwork() {
@@ -133,5 +103,46 @@ public class Stp extends TopologyObject {
      */
     public void setRemoteStp(Stp remoteStp) {
         this.remoteStp = remoteStp;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        
+        if (! (other instanceof Stp) ) {
+            return false;
+        }
+
+        Stp that = (Stp) other;
+        if (!this.getNetwork().equals(that.getNetwork())) {
+            return false;
+        }
+        else if (!this.getLocalId().equals(that.getLocalId())) {
+            return false;
+        }
+        
+        if (this.vlanId != that.getVlanId()) {
+            return false;
+        }
+        
+        return true;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 23 * hash + Objects.hashCode(this.networkId);
+        hash = 23 * hash + Objects.hashCode(this.localId);
+        hash = 23 * hash + Objects.hashCode(this.directionality);
+        hash = 23 * hash + this.vlanId;
+        return hash;
+    }
+    
+    @Override
+    public String toString() {
+        return getId();
     }
 }

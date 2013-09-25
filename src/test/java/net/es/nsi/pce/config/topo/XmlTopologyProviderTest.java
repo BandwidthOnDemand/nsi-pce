@@ -97,7 +97,9 @@ public class XmlTopologyProviderTest {
         DijkstraShortestPath<Network,Sdp> alg = new DijkstraShortestPath(graph);
         List<Sdp> list = alg.getPath(a, z);
 
-        System.out.println("The shortest unweighted path from" + a + " to " + z + " is:");
-        System.out.println(list.toString());
+        System.out.println("The shortest unweighted path from " + a + " to " + z + " is:");
+        for (Sdp sdp : list) {
+            System.out.println("  " + sdp.getId());
+        }
     }
 }

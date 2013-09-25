@@ -1,12 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.config.topo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.lang.Integer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -33,7 +28,11 @@ import org.springframework.beans.factory.InitializingBean;
 
         
 /**
- *
+ * This class models an XML based topology provider, or more specifically,
+ * manages NSI topology derived from XML-based NML topology specifications.
+ * It creates instances of NmlTopologyFile providers (one for each network)
+ * and then consolidates the NML topology into a simple NSI-based topology.
+ * 
  * @author hacksaw
  */
 public class XmlTopologyProvider extends FileBasedConfigProvider implements TopologyProvider, InitializingBean {
@@ -52,6 +51,9 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
     private Map<String, EthernetPort> ethernetPorts = new ConcurrentHashMap<String, EthernetPort>();    
 
     private Topology nsiTopology = new Topology();
+    
+    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private Date date;
     
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -74,11 +76,12 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
         
     @Override
     public void loadConfig() throws JAXBException, FileNotFoundException {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Date date = new Date();
-        log.debug("----------------------------------------------------------");
-        log.debug("XmlTopologyProvider.loadConfig(): Starting " + dateFormat.format(date));
- 
+        if (log.isDebugEnabled()) {
+            date = new Date();
+            log.debug("----------------------------------------------------------");
+            log.debug("XmlTopologyProvider.loadConfig(): Starting " + dateFormat.format(date));
+        }
+        
         // Get a list of files for supplied directory.
         File folder = new File(sourceDirectory);
         File[] listOfFiles = folder.listFiles(); 
@@ -86,6 +89,8 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
         String apSourceDirectory = folder.getAbsolutePath();
         log.info("Loading topology information from directory " + apSourceDirectory);
  
+        // TODO: Look for changes in files and only process if we really need to....
+        
         // Clear our existing file map so we can start freash.
         topologyFileMap.clear();
 
@@ -192,9 +197,11 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
             }
         }
         
-        date = new Date();
-        log.debug("XmlTopologyProvider.loadConfig(): Ending " + dateFormat.format(date));
-        log.debug("----------------------------------------------------------");
+        if (log.isDebugEnabled()) {
+            date = new Date();
+            log.debug("XmlTopologyProvider.loadConfig(): Ending " + dateFormat.format(date));
+            log.debug("----------------------------------------------------------");
+        }
     }
    
     private BidirectionalEthernetPort findBidirectionalEthernetPortByMemberId(String inbound, String outbound) {
@@ -221,10 +228,11 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
      */
     @Override
     public void loadTopology() throws Exception {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Date date = new Date();
-        log.debug("----------------------------------------------------------");
-        log.debug("XmlTopologyProvider.loadTopology(): Starting " + dateFormat.format(date));
+        if (log.isDebugEnabled()) {
+            date = new Date();
+            log.debug("----------------------------------------------------------");
+            log.debug("XmlTopologyProvider.loadTopology(): Starting " + dateFormat.format(date));
+        }
         
         // Load the NML topology model.
         loadConfig();
@@ -314,21 +322,23 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
             }
         }
  
-        // Dump Netoworks for debug.
-        log.debug("The following Networks were created:");
-        for (Network network : nsiTopology.getNetworks()) {
-            log.debug("    " + network.getNetworkId());
+        if (log.isDebugEnabled()) {
+            // Dump Netoworks for debug.
+            log.debug("The following Networks were created:");
+            for (Network network : nsiTopology.getNetworks()) {
+                log.debug("    " + network.getNetworkId());
+            }
+
+            // Dump SDP links for debug.
+            log.debug("The following SDP links were created:");
+            for (Sdp sdp : nsiTopology.getSdps()) {
+                log.debug("    " + sdp.getId());
+            }
+
+            date = new Date();
+            log.debug("XmlTopologyProvider.loadTopology(): Ending " + dateFormat.format(date));
+            log.debug("----------------------------------------------------------");
         }
-        
-        // Dump SDP links for debug.
-        log.debug("The following SDP links were created:");
-        for (Sdp sdp : nsiTopology.getSdps()) {
-            log.debug("    " + sdp.getId());
-        }
-        
-        date = new Date();
-        log.debug("XmlTopologyProvider.loadTopology(): Ending " + dateFormat.format(date));
-        log.debug("----------------------------------------------------------");
     }
     
     @Override

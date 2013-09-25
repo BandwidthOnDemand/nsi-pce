@@ -1,18 +1,14 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.config.topo;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -39,7 +35,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * A file based provider that reads XML formatted NML topology files and
+ * creates simple network objects used to later build NSI topology.  Each
+ * instance of the class models one NSA document in NML.
+ * 
  * @author hacksaw
  */
 public class NmlTopologyFile extends FileBasedConfigProvider implements TopologyProvider {
@@ -49,234 +48,241 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
     private NSAType nsa;
 
     // Map holding the network topologies indexed by network Id.
-    private HashMap<String, TopologyType> topologies = new HashMap<String, TopologyType>();
+    private ConcurrentHashMap<String, TopologyType> topologies = new ConcurrentHashMap<String, TopologyType>();
     
     // Map holding the network topologies indexed by network Id.
-    private Map<String, EthernetPort> ethernetPorts = new HashMap<String, EthernetPort>();
+    private ConcurrentHashMap<String, EthernetPort> ethernetPorts = new ConcurrentHashMap<String, EthernetPort>();
 
     @Override
     public void loadConfig() throws Exception {
-               
-        File configFile = new File(this.getFilename());
+        // Check to see if file associated with this topology has changed.
+        File configFile = new File(this.getFilename()); 
+        if (!configFile.exists()) {
+            throw new FileNotFoundException("Topology file does not exist: " + configFile);
+        }
+        
         String ap = configFile.getAbsolutePath();
-        log.info("Loading NML topology file " + ap);
+        log.info("Processing NML topology file " + ap);
 
-        if (isFileUpdated()) {
-            log.debug("File change detected, loading " + ap);
-            
-            if (!configFile.exists()) {
-                throw new FileNotFoundException("Topology file does not exist: " + configFile);
-            }
+        if (!isFileUpdated()) {
+            log.info("No change, file already loaded: " + ap);
+            return;
+        }
+        
+        // Looks like we have a change and need to process.
+        log.debug("File change detected, loading " + ap);
 
-            try {
-                final JAXBContext jaxbContext = JAXBContext.newInstance(NSAType.class);
-           
-                @SuppressWarnings("unchecked")
-                JAXBElement<NSAType> nsaElement = (JAXBElement<NSAType>) jaxbContext.createUnmarshaller().unmarshal(new BufferedInputStream(new FileInputStream(ap)));
-                nsa = nsaElement.getValue();
-                log.info("Loaded topology for NSA " + nsa.getId());
-            }
-            catch (JAXBException | FileNotFoundException jaxb) {
-                log.error("Error parsing file: " + ap, jaxb);
-                throw jaxb;
-            }
-            
-            // Parse the NSA object into component parts.
-            getTopologies().clear();
-            getEthernetPorts().clear();
-            for (TopologyType topology : nsa.getTopology()) {
-                // Save the topology.
-                getTopologies().put(topology.getId(), topology);
-                
-                // Unidirectional ports are modelled using Relations.
-                for (TopologyRelationType relation : topology.getRelation()) {
-                    // Assume these are all Ethernet ports in topology for now.
-                    Orientation orientation = Orientation.inboundOutbound;
-                    if (relation.getType().equalsIgnoreCase(Relationships.hasOutboundPort)) {
-                         orientation = Orientation.outbound;
-                    }
-                    else if (relation.getType().equalsIgnoreCase(Relationships.hasInboundPort)) {
-                        orientation = Orientation.inbound;
-                    }
-                    
-                    // Some topologies use PortGroup to model unidirectional ports.
-                    for (PortGroupType portGroup : relation.getPortGroup()) {
-                        log.debug("Creating unidirectional Ethernet port: " + portGroup.getId());
-                        EthernetPort ethPort = new EthernetPort();
-                        ethPort.setNsaId(nsa.getId());
-                        ethPort.setTopologyId(topology.getId());
-                        ethPort.setPortId(portGroup.getId());
-                        ethPort.setOrientation(orientation);
-                        ethPort.setDirectionality(Directionality.unidirectional);
+        try {
+            final JAXBContext jaxbContext = JAXBContext.newInstance(NSAType.class);
 
-                        // Extract the labels associated with this port and create individual VLAN labels.
-                        ethPort.setLabelGroups(portGroup.getLabelGroup());
-                        for (LabelGroupType labelGroup : portGroup.getLabelGroup()) {
-                            // We break out the vlan specific lable.
-                            if (EthernetPort.isVlanLabel(labelGroup.getLabeltype())) {
-                                ethPort.addVlanFromString(labelGroup.getValue());
-                            }
-                        }
+            @SuppressWarnings("unchecked")
+            JAXBElement<NSAType> nsaElement = (JAXBElement<NSAType>) jaxbContext.createUnmarshaller().unmarshal(new BufferedInputStream(new FileInputStream(ap)));
+            nsa = nsaElement.getValue();
+            log.info("Loaded topology for NSA " + nsa.getId());
+        }
+        catch (JAXBException | FileNotFoundException jaxb) {
+            log.error("Error parsing file: " + ap, jaxb);
+            throw jaxb;
+        }
 
-                        // PortGroup relationship has isAlias connection information.
-                        int count = 0;
-                        for (PortGroupRelationType pgRelation : portGroup.getRelation()) {
-                            log.debug("Looking for isAlias relationship: " + pgRelation.getType());
-                            if (Relationships.isAlias(pgRelation.getType())) {
-                                log.debug("Found isAlias relationship.");
-                                for (PortGroupType alias : pgRelation.getPortGroup()) {
-                                    log.debug("isAlias: " + alias.getId());
-                                    ethPort.getConnectedTo().add(alias.getId());
-                                    count++;
-                                }
-                            }
-                        }
-                        
-                        if (count == 0) {
-                            log.error("Unidirectional port " + ethPort.getPortId() + " has zero isAlias relationships.");
-                        }
-                        else if (count > 1) {
-                            log.error("Unidirectional port " + ethPort.getPortId() + " has " + count + "isAlias relationships.");
-                        }
-                        
-                        getEthernetPorts().put(portGroup.getId(), ethPort);
-                    }
+        // Populate temportary maps and replace once completed.
+        ConcurrentHashMap<String, TopologyType> newTopologies = new ConcurrentHashMap<String, TopologyType>();
+        ConcurrentHashMap<String, EthernetPort> newEthernetPorts = new ConcurrentHashMap<String, EthernetPort>();
+        
+        // Parse the NSA object into component parts.
+        for (TopologyType topology : nsa.getTopology()) {
+            // Save the topology.
+            newTopologies.put(topology.getId(), topology);
 
-                    // Some topologies use Port to model unidirectional ports.
-                    for (PortType port : relation.getPort()) {
-                        log.debug("Creating unidirectional Ethernet port: " + port.getId());
-                        EthernetPort ethPort = new EthernetPort();
-                        ethPort.setNsaId(nsa.getId());
-                        ethPort.setTopologyId(topology.getId());
-                        ethPort.setPortId(port.getId());
-                        ethPort.setOrientation(orientation);
-                        ethPort.setDirectionality(Directionality.unidirectional);
-
-                        // Extract the label associated with this port and create the VLAN.
-                        LabelType label = port.getLabel();
-                        ethPort.getLabels().add(label);
-                        if (EthernetPort.isVlanLabel(label.getLabeltype())) {
-                            ethPort.addVlanFromString(label.getValue());
-                        }
-
-                        // Port relationship has isAlias connection information.
-                        int count = 0;
-                        for (PortRelationType pRelation : port.getRelation()) {
-                            log.debug("Looking for isAlias relationship: " + pRelation.getType());
-                            if (Relationships.isAlias(pRelation.getType())) {
-                                log.debug("Found isAlias relationship.");
-                                for (PortType alias : pRelation.getPort()) {
-                                    log.debug("isAlias: " + alias.getId());
-                                    ethPort.getConnectedTo().add(alias.getId());
-                                    count++;
-                                }
-                            }
-                        }
-                        
-                        if (count == 0) {
-                            log.error("Unidirectional port " + ethPort.getPortId() + " has zero isAlias relationships.");
-                        }
-                        else if (count > 1) {
-                            log.error("Unidirectional port " + ethPort.getPortId() + " has " + count + "isAlias relationships.");
-                        }
-                        
-                        getEthernetPorts().put(port.getId(), ethPort);
-                    }                    
+            // Unidirectional ports are modelled using Relations.
+            for (TopologyRelationType relation : topology.getRelation()) {
+                // Assume these are all Ethernet ports in topology for now.
+                Orientation orientation = Orientation.inboundOutbound;
+                if (relation.getType().equalsIgnoreCase(Relationships.hasOutboundPort)) {
+                     orientation = Orientation.outbound;
                 }
-                
-                // Bidirectional ports are stored in group element.
-                List<NetworkObject> groups = topology.getGroup();
-                for (NetworkObject group : groups) {
-                    log.debug("group object id: " + group.getId());
-                    
-                    // Process the BidirectionalPort.
-                    if (group instanceof BidirectionalPortType) {
-                        log.debug("group object is BidirectionalPortType");
-                        BidirectionalPortType port = (BidirectionalPortType) group;
-                        
-                        BidirectionalEthernetPort ethPort = new BidirectionalEthernetPort();
-                        ethPort.setNsaId(nsa.getId());
-                        ethPort.setTopologyId(topology.getId());
-                        ethPort.setPortId(port.getId());
-                        ethPort.setOrientation(Orientation.inboundOutbound);
-                        ethPort.setDirectionality(Directionality.bidirectional);
-                        
-                        // Process port groups containing the unidirectional references.
-                        List<JAXBElement<? extends NetworkObject>> rest = port.getRest();
-                        for (JAXBElement<?> element: rest) {
-                            if (element.getValue() instanceof PortGroupType) {
-                                PortGroupType pg = (PortGroupType) element.getValue();
-                                log.debug("Unidirectional port: " + pg.getId());
-                                EthernetPort uniPort = getEthernetPorts().get(pg.getId());
-                                if (uniPort == null) {
-                                    log.error("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.  Dropping topology!");
-                                    throw new NoSuchElementException("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.   Dropping topology!");
-                                }
-                                
-                                if (uniPort.getOrientation() == Orientation.inbound) {
-                                    ethPort.setInbound(uniPort);                                    
-                                }
-                                else if (uniPort.getOrientation() == Orientation.outbound) {
-                                    ethPort.setOutbound(uniPort);
-                                }
-                                else {
-                                    log.error("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
-                                    throw new NoSuchElementException("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
-                                }
-                            }
-                            else if (element.getValue() instanceof PortType) {
-                                PortType p = (PortType) element.getValue();
-                                log.debug("Unidirectional port: " + p.getId());
-                                EthernetPort uniPort = getEthernetPorts().get(p.getId());
-                                if (uniPort == null) {
-                                    log.error("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.");
-                                    throw new NoSuchElementException("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.");
-                                }
-                                
-                                if (uniPort.getOrientation() == Orientation.inbound) {
-                                    ethPort.setInbound(uniPort);                                    
-                                }
-                                else if (uniPort.getOrientation() == Orientation.outbound) {
-                                    ethPort.setOutbound(uniPort);
-                                }
-                                else {
-                                    log.error("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
-                                    throw new NoSuchElementException("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
-                                }                                
-                            }
+                else if (relation.getType().equalsIgnoreCase(Relationships.hasInboundPort)) {
+                    orientation = Orientation.inbound;
+                }
+
+                // Some topologies use PortGroup to model unidirectional ports.
+                for (PortGroupType portGroup : relation.getPortGroup()) {
+                    log.debug("Creating unidirectional Ethernet port: " + portGroup.getId());
+                    EthernetPort ethPort = new EthernetPort();
+                    ethPort.setNsaId(nsa.getId());
+                    ethPort.setTopologyId(topology.getId());
+                    ethPort.setPortId(portGroup.getId());
+                    ethPort.setOrientation(orientation);
+                    ethPort.setDirectionality(Directionality.unidirectional);
+
+                    // Extract the labels associated with this port and create individual VLAN labels.
+                    ethPort.setLabelGroups(portGroup.getLabelGroup());
+                    for (LabelGroupType labelGroup : portGroup.getLabelGroup()) {
+                        // We break out the vlan specific lable.
+                        if (EthernetPort.isVlanLabel(labelGroup.getLabeltype())) {
+                            ethPort.addVlanFromString(labelGroup.getValue());
                         }
-                        
-                        if (ethPort.getInbound() == null) {
-                            throw new IllegalArgumentException("Bidirectional port " + port.getId() + " does not have an associated inbound unidirectional port."); 
-                        }
-                        else if (ethPort.getOutbound() == null) {
-                            throw new IllegalArgumentException("Bidirectional port " + port.getId() + " does not have an associated outbound unidirectional port."); 
-                        }
-                        
-                        // Merge the VLAN id from uni ports into bidirectional port.
-                        Set<Integer> inVLANs = ethPort.getInbound().getVlans();
-                        Set<Integer> outVLANs = ethPort.getOutbound().getVlans();
-                        
-                        if (inVLANs == null && outVLANs == null) {
-                            // No vlans provided so we can assume this is okay.
-                            log.debug("Bidirectional port " + port.getId() + " has vlans are null for " + ethPort.getInbound().getPortId() + ", and " + ethPort.getOutbound().getPortId());
-                        }
-                        if (inVLANs != null && outVLANs != null && inVLANs.equals(outVLANs)) {
-                            ethPort.setVlans(inVLANs);
-                        }
-                        else {
-                            log.error("Bidirectional port " + port.getId() + " contains unidirectional ports with differing vlan ranges.");
-                            throw new IllegalArgumentException("Bidirectional port " + port.getId() + " contains unidirectional ports with differing vlan ranges.");                            
-                        }
-                        
-                        getEthernetPorts().put(port.getId(), ethPort);
                     }
+
+                    // PortGroup relationship has isAlias connection information.
+                    int count = 0;
+                    for (PortGroupRelationType pgRelation : portGroup.getRelation()) {
+                        log.debug("Looking for isAlias relationship: " + pgRelation.getType());
+                        if (Relationships.isAlias(pgRelation.getType())) {
+                            log.debug("Found isAlias relationship.");
+                            for (PortGroupType alias : pgRelation.getPortGroup()) {
+                                log.debug("isAlias: " + alias.getId());
+                                ethPort.getConnectedTo().add(alias.getId());
+                                count++;
+                            }
+                        }
+                    }
+
+                    if (count == 0) {
+                        log.error("Unidirectional port " + ethPort.getPortId() + " has zero isAlias relationships.");
+                    }
+                    else if (count > 1) {
+                        log.error("Unidirectional port " + ethPort.getPortId() + " has " + count + "isAlias relationships.");
+                    }
+
+                    newEthernetPorts.put(portGroup.getId(), ethPort);
+                }
+
+                // Some topologies use Port to model unidirectional ports.
+                for (PortType port : relation.getPort()) {
+                    log.debug("Creating unidirectional Ethernet port: " + port.getId());
+                    EthernetPort ethPort = new EthernetPort();
+                    ethPort.setNsaId(nsa.getId());
+                    ethPort.setTopologyId(topology.getId());
+                    ethPort.setPortId(port.getId());
+                    ethPort.setOrientation(orientation);
+                    ethPort.setDirectionality(Directionality.unidirectional);
+
+                    // Extract the label associated with this port and create the VLAN.
+                    LabelType label = port.getLabel();
+                    ethPort.getLabels().add(label);
+                    if (EthernetPort.isVlanLabel(label.getLabeltype())) {
+                        ethPort.addVlanFromString(label.getValue());
+                    }
+
+                    // Port relationship has isAlias connection information.
+                    int count = 0;
+                    for (PortRelationType pRelation : port.getRelation()) {
+                        log.debug("Looking for isAlias relationship: " + pRelation.getType());
+                        if (Relationships.isAlias(pRelation.getType())) {
+                            log.debug("Found isAlias relationship.");
+                            for (PortType alias : pRelation.getPort()) {
+                                log.debug("isAlias: " + alias.getId());
+                                ethPort.getConnectedTo().add(alias.getId());
+                                count++;
+                            }
+                        }
+                    }
+
+                    if (count == 0) {
+                        log.error("Unidirectional port " + ethPort.getPortId() + " has zero isAlias relationships.");
+                    }
+                    else if (count > 1) {
+                        log.error("Unidirectional port " + ethPort.getPortId() + " has " + count + "isAlias relationships.");
+                    }
+
+                    newEthernetPorts.put(port.getId(), ethPort);
+                }                    
+            }
+
+            // Bidirectional ports are stored in group element.
+            List<NetworkObject> groups = topology.getGroup();
+            for (NetworkObject group : groups) {
+                log.debug("group object id: " + group.getId());
+
+                // Process the BidirectionalPort.
+                if (group instanceof BidirectionalPortType) {
+                    log.debug("group object is BidirectionalPortType");
+                    BidirectionalPortType port = (BidirectionalPortType) group;
+
+                    BidirectionalEthernetPort ethPort = new BidirectionalEthernetPort();
+                    ethPort.setNsaId(nsa.getId());
+                    ethPort.setTopologyId(topology.getId());
+                    ethPort.setPortId(port.getId());
+                    ethPort.setOrientation(Orientation.inboundOutbound);
+                    ethPort.setDirectionality(Directionality.bidirectional);
+
+                    // Process port groups containing the unidirectional references.
+                    List<JAXBElement<? extends NetworkObject>> rest = port.getRest();
+                    for (JAXBElement<?> element: rest) {
+                        if (element.getValue() instanceof PortGroupType) {
+                            PortGroupType pg = (PortGroupType) element.getValue();
+                            log.debug("Unidirectional port: " + pg.getId());
+                            EthernetPort uniPort = newEthernetPorts.get(pg.getId());
+                            if (uniPort == null) {
+                                log.error("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.  Dropping topology!");
+                                throw new NoSuchElementException("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.   Dropping topology!");
+                            }
+
+                            if (uniPort.getOrientation() == Orientation.inbound) {
+                                ethPort.setInbound(uniPort);                                    
+                            }
+                            else if (uniPort.getOrientation() == Orientation.outbound) {
+                                ethPort.setOutbound(uniPort);
+                            }
+                            else {
+                                log.error("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
+                                throw new NoSuchElementException("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
+                            }
+                        }
+                        else if (element.getValue() instanceof PortType) {
+                            PortType p = (PortType) element.getValue();
+                            log.debug("Unidirectional port: " + p.getId());
+                            EthernetPort uniPort = newEthernetPorts.get(p.getId());
+                            if (uniPort == null) {
+                                log.error("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.");
+                                throw new NoSuchElementException("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.");
+                            }
+
+                            if (uniPort.getOrientation() == Orientation.inbound) {
+                                ethPort.setInbound(uniPort);                                    
+                            }
+                            else if (uniPort.getOrientation() == Orientation.outbound) {
+                                ethPort.setOutbound(uniPort);
+                            }
+                            else {
+                                log.error("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
+                                throw new NoSuchElementException("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
+                            }                                
+                        }
+                    }
+
+                    if (ethPort.getInbound() == null) {
+                        throw new IllegalArgumentException("Bidirectional port " + port.getId() + " does not have an associated inbound unidirectional port."); 
+                    }
+                    else if (ethPort.getOutbound() == null) {
+                        throw new IllegalArgumentException("Bidirectional port " + port.getId() + " does not have an associated outbound unidirectional port."); 
+                    }
+
+                    // Merge the VLAN id from uni ports into bidirectional port.
+                    Set<Integer> inVLANs = ethPort.getInbound().getVlans();
+                    Set<Integer> outVLANs = ethPort.getOutbound().getVlans();
+
+                    if (inVLANs == null && outVLANs == null) {
+                        // No vlans provided so we can assume this is okay.
+                        log.debug("Bidirectional port " + port.getId() + " has vlans are null for " + ethPort.getInbound().getPortId() + ", and " + ethPort.getOutbound().getPortId());
+                    }
+                    if (inVLANs != null && outVLANs != null && inVLANs.equals(outVLANs)) {
+                        ethPort.setVlans(inVLANs);
+                    }
+                    else {
+                        log.error("Bidirectional port " + port.getId() + " contains unidirectional ports with differing vlan ranges.");
+                        throw new IllegalArgumentException("Bidirectional port " + port.getId() + " contains unidirectional ports with differing vlan ranges.");                            
+                    }
+
+                    newEthernetPorts.put(port.getId(), ethPort);
                 }
             }
         }
-        else {
-            log.debug("No change, file already loaded: " + ap);
-        }
+        
+        // We are done so update the existing topology with this new one.
+        topologies = newTopologies;
+        ethernetPorts = newEthernetPorts;        
     }
 
     @Override
@@ -308,15 +314,16 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
     /**
      * @return the topologies
      */
-    public HashMap<String, TopologyType> getTopologies() {
+    public Map<String, TopologyType> getTopologies() {
         return topologies;
     }
 
     /**
      * @param topologies the topologies to set
      */
-    public void setTopologies(HashMap<String, TopologyType> topologies) {
-        this.topologies = topologies;
+    public void setTopologies(Map<String, TopologyType> topologies) {
+        this.topologies.clear();
+        this.topologies.putAll(topologies);
     }
 
     /**
@@ -330,6 +337,7 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
      * @param ethernetPorts the ethernetPorts to set
      */
     public void setEthernetPorts(Map<String, EthernetPort> ethernetPorts) {
-        this.ethernetPorts = ethernetPorts;
+        this.ethernetPorts.clear();
+        this.ethernetPorts.putAll(ethernetPorts);
     }
 }

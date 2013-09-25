@@ -1,11 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.config.topo.nml;
 
 /**
- *
+ * This class models an NML bidirectional Ethernet port.
+ * 
  * @author hacksaw
  */
 public class BidirectionalEthernetPort extends EthernetPort {
