@@ -188,6 +188,10 @@ public class FindPathService {
                         }
                     }
                 }
+                else {
+                    log.error("Found element " + jaxb.getName().toString() + " that is not part of service definition " + request.getServiceType());
+                    return RestServer.getBadRequestError(jaxb.getName().toString());                  
+                }
             }
         }
         

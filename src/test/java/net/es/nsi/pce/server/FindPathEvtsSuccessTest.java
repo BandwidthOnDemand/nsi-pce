@@ -35,7 +35,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 
-public class FindPathSuccessTest extends JerseyTest {
+public class FindPathEvtsSuccessTest extends JerseyTest {
 
     private final static HttpConfig testServer = new HttpConfig() {
         { url = "http://localhost:9800/"; packageName = "net.es.nsi.pce.client"; }
@@ -85,6 +85,17 @@ public class FindPathSuccessTest extends JerseyTest {
         }
     };
     
+    // GLIF 2013 video demo endpoints.
+    private final static StpTestData test5 = new StpTestData() {
+        { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:282");
+          this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
+          this.setVlanA(1784);
+          this.getStpZ().setLocalId("urn:ogf:network:singaren.net:2013:videohost");
+          this.getStpZ().setNetworkId("urn:ogf:network:singaren.net:2013");
+          this.setVlanZ(1784);
+        }
+    };
+    
     private final static List<StpTestData> testData = new ArrayList<StpTestData>() {
         private static final long serialVersionUID = 1L;
         {
@@ -92,6 +103,7 @@ public class FindPathSuccessTest extends JerseyTest {
             this.add(test2);
             this.add(test3);
             this.add(test4);
+            this.add(test5);
         }
     };
 

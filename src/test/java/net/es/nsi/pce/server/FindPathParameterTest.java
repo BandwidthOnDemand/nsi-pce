@@ -21,6 +21,7 @@ import net.es.nsi.pce.api.jaxb.DirectionalityType;
 import net.es.nsi.pce.api.jaxb.EthernetVlanType;
 import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
 import net.es.nsi.pce.api.jaxb.FindPathRequestType;
+import net.es.nsi.pce.api.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.api.jaxb.ReplyToType;
 import net.es.nsi.pce.api.jaxb.StpType;
 import net.es.nsi.pce.jersey.RestClient;
@@ -83,6 +84,9 @@ public class FindPathParameterTest extends JerseyTest {
         missingReplyToUrlRequest(MediaType.APPLICATION_XML);
         missingReplyToMediaTypeRequest(MediaType.APPLICATION_XML);
         missingAlgorithmRequest(MediaType.APPLICATION_XML);
+        missingSymmetricPathRequest(MediaType.APPLICATION_XML);
+        invalidP2psRequest(MediaType.APPLICATION_XML);
+
     }
     
     @Test
@@ -93,6 +97,8 @@ public class FindPathParameterTest extends JerseyTest {
         missingReplyToUrlRequest(MediaType.APPLICATION_JSON);
         missingReplyToMediaTypeRequest(MediaType.APPLICATION_JSON);
         missingAlgorithmRequest(MediaType.APPLICATION_JSON);
+        missingSymmetricPathRequest(MediaType.APPLICATION_XML);
+        invalidP2psRequest(MediaType.APPLICATION_JSON);
     }
     
     public void missingFindElementRequest(String mediaType) throws Exception {
@@ -190,6 +196,47 @@ public class FindPathParameterTest extends JerseyTest {
         Response response = webTarget.request(mediaType).post(Entity.entity(new GenericEntity<JAXBElement<FindPathRequestType>>(jaxbRequest) {}, mediaType));
         assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
     }
+
+    public void missingSymmetricPathRequest(String mediaType) throws Exception {
+        final WebTarget webTarget = target().path("paths/find");
+        
+        // Fill in our valid path request.
+        FindPathRequestType req = getSuccessfulPathRequest(mediaType);
+        
+        for (Object obj: req.getAny()) {
+            if (obj instanceof javax.xml.bind.JAXBElement) {
+                JAXBElement jaxb = (JAXBElement) obj;
+                if (jaxb.getValue() instanceof EthernetVlanType) {
+                    EthernetVlanType evts = (EthernetVlanType) jaxb.getValue();
+                    evts.setSymmetricPath(null);
+                }
+            }
+        }
+        
+        JAXBElement<FindPathRequestType> jaxbRequest = factory.createFindPathRequest(req);
+        
+        Response response = webTarget.request(mediaType).post(Entity.entity(new GenericEntity<JAXBElement<FindPathRequestType>>(jaxbRequest) {}, mediaType));
+        assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
+    }
+        
+    /**
+     * Request an EVTS.A-GOLE service but provide the p2ps element which should
+     * be rejected.
+     * 
+     * @param mediaType
+     * @throws Exception 
+     */
+    public void invalidP2psRequest(String mediaType) throws Exception {
+        final WebTarget webTarget = target().path("paths/find");
+        
+        // Fill in our valid path request.
+        FindPathRequestType req = getP2psPathRequest(mediaType);
+        
+        JAXBElement<FindPathRequestType> jaxbRequest = factory.createFindPathRequest(req);
+        
+        Response response = webTarget.request(mediaType).post(Entity.entity(new GenericEntity<JAXBElement<FindPathRequestType>>(jaxbRequest) {}, mediaType));
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
         
     public FindPathRequestType getSuccessfulPathRequest(String mediaType) throws DatatypeConfigurationException {
          // Fill in our valid path request.
@@ -235,6 +282,52 @@ public class FindPathParameterTest extends JerseyTest {
         evts.setDestVLAN(1784);
 
         req.getAny().add(factory.createEvts(evts));
+        
+        return req;
+    }
+    
+    public FindPathRequestType getP2psPathRequest(String mediaType) throws DatatypeConfigurationException {
+         // Fill in our valid path request.
+        FindPathRequestType req = new FindPathRequestType();
+        req.setCorrelationId(UUID.randomUUID().toString());
+        
+        ReplyToType reply = new ReplyToType();
+        reply.setUrl(callbackURL);
+        reply.setMediaType(mediaType);
+        req.setReplyTo(reply);
+        req.setAlgorithm(FindPathAlgorithmType.CHAIN);
+                
+        // Reservation start time is 2 minutes from now.
+        GregorianCalendar startTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        startTime.add(Calendar.MINUTE, 2);
+        req.setStartTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(startTime));
+ 
+        // Reservation end time is 12 minutes from now.
+        GregorianCalendar endTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        endTime.add(Calendar.MINUTE, 12);
+        req.setEndTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(endTime));
+        
+        req.setServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
+
+        // We want an EVTS service for this test.
+        P2PServiceBaseType p2ps = new P2PServiceBaseType();
+        p2ps.setCapacity(100L);
+        p2ps.setDirectionality(DirectionalityType.BIDIRECTIONAL);
+        p2ps.setSymmetricPath(Boolean.TRUE);
+        
+        // Format the source STP.
+        StpType srcStp = new StpType();
+        srcStp.setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:uva:1");
+        srcStp.setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
+        p2ps.setSourceSTP(srcStp);
+        
+        // Format the destination STP.
+        StpType destStp = new StpType();
+        destStp.setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:pionier:1");
+        destStp.setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
+        p2ps.setDestSTP(destStp);
+
+        req.getAny().add(factory.createP2Ps(p2ps));
         
         return req;
     }

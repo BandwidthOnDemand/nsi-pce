@@ -35,7 +35,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 
-public class FindPathFailedTest extends JerseyTest {
+public class FindPathEvtsFailedTest extends JerseyTest {
 
     private final static HttpConfig testServer = new HttpConfig() {
         { url = "http://localhost:9800/"; packageName = "net.es.nsi.pce.client"; }

@@ -48,10 +48,16 @@ public class Point2Point {
         }
         constraints.add(directionality);
         
-        // Add symmetric path.
-        SymmetricPathConstraint symmetricPath = new SymmetricPathConstraint();
-        symmetricPath.setSymmetricPath(service.isSymmetricPath());
-        constraints.add(symmetricPath);
+        // Add symmetric path if service is bidirectional.
+        if (service.getDirectionality() != null &&
+                service.getDirectionality() == DirectionalityType.BIDIRECTIONAL) {
+            SymmetricPathConstraint symmetricPath = new SymmetricPathConstraint();
+            symmetricPath.setSymmetricPath(false);
+            if (service.isSymmetricPath() != null) {
+                symmetricPath.setSymmetricPath(service.isSymmetricPath());
+            }
+            constraints.add(symmetricPath);
+        }
 
         // TODO: Still need to add these....
         service.getEro();

@@ -159,13 +159,13 @@ public class PathfinderCore {
     }
         
     public List<ResolvedPathType> findPath(String serviceType, EthernetBaseType ets, FindPathAlgorithmType algorithm, List<ResolvedPathType> po) throws Exception {
-        log.debug("findPath: ETS path request");
-        return null;
+        log.error("findPath: The ETS service request is not supported!");
+        throw new UnsupportedOperationException("ETS service request is not supported");
     }
 
     public List<ResolvedPathType> findPath(String serviceType, P2PServiceBaseType p2ps, FindPathAlgorithmType algorithm, List<ResolvedPathType> po) throws Exception {
         log.debug("findPath: P2PS path request");
-        return null;
+        throw new UnsupportedOperationException("P2PS service request is not supported");
     }
 
     public List<ResolvedPathType> findPath(StpType src, StpType dst, FindPathAlgorithmType algorithm, List<ResolvedPathType> po) throws Exception {
@@ -174,13 +174,13 @@ public class PathfinderCore {
 
         PCEData pceData = new PCEData();
 
-        TopoPathEndpoints pe = new TopoPathEndpoints();
-        pe.setSrcLocal(src.getLocalId());
-        pe.setSrcNetwork(src.getNetworkId());
+        TopoPathEndpoints pathEndpoints = new TopoPathEndpoints();
+        pathEndpoints.setSrcLocal(src.getLocalId());
+        pathEndpoints.setSrcNetwork(src.getNetworkId());
 
-        pe.setDstLocal(dst.getLocalId());
-        pe.setDstNetwork(dst.getNetworkId());
-        pceData.getConstraints().add(pe);
+        pathEndpoints.setDstLocal(dst.getLocalId());
+        pathEndpoints.setDstNetwork(dst.getNetworkId());
+        pceData.getConstraints().add(pathEndpoints);
         pceData.setTopology(tp.getTopology());
 
         PCEModule pce;
