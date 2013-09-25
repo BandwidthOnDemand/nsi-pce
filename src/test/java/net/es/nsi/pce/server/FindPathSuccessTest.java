@@ -44,6 +44,36 @@ public class FindPathSuccessTest extends JerseyTest {
     
     private final static ObjectFactory factory = new ObjectFactory();
     
+    private final static StpTestData test1 = new StpTestData() {
+        { this.getStpA().setLocalId("urn:ogf:network:kddilabs.jp:2013:bi-ps");
+          this.getStpA().setNetworkId("urn:ogf:network:kddilabs.jp:2013:topology");
+          this.setVlanA(1781);
+          this.getStpZ().setLocalId("urn:ogf:network:uvalight.net:2013:bi-ps");
+          this.getStpZ().setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
+          this.setVlanZ(1781);
+        }
+    };
+
+    private final static StpTestData test2 = new StpTestData() {
+        { this.getStpA().setLocalId("urn:ogf:network:uvalight.net:2013:bi-ps");
+          this.getStpA().setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
+          this.setVlanA(1780);
+          this.getStpZ().setLocalId("urn:ogf:network:es.net:2013:ps:sunn:1");
+          this.getStpZ().setNetworkId("urn:ogf:network:es.net:2013");
+          this.setVlanZ(1780);
+        }
+    };
+
+    private final static StpTestData test3 = new StpTestData() {
+        { this.getStpA().setLocalId("urn:ogf:network:aist.go.jp:2013:bi-ps");
+          this.getStpA().setNetworkId("urn:ogf:network:aist.go.jp:2013:topology");
+          this.setVlanA(1780);
+          this.getStpZ().setLocalId("urn:ogf:network:pionier.net.pl:2013:bi-ps");
+          this.getStpZ().setNetworkId("urn:ogf:network:pionier.net.pl:2013:topology");
+          this.setVlanZ(1780);
+        }
+    };
+        
     @Override
     protected Application configure() {
         enable(TestProperties.LOG_TRAFFIC);
@@ -71,25 +101,33 @@ public class FindPathSuccessTest extends JerseyTest {
 
     @Test
     public void testXmlFindPath() throws Exception {
-            testSuccessfulPath(MediaType.APPLICATION_XML);
+        testSuccessfulPath(MediaType.APPLICATION_XML, test1);
+        testSuccessfulPath(MediaType.APPLICATION_XML, test2);
+        testSuccessfulPath(MediaType.APPLICATION_XML, test3);
     }
     
     @Test
     public void testJsonFindPath() throws Exception {
-            testSuccessfulPath(MediaType.APPLICATION_JSON);
+        testSuccessfulPath(MediaType.APPLICATION_JSON, test1);
+        testSuccessfulPath(MediaType.APPLICATION_JSON, test2);
+        testSuccessfulPath(MediaType.APPLICATION_JSON, test3);
     }
     
     @Test
     public void testVersionedXmlFindPath() throws Exception {
-            testSuccessfulPath("application/vnd.net.es.pce.v1+xml");
+        testSuccessfulPath("application/vnd.net.es.pce.v1+xml", test1);
+        testSuccessfulPath("application/vnd.net.es.pce.v1+xml", test2);
+        testSuccessfulPath("application/vnd.net.es.pce.v1+xml", test3);
     }
 
     @Test
     public void testVersionedJsonFindPath() throws Exception {
-            testSuccessfulPath("application/vnd.net.es.pce.v1+json");
+        testSuccessfulPath("application/vnd.net.es.pce.v1+json", test1);
+        testSuccessfulPath("application/vnd.net.es.pce.v1+json", test2);
+        testSuccessfulPath("application/vnd.net.es.pce.v1+json", test3);
     }
         
-    public void testSuccessfulPath(String mediaType) throws Exception {
+    public void testSuccessfulPath(String mediaType, StpTestData test) throws Exception {
         final WebTarget webTarget = target().path("paths/find");
         
         // Fill in our valid path request.
@@ -121,18 +159,12 @@ public class FindPathSuccessTest extends JerseyTest {
         evts.setSymmetricPath(Boolean.TRUE);
         
         // Format the source STP.
-        StpType srcStp = new StpType();
-        srcStp.setLocalId("urn:ogf:network:uvalight.net:2013:bi-ps");
-        srcStp.setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
-        evts.setSourceSTP(srcStp);
-        evts.setSourceVLAN(1780);
+        evts.setSourceSTP(test.getStpA());
+        evts.setSourceVLAN(test.getVlanA());
         
         // Format the destination STP.
-        StpType destStp = new StpType();
-        destStp.setLocalId("urn:ogf:network:es.net:2013:ps:sunn:1");
-        destStp.setNetworkId("urn:ogf:network:es.net:2013");
-        evts.setDestSTP(destStp);
-        evts.setDestVLAN(1780);
+        evts.setDestSTP(test.getStpZ());
+        evts.setDestVLAN(test.getVlanZ());
 
         req.getAny().add(factory.createEvts(evts));
 

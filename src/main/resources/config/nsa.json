@@ -72,7 +72,7 @@
         }
     },
     "urn:ogf:network:manlan.internet2.net:2013:nsa": {
-        "networkId": "urn:ogf:network:manlan.net:2013:",
+        "networkId": "urn:ogf:network:manlan.internet2.net:2013:",
         "providerUrl": "https://oscars.manlan.net/ConnectionService",
         "auth": {
             "method": "NONE"

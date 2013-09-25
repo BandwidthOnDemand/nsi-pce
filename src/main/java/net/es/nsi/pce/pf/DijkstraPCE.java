@@ -8,15 +8,20 @@ import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.pf.api.cons.TopoPathEndpoints;
-import net.es.nsi.pce.pf.api.topo.*;
 
 import java.util.List;
 import net.es.nsi.pce.config.topo.nml.Directionality;
+import net.es.nsi.pce.pf.api.topo.Network;
+import net.es.nsi.pce.pf.api.topo.Sdp;
+import net.es.nsi.pce.pf.api.topo.Stp;
+import net.es.nsi.pce.pf.api.topo.Topology;
 import net.es.nsi.pce.services.Point2Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Main path computation class using Dijkstra's shortest path on an NSI
+ * topology model.
  * 
  * @author hacksaw
  */
@@ -55,10 +60,8 @@ public class DijkstraPCE implements PCEModule {
         String dstStpId = pe.getDstLocal();
         Integer srcVlan = Point2Point.getVlanLabel(pe.getSrcLabels());
         Integer dstVlan = Point2Point.getVlanLabel(pe.getDstLabels());
-        
-        log.debug("source STP " + srcStpId + " source vlan=" + srcVlan);
-        log.debug("destination STP " + dstStpId + " destination vlan=" + dstVlan);
-        
+
+        // Build the internal format for STP id.
         if (srcStpId != null && srcVlan != null) {
             srcStpId = srcStpId + ":vlan=" + srcVlan.toString();
         }
@@ -67,9 +70,12 @@ public class DijkstraPCE implements PCEModule {
             dstStpId = dstStpId + ":vlan=" + dstVlan.toString();
         }
         
+        // Look up the STP within our model matching the request.
         Stp srcStp = srcNet.getStp(srcStpId);
         Stp dstStp = dstNet.getStp(dstStpId);
 
+        // TODO: If we decide to allow blind routing to a network then remove
+        // these tests for a null STP.
         if (srcStp == null) {
             throw new IllegalArgumentException("Unknown source STP " + pe.getSrcLocal() + ", vlan=" + srcVlan);
         }
