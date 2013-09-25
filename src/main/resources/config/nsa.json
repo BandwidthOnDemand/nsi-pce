@@ -128,6 +128,21 @@
         "auth": {
             "method": "NONE"
         }
-    }
+    },
+    "urn:ogf:network:icair.org:2013:nsa": {
+        "networkId": "urn:ogf:network:icair.org:2013:topology",
+        "providerUrl": "http://pmri061.it.northwestern.edu:9080/NSI/services/CS2",
+        "auth": {
+            "method": "NONE"
+        }
+    },
+    "urn:ogf:network:czechlight.cesnet.cz:2013:nsa": {
+        "networkId": "urn:ogf:network:czechlight.cesnet.cz:2013:topology",
+        "providerUrl": "",
+        "auth": {
+            "method": "NONE"
+        }
+    },
+
 }
 
