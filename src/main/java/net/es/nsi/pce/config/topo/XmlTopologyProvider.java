@@ -114,7 +114,9 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
                 }
             }
         }
-                
+        
+        // TODO: use temp maps and swap when completed.
+        
         // Consolidate individual topologies in one master list.
         topologies.clear();
         ethernetPorts.clear();
@@ -166,10 +168,10 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
                 // We need valid connectivity information before we can consolidate links.
                 if (remoteOutbound == null && remoteInbound == null) {
                     // This must be a client "Uni" port with not connectivity information.
-                    log.debug("Bidirectional port " + biPort.getPortId() + " has no unidirectional port references.");
+                    log.debug("Bidirectional port " + biPort.getPortId() + " has no remote port references.");
                 }
                 else if (remoteOutbound == null || remoteInbound == null) {
-                    log.error("Bidirectional port " + biPort.getPortId() + " cannot be consolidated due one missing unidirectional port reference.");
+                    log.error("Bidirectional port " + biPort.getPortId() + " cannot be consolidated due one missing remote unidirectional port reference.");
                 }
                 else {
                     // Verify the remote ports also think they are connected to these ports.

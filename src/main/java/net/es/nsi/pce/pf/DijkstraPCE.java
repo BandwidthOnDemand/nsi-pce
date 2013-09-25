@@ -47,7 +47,7 @@ public class DijkstraPCE implements PCEModule {
 
         Network srcNet = topo.getNetwork(pe.getSrcNetwork());
         Network dstNet = topo.getNetwork(pe.getDstNetwork());
-        
+
         if (srcNet == null) {
             throw new IllegalArgumentException("Unknown src network " + pe.getSrcNetwork());
         }

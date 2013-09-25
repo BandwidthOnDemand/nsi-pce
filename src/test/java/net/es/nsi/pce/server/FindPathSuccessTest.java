@@ -21,7 +21,6 @@ import net.es.nsi.pce.api.jaxb.EthernetVlanType;
 import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
 import net.es.nsi.pce.api.jaxb.FindPathRequestType;
 import net.es.nsi.pce.api.jaxb.ReplyToType;
-import net.es.nsi.pce.api.jaxb.StpType;
 import net.es.nsi.pce.jersey.RestClient;
 
 import net.es.nsi.pce.config.ConfigurationManager;
@@ -73,7 +72,17 @@ public class FindPathSuccessTest extends JerseyTest {
           this.setVlanZ(1780);
         }
     };
-        
+
+    private final static StpTestData test4 = new StpTestData() {
+        { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:241");
+          this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
+          this.setVlanA(1799);
+          this.getStpZ().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:232");
+          this.getStpZ().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
+          this.setVlanZ(1799);
+        }
+    };
+
     @Override
     protected Application configure() {
         enable(TestProperties.LOG_TRAFFIC);
@@ -104,6 +113,7 @@ public class FindPathSuccessTest extends JerseyTest {
         testSuccessfulPath(MediaType.APPLICATION_XML, test1);
         testSuccessfulPath(MediaType.APPLICATION_XML, test2);
         testSuccessfulPath(MediaType.APPLICATION_XML, test3);
+        testSuccessfulPath(MediaType.APPLICATION_XML, test4);
     }
     
     @Test
@@ -111,6 +121,7 @@ public class FindPathSuccessTest extends JerseyTest {
         testSuccessfulPath(MediaType.APPLICATION_JSON, test1);
         testSuccessfulPath(MediaType.APPLICATION_JSON, test2);
         testSuccessfulPath(MediaType.APPLICATION_JSON, test3);
+        testSuccessfulPath(MediaType.APPLICATION_JSON, test4);
     }
     
     @Test
@@ -118,6 +129,7 @@ public class FindPathSuccessTest extends JerseyTest {
         testSuccessfulPath("application/vnd.net.es.pce.v1+xml", test1);
         testSuccessfulPath("application/vnd.net.es.pce.v1+xml", test2);
         testSuccessfulPath("application/vnd.net.es.pce.v1+xml", test3);
+        testSuccessfulPath("application/vnd.net.es.pce.v1+xml", test4);
     }
 
     @Test
@@ -125,6 +137,7 @@ public class FindPathSuccessTest extends JerseyTest {
         testSuccessfulPath("application/vnd.net.es.pce.v1+json", test1);
         testSuccessfulPath("application/vnd.net.es.pce.v1+json", test2);
         testSuccessfulPath("application/vnd.net.es.pce.v1+json", test3);
+        testSuccessfulPath("application/vnd.net.es.pce.v1+json", test4);
     }
         
     public void testSuccessfulPath(String mediaType, StpTestData test) throws Exception {
