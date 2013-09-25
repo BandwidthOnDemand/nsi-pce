@@ -35,7 +35,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 
-public class FindPathSuccessTest extends JerseyTest {
+public class FindPathFailedTest extends JerseyTest {
 
     private final static HttpConfig testServer = new HttpConfig() {
         { url = "http://localhost:9800/"; packageName = "net.es.nsi.pce.client"; }
@@ -45,19 +45,21 @@ public class FindPathSuccessTest extends JerseyTest {
     
     private final static ObjectFactory factory = new ObjectFactory();
     
+    // First test has mismatched vlans.
     private final static StpTestData test1 = new StpTestData() {
         { this.getStpA().setLocalId("urn:ogf:network:kddilabs.jp:2013:bi-ps");
           this.getStpA().setNetworkId("urn:ogf:network:kddilabs.jp:2013:topology");
-          this.setVlanA(1781);
+          this.setVlanA(1782);
           this.getStpZ().setLocalId("urn:ogf:network:uvalight.net:2013:bi-ps");
           this.getStpZ().setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
           this.setVlanZ(1781);
         }
     };
 
+    // Second test has unreachable ports.
     private final static StpTestData test2 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:uvalight.net:2013:bi-ps");
-          this.getStpA().setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
+        { this.getStpA().setLocalId("urn:ogf:network:geant.net:2013:bi-ps");
+          this.getStpA().setNetworkId("urn:ogf:network:geant.net:2013:topology");
           this.setVlanA(1780);
           this.getStpZ().setLocalId("urn:ogf:network:es.net:2013:ps:sunn:1");
           this.getStpZ().setNetworkId("urn:ogf:network:es.net:2013");
@@ -65,23 +67,36 @@ public class FindPathSuccessTest extends JerseyTest {
         }
     };
 
+    // Third test has matching vlans but out of range for port.
     private final static StpTestData test3 = new StpTestData() {
         { this.getStpA().setLocalId("urn:ogf:network:aist.go.jp:2013:bi-ps");
           this.getStpA().setNetworkId("urn:ogf:network:aist.go.jp:2013:topology");
-          this.setVlanA(1780);
+          this.setVlanA(4000);
           this.getStpZ().setLocalId("urn:ogf:network:pionier.net.pl:2013:bi-ps");
           this.getStpZ().setNetworkId("urn:ogf:network:pionier.net.pl:2013:topology");
-          this.setVlanZ(1780);
+          this.setVlanZ(4000);
         }
     };
 
+    // Fourth test request with unidirectional STP.
     private final static StpTestData test4 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:241");
+        { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1");
           this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
-          this.setVlanA(1799);
-          this.getStpZ().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:232");
-          this.getStpZ().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
-          this.setVlanZ(1799);
+          this.setVlanA(1779);
+          this.getStpZ().setLocalId("urn:ogf:network:manlan.internet2.net:2013:netherlight:in");
+          this.getStpZ().setNetworkId("urn:ogf:network:manlan.internet2.net:2013:");
+          this.setVlanZ(1779);
+        }
+    };
+
+    // Fith test request two STP on either end of an SDP.
+    private final static StpTestData test5 = new StpTestData() {
+        { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1");
+          this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
+          this.setVlanA(1779);
+          this.getStpZ().setLocalId("urn:ogf:network:manlan.internet2.net:2013:netherlight");
+          this.getStpZ().setNetworkId("urn:ogf:network:manlan.internet2.net:2013:");
+          this.setVlanZ(1779);
         }
     };
     
@@ -92,6 +107,7 @@ public class FindPathSuccessTest extends JerseyTest {
             this.add(test2);
             this.add(test3);
             this.add(test4);
+            this.add(test5);
         }
     };
 

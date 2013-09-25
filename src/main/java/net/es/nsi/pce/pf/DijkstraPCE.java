@@ -85,34 +85,28 @@ public class DijkstraPCE implements PCEModule {
         
         log.debug("source STP:" + srcStp.getId());
         log.debug("destination STP:" + dstStp.getId());
+
+        // Make sure we have matching vlans before proceeding.  This restriction
+        // can be removed later when vlan interchange is supported.
+        if (srcVlan == null || dstVlan == null) {
+            IllegalArgumentException ex = new IllegalArgumentException("Path computation failed: source and/or destination VLAN not provided");
+            log.error("Path computation failed", ex);
+            throw ex;
+        }
+        else if (srcVlan.compareTo(dstVlan) != 0) {
+            IllegalArgumentException ex = new IllegalArgumentException("Path computation failed: source and destination VLAN mismatch");
+            log.error("Path computation failed", ex);
+            throw ex;                        
+        }
         
         // We can save time by handling the special case of A and Z STP in same
         // network.
         if (srcNet.equals(dstNet)) {
-            // At the moment the VLANs must match (we should check if
-            // interchange is possible in the domain).
-            if ((srcVlan == null && dstVlan != null) ||
-                    (dstVlan == null && srcVlan != null)) {
-                // One VLAN specified is bad for now.
-                IllegalArgumentException ex = new IllegalArgumentException("Path computation failed: source and destination VLAN mismatch");
-                log.error("Path computation failed", ex);
-                throw ex;
-            }
-            else if ((srcVlan == null && dstVlan == null) ||
-                    srcVlan.compareTo(dstVlan) == 0) {
-                // VLANs are matching which is good.
-                StpPair pathPair = new StpPair();
-                pathPair.setA(srcStp);
-                pathPair.setZ(dstStp);
-                pceData.getPath().getStpPairs().add(pathPair);
-                return pceData;
-            }
-            else {
-                // Catch all bad for not matching VLANs.
-                IllegalArgumentException ex = new IllegalArgumentException("Path computation failed: source and destination VLAN mismatch");
-                log.error("Path computation failed", ex);
-                throw ex;  
-            }
+            StpPair pathPair = new StpPair();
+            pathPair.setA(srcStp);
+            pathPair.setZ(dstStp);
+            pceData.getPath().getStpPairs().add(pathPair);
+            return pceData;
         }
 
         // Graph<V, E> where V is the type of the vertices and E is the type of the edges.
