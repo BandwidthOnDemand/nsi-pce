@@ -6,14 +6,14 @@
             "method": "NONE"
         }
     },
-    "urn:ogf:network:aist.go.jp:2013:nsa": { 
+    "urn:ogf:network:aist.go.jp:2013:nsa": {
         "networkId": "urn:ogf:network:aist.go.jp:2013:topology",
         "providerUrl": "http://163.220.30.174:28080/nsi2/services/ConnectionProvider",
         "auth": {
             "method": "NONE"
         }
     },
-    "urn:ogf:network:es.net:2013:nsa": { 
+    "urn:ogf:network:es.net:2013:nsa": {
         "networkId": "urn:ogf:network:es.net:2013",
         "providerUrl": "https://oscars.es.net/ConnectionService",
         "auth": {
@@ -22,7 +22,7 @@
             "password": "glif2013"
         }
     },
-    "urn:ogf:network:exp.pionier.net.pl:2013:nsa": { 
+    "urn:ogf:network:exp.pionier.net.pl:2013:nsa": {
         "networkId": "urn:ogf:network:exp.pionier.net.pl:2013:topology",
         "providerUrl": "http://194.132.53.174:9282/nsi/ConnectionProvider",
         "auth": {
@@ -57,7 +57,7 @@
             "method": "NONE"
         }
     },
-    "urn:ogf:network:kddilabs.jp:2013:nsa": { 
+    "urn:ogf:network:kddilabs.jp:2013:nsa": {
         "networkId": "urn:ogf:network:kddilabs.jp:2013:topology",
         "providerUrl": "http://210.196.65.114:9352/2012/03/connectionprovider",
         "auth": {
@@ -136,12 +136,12 @@
             "method": "NONE"
         }
     },
-    "urn:ogf:network:czechlight.cesnet.cz:2013:nsa": {
-        "networkId": "urn:ogf:network:czechlight.cesnet.cz:2013:topology",
-        "providerUrl": "",
+    "urn:ogf:network:czechlight.cesnet.cz:2013:nsa:bod": {
+        "networkId": "urn:ogf:network:czechlight.cesnet.cz:2013:topology:a-gole:testbed",
+        "providerUrl": "https://bod2.surfnet.nl/nsi/v2/provider",
         "auth": {
-            "method": "NONE"
+            "method": "OAUTH_2",
+            "token": "44e53ca6-5b48-4503-b605-388e48085b36"
         }
     }
-
 }
