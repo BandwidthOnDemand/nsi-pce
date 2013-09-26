@@ -83,7 +83,7 @@
         "providerUrl": "https://bod.netherlight.net/nsi/v2/provider",
         "auth": {
             "method": "OAUTH_2",
-            "token": "1192931-1132"
+            "token": "68031d39-6646-4f29-b939-56907107167c"
         }
     },
     "urn:ogf:network:nordu.net:2013:nsa": {
@@ -142,7 +142,6 @@
         "auth": {
             "method": "NONE"
         }
-    },
+    }
 
 }
-
