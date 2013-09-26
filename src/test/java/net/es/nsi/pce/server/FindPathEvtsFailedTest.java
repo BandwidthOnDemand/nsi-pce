@@ -83,8 +83,8 @@ public class FindPathEvtsFailedTest extends JerseyTest {
         { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1");
           this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
           this.setVlanA(1779);
-          this.getStpZ().setLocalId("urn:ogf:network:manlan.internet2.net:2013:netherlight:in");
-          this.getStpZ().setNetworkId("urn:ogf:network:manlan.internet2.net:2013:");
+          this.getStpZ().setLocalId("urn:ogf:network:manlan.internet2.edu:2013:netherlight:in");
+          this.getStpZ().setNetworkId("urn:ogf:network:manlan.internet2.edu:2013:");
           this.setVlanZ(1779);
         }
     };
@@ -94,8 +94,8 @@ public class FindPathEvtsFailedTest extends JerseyTest {
         { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1");
           this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
           this.setVlanA(1779);
-          this.getStpZ().setLocalId("urn:ogf:network:manlan.internet2.net:2013:netherlight");
-          this.getStpZ().setNetworkId("urn:ogf:network:manlan.internet2.net:2013:");
+          this.getStpZ().setLocalId("urn:ogf:network:manlan.internet2.edu:2013:netherlight");
+          this.getStpZ().setNetworkId("urn:ogf:network:manlan.internet2.edu:2013:");
           this.setVlanZ(1779);
         }
     };

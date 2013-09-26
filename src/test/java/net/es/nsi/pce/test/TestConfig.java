@@ -15,7 +15,7 @@ public class TestConfig {
     public static void loadConfig() {
         // Build paths for configuration files.
         String log4jConfig = new StringBuilder("src/test/resources/config/").append("log4j.xml").toString().replace("/", File.separator);
-
+        
         // Load and watch the log4j configuration file for changes.
         DOMConfigurator.configureAndWatch(log4jConfig, 45 * 1000);        
     }
