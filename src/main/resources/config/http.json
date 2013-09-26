@@ -1,6 +1,0 @@
-{
-    "pce": {
-        "url": "http://localhost:8400/",
-        "packageName": "net.es.nsi.pce.api"
-    }
-}
