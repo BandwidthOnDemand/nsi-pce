@@ -1,8 +1,4 @@
-<nsi:NSA 
-    xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#"
-    xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#"
-    id="urn:ogf:network:ampath.net:2013:nsa" version="2013-09-12T13:58:48.652775">
-    
+<nsi:NSA xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#" id="urn:ogf:network:ampath.net:2013:nsa" version="2013-09-24T11:35:11.385142">
     <nsi:Service id="urn:ogf:network:ampath.net:2013:nsa-cs">
         <nsi:link>http://nsi.ampath.net:9080/NSI/services/CS2</nsi:link>
         <nsi:type>application/vnd.org.ogf.nsi.cs.v2+soap</nsi:type>
@@ -26,24 +22,21 @@
         </nml:BidirectionalPort>
         <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
             <nml:PortGroup id="urn:ogf:network:ampath.net:2013:starlight-in">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan"
-                    >1780-1800</nml:LabelGroup>
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1800</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
                     <nml:PortGroup id="urn:ogf:network:starlight:ampath-out"/>
                 </nml:Relation>
             </nml:PortGroup>
             <nml:PortGroup id="urn:ogf:network:ampath.net:2013:southernlight-in">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan"
-                    >1780-1800</nml:LabelGroup>
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1800</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
                     <nml:PortGroup id="urn:ogf:network:southernlight:ampath-out"/>
                 </nml:Relation>
             </nml:PortGroup>
             <nml:PortGroup id="urn:ogf:network:ampath.net:2013:ndn-in">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan"
-                    >1782-1785</nml:LabelGroup>
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1782-1785</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:nordu.net:2013:aruba-out"/>
+                    <nml:PortGroup id="urn:ogf:network:nordu.net:2013:ampath-out"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>
@@ -55,17 +48,15 @@
                 </nml:Relation>
             </nml:PortGroup>
             <nml:PortGroup id="urn:ogf:network:ampath.net:2013:southernlight-out">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan"
-                    >1780-1800</nml:LabelGroup>
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1800</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
                     <nml:PortGroup id="urn:ogf:network:southernlight:ampath-in"/>
                 </nml:Relation>
             </nml:PortGroup>
             <nml:PortGroup id="urn:ogf:network:ampath.net:2013:ndn-out">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan"
-                    >1782-1785</nml:LabelGroup>
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1782-1785</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:nordu.net:2013:aruba-in"/>
+                    <nml:PortGroup id="urn:ogf:network:nordu.net:2013:ampath-in"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>

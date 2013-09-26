@@ -53,7 +53,7 @@
             <nml:PortGroup id="urn:ogf:network:uvalight.net:2013:uvalight-nordu">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:nordu.net:2013:uvalight-nordu"/>
+                    <nml:PortGroup id="urn:ogf:network:nordu.net:2013:uvalight-in"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>
@@ -61,7 +61,7 @@
             <nml:PortGroup id="urn:ogf:network:uvalight.net:2013:nordu-uvalight">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:nordu.net:2013:nordu-uvalight"/>
+                    <nml:PortGroup id="urn:ogf:network:nordu.net:2013:uvalight-out"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>

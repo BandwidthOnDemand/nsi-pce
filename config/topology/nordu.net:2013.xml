@@ -1,7 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<nsi:NSA xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#"
-    xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#" id="urn:ogf:network:nordu.net:2013:nsa"
-    version="2013-09-18T09:33:24.309762">
+<nsi:NSA xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#" id="urn:ogf:network:nordu.net:2013:nsa" version="2013-09-25T08:27:23.972357">
     <nsi:Service id="urn:ogf:network:nordu.net:2013:nsa-cs">
         <nsi:link>https://nsi.nordu.net:9443/NSI/services/CS2</nsi:link>
         <nsi:type>application/vnd.org.ogf.nsi.cs.v2+soap</nsi:type>
@@ -28,6 +25,11 @@
             <nml:PortGroup id="urn:ogf:network:nordu.net:2013:netherlight-in"/>
             <nml:PortGroup id="urn:ogf:network:nordu.net:2013:netherlight-out"/>
         </nml:BidirectionalPort>
+        <nml:BidirectionalPort id="urn:ogf:network:nordu.net:2013:uvalight">
+            <nml:name>uvalight</nml:name>
+            <nml:PortGroup id="urn:ogf:network:nordu.net:2013:uvalight-in"/>
+            <nml:PortGroup id="urn:ogf:network:nordu.net:2013:uvalight-out"/>
+        </nml:BidirectionalPort>
         <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
             <nml:PortGroup id="urn:ogf:network:nordu.net:2013:ps-in">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1789</nml:LabelGroup>
@@ -44,9 +46,13 @@
             <nml:PortGroup id="urn:ogf:network:nordu.net:2013:netherlight-in">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup
-                        id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:nordu.net:1:out"
-                    />
+                    <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:nordu.net:1:out"/>
+                </nml:Relation>
+            </nml:PortGroup>
+            <nml:PortGroup id="urn:ogf:network:nordu.net:2013:uvalight-in">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
+                <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                    <nml:PortGroup id="urn:ogf:network:uvalight.net:2013:uvalight-nordu"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>
@@ -66,9 +72,13 @@
             <nml:PortGroup id="urn:ogf:network:nordu.net:2013:netherlight-out">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup
-                        id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:nordu.net:1:in"
-                    />
+                    <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:nordu.net:1:in"/>
+                </nml:Relation>
+            </nml:PortGroup>
+            <nml:PortGroup id="urn:ogf:network:nordu.net:2013:uvalight-out">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
+                <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                    <nml:PortGroup id="urn:ogf:network:uvalight.net:2013:nordu-uvalight"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>
