@@ -38,6 +38,10 @@
             <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:232:in"/>
             <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:232:out"/>
         </nml:BidirectionalPort>
+        <nml:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:526">
+            <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:526:in"/>
+            <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:526:out"/>
+        </nml:BidirectionalPort>
         <nml:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:czechlight:1">
             <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:czechlight:1:in"/>
             <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:czechlight:1:out"/>
@@ -90,6 +94,16 @@
         <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
             <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:232:in">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1799</nml:LabelGroup>
+            </nml:PortGroup>
+        </nml:Relation>
+        <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+            <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:526:out">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1784</nml:LabelGroup>
+            </nml:PortGroup>
+        </nml:Relation>
+        <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+            <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:526:in">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1784</nml:LabelGroup>
             </nml:PortGroup>
         </nml:Relation>
         <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
