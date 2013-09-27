@@ -127,10 +127,7 @@ public class TopologyViewer extends JPanel {
                         p1 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
                         p2 = vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
                         Renderer<Network, Sdp> renderer = vv.getRenderer();
-                        renderer.renderEdge(
-                                vv.getRenderContext(),
-                                layout,
-                                e);
+                        renderer.renderEdge(vv.getRenderContext(), layout, e);
                     }
                 }
             }
@@ -285,6 +282,7 @@ public class TopologyViewer extends JPanel {
 		choices.setBackground(Color.WHITE);
 		choices.addActionListener(new ActionListener() {
 
+            // Called when user selects the vlan field.
 			public void actionPerformed(ActionEvent e) {
 				String vlan = (String) choices.getSelectedItem();
                 if (vlan != null && !vlan.isEmpty()) {
@@ -298,12 +296,13 @@ public class TopologyViewer extends JPanel {
 	}
         
 	/**
-	 *  
+	 *  Finds the shortest path given the path selection criteria.
 	 */
 	protected void drawShortest() {
 		if (mFrom == null || mTo == null) {
 			return;
 		}
+        
 		BFSDistanceLabeler<Network, Sdp> bdl = new BFSDistanceLabeler<Network, Sdp>();
 		bdl.labelDistances(mGraph, mFrom);
 		mPred = new HashSet<Network>();
