@@ -48,10 +48,10 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
     private final static StpTestData test1 = new StpTestData() {
         { this.getStpA().setLocalId("urn:ogf:network:kddilabs.jp:2013:bi-ps");
           this.getStpA().setNetworkId("urn:ogf:network:kddilabs.jp:2013:topology");
-          this.setVlanA(1781);
+          this.setVlanA(1782);
           this.getStpZ().setLocalId("urn:ogf:network:uvalight.net:2013:bi-ps");
           this.getStpZ().setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
-          this.setVlanZ(1781);
+          this.setVlanZ(1782);
         }
     };
 

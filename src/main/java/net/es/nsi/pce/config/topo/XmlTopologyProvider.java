@@ -17,10 +17,12 @@ import net.es.nsi.pce.config.topo.nml.BidirectionalEthernetPort;
 import net.es.nsi.pce.config.topo.nml.Directionality;
 import net.es.nsi.pce.config.topo.nml.EthernetPort;
 import net.es.nsi.pce.pf.api.topo.Network;
+import net.es.nsi.pce.pf.api.topo.Nsa;
 import net.es.nsi.pce.pf.api.topo.Sdp;
 import net.es.nsi.pce.pf.api.topo.Stp;
 import net.es.nsi.pce.pf.api.topo.Topology;
 import net.es.nsi.pce.pf.api.topo.TopologyProvider;
+import net.es.nsi.pce.topology.jaxb.NSAType;
 import net.es.nsi.pce.topology.jaxb.TopologyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,9 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
     // Topology files indexed by file name.
     private Map<String, NmlTopologyFile> topologyFileMap = new ConcurrentHashMap<String, NmlTopologyFile>();
 
+    // Map holding the network topologies indexed by network Id.
+    private Map<String, NSAType> nsas = new ConcurrentHashMap<String, NSAType>();
+    
     // Map holding the network topologies indexed by network Id.
     private Map<String, TopologyType> topologies = new ConcurrentHashMap<String, TopologyType>();
     
@@ -118,11 +123,19 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
         // TODO: use temp maps and swap when completed.
         
         // Consolidate individual topologies in one master list.
+        nsas.clear();
         topologies.clear();
         ethernetPorts.clear();
-        for (Entry<String, NmlTopologyFile> entry : topologyFileMap.entrySet()) {
-            topologies.putAll(entry.getValue().getTopologies());
-            ethernetPorts.putAll(entry.getValue().getEthernetPorts());
+        for (NmlTopologyFile nml : topologyFileMap.values()) {
+            NSAType nsa = nml.getNsa();
+            if (nsa.getId() == null || nsa.getId().isEmpty()) {
+                log.error("Topology file missing NSA identifier: " + nml.getTopologySource());
+                continue;
+            }
+            
+            nsas.put(nsa.getId(), nsa);
+            topologies.putAll(nml.getTopologies());
+            ethernetPorts.putAll(nml.getEthernetPorts());
         }
         
         // Interconnect bidirectional ports using their unidirectional components.
@@ -242,12 +255,31 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
         // Create the NSI STP network topology.
         nsiTopology.clear();
         
-        // Convert each NML Topology element to an NSI Network object.
-        for (String networkId : topologies.keySet()) {
-            log.debug("Converting NML topology for network: " + networkId);
-            Network net = new Network();
-            net.setNetworkId(networkId);
-            nsiTopology.setNetwork(networkId, net);
+        for (NSAType nsaType : nsas.values()) {
+            Nsa nsa = new Nsa();
+            nsa.setId(nsaType.getId());
+            nsa.setName(nsaType.toString());
+            if (nsaType.getLocation() != null) {
+                nsa.setLatitude(nsaType.getLocation().getLat());
+                nsa.setLongitude(nsaType.getLocation().getLong());
+            }
+            
+            for (TopologyType topology : nsaType.getTopology()) {
+                nsa.addNetworkId(topology.getId());
+                
+                Network net = new Network();
+                net.setNetworkId(topology.getId());
+                String name = topology.getName();
+                if (name == null || name.isEmpty()) {
+                    name = topology.getId();
+                }
+
+                net.setName(name);
+                net.setNsaId(nsaType.getId());
+                nsiTopology.addNetwork(net);                
+            }
+            
+            nsiTopology.addNsa(nsa);
         }
 
         // Add each bidirectional port as a bidirectional STP in the NSI topology.
@@ -261,7 +293,7 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
                 log.debug("Converting Ethernet port to STP: " + localPort.getPortId());
                 
                 BidirectionalEthernetPort localBiPort = (BidirectionalEthernetPort) localPort;
-                Network localNetwork = nsiTopology.getNetwork(localBiPort.getTopologyId());
+                Network localNetwork = nsiTopology.getNetworkById(localBiPort.getTopologyId());
                 
                 // This should never happen but skip the port if it does.
                 if (localNetwork == null) {
@@ -294,7 +326,7 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
                     // Remove remote port matching the local port so we do not
                     // process it twice.
                     ethPorts.remove(remoteBiPort.getPortId());
-                    remoteNetwork = nsiTopology.getNetwork(remoteBiPort.getTopologyId());
+                    remoteNetwork = nsiTopology.getNetworkById(remoteBiPort.getTopologyId());
                     
                     // Create the remote STP so we don't need to do it later
                     // when visiting the remote network.

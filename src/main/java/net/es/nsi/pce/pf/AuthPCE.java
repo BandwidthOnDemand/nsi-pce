@@ -53,12 +53,12 @@ public class AuthPCE implements PCEModule {
                     log.error("AuthPCE.apply: No auth method known for networkId " + networkId + ", not including it in topology.");
 
                 } else if (method.equals(AuthMethodType.NONE)) {
-                    newTopo.setNetwork(networkId, topo.getNetwork(networkId));
+                    newTopo.addNetwork(topo.getNetworkById(networkId));
                 } else {
                     if (credentials == null || credentials.isEmpty()) {
                         log.error("AuthPCE.apply: No credentials for networkId " + networkId + ", not including it in topology");
                     } else {
-                        newTopo.setNetwork(networkId, topo.getNetwork(networkId));
+                        newTopo.addNetwork(topo.getNetworkById(networkId));
                     }
                 }
             }
@@ -66,8 +66,8 @@ public class AuthPCE implements PCEModule {
 
         // Now we prune bidirectional SDP from the list that have had their networks removed.
         for (Sdp sdp : topo.getSdps()) {
-            if (newTopo.getNetwork(sdp.getA().getNetwork().getNetworkId()) != null &&
-                    newTopo.getNetwork(sdp.getZ().getNetwork().getNetworkId()) != null) {
+            if (newTopo.getNetworkById(sdp.getA().getNetwork().getNetworkId()) != null &&
+                    newTopo.getNetworkById(sdp.getZ().getNetwork().getNetworkId()) != null) {
                 log.debug("AuthPCE.apply: Adding SDP " + sdp.getId());
                 newTopo.addSdp(sdp);
             }

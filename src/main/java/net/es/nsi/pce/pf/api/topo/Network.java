@@ -13,6 +13,7 @@ import net.es.nsi.pce.config.topo.nml.EthernetPort;
  * @author hacksaw
  */
 public class Network extends TopologyObject {
+    private String nsaId;
     private String name;
     private String networkId;
     private HashMap<String, Stp> stps = new HashMap<String, Stp>();
@@ -73,7 +74,7 @@ public class Network extends TopologyObject {
     
     @Override
     public String toString() {
-        return networkId;
+        return name;
     }
     
     @Override
@@ -100,5 +101,19 @@ public class Network extends TopologyObject {
         hash = 97 * hash + Objects.hashCode(this.name);
         hash = 97 * hash + Objects.hashCode(this.networkId);
         return hash;
+    }
+
+    /**
+     * @return the nsaId
+     */
+    public String getNsaId() {
+        return nsaId;
+    }
+
+    /**
+     * @param nsaId the nsaId to set
+     */
+    public void setNsaId(String nsaId) {
+        this.nsaId = nsaId;
     }
 }

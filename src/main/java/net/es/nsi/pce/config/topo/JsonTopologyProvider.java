@@ -31,7 +31,7 @@ public class JsonTopologyProvider  extends FileBasedConfigProvider implements To
         for (String networkId : this.getNetworkIds()) {
             Network net = new Network();
             net.setNetworkId(networkId);
-            topo.setNetwork(networkId, net);
+            topo.addNetwork(net);
 
             for (TopoStpConfig stpConfig : this.getConfig(networkId).getStps()) {
                 Stp stp = new Stp();
@@ -47,11 +47,11 @@ public class JsonTopologyProvider  extends FileBasedConfigProvider implements To
                 String rn = stpConfig.getRemoteNetworkId();
                 String rl = stpConfig.getRemoteLocalId();
                 if (rn != null && rl != null) {
-                    Network rnet = topo.getNetwork(rn);
+                    Network rnet = topo.getNetworkById(rn);
                     Stp rstp = rnet.getStp(rl);
 
                     String l = stpConfig.getLocalId();
-                    Network n = topo.getNetwork(networkId);
+                    Network n = topo.getNetworkById(networkId);
                     Stp stp = n.getStp(l);
                     Sdp conn = new Sdp();
                     conn.setA(stp);

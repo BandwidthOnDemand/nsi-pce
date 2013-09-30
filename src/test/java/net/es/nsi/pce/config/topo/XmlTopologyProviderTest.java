@@ -21,7 +21,7 @@ import static org.junit.Assert.fail;
  */
 public class XmlTopologyProviderTest {
     @Test
-    public void loadTopology() {
+    public void loadTopology() throws Exception {
         TestConfig.loadConfig();
                 
         XmlTopologyProvider provider = new XmlTopologyProvider();
@@ -32,9 +32,9 @@ public class XmlTopologyProviderTest {
             provider.loadTopology();
         }
         catch (Exception ex) {
-            System.err.println("loadTopology() Failed: ");
-            ex.printStackTrace();
-            fail();
+            System.err.println("loadTopology() Failed:");
+            throw ex;
+           // fail();
         }
         
         System.out.println("Loaded network topologies:");
@@ -90,8 +90,8 @@ public class XmlTopologyProviderTest {
             graph.addEdge(sdp, sdp.getA().getNetwork(), sdp.getZ().getNetwork());
         }
         
-        Network a = provider.getTopology().getNetwork("urn:ogf:network:uvalight.net:2013:topology");
-        Network z = provider.getTopology().getNetwork("urn:ogf:network:kddilabs.jp:2013:topology");
+        Network a = provider.getTopology().getNetworkById("urn:ogf:network:uvalight.net:2013:topology");
+        Network z = provider.getTopology().getNetworkById("urn:ogf:network:kddilabs.jp:2013:topology");
         
         @SuppressWarnings("unchecked")
         DijkstraShortestPath<Network,Sdp> alg = new DijkstraShortestPath(graph);

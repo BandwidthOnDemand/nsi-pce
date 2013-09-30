@@ -12,8 +12,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author hacksaw
  */
 public class Topology {
+    private ConcurrentHashMap<String, Nsa> nsas = new ConcurrentHashMap<String, Nsa>();
     private ConcurrentHashMap<String, Network> networks = new ConcurrentHashMap<String, Network>();
     private ConcurrentHashMap<String, Sdp> sdpLinks = new ConcurrentHashMap<String, Sdp>();
+    
+    public Nsa getNsaByNetwork(Network network) {
+        return nsas.get(network.getNsaId());
+    }
     
     /**
      * Get a Network object from this topology matching the provided networkId.
@@ -21,19 +26,34 @@ public class Topology {
      * @param networkId Identifier for the Network object to retrieve.
      * @return Matching Network object, or null otherwise.
      */
-    public Network getNetwork(String networkId) {
+    public Network getNetworkById(String networkId) {
         return networks.get(networkId);
     }
     
     /**
      * Add a Network object to the topology indexed by networkId.
      * 
-     * @param networkId The networkId to use as an index.
      * @param net The Network object to store.
      */
-    public void setNetwork(String networkId, Network net) {
-        networks.put(networkId, net);
+    public void addNetwork(Network net) {
+        networks.put(net.getId(), net);
 
+    }
+
+    /**
+     * Get a Network object from this topology matching the provided networkId.
+     * 
+     * @param networkId Identifier for the Network object to retrieve.
+     * @return Matching Network object, or null otherwise.
+     */
+    public Network getNetworkByName(String name) {
+        for (Network network : networks.values()) {
+            if (name.contentEquals(network.getName())) {
+                return network;
+            }
+        }
+        
+        return null;
     }
     
     /**
@@ -113,5 +133,26 @@ public class Topology {
      */
     public void setSdpLinks(ConcurrentHashMap<String, Sdp> sdpLinks) {
         this.sdpLinks = sdpLinks;
+    }
+    
+    /**
+     * @param nsa the nsa to set
+     */
+    public void addNsa(Nsa nsa) {
+        this.getNsas().put(nsa.getId(), nsa);
+    }
+
+    /**
+     * @return the nsas
+     */
+    public ConcurrentHashMap<String, Nsa> getNsas() {
+        return nsas;
+    }
+
+    /**
+     * @param nsas the nsas to set
+     */
+    public void setNsas(ConcurrentHashMap<String, Nsa> nsas) {
+        this.nsas = nsas;
     }
 }

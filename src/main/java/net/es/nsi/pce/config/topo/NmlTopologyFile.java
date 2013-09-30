@@ -312,6 +312,20 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
     }
 
     /**
+     * @return the NSA managing this topology.
+     */
+    public NSAType getNsa() {
+        return nsa;
+    }
+
+    /**
+     * @param topologies the topologies to set
+     */
+    public void setNsa(NSAType nsa) {
+        this.nsa = nsa;
+    }
+    
+    /**
      * @return the topologies
      */
     public Map<String, TopologyType> getTopologies() {
