@@ -6,7 +6,7 @@
         <nsi:type>application/vnd.org.ogf.nsi.cs.v2+soap</nsi:type>
     </nsi:Service>
     <nml:Topology id="urn:ogf:network:icair.org:2013:topology">
-        <nml:name>icair.org:2013</nml:name>
+        <nml:name>icair.org</nml:name>
         <nml:BidirectionalPort id="urn:ogf:network:icair.org:2013:startap-jgn-x">
             <nml:name>startap-jgn-x</nml:name>
             <nml:PortGroup id="urn:ogf:network:icair.org:2013:startap-jgn-x-in"/>

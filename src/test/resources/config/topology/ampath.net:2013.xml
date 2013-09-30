@@ -1,10 +1,14 @@
 <nsi:NSA xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#" id="urn:ogf:network:ampath.net:2013:nsa" version="2013-09-24T11:35:11.385142">
+    <nml:Location id="urn:ogf:network:ampath.net:2013:location">
+        <nml:lat>25.787778</nml:lat>
+        <nml:long>-80.224167</nml:long>
+    </nml:Location>
     <nsi:Service id="urn:ogf:network:ampath.net:2013:nsa-cs">
         <nsi:link>http://nsi.ampath.net:9080/NSI/services/CS2</nsi:link>
         <nsi:type>application/vnd.org.ogf.nsi.cs.v2+soap</nsi:type>
     </nsi:Service>
     <nml:Topology id="urn:ogf:network:ampath.net:2013:topology">
-        <nml:name>ampath.net:2013</nml:name>
+        <nml:name>ampath.net</nml:name>
         <nml:BidirectionalPort id="urn:ogf:network:ampath.net:2013:starlight">
             <nml:name>starlight</nml:name>
             <nml:PortGroup id="urn:ogf:network:ampath.net:2013:starlight-in"/>

@@ -2,8 +2,8 @@
 <nsi:NSA xmlns:vc="urn:ietf:params:xml:ns:vcard-4.0" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#"
   version="2013-09-26T17:47:27.734+02:00" id="urn:ogf:network:czechlight.cesnet.cz:2013:nsa:bod">
   <nml:Location id="urn:ogf:network:czechlight.cesnet.cz:2013:nsa:bod:location">
-    <nml:lat>52.356701</nml:lat>
-    <nml:long>4.954585</nml:long>
+    <nml:lat>50.083333</nml:lat>
+    <nml:long>14.416667</nml:long>
   </nml:Location>
   <nsi:Service id="urn:ogf:network:czechlight.cesnet.cz:2013:nsa:bod:connection-service">
     <nsi:link>https://bod2.surfnet.nl//nsi/v2/provider</nsi:link>

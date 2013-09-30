@@ -4,7 +4,7 @@
         <nsi:type>application/vnd.org.ogf.nsi.cs.v2+soap</nsi:type>
     </nsi:Service>
     <nml:Topology id="urn:ogf:network:nordu.net:2013:topology">
-        <nml:name>nordu.net:2013</nml:name>
+        <nml:name>nordu.net</nml:name>
         <nml:BidirectionalPort id="urn:ogf:network:nordu.net:2013:ps">
             <nml:name>ps</nml:name>
             <nml:PortGroup id="urn:ogf:network:nordu.net:2013:ps-in"/>
