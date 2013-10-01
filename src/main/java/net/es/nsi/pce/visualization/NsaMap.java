@@ -15,7 +15,6 @@ public class NsaMap {
         private static final long serialVersionUID = 1L;
         {
             // Top row.
-            this.put("urn:ogf:network:icair.org:2013:nsa", new CartesianCoordinates(200, 50));
             this.put("urn:ogf:network:ampath.net:2013:nsa", new CartesianCoordinates(400, 50));
             this.put("urn:ogf:network:nordu.net:2013:nsa", new CartesianCoordinates(600, 50));
             this.put("urn:ogf:network:uvalight.net:2013:nsa", new CartesianCoordinates(800, 50));
@@ -31,7 +30,7 @@ public class NsaMap {
             // Third row.
             this.put("urn:ogf:network:kddilabs.jp:2013:nsa", new CartesianCoordinates(50, 550));
             this.put("urn:ogf:network:jgn-x.jp:2013:nsa", new CartesianCoordinates(200, 550));
-            this.put("urn:ogf:network:startap.net:2013:nsa", new CartesianCoordinates(500, 550));
+            this.put("urn:ogf:network:icair.org:2013:nsa", new CartesianCoordinates(500, 550));
             this.put("urn:ogf:network:pionier.net.pl:2013:nsa", new CartesianCoordinates(800, 550));
             this.put("urn:ogf:network:exp.pionier.net.pl:2013:nsa", new CartesianCoordinates(1000, 550));
             

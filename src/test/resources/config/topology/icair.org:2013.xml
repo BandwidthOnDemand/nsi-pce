@@ -1,12 +1,11 @@
-<nsi:NSA xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#"
-    xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#"
-    id="urn:ogf:network:icair.org:2013:nsa" version="2013-09-25T16:16:31.457169">
+<?xml version="1.0"?>
+<nsi:NSA xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#" id="urn:ogf:network:icair.org:2013:nsa" version="2013-10-01T05:12:35.286503">
     <nsi:Service id="urn:ogf:network:icair.org:2013:nsa-cs">
         <nsi:link>http://pmri061.it.northwestern.edu:9080/NSI/services/CS2</nsi:link>
         <nsi:type>application/vnd.org.ogf.nsi.cs.v2+soap</nsi:type>
     </nsi:Service>
-    <nml:Topology id="urn:ogf:network:icair.org:2013:topology">
-        <nml:name>icair.org</nml:name>
+    <nml:Topology id="urn:ogf:network:icair.org:2013">
+        <nml:name>icair.org:2013</nml:name>
         <nml:BidirectionalPort id="urn:ogf:network:icair.org:2013:startap-jgn-x">
             <nml:name>startap-jgn-x</nml:name>
             <nml:PortGroup id="urn:ogf:network:icair.org:2013:startap-jgn-x-in"/>
@@ -22,66 +21,106 @@
             <nml:PortGroup id="urn:ogf:network:icair.org:2013:startap-es-in"/>
             <nml:PortGroup id="urn:ogf:network:icair.org:2013:startap-es-out"/>
         </nml:BidirectionalPort>
-        <nml:BidirectionalPort id="urn:ogf:network:icair.org:2013:startap-netherlight">
-            <nml:name>startap-netherlight</nml:name>
-            <nml:PortGroup id="urn:ogf:network:icair.org:2013:startap-netherlight-in"/>
-            <nml:PortGroup id="urn:ogf:network:icair.org:2013:startap-netherlight-out"/>
+        <nml:BidirectionalPort id="urn:ogf:network:icair.org:2013:ampath">
+            <nml:name>ampath</nml:name>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:ampath-in"/>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:ampath-out"/>
         </nml:BidirectionalPort>
-        <nml:BidirectionalPort id="urn:ogf:network:icair.org:2013:glo">
-            <nml:name>glo</nml:name>
-            <nml:PortGroup id="urn:ogf:network:icair.org:2013:glo-in"/>
-            <nml:PortGroup id="urn:ogf:network:icair.org:2013:glo-out"/>
+        <nml:BidirectionalPort id="urn:ogf:network:icair.org:2013:netherlight">
+            <nml:name>netherlight</nml:name>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:netherlight-in"/>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:netherlight-out"/>
+        </nml:BidirectionalPort>
+        <nml:BidirectionalPort id="urn:ogf:network:icair.org:2013:gloriad">
+            <nml:name>gloriad</nml:name>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:gloriad-in"/>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:gloriad-out"/>
+        </nml:BidirectionalPort>
+        <nml:BidirectionalPort id="urn:ogf:network:icair.org:2013:singaren">
+            <nml:name>singaren</nml:name>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:singaren-in"/>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:singaren-out"/>
         </nml:BidirectionalPort>
         <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
             <nml:PortGroup id="urn:ogf:network:icair.org:2013:startap-jgn-x-in">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1782-1783</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:jgn-x.jp:startap-jgn-x-out"/>
+                    <nml:PortGroup id="urn:ogf:network:jgn-x.jp:2013:jgn-x-startap"/>
                 </nml:Relation>
             </nml:PortGroup>
             <nml:PortGroup id="urn:ogf:network:icair.org:2013:ps-in">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1784</nml:LabelGroup>
             </nml:PortGroup>
             <nml:PortGroup id="urn:ogf:network:icair.org:2013:startap-es-in">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1784</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:es-startap:es-startap-out"/>
+                    <nml:PortGroup id="urn:ogf:network:es.net:2013:startap:star:1:out"/>
                 </nml:Relation>
             </nml:PortGroup>
-            <nml:PortGroup id="urn:ogf:network:icair.org:2013:startap-netherlight-in">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:ampath-in">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1784</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:netherlight.net:a-gole:testbed:starlight:1:out"/>
+                    <nml:PortGroup id="urn:ogf:network:ampath.net:2013:starlight-out"/>
                 </nml:Relation>
             </nml:PortGroup>
-            <nml:PortGroup id="urn:ogf:network:icair.org:2013:glo-in">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:netherlight-in">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1784</nml:LabelGroup>
+                <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                    <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:a-gole:testbed:starlight:1:out"/>
+                </nml:Relation>
+            </nml:PortGroup>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:gloriad-in">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1781,1784-1799</nml:LabelGroup>
+                <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                    <nml:PortGroup id="urn:ogf:network:gloriad.org:2013:gloriad-startap"/>
+                </nml:Relation>
+            </nml:PortGroup>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:singaren-in">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1781,1784-1799</nml:LabelGroup>
+                <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                    <nml:PortGroup id="urn:ogf:network:singaren.net:2013:startap:out"/>
+                </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>
         <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
             <nml:PortGroup id="urn:ogf:network:icair.org:2013:startap-jgn-x-out">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1782-1783</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:jgn-x.jp:startap-jgn-x-in"/>
+                    <nml:PortGroup id="urn:ogf:network:jgn-x.jp:2013:startap-jgn-x"/>
                 </nml:Relation>
             </nml:PortGroup>
             <nml:PortGroup id="urn:ogf:network:icair.org:2013:ps-out">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1784</nml:LabelGroup>
             </nml:PortGroup>
             <nml:PortGroup id="urn:ogf:network:icair.org:2013:startap-es-out">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1784</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:es-startap:es-startap-in"/>
+                    <nml:PortGroup id="urn:ogf:network:es.net:2013:startap:star:1:in"/>
                 </nml:Relation>
             </nml:PortGroup>
-            <nml:PortGroup id="urn:ogf:network:icair.org:2013:startap-netherlight-out">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:ampath-out">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1784</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:netherlight.net:a-gole:testbed:starlight:1:in"/>
+                    <nml:PortGroup id="urn:ogf:network:ampath.net:2013:starlight-in"/>
                 </nml:Relation>
             </nml:PortGroup>
-            <nml:PortGroup id="urn:ogf:network:icair.org:2013:glo-out">
-                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:netherlight-out">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1784</nml:LabelGroup>
+                <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                    <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:a-gole:testbed:starlight:1:in"/>
+                </nml:Relation>
+            </nml:PortGroup>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:gloriad-out">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1781,1784-1799</nml:LabelGroup>
+                <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                    <nml:PortGroup id="urn:ogf:network:gloriad.org:2013:startap-gloriad"/>
+                </nml:Relation>
+            </nml:PortGroup>
+            <nml:PortGroup id="urn:ogf:network:icair.org:2013:singaren-out">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1781,1784-1799</nml:LabelGroup>
+                <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                    <nml:PortGroup id="urn:ogf:network:singaren.net:2013:startap:in"/>
+                </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>
     </nml:Topology>

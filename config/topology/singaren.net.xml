@@ -5,7 +5,7 @@
         <nml:long>103.6814</nml:long>
     </nml:Location>
     <nsi:Service id="urn:ogf:network:singaren.net:2013:nsa:connection-service">
-        <nsi:link>https://oscars.singaren.net/ConnectionService</nsi:link>
+        <nsi:link>https://203.30.39.121:8500/nsi-v2/ConnectionServiceProvider</nsi:link>
         <nsi:type>application/vnd.org.ogf.nsi.cs.v2+soap</nsi:type>
         <nsi:Relation type="http://schemas.ogf.org/nsi/2013/09/topology#providedBy">
             <nsi:NSA id="urn:ogf:network:singaren.net:2013:nsa"/>
@@ -80,7 +80,7 @@
             <nml:PortGroup id="urn:ogf:network:singaren.net:2013:startap:in">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779,1785-1799</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:startap.net:2013:startap-singaren"/>
+                    <nml:PortGroup id="urn:ogf:network:icair.org:2013:singaren-out"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>
@@ -88,7 +88,7 @@
             <nml:PortGroup id="urn:ogf:network:singaren.net:2013:startap:out">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779,1785-1799</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:startap.net:2013:singaren-startap"/>
+                    <nml:PortGroup id="urn:ogf:network:icair.org:2013:singaren-in"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>

@@ -8,7 +8,7 @@
     },
     "urn:ogf:network:aist.go.jp:2013:nsa": {
         "networkId": "urn:ogf:network:aist.go.jp:2013:topology",
-        "providerUrl": "http://163.220.30.174:28080/nsi2/services/ConnectionProvider",
+        "providerUrl": "http://163.220.30.173:22211/aist_upa/services/ConnectionProvider",
         "auth": {
             "method": "NONE"
         }
@@ -73,14 +73,16 @@
     },
     "urn:ogf:network:manlan.internet2.edu:2013:nsa": {
         "networkId": "urn:ogf:network:manlan.internet2.edu:2013:",
-        "providerUrl": "https://oscars.manlan.net/ConnectionService",
+        "providerUrl": "https://oscars.manlan.internet2.edu:8500/nsi-v2/ConnectionServiceProvider",
         "auth": {
-            "method": "NONE"
+            "method": "BASIC",
+            "username": "oscars-demo",
+            "password": "red7)lollipops"
         }
     },
     "urn:ogf:network:netherlight.net:2013:nsa:bod": {
         "networkId": "urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed",
-        "providerUrl": "https://bod.netherlight.net/nsi/v2/provider",
+        "providerUrl": "https://bod.netherlight.net//nsi/v2/provider",
         "auth": {
             "method": "OAUTH_2",
             "token": "68031d39-6646-4f29-b939-56907107167c"
@@ -102,14 +104,16 @@
     },
     "urn:ogf:network:singaren.net:2013:nsa": {
         "networkId": "urn:ogf:network:singaren.net:2013",
-        "providerUrl": "https://oscars.singaren.net/ConnectionService",
+        "providerUrl": "https://203.30.39.121:8500/nsi-v2/ConnectionServiceProvider",
         "auth": {
-            "method": "NONE"
+            "method": "BASIC",
+            "username": "nsibridge",
+            "password": "Singaren.2013"
         }
     },
-    "urn:ogf:network:startap.net:2013:nsa": {
-        "networkId": "urn:ogf:network:startap.net:2013:topology",
-        "providerUrl": "http://nsa.badlab.crc.ca:9080/NSI/services/ConnectionService",
+    "urn:ogf:network:icair.org:2013:nsa": {
+        "networkId": "urn:ogf:network:icair.org:2013",
+        "providerUrl": "http://pmri061.it.northwestern.edu:9080/NSI/services/CS2",
         "auth": {
             "method": "NONE"
         }
@@ -124,21 +128,14 @@
     },
     "urn:ogf:network:uvalight.net:2013:nsa": {
         "networkId": "urn:ogf:network:uvalight.net:2013",
-        "providerUrl": "http://nsa.uvalight.nl:9080/NSI/services/ConnectionService/",
-        "auth": {
-            "method": "NONE"
-        }
-    },
-    "urn:ogf:network:icair.org:2013:nsa": {
-        "networkId": "urn:ogf:network:icair.org:2013:topology",
-        "providerUrl": "http://pmri061.it.northwestern.edu:9080/NSI/services/CS2",
+        "providerUrl": "http://nsa.uvalight.nl:9080/NSI/services/CS2",
         "auth": {
             "method": "NONE"
         }
     },
     "urn:ogf:network:czechlight.cesnet.cz:2013:nsa:bod": {
         "networkId": "urn:ogf:network:czechlight.cesnet.cz:2013:topology:a-gole:testbed",
-        "providerUrl": "https://bod2.surfnet.nl/nsi/v2/provider",
+        "providerUrl": "https://bod2.surfnet.nl//nsi/v2/provider",
         "auth": {
             "method": "OAUTH_2",
             "token": "44e53ca6-5b48-4503-b605-388e48085b36"

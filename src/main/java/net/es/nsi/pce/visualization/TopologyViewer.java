@@ -81,6 +81,12 @@ public class TopologyViewer extends JPanel {
     // VLAN id for path finding as specified in pull down selector.
     private int mVlanId = -1;
     
+    // Source STP in the context of a network.
+    private String mSourceSTP = null;
+    
+    // Destination STP in the context of mTo network.
+    private String mDestinationSTP = null;
+    
     // The Graph model displayed.
 	private Graph<Network,Sdp> mGraph;
     
@@ -94,6 +100,9 @@ public class TopologyViewer extends JPanel {
 	private Topology topology;
     
     private ScalingControl scaler = new CrossoverScalingControl();
+    
+    private JPanel sourceStpPanel = new JPanel();
+    private JPanel destinationStpPanel = new JPanel();
     
     /**
      * 
@@ -473,11 +482,31 @@ public class TopologyViewer extends JPanel {
         pathTitlePanel.add(pathCriteriaLabelPanel, BorderLayout.WEST);
         pathTitlePanel.add(pathCriteriaPanel);
         pathPanel.add(pathTitlePanel);
+        
+        // The Source STP pull down.
+		sourceStpPanel.add(getSourceStpSelectionBox());
+        
+        // The destination network pull down.
+		destinationStpPanel.add(getDestinationStpSelectionBox());
+        
+        JPanel stpPanel = new JPanel(new BorderLayout());
+        JPanel stpCriteriaPanel = new JPanel(new GridLayout(3,1));
+        JPanel stpCriteriaLabelPanel = new JPanel(new GridLayout(3,1));
+        JPanel stpTitlePanel = new JPanel(new BorderLayout());
+        stpTitlePanel.setBorder(BorderFactory.createTitledBorder("STP Criteria"));
+        stpCriteriaPanel.add(sourceStpPanel);
+        stpCriteriaPanel.add(destinationStpPanel);
+        stpCriteriaLabelPanel.add(new JLabel("Source STP", JLabel.RIGHT));
+        stpCriteriaLabelPanel.add(new JLabel("Destination STP", JLabel.RIGHT));
+        stpTitlePanel.add(stpCriteriaLabelPanel, BorderLayout.WEST);
+        stpTitlePanel.add(stpCriteriaPanel);
+        stpPanel.add(stpTitlePanel);
                 
         controls.add(zoomPanel);
         controls.add(edgePanel);
         controls.add(positionPanel);
         controls.add(pathPanel);
+        controls.add(stpPanel);
 
         
         // This is our primary window.
@@ -521,8 +550,17 @@ public class TopologyViewer extends JPanel {
 					
 				if (source) {
 					mFrom = topology.getNetworkByName(v);
+                    
+                    sourceStpPanel.removeAll();
+                    sourceStpPanel.add(getSourceStpSelectionBox());
+                    sourceStpPanel.updateUI();
+                    
 				} else {
 					mTo = topology.getNetworkByName(v);
+                    
+                    destinationStpPanel.removeAll();
+                    destinationStpPanel.add(getDestinationStpSelectionBox());
+                    destinationStpPanel.updateUI();
 				}
 				drawShortest();
 				repaint();				
@@ -573,7 +611,80 @@ public class TopologyViewer extends JPanel {
 		});
 		return choices;
 	}
+    
+    private Component getSourceStpSelectionBox() {
+
+        Set<String> s = new TreeSet<String>();
+        if (mFrom != null) {
+            for (Stp stp : mFrom.getStps()) {
+                s.add(stp.getId());
+            }
+        }
         
+        // Need the ability to unset the vlanId so give an unset option.
+        s.add(UNSET);
+        
+        @SuppressWarnings("unchecked")
+		final JComboBox choices = new JComboBox(s.toArray());
+        
+        // The "unset" option is always at the end of the list.
+		choices.setSelectedIndex(0);
+		choices.setBackground(Color.WHITE);
+		choices.addActionListener(new ActionListener() {
+            // Called when user selects the vlan field.
+            @Override
+			public void actionPerformed(ActionEvent e) {
+				String stp = (String) choices.getSelectedItem();
+                if (stp == null || UNSET.contentEquals(stp)) {
+                    mSourceSTP = null;
+                }
+                else if (!stp.isEmpty()) {
+                    mSourceSTP = stp;
+                }
+                
+				drawShortest();
+				repaint();				
+			}
+		});
+		return choices;
+    }
+    
+    private Component getDestinationStpSelectionBox() {
+        Set<String> s = new TreeSet<String>();
+        if (mTo != null) {
+            for (Stp stp : mTo.getStps()) {
+                s.add(stp.getId());
+            }
+        }
+        
+        // Need the ability to unset the vlanId so give an unset option.
+        s.add(UNSET);
+        
+        @SuppressWarnings("unchecked")
+		final JComboBox choices = new JComboBox(s.toArray());
+        
+        // The "unset" option is always at the end of the list.
+		choices.setSelectedIndex(0);
+		choices.setBackground(Color.WHITE);
+		choices.addActionListener(new ActionListener() {
+            // Called when user selects the vlan field.
+            @Override
+			public void actionPerformed(ActionEvent e) {
+				String stp = (String) choices.getSelectedItem();
+                if (stp == null || UNSET.contentEquals(stp)) {
+                    mDestinationSTP = null;
+                }
+                else if (!stp.isEmpty()) {
+                    mDestinationSTP = stp;
+                }
+                
+				drawShortest();
+				repaint();				
+			}
+		});
+		return choices;
+    }
+    
 	/**
 	 *  Finds the shortest path given the path selection criteria.
 	 */
