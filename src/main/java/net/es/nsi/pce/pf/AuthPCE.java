@@ -28,7 +28,7 @@ public class AuthPCE implements PCEModule {
     
     @Override
     public PCEData apply(PCEData pceData) throws Exception {
-        log.debug("AuthPCE.apply: Starting ...");
+        log.trace("AuthPCE.apply: Starting ...");
         
         SpringContext sc  = SpringContext.getInstance();
         ApplicationContext context = sc.getContext();
@@ -44,7 +44,7 @@ public class AuthPCE implements PCEModule {
             } else {
                 String nsaId = si.getNsaId();
                 
-                log.debug("AuthPCE.apply: networkId = " + networkId + ", nsaId = " + nsaId);
+                log.trace("AuthPCE.apply: networkId = " + networkId + ", nsaId = " + nsaId);
                 
                 AuthMethodType method = ap.getMethod(nsaId);
                 Map<AuthCredential, String> credentials = ap.getCredentials(nsaId);
@@ -68,7 +68,7 @@ public class AuthPCE implements PCEModule {
         for (Sdp sdp : topo.getSdps()) {
             if (newTopo.getNetworkById(sdp.getA().getNetwork().getNetworkId()) != null &&
                     newTopo.getNetworkById(sdp.getZ().getNetwork().getNetworkId()) != null) {
-                log.debug("AuthPCE.apply: Adding SDP " + sdp.getId());
+                log.trace("AuthPCE.apply: Adding SDP " + sdp.getId());
                 newTopo.addSdp(sdp);
             }
         }

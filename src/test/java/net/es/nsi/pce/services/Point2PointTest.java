@@ -30,8 +30,8 @@ public class Point2PointTest {
         
         // Format the source STP.
         StpType srcStp = new StpType();
-        srcStp.setLocalId("urn:ogf:network:uvalight.net:2013:bi-ps");
-        srcStp.setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
+        srcStp.setLocalId("urn:ogf:network:uvalight.net:2013:ps");
+        srcStp.setNetworkId("urn:ogf:network:uvalight.net:2013");
         evts.setSourceSTP(srcStp);
         evts.setSourceVLAN(1780);
         

@@ -81,10 +81,10 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
         
     @Override
     public void loadConfig() throws JAXBException, FileNotFoundException {
-        if (log.isDebugEnabled()) {
+        if (log.isTraceEnabled()) {
             date = new Date();
-            log.debug("----------------------------------------------------------");
-            log.debug("XmlTopologyProvider.loadConfig(): Starting " + dateFormat.format(date));
+            log.trace("----------------------------------------------------------");
+            log.trace("XmlTopologyProvider.loadConfig(): Starting " + dateFormat.format(date));
         }
         
         // Get a list of files for supplied directory.
@@ -151,7 +151,7 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
                 // Verify the inbound peer unidirectional ports exist and is connected.
                 EthernetPort remoteOutbound = null;
                 if (inbound.getConnectedTo().isEmpty()) {
-                    log.debug("Bidirectional port " + biPort.getPortId() + " has no connectedTo information for inbound port: " + inbound.getPortId());
+                    log.trace("Bidirectional port " + biPort.getPortId() + " has no connectedTo information for inbound port: " + inbound.getPortId());
                 }
                 else {
                     // Assume only one for now.
@@ -166,7 +166,7 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
                 // Verify the outbound peer unidirectional ports exist.
                 EthernetPort remoteInbound = null;
                 if (outbound.getConnectedTo().isEmpty()) {
-                    log.debug("Bidirectional port " + biPort.getPortId() + " has no connectedTo information for inbound port: " + outbound.getPortId());
+                    log.trace("Bidirectional port " + biPort.getPortId() + " has no connectedTo information for inbound port: " + outbound.getPortId());
                 }
                 else {
                     // Assume only one for now.
@@ -174,14 +174,14 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
                     remoteInbound = ethernetPorts.get(remotePortId);
 
                     if (remoteInbound == null) {
-                        log.error("Bidirectional port " + biPort.getPortId() + " has outbound unidirectional port" + outbound.getPortId() + " with bad remote reference " + remotePortId);
+                        log.trace("Bidirectional port " + biPort.getPortId() + " has outbound unidirectional port" + outbound.getPortId() + " with bad remote reference " + remotePortId);
                     }
                 }
                 
                 // We need valid connectivity information before we can consolidate links.
                 if (remoteOutbound == null && remoteInbound == null) {
                     // This must be a client "Uni" port with not connectivity information.
-                    log.debug("Bidirectional port " + biPort.getPortId() + " has no remote port references.");
+                    log.error("Bidirectional port " + biPort.getPortId() + " has no remote port references (Uni?).");
                 }
                 else if (remoteOutbound == null || remoteInbound == null) {
                     log.error("Bidirectional port " + biPort.getPortId() + " cannot be consolidated due one missing remote unidirectional port reference.");
@@ -203,7 +203,7 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
                             log.error("BidirectionalPort " + biPort + " has no compatible topology peer.");
                         }
                         else {
-                            log.debug("Consolidating bidirectional ports: " + biPort.getPortId() + " and " + remotePort.getPortId());
+                            log.trace("Consolidating bidirectional ports: " + biPort.getPortId() + " and " + remotePort.getPortId());
                             biPort.getConnectedTo().add(remotePort.getPortId());
                             biPort.setRemotePort(remotePort);
                         }
@@ -212,10 +212,10 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
             }
         }
         
-        if (log.isDebugEnabled()) {
+        if (log.isTraceEnabled()) {
             date = new Date();
-            log.debug("XmlTopologyProvider.loadConfig(): Ending " + dateFormat.format(date));
-            log.debug("----------------------------------------------------------");
+            log.trace("XmlTopologyProvider.loadConfig(): Ending " + dateFormat.format(date));
+            log.trace("----------------------------------------------------------");
         }
     }
    

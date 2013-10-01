@@ -90,7 +90,7 @@ public class XmlTopologyProviderTest {
             graph.addEdge(sdp, sdp.getA().getNetwork(), sdp.getZ().getNetwork());
         }
         
-        Network a = provider.getTopology().getNetworkById("urn:ogf:network:uvalight.net:2013:topology");
+        Network a = provider.getTopology().getNetworkById("urn:ogf:network:uvalight.net:2013");
         Network z = provider.getTopology().getNetworkById("urn:ogf:network:kddilabs.jp:2013:topology");
         
         @SuppressWarnings("unchecked")

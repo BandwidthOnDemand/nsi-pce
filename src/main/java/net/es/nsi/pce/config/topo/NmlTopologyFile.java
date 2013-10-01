@@ -107,7 +107,7 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
 
                 // Some topologies use PortGroup to model unidirectional ports.
                 for (PortGroupType portGroup : relation.getPortGroup()) {
-                    log.debug("Creating unidirectional Ethernet port: " + portGroup.getId());
+                    log.trace("Creating unidirectional Ethernet port: " + portGroup.getId());
                     EthernetPort ethPort = new EthernetPort();
                     ethPort.setNsaId(nsa.getId());
                     ethPort.setTopologyId(topology.getId());
@@ -127,11 +127,11 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
                     // PortGroup relationship has isAlias connection information.
                     int count = 0;
                     for (PortGroupRelationType pgRelation : portGroup.getRelation()) {
-                        log.debug("Looking for isAlias relationship: " + pgRelation.getType());
+                        log.trace("Looking for isAlias relationship: " + pgRelation.getType());
                         if (Relationships.isAlias(pgRelation.getType())) {
-                            log.debug("Found isAlias relationship.");
+                            log.trace("Found isAlias relationship.");
                             for (PortGroupType alias : pgRelation.getPortGroup()) {
-                                log.debug("isAlias: " + alias.getId());
+                                log.trace("isAlias: " + alias.getId());
                                 ethPort.getConnectedTo().add(alias.getId());
                                 count++;
                             }
@@ -150,7 +150,7 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
 
                 // Some topologies use Port to model unidirectional ports.
                 for (PortType port : relation.getPort()) {
-                    log.debug("Creating unidirectional Ethernet port: " + port.getId());
+                    log.trace("Creating unidirectional Ethernet port: " + port.getId());
                     EthernetPort ethPort = new EthernetPort();
                     ethPort.setNsaId(nsa.getId());
                     ethPort.setTopologyId(topology.getId());
@@ -168,11 +168,11 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
                     // Port relationship has isAlias connection information.
                     int count = 0;
                     for (PortRelationType pRelation : port.getRelation()) {
-                        log.debug("Looking for isAlias relationship: " + pRelation.getType());
+                        log.trace("Looking for isAlias relationship: " + pRelation.getType());
                         if (Relationships.isAlias(pRelation.getType())) {
-                            log.debug("Found isAlias relationship.");
+                            log.trace("Found isAlias relationship.");
                             for (PortType alias : pRelation.getPort()) {
-                                log.debug("isAlias: " + alias.getId());
+                                log.trace("isAlias: " + alias.getId());
                                 ethPort.getConnectedTo().add(alias.getId());
                                 count++;
                             }
@@ -193,11 +193,11 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
             // Bidirectional ports are stored in group element.
             List<NetworkObject> groups = topology.getGroup();
             for (NetworkObject group : groups) {
-                log.debug("group object id: " + group.getId());
+                log.trace("group object id: " + group.getId());
 
                 // Process the BidirectionalPort.
                 if (group instanceof BidirectionalPortType) {
-                    log.debug("group object is BidirectionalPortType");
+                    log.trace("group object is BidirectionalPortType");
                     BidirectionalPortType port = (BidirectionalPortType) group;
 
                     BidirectionalEthernetPort ethPort = new BidirectionalEthernetPort();
@@ -212,7 +212,7 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
                     for (JAXBElement<?> element: rest) {
                         if (element.getValue() instanceof PortGroupType) {
                             PortGroupType pg = (PortGroupType) element.getValue();
-                            log.debug("Unidirectional port: " + pg.getId());
+                            log.trace("Unidirectional port: " + pg.getId());
                             EthernetPort uniPort = newEthernetPorts.get(pg.getId());
                             if (uniPort == null) {
                                 log.error("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.  Dropping topology!");
@@ -232,7 +232,7 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
                         }
                         else if (element.getValue() instanceof PortType) {
                             PortType p = (PortType) element.getValue();
-                            log.debug("Unidirectional port: " + p.getId());
+                            log.trace("Unidirectional port: " + p.getId());
                             EthernetPort uniPort = newEthernetPorts.get(p.getId());
                             if (uniPort == null) {
                                 log.error("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.");
@@ -265,7 +265,7 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
 
                     if (inVLANs == null && outVLANs == null) {
                         // No vlans provided so we can assume this is okay.
-                        log.debug("Bidirectional port " + port.getId() + " has vlans are null for " + ethPort.getInbound().getPortId() + ", and " + ethPort.getOutbound().getPortId());
+                        log.trace("Bidirectional port " + port.getId() + " has vlans are null for " + ethPort.getInbound().getPortId() + ", and " + ethPort.getOutbound().getPortId());
                     }
                     if (inVLANs != null && outVLANs != null && inVLANs.equals(outVLANs)) {
                         ethPort.setVlans(inVLANs);
@@ -293,7 +293,7 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
 
     @Override
     public Set<String> getNetworkIds() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return topologies.keySet();
     }
 
     @Override

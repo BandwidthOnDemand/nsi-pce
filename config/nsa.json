@@ -123,7 +123,7 @@
         }
     },
     "urn:ogf:network:uvalight.net:2013:nsa": {
-        "networkId": "urn:ogf:network:uvalight.net:2013:topology",
+        "networkId": "urn:ogf:network:uvalight.net:2013",
         "providerUrl": "http://nsa.uvalight.nl:9080/NSI/services/ConnectionService/",
         "auth": {
             "method": "NONE"

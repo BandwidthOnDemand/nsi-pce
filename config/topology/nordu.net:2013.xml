@@ -1,10 +1,10 @@
-<nsi:NSA xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#" id="urn:ogf:network:nordu.net:2013:nsa" version="2013-09-25T08:27:23.972357">
+<nsi:NSA xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#" id="urn:ogf:network:nordu.net:2013:nsa" version="2013-09-30T19:37:39.061677">
     <nsi:Service id="urn:ogf:network:nordu.net:2013:nsa-cs">
         <nsi:link>https://nsi.nordu.net:9443/NSI/services/CS2</nsi:link>
         <nsi:type>application/vnd.org.ogf.nsi.cs.v2+soap</nsi:type>
     </nsi:Service>
-    <nml:Topology id="urn:ogf:network:nordu.net:2013:topology">
-        <nml:name>nordu.net</nml:name>
+    <nml:Topology id="urn:ogf:network:nordu.net:2013">
+        <nml:name>nordu.net:2013</nml:name>
         <nml:BidirectionalPort id="urn:ogf:network:nordu.net:2013:ps">
             <nml:name>ps</nml:name>
             <nml:PortGroup id="urn:ogf:network:nordu.net:2013:ps-in"/>
@@ -52,7 +52,7 @@
             <nml:PortGroup id="urn:ogf:network:nordu.net:2013:uvalight-in">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:uvalight.net:2013:uvalight-nordu"/>
+                    <nml:PortGroup id="urn:ogf:network:uvalight.net:2013:nordu-out"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>
@@ -78,7 +78,7 @@
             <nml:PortGroup id="urn:ogf:network:nordu.net:2013:uvalight-out">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:uvalight.net:2013:nordu-uvalight"/>
+                    <nml:PortGroup id="urn:ogf:network:uvalight.net:2013:nordu-in"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>

@@ -49,15 +49,15 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
         { this.getStpA().setLocalId("urn:ogf:network:kddilabs.jp:2013:bi-ps");
           this.getStpA().setNetworkId("urn:ogf:network:kddilabs.jp:2013:topology");
           this.setVlanA(1782);
-          this.getStpZ().setLocalId("urn:ogf:network:uvalight.net:2013:bi-ps");
-          this.getStpZ().setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
+          this.getStpZ().setLocalId("urn:ogf:network:uvalight.net:2013:ps");
+          this.getStpZ().setNetworkId("urn:ogf:network:uvalight.net:2013");
           this.setVlanZ(1782);
         }
     };
 
     private final static StpTestData test2 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:uvalight.net:2013:bi-ps");
-          this.getStpA().setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
+        { this.getStpA().setLocalId("urn:ogf:network:uvalight.net:2013:ps");
+          this.getStpA().setNetworkId("urn:ogf:network:uvalight.net:2013");
           this.setVlanA(1780);
           this.getStpZ().setLocalId("urn:ogf:network:es.net:2013:ps:sunn:1");
           this.getStpZ().setNetworkId("urn:ogf:network:es.net:2013");
@@ -96,6 +96,17 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
         }
     };
     
+    // Netherligh endpoints.
+    private final static StpTestData test6 = new StpTestData() {
+        { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:282");
+          this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
+          this.setVlanA(1784);
+          this.getStpZ().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1");
+          this.getStpZ().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
+          this.setVlanZ(1784);
+        }
+    };
+    
     private final static List<StpTestData> testData = new ArrayList<StpTestData>() {
         private static final long serialVersionUID = 1L;
         {
@@ -104,6 +115,7 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
             this.add(test3);
             this.add(test4);
             this.add(test5);
+            this.add(test6);
         }
     };
 
