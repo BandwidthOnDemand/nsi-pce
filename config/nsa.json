@@ -89,7 +89,7 @@
         }
     },
     "urn:ogf:network:nordu.net:2013:nsa": {
-        "networkId": "urn:ogf:network:nordu.net:2013:topology",
+        "networkId": "urn:ogf:network:nordu.net:2013",
         "providerUrl": "https://nsi.nordu.net:9443/NSI/services/CS2",
         "auth": {
             "method": "NONE"
