@@ -1,6 +1,6 @@
 {
     "urn:ogf:network:ampath.net:2013:nsa": {
-        "networkId": "urn:ogf:network:ampath.net:2013:topology",
+        "networkId": "urn:ogf:network:ampath.net:2013",
         "providerUrl": "http://nsi.ampath.net:9080/NSI/services/CS2",
         "auth": {
             "method": "NONE"
@@ -20,13 +20,6 @@
             "method": "BASIC",
             "username": "nsibridge",
             "password": "glif2013"
-        }
-    },
-    "urn:ogf:network:exp.pionier.net.pl:2013:nsa": {
-        "networkId": "urn:ogf:network:exp.pionier.net.pl:2013:topology",
-        "providerUrl": "http://194.132.53.174:9282/nsi/ConnectionProvider",
-        "auth": {
-            "method": "NONE"
         }
     },
     "urn:ogf:network:geant.net:2013:nsa": {
@@ -139,6 +132,13 @@
         "auth": {
             "method": "OAUTH_2",
             "token": "44e53ca6-5b48-4503-b605-388e48085b36"
+        }
+    },
+    "urn:ogf:network:southernlight.net:2013:nsa": {
+        "networkId": "urn:ogf:network:southernlight.net:2013",
+        "providerUrl": "http://agole.ansp.br:9080/NSI/services/CS2",
+        "auth": {
+            "method": "NONE"
         }
     }
 }
