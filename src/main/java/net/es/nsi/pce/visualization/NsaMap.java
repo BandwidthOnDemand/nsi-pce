@@ -37,7 +37,6 @@ public class NsaMap {
             // Row four.
             this.put("urn:ogf:network:aist.go.jp:2013:nsa", new CartesianCoordinates(400, 750));
             this.put("urn:ogf:network:krlight.net:2013:nsa", new CartesianCoordinates(600, 750));
-            this.put("urn:ogf:network:gloriad.org:2013:nsa", new CartesianCoordinates(600, 650));
             this.put("urn:ogf:network:geant.net:2013:nsa", new CartesianCoordinates(800, 750));
             this.put("urn:ogf:network:grnet.gr:2013:nsa", new CartesianCoordinates(1000, 750));
         }
