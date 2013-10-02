@@ -201,7 +201,8 @@ public class TopologyViewer extends JPanel {
         vv.setEdgeToolTipTransformer(new Transformer<Sdp, String>() {
             @Override
 			public String transform(Sdp edge) {
-				return "E"+mGraph.getEndpoints(edge).toString();
+                System.out.println("transform: " + mGraph.getEndpoints(edge).toString());
+				return "E" + mGraph.getEndpoints(edge).toString();
 			}
         });
         
