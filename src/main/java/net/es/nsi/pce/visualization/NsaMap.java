@@ -15,11 +15,11 @@ public class NsaMap {
         private static final long serialVersionUID = 1L;
         {
             // Top row.
-            this.put("urn:ogf:network:ampath.net:2013:nsa", new CartesianCoordinates(400, 50));
-            this.put("urn:ogf:network:nordu.net:2013:nsa", new CartesianCoordinates(600, 50));
-            this.put("urn:ogf:network:uvalight.net:2013:nsa", new CartesianCoordinates(800, 50));
-            this.put("urn:ogf:network:surfnet.nl:1990:nsa:bod", new CartesianCoordinates(1000, 50));
-            this.put("urn:ogf:network:southernlight.net:2013:nsa", new CartesianCoordinates(200, 50));
+            this.put("urn:ogf:network:southernlight.net:2013:nsa", new CartesianCoordinates(400, 50));
+            this.put("urn:ogf:network:ampath.net:2013:nsa", new CartesianCoordinates(600, 50));
+            this.put("urn:ogf:network:nordu.net:2013:nsa", new CartesianCoordinates(800, 50));
+            this.put("urn:ogf:network:uvalight.net:2013:nsa", new CartesianCoordinates(1000, 50));
+            //this.put("urn:ogf:network:surfnet.nl:1990:nsa:bod", new CartesianCoordinates(1000, 50));
             
             // Second row.
             this.put("urn:ogf:network:singaren.net:2013:nsa", new CartesianCoordinates(50, 550));
