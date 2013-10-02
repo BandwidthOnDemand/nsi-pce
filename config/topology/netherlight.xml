@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <nsi:NSA xmlns:vc="urn:ietf:params:xml:ns:vcard-4.0" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#"
-    version="2013-09-30T16:28:17.377+02:00" id="urn:ogf:network:netherlight.net:2013:nsa:bod">
+    version="2013-10-02T02:20:40.439+02:00" id="urn:ogf:network:netherlight.net:2013:nsa:bod">
     <nml:Location id="urn:ogf:network:netherlight.net:2013:nsa:bod:location">
         <nml:lat>52.356701</nml:lat>
         <nml:long>4.954585</nml:long>
@@ -126,7 +126,7 @@
             <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:uva:1:out">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:uvalight.net:2013:netherlight-in"/>
+                    <nml:PortGroup id="urn:ogf:network:uvalight.net:2013:netherlight-uvalight"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>
@@ -134,7 +134,7 @@
             <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:uva:1:in">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:uvalight.net:2013:netherlight-out"/>
+                    <nml:PortGroup id="urn:ogf:network:uvalight.net:2013:uvalight-netherlight"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>
@@ -142,7 +142,7 @@
             <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:starlight:1:out">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:startap.net:2013:netherlight-startap"/>
+                    <nml:PortGroup id="urn:ogf:network:icair.org:2013:netherlight-in"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>
@@ -150,7 +150,7 @@
             <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:starlight:1:in">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:startap.net:2013:startap-netherlight"/>
+                    <nml:PortGroup id="urn:ogf:network:icair.org:2013:netherlight-out"/>
                 </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>

@@ -19,6 +19,7 @@ public class NsaMap {
             this.put("urn:ogf:network:nordu.net:2013:nsa", new CartesianCoordinates(600, 50));
             this.put("urn:ogf:network:uvalight.net:2013:nsa", new CartesianCoordinates(800, 50));
             this.put("urn:ogf:network:surfnet.nl:1990:nsa:bod", new CartesianCoordinates(1000, 50));
+            this.put("urn:ogf:network:southernlight.net:2013:nsa", new CartesianCoordinates(200, 50));
             
             // Second row.
             this.put("urn:ogf:network:singaren.net:2013:nsa", new CartesianCoordinates(50, 350));
@@ -35,12 +36,12 @@ public class NsaMap {
             this.put("urn:ogf:network:exp.pionier.net.pl:2013:nsa", new CartesianCoordinates(1000, 550));
             
             // Row four.
-
             this.put("urn:ogf:network:aist.go.jp:2013:nsa", new CartesianCoordinates(200, 750));
             this.put("urn:ogf:network:krlight.net:2013:nsa", new CartesianCoordinates(400, 750));
             this.put("urn:ogf:network:gloriad.org:2013:nsa", new CartesianCoordinates(600, 750));
             this.put("urn:ogf:network:geant.net:2013:nsa", new CartesianCoordinates(800, 750));
             this.put("urn:ogf:network:grnet.gr:2013:nsa", new CartesianCoordinates(1000, 750));
+            
         }
     };
 

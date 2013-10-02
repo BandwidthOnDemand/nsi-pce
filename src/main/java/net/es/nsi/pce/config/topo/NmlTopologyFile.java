@@ -215,8 +215,8 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
                             log.trace("Unidirectional port: " + pg.getId());
                             EthernetPort uniPort = newEthernetPorts.get(pg.getId());
                             if (uniPort == null) {
-                                log.error("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.  Dropping topology!");
-                                throw new NoSuchElementException("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.   Dropping topology!");
+                                log.error("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.  Dropping from topology!");
+                                continue;
                             }
 
                             if (uniPort.getOrientation() == Orientation.inbound) {
@@ -253,10 +253,12 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
                     }
 
                     if (ethPort.getInbound() == null) {
-                        throw new IllegalArgumentException("Bidirectional port " + port.getId() + " does not have an associated inbound unidirectional port."); 
+                        log.error("Bidirectional port " + port.getId() + " does not have an associated inbound unidirectional port. Dropping from topology!");
+                        continue; 
                     }
                     else if (ethPort.getOutbound() == null) {
-                        throw new IllegalArgumentException("Bidirectional port " + port.getId() + " does not have an associated outbound unidirectional port."); 
+                        log.error("Bidirectional port " + port.getId() + " does not have an associated outbound unidirectional port.  Dropping from topology!");
+                        continue;
                     }
 
                     // Merge the VLAN id from uni ports into bidirectional port.
