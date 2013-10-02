@@ -82,14 +82,14 @@
     },
     "urn:ogf:network:netherlight.net:2013:nsa:bod": {
         "networkId": "urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed",
-        "providerUrl": "https://bod.netherlight.net//nsi/v2/provider",
+        "providerUrl": "https://bod.netherlight.net/nsi/v2/provider",
         "auth": {
             "method": "OAUTH_2",
             "token": "68031d39-6646-4f29-b939-56907107167c"
         }
     },
     "urn:ogf:network:nordu.net:2013:nsa": {
-        "networkId": "urn:ogf:network:nordu.net:2013:topology",
+        "networkId": "urn:ogf:network:nordu.net:2013",
         "providerUrl": "https://nsi.nordu.net:9443/NSI/services/CS2",
         "auth": {
             "method": "NONE"
@@ -135,7 +135,7 @@
     },
     "urn:ogf:network:czechlight.cesnet.cz:2013:nsa:bod": {
         "networkId": "urn:ogf:network:czechlight.cesnet.cz:2013:topology:a-gole:testbed",
-        "providerUrl": "https://bod2.surfnet.nl//nsi/v2/provider",
+        "providerUrl": "https://bod2.surfnet.nl/nsi/v2/provider",
         "auth": {
             "method": "OAUTH_2",
             "token": "44e53ca6-5b48-4503-b605-388e48085b36"
