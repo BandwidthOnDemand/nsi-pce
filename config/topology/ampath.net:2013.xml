@@ -30,7 +30,7 @@
             <nml:PortGroup id="urn:ogf:network:ampath.net:2013:southernlight-in">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1800</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:southernlight:ampath-out"/>
+                    <nml:PortGroup id="urn:ogf:network:southernlight.net:2013:bi-ampath-out"/>
                 </nml:Relation>
             </nml:PortGroup>
             <nml:PortGroup id="urn:ogf:network:ampath.net:2013:ndn-in">
@@ -50,7 +50,7 @@
             <nml:PortGroup id="urn:ogf:network:ampath.net:2013:southernlight-out">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1800</nml:LabelGroup>
                 <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:southernlight:ampath-in"/>
+                    <nml:PortGroup id="urn:ogf:network:southernlight.net:2013:bi-ampath-in"/>
                 </nml:Relation>
             </nml:PortGroup>
             <nml:PortGroup id="urn:ogf:network:ampath.net:2013:ndn-out">
