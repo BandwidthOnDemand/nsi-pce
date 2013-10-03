@@ -32,9 +32,8 @@ public class XmlTopologyProviderTest {
             provider.loadTopology();
         }
         catch (Exception ex) {
-            System.err.println("loadTopology() Failed:");
-            throw ex;
-           // fail();
+            System.err.println("loadTopology() Failed: " + ex.getMessage());
+            fail();
         }
         
         System.out.println("Loaded network topologies:");
@@ -49,8 +48,7 @@ public class XmlTopologyProviderTest {
                     System.out.println();
                 }
             } catch (Exception ex) {
-                System.err.println("Dump of topology failed: ");
-                ex.printStackTrace();
+                System.err.println("Dump of topology failed: " + ex.getMessage());
                 fail();
             }
         }
