@@ -20,4 +20,5 @@ java -Xmx256m -Djava.net.preferIPv4Stack=true  \
 	-Dapp.home="$BASEDIR" \
   	-Dbasedir="$BASEDIR" \
 	-Djava.util.logging.config.file="$BASEDIR/config/logging.properties" \
+	-Dcom.sun.xml.bind.v2.runtime.JAXBContextImpl.fastBoot=true \
 	-jar target/nsi-pce-1.0-SNAPSHOT.one-jar.jar  $*

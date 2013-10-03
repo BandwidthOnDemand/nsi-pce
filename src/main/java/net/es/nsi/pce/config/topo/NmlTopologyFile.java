@@ -1,15 +1,12 @@
 package net.es.nsi.pce.config.topo;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.config.FileBasedConfigProvider;
@@ -42,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author hacksaw
  */
 public class NmlTopologyFile extends FileBasedConfigProvider implements TopologyProvider {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger log = LoggerFactory.getLogger(NmlTopologyFile.class);
     
     // Keep the original NML NSA entry.
     private NSAType nsa;
@@ -52,7 +49,7 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
     
     // Map holding the network topologies indexed by network Id.
     private ConcurrentHashMap<String, EthernetPort> ethernetPorts = new ConcurrentHashMap<String, EthernetPort>();
-
+    
     @Override
     public void loadConfig() throws Exception {
         // Check to see if file associated with this topology has changed.
@@ -73,11 +70,7 @@ public class NmlTopologyFile extends FileBasedConfigProvider implements Topology
         log.debug("File change detected, loading " + ap);
 
         try {
-            final JAXBContext jaxbContext = JAXBContext.newInstance(NSAType.class);
-
-            @SuppressWarnings("unchecked")
-            JAXBElement<NSAType> nsaElement = (JAXBElement<NSAType>) jaxbContext.createUnmarshaller().unmarshal(new BufferedInputStream(new FileInputStream(ap)));
-            nsa = nsaElement.getValue();
+            nsa = NmlParser.getInstance().parseNSA(ap);
             log.info("Loaded topology for NSA " + nsa.getId());
         }
         catch (JAXBException | FileNotFoundException jaxb) {
