@@ -121,7 +121,7 @@
     },
     "urn:ogf:network:uvalight.net:2013:nsa": {
         "networkId": "urn:ogf:network:uvalight.net:2013",
-        "providerUrl": "http://nsa.uvalight.nl:9080/NSI/services/CS2",
+        "providerUrl": "https://nsa.uvalight.net:9443/NSI/services/CS2",
         "auth": {
             "method": "NONE"
         }

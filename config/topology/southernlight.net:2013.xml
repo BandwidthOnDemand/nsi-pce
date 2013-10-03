@@ -1,5 +1,5 @@
 <nsi:NSA xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#" id="urn:ogf:network:southernlight.net:2013:nsa"
-    version="2013-10-01T18:10:34.595667">
+    version="2013-10-03T02:00:47.723429">
     <nsi:Service id="urn:ogf:network:southernlight.net:2013:nsa-cs">
         <nsi:link>http://agole.ansp.br:9080/NSI/services/CS2</nsi:link>
         <nsi:type>application/vnd.org.ogf.nsi.cs.v2+soap</nsi:type>
@@ -25,9 +25,6 @@
             </nml:PortGroup>
             <nml:PortGroup id="urn:ogf:network:southernlight.net:2013:bi-rnp-in">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1800</nml:LabelGroup>
-                <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:rnp:southernlight.net:2013-out"/>
-                </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>
         <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
@@ -39,9 +36,6 @@
             </nml:PortGroup>
             <nml:PortGroup id="urn:ogf:network:southernlight.net:2013:bi-rnp-out">
                 <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1800</nml:LabelGroup>
-                <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <nml:PortGroup id="urn:ogf:network:rnp:southernlight.net:2013-in"/>
-                </nml:Relation>
             </nml:PortGroup>
         </nml:Relation>
     </nml:Topology>
