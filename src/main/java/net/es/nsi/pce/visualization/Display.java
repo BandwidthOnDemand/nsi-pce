@@ -4,6 +4,8 @@
  */
 package net.es.nsi.pce.visualization;
 
+import java.awt.Color;
+
 /**
  *
  * @author hacksaw
@@ -11,4 +13,6 @@ package net.es.nsi.pce.visualization;
 public class Display {
     public static final int maxX = 1200;
     public static final int maxY = 1000;
+    
+    public static final Color backgroundColor = Color.WHITE;
 }

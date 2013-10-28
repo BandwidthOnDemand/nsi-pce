@@ -12,7 +12,7 @@ class NetworkTransformer implements Transformer<Network, CartesianCoordinates> {
 
     @Override
     public CartesianCoordinates transform(Network network) {
-        return NsaMap.getCoordinates(network.getNsaId());
+        return NsaMap.getCoordinates(network.getNetworkId());
     }
     
 }

@@ -189,7 +189,7 @@
                 <artifactId>jaxb2-maven-plugin</artifactId>
                 <executions>
                   <execution>
-                    <id>rest.api</id>
+                    <id>pce.rest.api</id>
                     <goals>
                         <goal>xjc</goal>
                     </goals>
@@ -197,7 +197,7 @@
                         <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
                         <schemaFiles>pce-messages.xsd, ogf_nsi_services_p2p_v2_0.xsd, ogf_nsi_services_types_v2_0.xsd</schemaFiles>
                         <packageName>net.es.nsi.pce.api.jaxb</packageName>
-                        <staleFile>${project.build.directory}/jaxb2/.jaxbXjcStaleFlag</staleFile>
+                        <staleFile>${project.build.directory}/jaxb2/.pceXjcStaleFlag</staleFile>
                     </configuration>
                   </execution>
                   <execution>
@@ -214,7 +214,7 @@
                     </configuration>
                   </execution>
                   <execution>
-                    <id>topology</id>
+                    <id>nml</id>
                     <goals>
                         <goal>xjc</goal>
                     </goals>
@@ -222,7 +222,7 @@
                         <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
                         <schemaFiles>nmlbase.xsd, nsi-ext.xsd</schemaFiles>
                         <packageName>net.es.nsi.pce.topology.jaxb</packageName>
-                        <staleFile>${project.build.directory}/jaxb2/.topXjcStaleFlag</staleFile>
+                        <staleFile>${project.build.directory}/jaxb2/.nmlXjcStaleFlag</staleFile>
                         <clearOutputDir>false</clearOutputDir>
                     </configuration>
                   </execution>

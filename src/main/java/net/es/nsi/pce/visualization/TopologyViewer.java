@@ -73,10 +73,10 @@ public class TopologyViewer extends JPanel {
     private static final String UNSET = "unset";
     
 	//Starting vertex as specified in pull down selector.
-	private Network mFrom;
+	private Network mSourceNetwork;
 
 	//Ending vertex as specified in pull down selector.
-	private Network mTo;
+	private Network mDestinationNetwork;
     
     // VLAN id for path finding as specified in pull down selector.
     private int mVlanId = -1;
@@ -100,7 +100,7 @@ public class TopologyViewer extends JPanel {
 	private Topology topology;
     
     private ScalingControl scaler = new CrossoverScalingControl();
-    
+
     private JPanel sourceStpPanel = new JPanel();
     private JPanel destinationStpPanel = new JPanel();
     
@@ -213,14 +213,9 @@ public class TopologyViewer extends JPanel {
         vv.getRenderer().getVertexLabelRenderer().setPosition(Renderer.VertexLabel.Position.SE);
         
         // A nice white background colour in main map window.
-        vv.setBackground(Color.WHITE);
+        vv.setBackground(Display.backgroundColor);
 
-
-        
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
-        
-        
-        
         final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse<Number,Number>();
         vv.setGraphMouse(graphMouse);
         vv.addKeyListener(graphMouse.getModeKeyListener());
@@ -267,13 +262,18 @@ public class TopologyViewer extends JPanel {
 	    
         @Override
 		public Paint transform(Sdp e) {
+            // Filter first based on vlan selection.
+            if (mVlanId != -1 && mVlanId != e.getA().getVlanId()) {
+                return Display.backgroundColor;
+            }
+            
             // When there are no verticies selected we paint the lines black.
 			if ( mPred == null || mPred.isEmpty()) {
                 return Color.BLACK;
             }
             
             // If the edge is part of the shortest path we colour it blue.
-			if( isOnShortestPath( e )) {
+			if (isOnShortestPath(e)) {
 				return new Color(0.0f, 0.0f, 1.0f, 0.5f); //Color.BLUE;
 			}
             else {
@@ -288,18 +288,25 @@ public class TopologyViewer extends JPanel {
      * of the shortest path (thick) or not (thin).  
      */
 	public class SdpEdgeStrokeFunction implements Transformer<Sdp,Stroke> {
+        protected final Stroke INVISIBLE = new BasicStroke(0);
         protected final Stroke THIN = new BasicStroke(1);
         protected final Stroke THICK = new BasicStroke(5);
 
         @Override
         public Stroke transform(Sdp e) {
+            
+            // Filter first based on vlan selection.
+            if (mVlanId != -1 && mVlanId != e.getA().getVlanId()) {
+                return INVISIBLE;
+            }
+            
             // When there are no verticies selected we paint the lines thin.
-			if ( mPred == null || mPred.isEmpty()) {
+			if (mPred == null || mPred.isEmpty()) {
                 return THIN;
             }
             
             // If the edge is part of the shortest path we paint it thick.
-			if (isOnShortestPath( e ) ) {
+			if (isOnShortestPath(e) ) {
 			    return THICK;
 			}
             else {
@@ -331,11 +338,11 @@ public class TopologyViewer extends JPanel {
         @Override
 		public Paint transform( Network v ) {
             // Source and destination Network verticies are filled with blue.
-			if ( v == mFrom) {
+			if ( v == mSourceNetwork) {
 				return Color.BLUE;
 			}
             
-			if ( v == mTo ) {
+			if ( v == mDestinationNetwork ) {
 				return Color.BLUE;
 			}
             
@@ -495,21 +502,21 @@ public class TopologyViewer extends JPanel {
         JPanel stpCriteriaLabelPanel = new JPanel(new GridLayout(3,1));
         JPanel stpTitlePanel = new JPanel(new BorderLayout());
         stpTitlePanel.setBorder(BorderFactory.createTitledBorder("STP Criteria"));
-        stpCriteriaPanel.add(sourceStpPanel);
-        stpCriteriaPanel.add(destinationStpPanel);
+        stpCriteriaPanel.add(sourceStpPanel, BorderLayout.WEST);
+        stpCriteriaPanel.add(destinationStpPanel, BorderLayout.WEST);
         stpCriteriaLabelPanel.add(new JLabel("Source STP", JLabel.RIGHT));
         stpCriteriaLabelPanel.add(new JLabel("Destination STP", JLabel.RIGHT));
         stpTitlePanel.add(stpCriteriaLabelPanel, BorderLayout.WEST);
         stpTitlePanel.add(stpCriteriaPanel);
         stpPanel.add(stpTitlePanel);
-                
+
+        // Add the component control panels to the frame.
         controls.add(zoomPanel);
         controls.add(edgePanel);
         controls.add(positionPanel);
         controls.add(pathPanel);
         controls.add(stpPanel);
 
-        
         // This is our primary window.
 		JPanel jp = new JPanel(new GridLayout(1,1));
 		jp.setBackground(Color.WHITE);
@@ -550,14 +557,14 @@ public class TopologyViewer extends JPanel {
 				String v = (String) choices.getSelectedItem();
 					
 				if (source) {
-					mFrom = topology.getNetworkByName(v);
+					mSourceNetwork = topology.getNetworkByName(v);
                     
                     sourceStpPanel.removeAll();
                     sourceStpPanel.add(getSourceStpSelectionBox());
                     sourceStpPanel.updateUI();
                     
 				} else {
-					mTo = topology.getNetworkByName(v);
+					mDestinationNetwork = topology.getNetworkByName(v);
                     
                     destinationStpPanel.removeAll();
                     destinationStpPanel.add(getDestinationStpSelectionBox());
@@ -590,8 +597,8 @@ public class TopologyViewer extends JPanel {
         @SuppressWarnings("unchecked")
 		final JComboBox choices = new JComboBox(s.toArray());
         
-        // The "unset" option is always at the end of the list.
-		choices.setSelectedIndex(s.size()-1);
+        // Unset the selection.
+		choices.setSelectedIndex(-1);
 		choices.setBackground(Color.WHITE);
 		choices.addActionListener(new ActionListener() {
 
@@ -601,10 +608,20 @@ public class TopologyViewer extends JPanel {
 				String vlan = (String) choices.getSelectedItem();
                 if (vlan == null || UNSET.contentEquals(vlan)) {
                     mVlanId = -1;
+                    choices.setSelectedIndex(-1);
                 }
                 else if (!vlan.isEmpty()) {
                     mVlanId = Integer.parseInt(vlan);
                 }
+                
+                // Now filter the STP based on VLAN.
+                sourceStpPanel.removeAll();
+                sourceStpPanel.add(getSourceStpSelectionBox());
+                sourceStpPanel.updateUI();
+                
+                destinationStpPanel.removeAll();
+                destinationStpPanel.add(getDestinationStpSelectionBox());
+                destinationStpPanel.updateUI();
                 
 				drawShortest();
 				repaint();				
@@ -616,9 +633,11 @@ public class TopologyViewer extends JPanel {
     private Component getSourceStpSelectionBox() {
 
         Set<String> s = new TreeSet<String>();
-        if (mFrom != null) {
-            for (Stp stp : mFrom.getStps()) {
-                s.add(stp.getId());
+        if (mSourceNetwork != null) {
+            for (Stp stp : mSourceNetwork.getStps()) {
+                if (mVlanId == -1 || mVlanId == stp.getVlanId()) {
+                    s.add(stp.getId());
+                }
             }
         }
         
@@ -628,8 +647,8 @@ public class TopologyViewer extends JPanel {
         @SuppressWarnings("unchecked")
 		final JComboBox choices = new JComboBox(s.toArray());
         
-        // The "unset" option is always at the end of the list.
-		choices.setSelectedIndex(0);
+        // Clear the selection.
+		choices.setSelectedIndex(-1);
 		choices.setBackground(Color.WHITE);
 		choices.addActionListener(new ActionListener() {
             // Called when user selects the vlan field.
@@ -638,6 +657,7 @@ public class TopologyViewer extends JPanel {
 				String stp = (String) choices.getSelectedItem();
                 if (stp == null || UNSET.contentEquals(stp)) {
                     mSourceSTP = null;
+                    choices.setSelectedIndex(-1);
                 }
                 else if (!stp.isEmpty()) {
                     mSourceSTP = stp;
@@ -652,9 +672,11 @@ public class TopologyViewer extends JPanel {
     
     private Component getDestinationStpSelectionBox() {
         Set<String> s = new TreeSet<String>();
-        if (mTo != null) {
-            for (Stp stp : mTo.getStps()) {
-                s.add(stp.getId());
+        if (mDestinationNetwork != null) {
+            for (Stp stp : mDestinationNetwork.getStps()) {
+                if (mVlanId == -1 || mVlanId == stp.getVlanId()) {
+                    s.add(stp.getId());
+                }
             }
         }
         
@@ -664,8 +686,8 @@ public class TopologyViewer extends JPanel {
         @SuppressWarnings("unchecked")
 		final JComboBox choices = new JComboBox(s.toArray());
         
-        // The "unset" option is always at the end of the list.
-		choices.setSelectedIndex(0);
+        // Clear the selection.
+		choices.setSelectedIndex(-1);
 		choices.setBackground(Color.WHITE);
 		choices.addActionListener(new ActionListener() {
             // Called when user selects the vlan field.
@@ -674,6 +696,7 @@ public class TopologyViewer extends JPanel {
 				String stp = (String) choices.getSelectedItem();
                 if (stp == null || UNSET.contentEquals(stp)) {
                     mDestinationSTP = null;
+                    choices.setSelectedIndex(-1);
                 }
                 else if (!stp.isEmpty()) {
                     mDestinationSTP = stp;
@@ -687,7 +710,15 @@ public class TopologyViewer extends JPanel {
     }
     
 	/**
-	 *  Finds the shortest path given the path selection criteria.
+	 * Finds the shortest path given the path selection criteria.  We have a
+     * number of criteria to take into consideration:
+     *  - Source and destination vertices as the start and end points of our
+     *    computation.  These also act as a filter on the source and destination
+     *    STP allowing the user to filter their path selection further.
+     *  - VLAN identifier will further filter both the source and destination
+     *    STP as well as prune edges from the graph.
+     *  - Source and destination STP will fully qualify the request that may be
+     *    additionally restricted by the edge VLAN identifier filter.
 	 */
 	protected void drawShortest() {
         // Empty our verticies and edges for new computation.
@@ -695,30 +726,52 @@ public class TopologyViewer extends JPanel {
         mEdge.clear();
         
         // We need two Netwoks to start path computation.
-		if (mFrom == null || mTo == null) {
+		if (mSourceNetwork == null || mDestinationNetwork == null) {
 			return;
 		}
         
         // If no vlan is selected we will need to route for all possible.
         Graph<Network,Sdp> tGraph;
-        if (mVlanId == -1) {
-            tGraph = mGraph;
+        int vlan = mVlanId;
+        
+        if (vlan == -1) {
+            // Check to see if we have STP selected on the ends.
+            int sourceVlanId = -1;
+            int destnationVlanId = -1;
+            if (mSourceSTP != null && !mSourceSTP.isEmpty()) {
+                sourceVlanId = mSourceNetwork.getStp(mSourceSTP).getVlanId();
+            }
+            
+            if (mDestinationSTP != null && !mDestinationSTP.isEmpty()) {
+                destnationVlanId = mDestinationNetwork.getStp(mDestinationSTP).getVlanId();
+            }
+            
+            // No vlan restrictions so we use the whole graph.
+            if (sourceVlanId == -1 && destnationVlanId == -1) {
+                return;
+            }
+            
+            // When we can support VLAN interchange we can remove this restriction.
+            if (sourceVlanId != destnationVlanId) {
+                return;
+            }
+            
+            vlan = sourceVlanId;
         }
-        else {
-            // Build a teportary graph for out path computation.
-            tGraph = new SparseMultigraph<Network, Sdp>();
+        
+        // Build a temporary graph for out path computation.
+        tGraph = new SparseMultigraph<Network, Sdp>();
 
-            // Add Networks as verticies.
-            for (Network network : topology.getNetworks()) {
-                tGraph.addVertex(network);
-            }        
+        // Add Networks as verticies.
+        for (Network network : topology.getNetworks()) {
+            tGraph.addVertex(network);
+        }        
 
-            // Add bidirectional SDP as edges.
-            for (Sdp sdp : topology.getSdps()) {
-                if (sdp.getDirectionality() == Directionality.bidirectional &&
-                        sdp.getA().getVlanId() == mVlanId) {
-                    tGraph.addEdge(sdp, sdp.getA().getNetwork(), sdp.getZ().getNetwork());
-                }
+        // Add bidirectional SDP as edges.
+        for (Sdp sdp : topology.getSdps()) {
+            if (sdp.getDirectionality() == Directionality.bidirectional &&
+                    sdp.getA().getVlanId() == vlan) {
+                tGraph.addEdge(sdp, sdp.getA().getNetwork(), sdp.getZ().getNetwork());
             }
         }
         
@@ -727,7 +780,7 @@ public class TopologyViewer extends JPanel {
         
         List<Sdp> path;
         try {
-            path = alg.getPath(mFrom, mTo);
+            path = alg.getPath(mSourceNetwork, mDestinationNetwork);
         } catch (Exception ex) {
             System.err.println("Path computation failed: " + ex.getMessage());
             throw ex;
