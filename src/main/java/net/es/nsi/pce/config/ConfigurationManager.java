@@ -41,14 +41,21 @@ import org.springframework.context.ApplicationContext;
  */
 public enum ConfigurationManager {
     INSTANCE;
-    
+
     private static HttpConfigProvider htProv;
-    private static HttpConfig pceConfig;
-    
+    private static HttpConfig pceConfig;    
+    private static ServiceInfoProvider sip;
     private static TopologyProvider tp;
     
     private static boolean initialized = false;
     
+    /**
+     * This method initialized the PCE configuration found under the specified
+     * configPath.
+     * 
+     * @param configPath The path containing all the needed configuration files.
+     * @throws Exception If there is an error loading any of the required configuration files.
+     */
     public void initialize(String configPath) throws Exception {
         synchronized(this) {
             if (!initialized) {
@@ -66,22 +73,22 @@ public enum ConfigurationManager {
                 ApplicationContext context = sc.initContext(beanConfig);
 
                 // Load the HTTP provider configuration bean.
-                htProv = (HttpConfigProvider) context.getBean("httpConfigProvider");
+                setHttpProv((HttpConfigProvider) context.getBean("httpConfigProvider"));
 
                 // Load and start the Path Computation Engine HTTP server.
                 log.info("Loading PCE HTTP config...");
-                pceConfig = htProv.getConfig("pce");
+                setPceConfig(getHttpProv().getConfig("pce"));
                 log.info("...PCE HTTP config loaded.");
 
                 // Load the NSA addressing and security information.
                 log.info("Loading NSA security config...");
-                ServiceInfoProvider sip = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
+                setServiceInfoProvider((ServiceInfoProvider) context.getBean("serviceInfoProvider"));
                 log.info("...NSA security config loaded.");
 
 
                 // Load topology database.
                 log.info("Loading topology...");
-                tp = (TopologyProvider) context.getBean("topologyProvider");
+                setTopologyProvider((TopologyProvider) context.getBean("topologyProvider"));
                 log.info("...Topology loaded.");
 
                 // Start the task scheduler.
@@ -95,11 +102,60 @@ public enum ConfigurationManager {
         }
     }
     
+    /**
+     * @return the htProv
+     */
+    public static HttpConfigProvider getHttpProv() {
+        return htProv;
+    }
+
+    /**
+     * @param aHtProv the htProv to set
+     */
+    public static void setHttpProv(HttpConfigProvider aHtProv) {
+        htProv = aHtProv;
+    }
+
+    /**
+     * @param aPceConfig the pceConfig to set
+     */
+    public static void setPceConfig(HttpConfig aPceConfig) {
+        pceConfig = aPceConfig;
+    }
+    
     public HttpConfig getPceConfig() {
         if (pceConfig == null) {
             throw new IllegalStateException();
         }
         
         return pceConfig;
+    }
+
+    /**
+     * @return the sip
+     */
+    public static ServiceInfoProvider getServiceInfoProvider() {
+        return sip;
+    }
+
+    /**
+     * @param aSip the sip to set
+     */
+    public static void setServiceInfoProvider(ServiceInfoProvider aSip) {
+        sip = aSip;
+    }
+
+    /**
+     * @return the tp
+     */
+    public static TopologyProvider getTopologyProvider() {
+        return tp;
+    }
+
+    /**
+     * @param aTp the tp to set
+     */
+    public static void setTopologyProvider(TopologyProvider aTp) {
+        tp = aTp;
     }
 }
