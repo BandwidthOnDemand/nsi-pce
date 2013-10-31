@@ -1,5 +1,6 @@
 package net.es.nsi.pce.config.topo;
 
+import net.es.nsi.pce.schema.XmlParser;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * @author hacksaw
  */
 public class NsaTopologyProvider implements TopologyProvider {
-    private static final Logger log = LoggerFactory.getLogger(NsaTopologyProvider.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     // The remote location of the file to read.
     private String target = null;

@@ -1,5 +1,6 @@
 package net.es.nsi.pce.config.topo;
 
+import net.es.nsi.pce.schema.XmlParser;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,7 @@ import org.apache.http.client.utils.DateUtils;
  * @author hacksaw
  */
 public class MasterTopologyProvider {
-    private static final Logger log = LoggerFactory.getLogger(NmlTopologyFile.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     private final static QName _isReference_QNAME = new QName("http://schemas.ogf.org/nsi/2013/09/topology#", "isReference");
     
@@ -225,28 +226,5 @@ public class MasterTopologyProvider {
         
         // There must not have been a change.
         return null;
-    }
-    
-    public static void main(String[] args) {
-        MasterTopologyProvider reader = new MasterTopologyProvider("https://raw.github.com/jeroenh/AutoGOLE-Topologies/master/master.xml");
-        
-        try {
-            MasterTopology master = reader.getMasterTopology();
-            if (master != null) {
-                System.out.println("Master id: " + master.getId() + ", version=" + master.getVersion());
-            }
-            else {
-                System.out.println("Could not retrieve master topology.");
-            }
-            
-            master = reader.getMasterTopologyIfModified();
-            if (master != null) {
-                System.out.println("Topology changed, version=" + master.getVersion());
-            }
-        }
-        catch (Exception ex) {
-            System.err.println("Failed to load master topology list from: " + reader.getTarget());
-            ex.printStackTrace();
-        }
     }
 }

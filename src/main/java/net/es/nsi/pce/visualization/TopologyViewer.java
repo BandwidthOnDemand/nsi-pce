@@ -52,14 +52,16 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JMenuBar;
 import javax.swing.JRadioButton;
-import net.es.nsi.pce.config.topo.PollingTopologyProvider;
+import net.es.nsi.pce.config.SpringContext;
 import net.es.nsi.pce.config.topo.nml.Directionality;
 import net.es.nsi.pce.pf.api.topo.Network;
 import net.es.nsi.pce.pf.api.topo.Sdp;
 import net.es.nsi.pce.pf.api.topo.Stp;
 import net.es.nsi.pce.pf.api.topo.Topology;
+import net.es.nsi.pce.pf.api.topo.TopologyProvider;
 import org.apache.commons.collections15.functors.ChainedTransformer;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.springframework.context.ApplicationContext;
 
 /**
  * A simple NSI/NML topology viewer with shortest path computation.
@@ -109,16 +111,20 @@ public class TopologyViewer extends JPanel {
      * @throws Exception 
      */
     @SuppressWarnings("unchecked")
-	public TopologyViewer() throws Exception {
+	public TopologyViewer(String configDir) throws Exception {
         // Configure path to log4j configuration.
-        String log4jConfig = new StringBuilder("config/").append("log4j.xml").toString().replace("/", File.separator);
+        String log4jConfig = new StringBuilder(configDir).append("log4j.xml").toString().replace("/", File.separator);
+        String beanConfig = new StringBuilder(configDir).append("beans.xml").toString().replace("/", File.separator);
         
         // Load and watch the log4j configuration file for changes.
         DOMConfigurator.configureAndWatch(log4jConfig, 45 * 1000);
         
+        // Get a reference to the topology provider through spring.
+        SpringContext sc = SpringContext.getInstance();
+        ApplicationContext context = sc.initContext(beanConfig);
+        TopologyProvider provider = (TopologyProvider) context.getBean("topologyProvider");
+        
         // Load NSI topology.
-        PollingTopologyProvider provider = new PollingTopologyProvider();
-        provider.setTopologySource("config/topology/");
         try {
             provider.loadTopology();
         }
@@ -830,7 +836,7 @@ public class TopologyViewer extends JPanel {
 		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         // Pupulate frame with content.
-		jf.getContentPane().add(new TopologyViewer());
+		jf.getContentPane().add(new TopologyViewer("config/"));
 		jf.pack();
         
         // Display the frame content.

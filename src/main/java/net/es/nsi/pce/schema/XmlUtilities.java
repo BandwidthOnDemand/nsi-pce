@@ -38,7 +38,6 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
-import net.es.nsi.pce.topology.jaxb.TopologyType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

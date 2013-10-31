@@ -1,4 +1,4 @@
-package net.es.nsi.pce.config.topo;
+package net.es.nsi.pce.schema;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;

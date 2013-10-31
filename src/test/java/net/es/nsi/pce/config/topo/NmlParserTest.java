@@ -4,6 +4,7 @@
  */
 package net.es.nsi.pce.config.topo;
 
+import net.es.nsi.pce.schema.XmlParser;
 import java.io.FileNotFoundException;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.topology.jaxb.NSAType;

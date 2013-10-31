@@ -43,7 +43,7 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
     private String sourceDirectory;
     
     // Topology files indexed by file name.
-    private Map<String, NmlTopologyFile> topologyFileMap = new ConcurrentHashMap<String, NmlTopologyFile>();
+    private Map<String, NmlTopologyFileProvider> topologyFileMap = new ConcurrentHashMap<String, NmlTopologyFileProvider>();
 
     // Map holding the network topologies indexed by network Id.
     private Map<String, NSAType> nsas = new ConcurrentHashMap<String, NSAType>();
@@ -104,7 +104,7 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
             if (listOfFiles[i].isFile()) {
                 file = listOfFiles[i].getAbsolutePath();
                 if (file.endsWith(".xml") || file.endsWith(".xml")) {
-                    NmlTopologyFile tFile = new NmlTopologyFile();
+                    NmlTopologyFileProvider tFile = new NmlTopologyFileProvider();
                     tFile.setTopologySource(file);
                     try {
                         tFile.loadConfig();
@@ -125,7 +125,7 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
         nsas.clear();
         topologies.clear();
         ethernetPorts.clear();
-        for (NmlTopologyFile nml : topologyFileMap.values()) {
+        for (NmlTopologyFileProvider nml : topologyFileMap.values()) {
             NSAType nsa = nml.getNsa();
             if (nsa.getId() == null || nsa.getId().isEmpty()) {
                 log.error("Topology file missing NSA identifier: " + nml.getTopologySource());

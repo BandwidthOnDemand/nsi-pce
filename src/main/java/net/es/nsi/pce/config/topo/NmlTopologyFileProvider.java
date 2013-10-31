@@ -1,5 +1,6 @@
 package net.es.nsi.pce.config.topo;
 
+import net.es.nsi.pce.schema.XmlParser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -38,8 +39,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author hacksaw
  */
-public class NmlTopologyFile extends FileBasedConfigProvider implements TopologyProvider {
-    private static final Logger log = LoggerFactory.getLogger(NmlTopologyFile.class);
+public class NmlTopologyFileProvider extends FileBasedConfigProvider implements TopologyProvider {
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     // Keep the original NML NSA entry.
     private NSAType nsa;

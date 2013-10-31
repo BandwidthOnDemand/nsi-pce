@@ -1,5 +1,6 @@
 package net.es.nsi.pce.config.topo;
 
+import net.es.nsi.pce.schema.XmlParser;
 import java.io.FileNotFoundException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
