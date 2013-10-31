@@ -52,7 +52,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JMenuBar;
 import javax.swing.JRadioButton;
-import net.es.nsi.pce.config.topo.XmlTopologyProvider;
+import net.es.nsi.pce.config.topo.PollingTopologyProvider;
 import net.es.nsi.pce.config.topo.nml.Directionality;
 import net.es.nsi.pce.pf.api.topo.Network;
 import net.es.nsi.pce.pf.api.topo.Sdp;
@@ -117,7 +117,7 @@ public class TopologyViewer extends JPanel {
         DOMConfigurator.configureAndWatch(log4jConfig, 45 * 1000);
         
         // Load NSI topology.
-        XmlTopologyProvider provider = new XmlTopologyProvider();
+        PollingTopologyProvider provider = new PollingTopologyProvider();
         provider.setTopologySource("config/topology/");
         try {
             provider.loadTopology();

@@ -6,6 +6,7 @@ import net.es.nsi.pce.config.http.HttpConfigProvider;
 import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
 import net.es.nsi.pce.pf.api.topo.TopologyProvider;
 import net.es.nsi.pce.sched.PCEScheduler;
+import net.es.nsi.pce.sched.TopologyAudit;
 import net.es.nsi.pce.server.Main;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.LoggerFactory;
@@ -56,49 +57,49 @@ public enum ConfigurationManager {
      * @param configPath The path containing all the needed configuration files.
      * @throws Exception If there is an error loading any of the required configuration files.
      */
-    public void initialize(String configPath) throws Exception {
-        synchronized(this) {
-            if (!initialized) {
-                // Build paths for configuration files.
-                String log4jConfig = new StringBuilder(configPath).append("log4j.xml").toString().replace("/", File.separator);
-                String beanConfig = new StringBuilder(configPath).append("beans.xml").toString().replace("/", File.separator);
+    public synchronized void initialize(String configPath) throws Exception {
+        if (!initialized) {
+            // Build paths for configuration files.
+            String log4jConfig = new StringBuilder(configPath).append("log4j.xml").toString().replace("/", File.separator);
+            String beanConfig = new StringBuilder(configPath).append("beans.xml").toString().replace("/", File.separator);
 
-                // Load and watch the log4j configuration file for changes.
-                DOMConfigurator.configureAndWatch(log4jConfig, 45 * 1000);
+            // Load and watch the log4j configuration file for changes.
+            DOMConfigurator.configureAndWatch(log4jConfig, 45 * 1000);
 
-                final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
+            final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
 
-                // Initialize the Spring context to load our dependencies.
-                SpringContext sc = SpringContext.getInstance();
-                ApplicationContext context = sc.initContext(beanConfig);
+            // Initialize the Spring context to load our dependencies.
+            SpringContext sc = SpringContext.getInstance();
+            ApplicationContext context = sc.initContext(beanConfig);
 
-                // Load the HTTP provider configuration bean.
-                setHttpProv((HttpConfigProvider) context.getBean("httpConfigProvider"));
+            // Load the HTTP provider configuration bean.
+            setHttpProv((HttpConfigProvider) context.getBean("httpConfigProvider"));
 
-                // Load and start the Path Computation Engine HTTP server.
-                log.info("Loading PCE HTTP config...");
-                setPceConfig(getHttpProv().getConfig("pce"));
-                log.info("...PCE HTTP config loaded.");
+            // Load and start the Path Computation Engine HTTP server.
+            log.info("Loading PCE HTTP config...");
+            setPceConfig(getHttpProv().getConfig("pce"));
+            log.info("...PCE HTTP config loaded.");
 
-                // Load the NSA addressing and security information.
-                log.info("Loading NSA security config...");
-                setServiceInfoProvider((ServiceInfoProvider) context.getBean("serviceInfoProvider"));
-                log.info("...NSA security config loaded.");
+            // Load the NSA addressing and security information.
+            log.info("Loading NSA security config...");
+            setServiceInfoProvider((ServiceInfoProvider) context.getBean("serviceInfoProvider"));
+            log.info("...NSA security config loaded.");
 
 
-                // Load topology database.
-                log.info("Loading topology...");
-                setTopologyProvider((TopologyProvider) context.getBean("topologyProvider"));
-                log.info("...Topology loaded.");
+            // Load topology database.
+            log.info("Loading topology...");
+            setTopologyProvider((TopologyProvider) context.getBean("topologyProvider"));
+            log.info("...Topology loaded.");
 
-                // Start the task scheduler.
-                log.info("Starting task scheduler...");
-                PCEScheduler.getInstance().start();
-                log.info("...Task scheduler started.");
-                
-                initialized = true;
-                log.info("Loaded configuration from: " + configPath);
-            }
+            // Start the task scheduler.
+            log.info("Starting task scheduler...");
+            log.info("--- Adding topology audit " + getTopologyProvider().getAuditInterval());
+            PCEScheduler.getInstance().add("TopologyAudit", TopologyAudit.class, getTopologyProvider().getAuditInterval());
+            PCEScheduler.getInstance().start();
+            log.info("...Task scheduler started.");
+
+            initialized = true;
+            log.info("Loaded configuration from: " + configPath);
         }
     }
     

@@ -21,4 +21,6 @@ java -Xmx256m -Djava.net.preferIPv4Stack=true  \
   	-Dbasedir="$BASEDIR" \
 	-Djava.util.logging.config.file="$BASEDIR/config/logging.properties" \
 	-Dcom.sun.xml.bind.v2.runtime.JAXBContextImpl.fastBoot=true \
+	-Djavax.net.ssl.trustStore=config/nsi-pce-truststore \
+	-Djavax.net.ssl.trustStorePassword=changeit \
 	-jar target/nsi-pce-1.0-SNAPSHOT.one-jar.jar  $*

@@ -20,7 +20,7 @@ public class NmlParserTest {
     @Test
     public void testSuccess() throws Exception {
         // This is a valid load of the file.
-        NSAType nsa = NmlParser.getInstance().parseNSA("src/test/resources/nml/parse/tests/netherlight.xml");
+        NSAType nsa = XmlParser.getInstance().parseNSA("src/test/resources/nml/parse/tests/netherlight.xml");
         assertEquals("urn:ogf:network:netherlight.net:2013:nsa:bod", nsa.getId());      
     }
     
@@ -28,7 +28,7 @@ public class NmlParserTest {
     public void testFileNotFound() throws Exception {
         // This catches a file not found exception.
         try {
-            NmlParser.getInstance().parseNSA("src/test/resources/nml/parse/tests/invalidfilename.xml");
+            XmlParser.getInstance().parseNSA("src/test/resources/nml/parse/tests/invalidfilename.xml");
         }
         catch (FileNotFoundException fnf) {
             // This is a valid error
@@ -48,7 +48,7 @@ public class NmlParserTest {
         // Test a parsing error.
         NSAType nsa = null;
         try {
-            nsa = NmlParser.getInstance().parseNSA("src/test/resources/nml/parse/tests/badcontent.xml");
+            nsa = XmlParser.getInstance().parseNSA("src/test/resources/nml/parse/tests/badcontent.xml");
         }
         catch (JAXBException jaxb) {
             // This is a valid error for test.

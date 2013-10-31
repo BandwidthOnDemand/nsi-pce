@@ -28,13 +28,17 @@
  */
 package net.es.nsi.pce.schema;
 
+import java.io.StringReader;
 import java.io.StringWriter;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.namespace.QName;
+import net.es.nsi.pce.topology.jaxb.TopologyType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +75,7 @@ public class XmlUtilities {
             return jaxbToString(xmlClass, jaxbElement);
 	}
         
-        public static String jaxbToString(Class<?> xmlClass, JAXBElement<?> jaxbElement) {
+    public static String jaxbToString(Class<?> xmlClass, JAXBElement<?> jaxbElement) {
 
             // Make sure we are given the correct input.
             if (xmlClass == null || jaxbElement == null) {
@@ -89,14 +93,23 @@ public class XmlUtilities {
                 Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
                 jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
                 jaxbContext.createMarshaller().marshal(jaxbElement, writer);
-            } catch (Exception e) {
-		// Something went wrong so get out of here.
-		logger.error("XmlUtilities.jaxbToString: Error marshalling object " +
-				xmlClass.getName() + ": " + e.toString());
-		return null;
+            } catch (Exception e) {             
+                // Something went wrong so get out of here.
+                logger.error("XmlUtilities.jaxbToString: Error marshalling object " +
+                    xmlClass.getName() + ": " + e.toString());
+                return null;
             }
 
             // Return the XML string.
             return writer.toString();
 	}
+    
+    public static JAXBElement<?> xmlToJaxb(Class<?> xmlClass, String xml) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(xmlClass);
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+
+        StringReader reader = new StringReader(xml);
+        JAXBElement<?> element = (JAXBElement<?>) unmarshaller.unmarshal(reader);
+        return element;
+    }
 }

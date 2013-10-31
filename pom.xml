@@ -149,6 +149,13 @@
             <scope>compile</scope>
         </dependency>        
 
+        <!-- For HTTP header utilities. -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3-beta2</version>
+        </dependency>
+
         <!-- Locally created dependencies. -->
         <dependency>
             <groupId>net.es.nsi</groupId>
@@ -220,7 +227,7 @@
                     </goals>
                     <configuration>
                         <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
-                        <schemaFiles>nmlbase.xsd, nsi-ext.xsd</schemaFiles>
+                        <schemaFiles>nmlbase.xsd, nsi-ext.xsd, topology-discovery-configuration.xsd</schemaFiles>
                         <packageName>net.es.nsi.pce.topology.jaxb</packageName>
                         <staleFile>${project.build.directory}/jaxb2/.nmlXjcStaleFlag</staleFile>
                         <clearOutputDir>false</clearOutputDir>

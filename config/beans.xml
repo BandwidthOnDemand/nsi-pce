@@ -15,15 +15,15 @@
         <property name="filename" value="config/http.json"/>
     </bean>
 
+    <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.PollingTopologyProvider" init-method="loadTopologyConfiguration" scope="singleton">
+        <property name="configFile" value="config/topology.xml"/>
+    </bean>
+
     <!--
     <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.XmlTopologyProvider" scope="singleton">
         <property name="topologySource" value="config/topology"/>
     </bean>
     -->
-
-    <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.XmlTopologyProvider" scope="singleton">
-        <property name="topologySource" value="config/topology"/>
-    </bean>
 
     <bean id="DijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="singleton" />
  

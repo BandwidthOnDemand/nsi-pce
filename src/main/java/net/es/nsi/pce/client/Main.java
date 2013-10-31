@@ -84,17 +84,17 @@ public class Main {
         
         // Format the source STP.
         StpType srcStp = new StpType();
-        srcStp.setLocalId("i2-edge");
-        srcStp.setNetworkId("urn:ogf:network:internet2.edu");
+        srcStp.setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:282");
+        srcStp.setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
         evts.setSourceSTP(srcStp);
-        evts.setSourceVLAN(1780);
+        evts.setSourceVLAN(1784);
         
         // Format the destination STP.
         StpType destStp = new StpType();
-        destStp.setLocalId("esnet-edge-one");
-        destStp.setNetworkId("urn:ogf:network:es.net");
+        destStp.setLocalId("urn:ogf:network:singaren.net:2013:videohost");
+        destStp.setNetworkId("urn:ogf:network:singaren.net:2013");
         evts.setDestSTP(destStp);
-        evts.setDestVLAN(1780);
+        evts.setDestVLAN(1784);
 
         req.getAny().add(factory.createEvts(evts));
 

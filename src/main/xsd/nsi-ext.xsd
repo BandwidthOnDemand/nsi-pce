@@ -18,8 +18,8 @@
   <xs:import schemaLocation="nmlbase.xsd" 
              namespace="http://schemas.ogf.org/nml/2013/05/base#"/>
 
-
-     
+  <xs:attribute name="isReference" type="xs:anyURI" />
+  
   <xs:complexType name="NSARelationType">
     <xs:choice>
       <xs:element  ref="nsi:NSA"  minOccurs="1"  maxOccurs="unbounded"/>

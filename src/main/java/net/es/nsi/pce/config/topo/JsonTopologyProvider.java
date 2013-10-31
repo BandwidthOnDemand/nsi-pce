@@ -109,4 +109,11 @@ public class JsonTopologyProvider  extends FileBasedConfigProvider implements To
         return configs.keySet();
     }
 
+    /**
+     * @return the auditInterval
+     */
+    @Override
+    public long getAuditInterval() {
+        return 10*60*1000;
+    }
 }

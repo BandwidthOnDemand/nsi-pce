@@ -9,6 +9,9 @@ import java.util.Set;
  */
 
 public interface TopologyProvider {
+    // The audit interval used to schedule a audit of topology.
+    public long getAuditInterval();
+    
     // Get topology.  Will load a copy of topology if it has not yet been loaded.
     public Topology getTopology() throws Exception;
     

@@ -1,6 +1,6 @@
-<nsi:NSA xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#" id="urn:ogf:network:uvalight.net:2013:nsa" version="2013-10-01T02:13:45.136947">
+<nsi:NSA xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#" id="urn:ogf:network:uvalight.net:2013:nsa" version="2013-10-02T08:15:22.269422">
     <nsi:Service id="urn:ogf:network:uvalight.net:2013:nsa-cs">
-        <nsi:link>http://nsa.uvalight.nl:9080/NSI/services/CS2</nsi:link>
+        <nsi:link>https://nsa.uvalight.net:9443/NSI/services/CS2</nsi:link>
         <nsi:type>application/vnd.org.ogf.nsi.cs.v2+soap</nsi:type>
     </nsi:Service>
     <nml:Topology id="urn:ogf:network:uvalight.net:2013">

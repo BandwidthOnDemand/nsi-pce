@@ -24,6 +24,7 @@
     </xs:sequence>
     <xs:attribute  name="id"       type="xs:anyURI"    use="optional"/>
     <xs:attribute  name="version"  type="xs:dateTime"  use="optional"/>
+    <xs:anyAttribute namespace="##other" processContents="lax" />
   </xs:complexType>
 
 
