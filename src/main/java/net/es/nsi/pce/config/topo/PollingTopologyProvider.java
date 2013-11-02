@@ -44,10 +44,10 @@ public class PollingTopologyProvider implements TopologyProvider {
     private String configuration = "config/topology.xml";
     
     // Remote master topology enpoint.
-    private String remoteEndpoint = null;
+    private String location = null;
     
     // Time between topology refreshes.
-    private long auditInterval = 30*60*1000;  // 30 minute polling time.
+    private long auditInterval = 30*60*1000;  // Default 30 minute polling time.
     
     // Our master topology provider.
     private MasterTopologyProvider masterTopologyProvider;
@@ -90,15 +90,15 @@ public class PollingTopologyProvider implements TopologyProvider {
     /**
      * @return the remoteEndpoint
      */
-    public String getRemoteEndpoint() {
-        return remoteEndpoint;
+    public String getLocation() {
+        return location;
     }
 
     /**
      * @param remoteEndpoint the remoteEndpoint to set
      */
-    public void setRemoteEndpoint(String remoteEndpoint) {
-        this.remoteEndpoint = remoteEndpoint;
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     /**
@@ -119,14 +119,14 @@ public class PollingTopologyProvider implements TopologyProvider {
     private void loadTopologyConfiguration() throws JAXBException, FileNotFoundException {
         ConfigurationType config = XmlParser.getInstance().parseTopologyConfiguration(configuration);
         
-        setRemoteEndpoint(config.getRemoteEndpoint());
+        setLocation(config.getLocation());
         
         if (config.getAuditInterval() > 0) {
             setAuditInterval(config.getAuditInterval());
         }
         
         // Create our master topology provider but don't load data just yet.
-        masterTopologyProvider = new MasterTopologyProvider(getRemoteEndpoint());
+        masterTopologyProvider = new MasterTopologyProvider(getLocation());
     }
 
     private void loadNetworkTopology() throws Exception {

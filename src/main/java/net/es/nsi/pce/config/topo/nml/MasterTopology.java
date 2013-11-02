@@ -4,6 +4,7 @@
  */
 package net.es.nsi.pce.config.topo.nml;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -50,7 +51,7 @@ public class MasterTopology {
      * @return the entryList
      */
     public Map<String, String> getEntryList() {
-        return entryList;
+        return Collections.unmodifiableMap(entryList);
     }
 
     /**

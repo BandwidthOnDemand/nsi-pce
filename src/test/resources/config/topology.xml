@@ -1,4 +1,4 @@
 <top:configuration xmlns:top="http://schemas.es.net/nsi/2013/08/pce/configuration">
-	<remoteEndpoint>https://raw.github.com/jeroenh/AutoGOLE-Topologies/master/master.xml</remoteEndpoint>
+	<location>https://raw.github.com/jeroenh/AutoGOLE-Topologies/master/master.xml</location>
 	<auditInterval>600000</auditInterval>
 </top:configuration>

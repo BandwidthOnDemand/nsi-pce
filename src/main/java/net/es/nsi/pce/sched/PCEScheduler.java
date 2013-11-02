@@ -1,6 +1,7 @@
 package net.es.nsi.pce.sched;
 
 
+import java.util.Date;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -45,6 +46,11 @@ public class PCEScheduler {
             return PCESchedulerHolder.INSTANCE;
     }   
     
+    /**
+     * Start the scheduler.
+     * 
+     * @throws SchedulerException If the scheduler has not been properly initialized.
+     */
     public void start() throws SchedulerException {
         if (scheduler == null) {
             throw new SchedulerException("Failed to create scheduler");
@@ -53,15 +59,31 @@ public class PCEScheduler {
         scheduler.start();
     }
     
+    /**
+     * Add the specified job to the scheduler with the first instance running
+     * as current time + interval.
+     * 
+     * @param jobName The name of the job.
+     * @param jobClass An instance of this class will be executed.
+     * @param interval The time in milliseconds between invocations of this job.
+     * @throws SchedulerException 
+     */
     public void add(String jobName, Class<?> jobClass, long interval) throws SchedulerException {
-        // reload config from files every 10 seconds
-        SimpleTrigger cfgReloadTrigger = new SimpleTrigger(jobName + "Trigger", jobName);
-        cfgReloadTrigger.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
-        cfgReloadTrigger.setRepeatInterval(interval);
+        // At the job to the scheduler but have first instance start in "interval" time.
+        Date currentDate = new Date(System.currentTimeMillis() + interval);
+        SimpleTrigger trigger = new SimpleTrigger(jobName + "Trigger", jobName);
+        trigger.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
+        trigger.setRepeatInterval(interval);
+        trigger.setStartTime(currentDate);
         JobDetail cfgReloadJobDetail = new JobDetail(jobName, jobName, jobClass);
-        this.scheduler.scheduleJob(cfgReloadJobDetail, cfgReloadTrigger);
+        this.scheduler.scheduleJob(cfgReloadJobDetail, trigger);
     }
     
+    /**
+     * Stop the scheduler.
+     * 
+     * @throws SchedulerException If there issues stopping the scheduler.
+     */
     public void stop() throws SchedulerException {
         if (scheduler == null) {
             throw new SchedulerException("Failed to create scheduler");

@@ -69,6 +69,8 @@ public class NsaTopologyReader extends NmlTopologyReader {
         
         // We want to store the last modified date as viewed from the HTTP server.
         Date lastMod = response.getLastModified();
+        log.debug("readNsaTopology: lastModified = " + getLastModified() + ", current = " + lastMod);
+        
         if (lastMod != null) {
             log.debug("readNsaTopology: Updating last modified time " + DateUtils.formatDate(lastMod, DateUtils.PATTERN_RFC1123));
             setLastModified(lastMod);

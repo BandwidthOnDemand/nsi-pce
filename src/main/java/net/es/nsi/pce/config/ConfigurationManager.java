@@ -89,7 +89,10 @@ public enum ConfigurationManager {
             // Load topology database.
             log.info("Loading topology...");
             setTopologyProvider((TopologyProvider) context.getBean("topologyProvider"));
+            tp.loadTopology();
             log.info("...Topology loaded.");
+            
+            
 
             // Start the task scheduler.
             log.info("Starting task scheduler...");
