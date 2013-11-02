@@ -41,7 +41,7 @@ public class PollingTopologyProvider implements TopologyProvider {
     private final Logger log = LoggerFactory.getLogger(getClass());
     
     // Location of configuration file.
-    private String configFile = "config/topology.xml";
+    private String configuration = "config/topology.xml";
     
     // Remote master topology enpoint.
     private String remoteEndpoint = null;
@@ -56,16 +56,16 @@ public class PollingTopologyProvider implements TopologyProvider {
     private MasterTopology masterTopology;
     
     // NSA topology entries indexed by string URL.
-    private Map<String, NsaTopologyProvider> topologyUrlMap = new ConcurrentHashMap<String, NsaTopologyProvider>();
+    private Map<String, NsaTopologyReader> topologyUrlMap = new ConcurrentHashMap<>();
 
     // Map holding the network topologies indexed by network Id.
-    private Map<String, NSAType> nsas = new ConcurrentHashMap<String, NSAType>();
+    private Map<String, NSAType> nsas = new ConcurrentHashMap<>();
     
     // Map holding the network topologies indexed by network Id.
-    private Map<String, TopologyType> topologies = new ConcurrentHashMap<String, TopologyType>();
+    private Map<String, TopologyType> topologies = new ConcurrentHashMap<>();
     
     // Map holding the network topologies indexed by network Id.
-    private Map<String, EthernetPort> ethernetPorts = new ConcurrentHashMap<String, EthernetPort>();
+    private Map<String, EthernetPort> ethernetPorts = new ConcurrentHashMap<>();
 
     private Topology nsiTopology = new Topology();
     
@@ -84,21 +84,7 @@ public class PollingTopologyProvider implements TopologyProvider {
      * @param target Location of the NSA's XML based NML topology.
      */
     public PollingTopologyProvider(String configFile) {
-        this.configFile = configFile;
-    }
-
-    /**
-     * @return the configFile
-     */
-    public String getConfigFile() {
-        return configFile;
-    }
-
-    /**
-     * @param configFile the configFile to set
-     */
-    public void setConfigFile(String configFile) {
-        this.configFile = configFile;
+        this.configuration = configFile;
     }
 
     /**
@@ -131,7 +117,7 @@ public class PollingTopologyProvider implements TopologyProvider {
     }
     
     private void loadTopologyConfiguration() throws JAXBException, FileNotFoundException {
-        ConfigurationType config = XmlParser.getInstance().parseTopologyConfiguration(configFile);
+        ConfigurationType config = XmlParser.getInstance().parseTopologyConfiguration(configuration);
         
         setRemoteEndpoint(config.getRemoteEndpoint());
         
@@ -174,38 +160,51 @@ public class PollingTopologyProvider implements TopologyProvider {
         }
         
         // Create a new topology URL map.
-        Map<String, NsaTopologyProvider> newTopologyUrlMap = new ConcurrentHashMap<String, NsaTopologyProvider>();
+        Map<String, NsaTopologyReader> newTopologyUrlMap = new ConcurrentHashMap<String, NsaTopologyReader>();
         
-        // Load each topology from supplied endpoint.
+        // Load each topology from supplied endpoint.  If we fail to load a new
+        // topology, then keep the old one for now.
         for (String endpoint : masterTopology.getEntryList().values()) {
-            NsaTopologyProvider provider = topologyUrlMap.get(endpoint);
-            if (provider == null) {
-                provider = new NsaTopologyProvider(endpoint);
+            // Check to see if we have already discovered this NSA.
+            NsaTopologyReader originalReader = topologyUrlMap.get(endpoint);
+            NsaTopologyReader reader;
+            if (originalReader == null) {
+                // We have not so create a new reader.
+                reader = new NsaTopologyReader(endpoint);
+            }
+            else {
+                reader = originalReader;
             }
             
+            // Attempt to discover this topology.
             try {
-                provider.loadTopology();
+                reader.load();
             }
             catch (Exception ex) {
+                // If we have already read this topology successfully, then
+                // keep it on failure.
                 log.error("loadTopology: Failed to load NSA topology: " + endpoint, ex);
-                continue;
+                if (originalReader == null) {
+                    // We have never successfully discovered this NSA so skip.
+                    continue;
+                }
             }
             
-            newTopologyUrlMap.put(endpoint, provider);
+            newTopologyUrlMap.put(endpoint, reader);
         }
 
         // We are done so update the map with the new view.
         topologyUrlMap = newTopologyUrlMap;
         
         // Consolidate individual topologies in one master list.
-        Map<String, NSAType> newNsas = new ConcurrentHashMap<String, NSAType>();
-        Map<String, TopologyType> newTopologies = new ConcurrentHashMap<String, TopologyType>();
-        Map<String, EthernetPort> newEthernetPorts = new ConcurrentHashMap<String, EthernetPort>();
+        Map<String, NSAType> newNsas = new ConcurrentHashMap<>();
+        Map<String, TopologyType> newTopologies = new ConcurrentHashMap<>();
+        Map<String, EthernetPort> newEthernetPorts = new ConcurrentHashMap<>();
 
-        for (NsaTopologyProvider nml : topologyUrlMap.values()) {
+        for (NsaTopologyReader nml : topologyUrlMap.values()) {
             NSAType nsa = nml.getNsa();
             if (nsa.getId() == null || nsa.getId().isEmpty()) {
-                log.error("Topology endpoint missing NSA identifier: " + nml.getTopologySource());
+                log.error("Topology endpoint missing NSA identifier: " + nml.getTarget());
                 continue;
             }
             
@@ -474,32 +473,40 @@ public class PollingTopologyProvider implements TopologyProvider {
         return nsiTopology.getNetworkIds();
     }
 
+    @Override
     public Collection<Network> getNetworks() {
         return nsiTopology.getNetworks();
     }
     
+    /**
+     * For this provider we read the topology source from an XML configuration
+     * file.
+     * 
+     * @param source Path to the XML configuration file.
+     */
     @Override
-    public void setTopologySource(String source) {
-        //this.setTarget(source);
-    }
-
-    @Override
-    public String getTopologySource() {
-        //return this.getTarget();
-        return null;
+    public void setConfiguration(String configuration) {
+        this.configuration = configuration;
     }
 
     /**
-     * @return the topologies
+     * Get the source file of the topology configuration.
+     * 
+     * @return The path to the XML configuration file. 
      */
-    public Map<String, TopologyType> getTopologies() {
-        return topologies;
+    @Override
+    public String getConfiguration() {
+        return configuration;
     }
-
-    /**
-     * @param topologies the topologies to set
+    
+     /**
+     * For this provider we read the topology source from an XML configuration
+     * file.
+     * 
+     * @param source Path to the XML configuration file.
      */
-    public void setTopologies(Map<String, TopologyType> topologies) {
-        this.topologies = topologies;
-    }
+    @Override
+    public void initialize() throws Exception {
+        this.loadTopologyConfiguration();
+    }   
 }

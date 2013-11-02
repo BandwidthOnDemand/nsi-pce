@@ -70,7 +70,7 @@ public class XmlParser {
      * @throws JAXBException If the XML contained in the file is not valid.
      * @throws FileNotFoundException If the specified file was not found.
      */
-    public NSAType parseNSA(String file) throws JAXBException, FileNotFoundException {
+    public NSAType parseNSAFromFile(String file) throws JAXBException, FileNotFoundException {
         // Make sure we initialized properly.
         if (jaxbContextNSA == null) {
             throw new JAXBException("NmlParser: Failed to load JAXB instance");

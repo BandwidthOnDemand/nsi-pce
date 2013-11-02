@@ -15,13 +15,14 @@
         <property name="filename" value="config/http.json"/>
     </bean>
 
-    <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.PollingTopologyProvider" init-method="loadTopologyConfiguration" scope="singleton">
-        <property name="configFile" value="config/topology.xml"/>
+    <!-- Topology providers are configured through the config parameter and initialize methods. -->
+    <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.PollingTopologyProvider" init-method="initialize" scope="singleton">
+        <property name="configuration" value="config/topology.xml"/>
     </bean>
 
     <!--
-    <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.XmlTopologyProvider" scope="singleton">
-        <property name="topologySource" value="config/topology"/>
+    <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.XmlTopologyProvider" init-method="initialize" scope="singleton">
+        <property name="configuration" value="config/topology"/>
     </bean>
     -->
 

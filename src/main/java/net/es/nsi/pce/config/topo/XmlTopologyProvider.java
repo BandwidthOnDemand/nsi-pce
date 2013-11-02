@@ -25,7 +25,6 @@ import net.es.nsi.pce.topology.jaxb.NSAType;
 import net.es.nsi.pce.topology.jaxb.TopologyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 
         
 /**
@@ -36,14 +35,14 @@ import org.springframework.beans.factory.InitializingBean;
  * 
  * @author hacksaw
  */
-public class XmlTopologyProvider extends FileBasedConfigProvider implements TopologyProvider, InitializingBean {
+public class XmlTopologyProvider extends FileBasedConfigProvider implements TopologyProvider {
     private final Logger log = LoggerFactory.getLogger(getClass());
     
     // Location of topology files to load and monitor.
     private String sourceDirectory;
     
     // Topology files indexed by file name.
-    private Map<String, NmlTopologyFileProvider> topologyFileMap = new ConcurrentHashMap<String, NmlTopologyFileProvider>();
+    private Map<String, FileTopologyReader> topologyFileMap = new ConcurrentHashMap<String, FileTopologyReader>();
 
     // Map holding the network topologies indexed by network Id.
     private Map<String, NSAType> nsas = new ConcurrentHashMap<String, NSAType>();
@@ -58,11 +57,6 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
     
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     private Date date;
-    
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        this.loadTopology();
-    }
     
     /**
      * @return the sourceDirectory
@@ -104,17 +98,17 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
             if (listOfFiles[i].isFile()) {
                 file = listOfFiles[i].getAbsolutePath();
                 if (file.endsWith(".xml") || file.endsWith(".xml")) {
-                    NmlTopologyFileProvider tFile = new NmlTopologyFileProvider();
-                    tFile.setTopologySource(file);
+                    FileTopologyReader reader = new FileTopologyReader();
+                    reader.setTarget(file);
                     try {
-                        tFile.loadConfig();
+                        reader.load();
                     }
                     catch (Exception ex) {
                         log.error("loadTopology: Failed to load topology file: " + file, ex);
                         continue;
                     }
                     
-                    topologyFileMap.put(file, tFile);
+                    topologyFileMap.put(file, reader);
                 }
             }
         }
@@ -125,10 +119,10 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
         nsas.clear();
         topologies.clear();
         ethernetPorts.clear();
-        for (NmlTopologyFileProvider nml : topologyFileMap.values()) {
+        for (FileTopologyReader nml : topologyFileMap.values()) {
             NSAType nsa = nml.getNsa();
             if (nsa.getId() == null || nsa.getId().isEmpty()) {
-                log.error("Topology file missing NSA identifier: " + nml.getTopologySource());
+                log.error("Topology file missing NSA identifier: " + nml.getTarget());
                 continue;
             }
             
@@ -252,7 +246,7 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
         loadConfig();
 
         // Create the NSI STP network topology.
-        nsiTopology.clear();
+        Topology newNsiTopology = new Topology();
         
         for (NSAType nsaType : nsas.values()) {
             Nsa nsa = new Nsa();
@@ -275,14 +269,14 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
 
                 net.setName(name);
                 net.setNsaId(nsaType.getId());
-                nsiTopology.addNetwork(net);                
+                newNsiTopology.addNetwork(net);                
             }
             
-            nsiTopology.addNsa(nsa);
+            newNsiTopology.addNsa(nsa);
         }
 
         // Add each bidirectional port as a bidirectional STP in the NSI topology.
-        Map<String, EthernetPort> ethPorts = new ConcurrentHashMap<String, EthernetPort>(ethernetPorts);
+        Map<String, EthernetPort> ethPorts = new ConcurrentHashMap<>(ethernetPorts);
         for (String key : ethPorts.keySet()) {
             EthernetPort localPort = ethPorts.remove(key);
             
@@ -292,7 +286,7 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
                 log.debug("Converting Ethernet port to STP: " + localPort.getPortId());
                 
                 BidirectionalEthernetPort localBiPort = (BidirectionalEthernetPort) localPort;
-                Network localNetwork = nsiTopology.getNetworkById(localBiPort.getTopologyId());
+                Network localNetwork = newNsiTopology.getNetworkById(localBiPort.getTopologyId());
                 
                 // This should never happen but skip the port if it does.
                 if (localNetwork == null) {
@@ -320,12 +314,14 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
                 // We only process remote end STP if one exists.  If there is
                 // no remote end then we do not create an SDP either.
                 BidirectionalEthernetPort remoteBiPort = localBiPort.getRemotePort();
-                Network remoteNetwork = null;
+                Network remoteNetwork;
                 if (remoteBiPort != null) {
+                    log.debug("Found remote biport for conversion " + remoteBiPort.getPortId());
+                    
                     // Remove remote port matching the local port so we do not
                     // process it twice.
                     ethPorts.remove(remoteBiPort.getPortId());
-                    remoteNetwork = nsiTopology.getNetworkById(remoteBiPort.getTopologyId());
+                    remoteNetwork = newNsiTopology.getNetworkById(remoteBiPort.getTopologyId());
                     
                     // Create the remote STP so we don't need to do it later
                     // when visiting the remote network.
@@ -343,7 +339,7 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
                             sdp.setA(localStp);
                             sdp.setZ(remoteStp);
                             sdp.setDirectionality(Directionality.bidirectional);
-                            nsiTopology.addSdp(sdp);
+                            newNsiTopology.addSdp(sdp);
                             log.debug("Added SDP: " + sdp.getId());                            
                         }
                     }          
@@ -354,6 +350,8 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
                 }
             }
         }
+ 
+        nsiTopology = newNsiTopology;
  
         if (log.isDebugEnabled()) {
             // Dump Netoworks for debug.
@@ -384,17 +382,24 @@ public class XmlTopologyProvider extends FileBasedConfigProvider implements Topo
         return nsiTopology.getNetworkIds();
     }
 
+    @Override
     public Collection<Network> getNetworks() {
         return nsiTopology.getNetworks();
     }
+    
     @Override
-    public void setTopologySource(String source) {
-        this.setSourceDirectory(source);
+    public void setConfiguration(String configuration) {
+        this.setSourceDirectory(configuration);
     }
 
     @Override
-    public String getTopologySource() {
+    public String getConfiguration() {
         return this.getSourceDirectory();
+    }
+    
+    @Override
+    public void initialize() throws Exception {
+        this.loadTopology();
     }
     
     /**

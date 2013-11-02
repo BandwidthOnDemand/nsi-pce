@@ -11,6 +11,7 @@ import java.util.List;
 import net.es.nsi.pce.pf.api.topo.Network;
 import net.es.nsi.pce.pf.api.topo.Sdp;
 import net.es.nsi.pce.pf.api.topo.Stp;
+import net.es.nsi.pce.pf.api.topo.TopologyProvider;
 import net.es.nsi.pce.test.TestConfig;
 import org.junit.Test;
 import static org.junit.Assert.fail;
@@ -22,11 +23,8 @@ import static org.junit.Assert.fail;
 public class XmlTopologyProviderTest {
     @Test
     public void loadTopology() throws Exception {
-        TestConfig.loadConfig();
-                
-        XmlTopologyProvider provider = new XmlTopologyProvider();
-        
-        provider.setTopologySource("config/topology/");
+       
+        TopologyProvider provider = TestConfig.getInstance().getTopologyProvider();
         
         try {
             provider.loadTopology();
@@ -56,11 +54,7 @@ public class XmlTopologyProviderTest {
     
     @Test
     public void testPath() {
-        TestConfig.loadConfig();
-                
-        XmlTopologyProvider provider = new XmlTopologyProvider();
-        
-        provider.setTopologySource("config/topology/");
+        TopologyProvider provider = TestConfig.getInstance().getTopologyProvider();
         
         try {
             provider.loadTopology();
@@ -81,14 +75,14 @@ public class XmlTopologyProviderTest {
             System.out.println("Adding Vertex: " + network.getNetworkId());
             graph.addVertex(network);
         }
-
+        
         // Add SDP as edges.
         for (Sdp sdp : provider.getTopology().getSdps()) {
             System.out.println("Adding Edge: " + sdp.getId());
             graph.addEdge(sdp, sdp.getA().getNetwork(), sdp.getZ().getNetwork());
         }
         
-        Network a = provider.getTopology().getNetworkById("urn:ogf:network:uvalight.net:2013");
+        Network a = provider.getTopology().getNetworkById("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
         Network z = provider.getTopology().getNetworkById("urn:ogf:network:kddilabs.jp:2013:topology");
         
         @SuppressWarnings("unchecked")
