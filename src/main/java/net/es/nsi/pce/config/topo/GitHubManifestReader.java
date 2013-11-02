@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.namespace.QName;
-import net.es.nsi.pce.config.topo.nml.MasterTopology;
+import net.es.nsi.pce.config.topo.nml.TopologyManifest;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.topology.jaxb.NetworkObject;
 import net.es.nsi.pce.topology.jaxb.TopologyType;
@@ -29,7 +29,7 @@ import org.apache.http.client.utils.DateUtils;
  * 
  * @author hacksaw
  */
-public class MasterTopologyProvider {
+public class GitHubManifestReader implements TopologyManifestReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
     
     private final static QName _isReference_QNAME = new QName("http://schemas.ogf.org/nsi/2013/09/topology#", "isReference");
@@ -41,12 +41,12 @@ public class MasterTopologyProvider {
     private Date lastModified = new Date(0L);
     
     // The version of the last read master topology.
-    private MasterTopology masterTopology = null;
+    private TopologyManifest manifest = null;
     
     /**
      * Default class constructor.
      */
-    public MasterTopologyProvider() {}
+    public GitHubManifestReader() {}
     
     /**
      * Class constructor takes the remote location URL from which to load the
@@ -54,7 +54,7 @@ public class MasterTopologyProvider {
      * 
      * @param target Location of the NSA's XML based NML topology.
      */
-    public MasterTopologyProvider(String target) {
+    public GitHubManifestReader(String target) {
         this.target = target;
     }
 
@@ -63,6 +63,7 @@ public class MasterTopologyProvider {
      * 
      * @return the target
      */
+    @Override
     public String getTarget() {
         return target;
     }
@@ -72,6 +73,7 @@ public class MasterTopologyProvider {
      * 
      * @param target the target to set
      */
+    @Override
     public void setTarget(String target) {
         this.target = target;
     }
@@ -82,6 +84,7 @@ public class MasterTopologyProvider {
      * 
      * @return the lastModified date of the remote topology document.
      */
+    @Override
     public Date getLastModified() {
         return new Date(lastModified.getTime());
     }
@@ -91,6 +94,7 @@ public class MasterTopologyProvider {
      * 
      * @param lastModified the lastModified to set
      */
+    @Override
     public void setLastModified(Date lastModified) {
         this.lastModified = lastModified;
     }
@@ -104,7 +108,7 @@ public class MasterTopologyProvider {
      * 
      * @return The list of topology endpoints from the remote NML topology.
      */
-    private MasterTopology readMasterTopology() throws Exception {
+    private TopologyManifest readManifest() throws Exception {
         // Use the REST client to retrieve the master topology as a string.
         ClientConfig clientConfig = new ClientConfig();
         RestClient.configureClient(clientConfig);
@@ -118,14 +122,14 @@ public class MasterTopologyProvider {
         }
         
         if (response.getStatus() != Status.OK.getStatusCode()) {
-            log.error("readMasterTopology: Failed to retrieve master topology " + getTarget());
+            log.error("readManifest: Failed to retrieve master topology " + getTarget());
             throw new NotFoundException("Failed to retrieve master topology " + getTarget());
         }
         
         // We want to store the last modified date as viewed from the HTTP server.
         Date lastMod = response.getLastModified();
         if (lastMod != null) {
-            log.debug("readMasterTopology: Updating last modified time " + DateUtils.formatDate(lastMod, DateUtils.PATTERN_RFC1123));
+            log.debug("readManifest: Updating last modified time " + DateUtils.formatDate(lastMod, DateUtils.PATTERN_RFC1123));
             setLastModified(lastMod);
         }
 
@@ -136,9 +140,9 @@ public class MasterTopologyProvider {
         TopologyType topology = XmlParser.getInstance().parseTopologyFromString(xml);
         
         // Create an internal object to hold the master list.
-        MasterTopology master = new MasterTopology();
-        master.setId(topology.getId());
-        master.setVersion(topology.getVersion());
+        TopologyManifest newManifest = new TopologyManifest();
+        newManifest.setId(topology.getId());
+        newManifest.setVersion(topology.getVersion());
         
         // Pull out the indivdual network entries.
         List<NetworkObject> networkObjects = topology.getGroup();
@@ -148,16 +152,16 @@ public class MasterTopologyProvider {
                 Map<QName, String> otherAttributes = innerTopology.getOtherAttributes();
                 String isReference = otherAttributes.get(_isReference_QNAME);
                 if (isReference != null && !isReference.isEmpty()) {
-                    log.debug("readMasterTopology: topology id: " + networkObject.getId() + ", isReference: " + isReference);
-                    master.setTopologyURL(networkObject.getId(), isReference);
+                    log.debug("readManifest: topology id: " + networkObject.getId() + ", isReference: " + isReference);
+                    newManifest.setTopologyURL(networkObject.getId(), isReference);
                 }
                 else {
-                    log.error("readMasterTopology: topology id: " + networkObject.getId() + ", isReference: not present.");
+                    log.error("readManifest: topology id: " + networkObject.getId() + ", isReference: not present.");
                 }
             }
         }
 
-        return master;
+        return newManifest;
     }
 
     /**
@@ -167,21 +171,22 @@ public class MasterTopologyProvider {
      * @return Master topology.
      * @throws Exception If an error occurs when reading remote topology.
      */
-    public synchronized void loadMasterTopology() throws Exception {
+    @Override
+    public synchronized void loadManifest() throws Exception {
         
-        MasterTopology master = this.readMasterTopology();
-        if (master != null && masterTopology == null) {
+        TopologyManifest master = this.readManifest();
+        if (master != null && manifest == null) {
             // We don't have a previous version so update with this version.
-            masterTopology = master;
+            manifest = master;
         }
-        else if (master != null && masterTopology != null) {
+        else if (master != null && manifest != null) {
             // Only update if this version is newer.
-            if (master.getVersion() == null || masterTopology.getVersion() == null) {
+            if (master.getVersion() == null || manifest.getVersion() == null) {
                 // Missing version information so we have to assume an update.
-                masterTopology = master;
+                manifest = master;
             }
-            else if (master.getVersion().compare(masterTopology.getVersion()) == DatatypeConstants.GREATER) {
-                masterTopology = master;
+            else if (master.getVersion().compare(manifest.getVersion()) == DatatypeConstants.GREATER) {
+                manifest = master;
             }
         }
     }
@@ -193,12 +198,13 @@ public class MasterTopologyProvider {
      * @return Master topology.
      * @throws Exception If an error occurs when reading remote topology.
      */
-    public MasterTopology getMasterTopology() throws Exception {
-        if (masterTopology == null) {
-            loadMasterTopology();
+    @Override
+    public TopologyManifest getManifest() throws Exception {
+        if (manifest == null) {
+            loadManifest();
         }
         
-        return masterTopology;
+        return manifest;
     }
     
     /**
@@ -208,19 +214,20 @@ public class MasterTopologyProvider {
      * @return
      * @throws Exception 
      */
-    public MasterTopology getMasterTopologyIfModified() throws Exception {
-        MasterTopology oldMasterTopology = masterTopology;
-        loadMasterTopology();
-        MasterTopology newMasterTopology = masterTopology;
+    @Override
+    public TopologyManifest getManifestIfModified() throws Exception {
+        TopologyManifest oldMasterTopology = manifest;
+        loadManifest();
+        TopologyManifest newMasterTopology = manifest;
 
         if (newMasterTopology != null && oldMasterTopology == null) {
             // We don't have a previous version so there is a change.
-            return masterTopology;
+            return manifest;
         }
         else if (newMasterTopology != null && oldMasterTopology != null) {
             // Only update if this version is newer.
             if (newMasterTopology.getVersion().compare(oldMasterTopology.getVersion()) == DatatypeConstants.GREATER) {
-                return masterTopology;
+                return manifest;
             }
         }
         

@@ -15,7 +15,7 @@ import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.config.topo.nml.BidirectionalEthernetPort;
 import net.es.nsi.pce.config.topo.nml.Directionality;
 import net.es.nsi.pce.config.topo.nml.EthernetPort;
-import net.es.nsi.pce.config.topo.nml.MasterTopology;
+import net.es.nsi.pce.config.topo.nml.TopologyManifest;
 import net.es.nsi.pce.pf.api.topo.Network;
 import net.es.nsi.pce.pf.api.topo.Nsa;
 import net.es.nsi.pce.pf.api.topo.Sdp;
@@ -43,17 +43,17 @@ public class PollingTopologyProvider implements TopologyProvider {
     // Location of configuration file.
     private String configuration = "config/topology.xml";
     
-    // Remote master topology enpoint.
+    // Remote topology manifest enpoint.
     private String location = null;
     
     // Time between topology refreshes.
     private long auditInterval = 30*60*1000;  // Default 30 minute polling time.
     
-    // Our master topology provider.
-    private MasterTopologyProvider masterTopologyProvider;
+    // Our topology manifest provider.
+    private GitHubManifestReader manifestReader;
     
-    // Our master topology provider.
-    private MasterTopology masterTopology;
+    // Our topology manifest.
+    private TopologyManifest topologyManifest;
     
     // NSA topology entries indexed by string URL.
     private Map<String, NsaTopologyReader> topologyUrlMap = new ConcurrentHashMap<>();
@@ -124,9 +124,8 @@ public class PollingTopologyProvider implements TopologyProvider {
         if (config.getAuditInterval() > 0) {
             setAuditInterval(config.getAuditInterval());
         }
-        
-        // Create our master topology provider but don't load data just yet.
-        masterTopologyProvider = new MasterTopologyProvider(getLocation());
+
+        manifestReader.setTarget(getLocation());
     }
 
     private void loadNetworkTopology() throws Exception {
@@ -138,33 +137,33 @@ public class PollingTopologyProvider implements TopologyProvider {
 
         loadTopologyConfiguration();
                 
-        // Get an updated copy of the master topology file.
-        MasterTopology newMaster;
+        // Get an updated copy of the topology manifest file.
+        TopologyManifest newManifest;
         try {
-            newMaster = masterTopologyProvider.getMasterTopologyIfModified();
+            newManifest = getManifestReader().getManifestIfModified();
         }
         catch (Exception ex) {
-            log.error("loadNetworkTopology: Failed to load master topology.", ex);
+            log.error("loadNetworkTopology: Failed to load topology manifest.", ex);
             throw ex;
         }
         
-        // See if the master topology list has changed.
-        if (newMaster != null) {
-            masterTopology = newMaster;
+        // See if the topology manifest list has changed.
+        if (newManifest != null) {
+            topologyManifest = newManifest;
         }
         
-        // Check to see if we have a valid master topology.
-        if (masterTopology == null) {
-            log.error("loadNetworkTopology: Failed to load master topology " + masterTopologyProvider.getTarget());
-            throw new NotFoundException("Failed to load master topology " + masterTopologyProvider.getTarget());               
+        // Check to see if we have a valid topology manifest.
+        if (topologyManifest == null) {
+            log.error("loadNetworkTopology: Failed to load topology manifest " + getManifestReader().getTarget());
+            throw new NotFoundException("Failed to load topology manifest " + getManifestReader().getTarget());               
         }
         
         // Create a new topology URL map.
-        Map<String, NsaTopologyReader> newTopologyUrlMap = new ConcurrentHashMap<String, NsaTopologyReader>();
+        Map<String, NsaTopologyReader> newTopologyUrlMap = new ConcurrentHashMap<>();
         
         // Load each topology from supplied endpoint.  If we fail to load a new
         // topology, then keep the old one for now.
-        for (String endpoint : masterTopology.getEntryList().values()) {
+        for (String endpoint : topologyManifest.getEntryList().values()) {
             // Check to see if we have already discovered this NSA.
             NsaTopologyReader originalReader = topologyUrlMap.get(endpoint);
             NsaTopologyReader reader;
@@ -509,4 +508,18 @@ public class PollingTopologyProvider implements TopologyProvider {
     public void initialize() throws Exception {
         this.loadTopologyConfiguration();
     }   
+
+    /**
+     * @return the topologyManifestReader
+     */
+    public GitHubManifestReader getManifestReader() {
+        return manifestReader;
+    }
+
+    /**
+     * @param topologyManifestReader the topologyManifestReader to set
+     */
+    public void setManifestReader(GitHubManifestReader manifestReader) {
+        this.manifestReader = manifestReader;
+    }
 }

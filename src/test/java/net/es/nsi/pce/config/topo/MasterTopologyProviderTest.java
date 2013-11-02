@@ -4,7 +4,7 @@
  */
 package net.es.nsi.pce.config.topo;
 
-import net.es.nsi.pce.config.topo.nml.MasterTopology;
+import net.es.nsi.pce.config.topo.nml.TopologyManifest;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Test;
@@ -16,11 +16,11 @@ import org.junit.Test;
 public class MasterTopologyProviderTest {
     @Test
     public void loadMasterList() {
-        MasterTopologyProvider reader = new MasterTopologyProvider("https://raw.github.com/jeroenh/AutoGOLE-Topologies/master/master.xml");
+        GitHubManifestReader reader = new GitHubManifestReader("https://raw.github.com/jeroenh/AutoGOLE-Topologies/master/master.xml");
         
         try {
             // Retrieve a copy of the centralized master topology list.
-            MasterTopology master = reader.getMasterTopology();
+            TopologyManifest master = reader.getManifest();
             
             assertTrue(master != null);
             
@@ -30,7 +30,7 @@ public class MasterTopologyProviderTest {
             assertTrue(master.getTopologyURL("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed") != null);
             
             // We should not see a change in version.
-            master = reader.getMasterTopologyIfModified();
+            master = reader.getManifestIfModified();
             
             assertTrue(master == null);
         }

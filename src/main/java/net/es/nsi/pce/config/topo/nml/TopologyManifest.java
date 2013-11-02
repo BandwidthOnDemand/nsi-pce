@@ -14,7 +14,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * 
  * @author hacksaw
  */
-public class MasterTopology {
+public class TopologyManifest {
     private String id;
     private XMLGregorianCalendar version;
     private Map<String, String> entryList = new ConcurrentHashMap<String, String>();

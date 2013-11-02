@@ -18,7 +18,10 @@
     <!-- Topology providers are configured through the config parameter and initialize methods. -->
     <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.PollingTopologyProvider" init-method="initialize" scope="singleton">
         <property name="configuration" value="config/topology.xml"/>
+        <property name="manifestReader" ref="topologyManifestReader"/>
     </bean>
+
+    <bean id="topologyManifestReader" class="net.es.nsi.pce.config.topo.GitHubManifestReader" scope="singleton" />
 
     <!--
     <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.XmlTopologyProvider" init-method="initialize" scope="singleton">

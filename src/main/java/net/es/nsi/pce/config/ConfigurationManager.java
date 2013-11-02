@@ -85,14 +85,11 @@ public enum ConfigurationManager {
             setServiceInfoProvider((ServiceInfoProvider) context.getBean("serviceInfoProvider"));
             log.info("...NSA security config loaded.");
 
-
             // Load topology database.
             log.info("Loading topology...");
             setTopologyProvider((TopologyProvider) context.getBean("topologyProvider"));
             tp.loadTopology();
             log.info("...Topology loaded.");
-            
-            
 
             // Start the task scheduler.
             log.info("Starting task scheduler...");
