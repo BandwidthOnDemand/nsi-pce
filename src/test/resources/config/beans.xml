@@ -2,9 +2,11 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <context:component-scan base-package="net.es.nsi.pce"/>
+    
     <bean id="serviceInfoProvider" class="net.es.nsi.pce.config.nsa.JsonNsaConfigProvider" init-method="loadConfig" scope="singleton">
         <property name="filename" value="config/nsa.json"/>
     </bean>
@@ -17,17 +19,14 @@
 
     <!-- Topology providers are configured through the config parameter and initialize methods. -->
     <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.PollingTopologyProvider" init-method="initialize" scope="singleton">
-        <property name="configuration" value="config/topology.xml"/>
-        <property name="manifestReader" ref="topologyManifestReader"/>
+        <property name="configuration" value="config/topology-github.xml"/>
+        <property name="topologyManifestReader" ref="topologyManifestReader"/>
+        <property name="topologyReaderFactory" ref="topologyReaderFactory"/>
     </bean>
 
-    <bean id="topologyManifestReader" class="net.es.nsi.pce.config.topo.GitHubManifestReader" scope="singleton" />
+    <bean id="topologyManifestReader" class="net.es.nsi.pce.config.topo.GitHubManifestReader" scope="prototype" />
 
-    <!--
-    <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.XmlTopologyProvider" init-method="initialize" scope="singleton">
-        <property name="configuration" value="config/topology"/>
-    </bean>
-    -->
+    <bean id="topologyReaderFactory" class="net.es.nsi.pce.config.topo.NsaTopologyReaderFactory" scope="prototype" />
 
     <bean id="DijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="singleton" />
  

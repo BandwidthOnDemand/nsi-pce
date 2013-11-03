@@ -19,7 +19,7 @@
 
     <!-- Topology providers are configured through the config parameter and initialize methods. -->
     <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.PollingTopologyProvider" init-method="initialize" scope="singleton">
-        <property name="configuration" value="config/topology-github.xml"/>
+        <property name="configuration" value="config/topology-localhost.xml"/>
         <property name="topologyManifestReader" ref="topologyManifestReader"/>
         <property name="topologyReaderFactory" ref="topologyReaderFactory"/>
     </bean>

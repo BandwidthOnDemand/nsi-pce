@@ -17,6 +17,7 @@ import javax.ws.rs.core.Response;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.api.jaxb.ObjectFactory;
 import net.es.nsi.pce.api.jaxb.DirectionalityType;
 import net.es.nsi.pce.api.jaxb.EthernetVlanType;
@@ -189,7 +190,7 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
         GregorianCalendar startTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         startTime.add(Calendar.MINUTE, 2);
         req.setStartTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(startTime));
- 
+
         // Reservation end time is 12 minutes from now.
         GregorianCalendar endTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         endTime.add(Calendar.MINUTE, 12);

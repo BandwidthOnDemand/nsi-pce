@@ -16,7 +16,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
  */
 public class TopologyManifest {
     private String id;
-    private XMLGregorianCalendar version;
+    private long version;
     private Map<String, String> entryList = new ConcurrentHashMap<String, String>();
 
     /**
@@ -36,14 +36,14 @@ public class TopologyManifest {
     /**
      * @return the version
      */
-    public XMLGregorianCalendar getVersion() {
+    public long getVersion() {
         return version;
     }
 
     /**
      * @param version the version to set
      */
-    public void setVersion(XMLGregorianCalendar version) {
+    public void setVersion(long version) {
         this.version = version;
     }
 

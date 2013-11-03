@@ -1,7 +1,6 @@
 package net.es.nsi.pce.client;
 
 import net.es.nsi.pce.jersey.JsonMoxyConfigurationContextResolver;
-import net.es.nsi.pce.server.*;
 import java.net.URI;
 import net.es.nsi.pce.config.http.HttpConfig;
 import org.glassfish.grizzly.http.server.HttpServer;

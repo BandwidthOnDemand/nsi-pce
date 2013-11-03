@@ -14,6 +14,7 @@ import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * This class reads a remote XML formatted NML topology and creates simple
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author hacksaw
  */
+@Component
 public class NsaTopologyReader extends NmlTopologyReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
     

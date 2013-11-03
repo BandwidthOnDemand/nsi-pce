@@ -4,7 +4,6 @@
  */
 package net.es.nsi.pce.config.topo;
 
-import java.util.Date;
 import net.es.nsi.pce.config.topo.nml.TopologyManifest;
 
 /**
@@ -19,7 +18,7 @@ public interface TopologyManifestReader {
      *
      * @return the lastModified date of the remote topology document.
      */
-    Date getLastModified();
+    long getLastModified();
 
     /**
      * Returns a current version of the master topology.  The masterTopology
@@ -60,7 +59,7 @@ public interface TopologyManifestReader {
      *
      * @param lastModified the lastModified to set
      */
-    void setLastModified(Date lastModified);
+    void setLastModified(long lastModified);
 
     /**
      * Sets the remote topology endpoint.

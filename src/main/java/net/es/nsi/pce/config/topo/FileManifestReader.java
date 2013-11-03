@@ -1,25 +1,9 @@
 package net.es.nsi.pce.config.topo;
 
-import net.es.nsi.pce.schema.XmlParser;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.xml.namespace.QName;
+import java.io.File;
 import net.es.nsi.pce.config.topo.nml.TopologyManifest;
-import net.es.nsi.pce.jersey.RestClient;
-import net.es.nsi.pce.topology.jaxb.NetworkObject;
-import net.es.nsi.pce.topology.jaxb.TopologyType;
-import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.http.client.utils.DateUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -30,10 +14,8 @@ import org.springframework.stereotype.Component;
  * @author hacksaw
  */
 @Component
-public class GitHubManifestReader implements TopologyManifestReader {
+public class FileManifestReader implements TopologyManifestReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    
-    private final static QName _isReference_QNAME = new QName("http://schemas.ogf.org/nsi/2013/09/topology#", "isReference");
     
     // The remote location of the file to read.
     private String target = null;
@@ -47,7 +29,7 @@ public class GitHubManifestReader implements TopologyManifestReader {
     /**
      * Default class constructor.
      */
-    public GitHubManifestReader() {}
+    public FileManifestReader() {}
     
     /**
      * Class constructor takes the remote location URL from which to load the
@@ -55,7 +37,7 @@ public class GitHubManifestReader implements TopologyManifestReader {
      * 
      * @param target Location of the NSA's XML based NML topology.
      */
-    public GitHubManifestReader(String target) {
+    public FileManifestReader(String target) {
         this.target = target;
     }
 
@@ -110,56 +92,34 @@ public class GitHubManifestReader implements TopologyManifestReader {
      * @return The list of topology endpoints from the remote NML topology.
      */
     private TopologyManifest readManifest() throws Exception {
-        // Use the REST client to retrieve the master topology as a string.
-        ClientConfig clientConfig = new ClientConfig();
-        RestClient.configureClient(clientConfig);
-        Client client = ClientBuilder.newClient(clientConfig);
-        WebTarget webGet = client.target(getTarget());
-        Response response = webGet.request(MediaType.APPLICATION_XML) .header("If-Modified-Since", DateUtils.formatDate(new Date(getLastModified()), DateUtils.PATTERN_RFC1123)).get();
+        // Get a list of files for supplied directory.
+        File folder = new File(target);
+        long lastMod = folder.lastModified();
         
-        // A 304 Not Modified indicates we already have a up-to-date document.
-        if (response.getStatus() == Status.NOT_MODIFIED.getStatusCode()) {
+        // If directory was not modified we return.
+        if (lastMod <= lastModified) {
             return null;
         }
         
-        if (response.getStatus() != Status.OK.getStatusCode()) {
-            log.error("readManifest: Failed to retrieve master topology " + getTarget());
-            throw new NotFoundException("Failed to retrieve master topology " + getTarget());
-        }
+        // Save the new modify time.
+        setLastModified(lastMod);
         
-        // We want to store the last modified date as viewed from the HTTP server.
-        Date lastMod = response.getLastModified();
-        if (lastMod != null) {
-            log.debug("readManifest: Updating last modified time " + DateUtils.formatDate(lastMod, DateUtils.PATTERN_RFC1123));
-            setLastModified(lastMod.getTime());
-        }
+        // We will grab all XML files from the target directory. 
+        File[] listOfFiles = folder.listFiles(); 
 
-        // Now we want the NML XML document.
-        String xml = response.readEntity(String.class);
+        log.info("Loading topology information from directory " + folder.getAbsolutePath());
         
-        // Parse the master topology. 
-        TopologyType topology = XmlParser.getInstance().parseTopologyFromString(xml);
-        
-        // Create an internal object to hold the master list.
+        // We populate the list of files in a TopologyManifest object.
         TopologyManifest newManifest = new TopologyManifest();
-        newManifest.setId(topology.getId());
-        if (topology.getVersion() != null) {
-            newManifest.setVersion(topology.getVersion().toGregorianCalendar().getTimeInMillis());
-        }
+        newManifest.setId(folder.getAbsolutePath());
+        newManifest.setVersion(lastMod);
         
-        // Pull out the indivdual network entries.
-        List<NetworkObject> networkObjects = topology.getGroup();
-        for (NetworkObject networkObject : networkObjects) {
-            if (networkObject instanceof TopologyType) {
-                TopologyType innerTopology = (TopologyType) networkObject;
-                Map<QName, String> otherAttributes = innerTopology.getOtherAttributes();
-                String isReference = otherAttributes.get(_isReference_QNAME);
-                if (isReference != null && !isReference.isEmpty()) {
-                    log.debug("readManifest: topology id: " + networkObject.getId() + ", isReference: " + isReference);
-                    newManifest.setTopologyURL(networkObject.getId(), isReference);
-                }
-                else {
-                    log.error("readManifest: topology id: " + networkObject.getId() + ", isReference: not present.");
+        String file;
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                file = listOfFiles[i].getAbsolutePath();
+                if (file.endsWith(".xml") || file.endsWith(".xml")) {
+                    newManifest.put(file, file);
                 }
             }
         }

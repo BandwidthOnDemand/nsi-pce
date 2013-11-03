@@ -32,11 +32,13 @@ import net.es.nsi.pce.topology.jaxb.TopologyRelationType;
 import net.es.nsi.pce.topology.jaxb.TopologyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author hacksaw
  */
+@Component
 public abstract class NmlTopologyReader implements TopologyReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
     

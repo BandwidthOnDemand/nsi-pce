@@ -8,6 +8,7 @@ import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.topology.jaxb.NSAType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * A file based provider that reads XML formatted NML topology files and
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author hacksaw
  */
+@Component
 public class FileTopologyReader extends NmlTopologyReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
     

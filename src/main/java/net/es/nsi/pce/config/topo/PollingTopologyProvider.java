@@ -27,6 +27,8 @@ import net.es.nsi.pce.topology.jaxb.NSAType;
 import net.es.nsi.pce.topology.jaxb.TopologyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Dynamically download the NSI/NML topology from peer NSA, parse, and
@@ -37,26 +39,30 @@ import org.slf4j.LoggerFactory;
  * 
  * @author hacksaw
  */
+@Component
 public class PollingTopologyProvider implements TopologyProvider {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    
+      
     // Location of configuration file.
-    private String configuration = "config/topology.xml";
+    private String configuration;
+        
+    // Our topology manifest provider.
+    private TopologyManifestReader topologyManifestReader;
     
-    // Remote topology manifest enpoint.
+     // Our toplogy reader factory.
+    private TopologyReaderFactory  topologyReaderFactory;   
+    
+    // topology manifest enpoint.
     private String location = null;
     
     // Time between topology refreshes.
     private long auditInterval = 30*60*1000;  // Default 30 minute polling time.
-    
-    // Our topology manifest provider.
-    private GitHubManifestReader manifestReader;
-    
+
     // Our topology manifest.
     private TopologyManifest topologyManifest;
     
     // NSA topology entries indexed by string URL.
-    private Map<String, NsaTopologyReader> topologyUrlMap = new ConcurrentHashMap<>();
+    private Map<String, NmlTopologyReader> topologyUrlMap = new ConcurrentHashMap<>();
 
     // Map holding the network topologies indexed by network Id.
     private Map<String, NSAType> nsas = new ConcurrentHashMap<>();
@@ -125,7 +131,7 @@ public class PollingTopologyProvider implements TopologyProvider {
             setAuditInterval(config.getAuditInterval());
         }
 
-        manifestReader.setTarget(getLocation());
+        topologyManifestReader.setTarget(getLocation());
     }
 
     private void loadNetworkTopology() throws Exception {
@@ -140,7 +146,7 @@ public class PollingTopologyProvider implements TopologyProvider {
         // Get an updated copy of the topology manifest file.
         TopologyManifest newManifest;
         try {
-            newManifest = getManifestReader().getManifestIfModified();
+            newManifest = getTopologyManifestReader().getManifestIfModified();
         }
         catch (Exception ex) {
             log.error("loadNetworkTopology: Failed to load topology manifest.", ex);
@@ -154,22 +160,22 @@ public class PollingTopologyProvider implements TopologyProvider {
         
         // Check to see if we have a valid topology manifest.
         if (topologyManifest == null) {
-            log.error("loadNetworkTopology: Failed to load topology manifest " + getManifestReader().getTarget());
-            throw new NotFoundException("Failed to load topology manifest " + getManifestReader().getTarget());               
+            log.error("loadNetworkTopology: Failed to load topology manifest " + getTopologyManifestReader().getTarget());
+            throw new NotFoundException("Failed to load topology manifest " + getTopologyManifestReader().getTarget());               
         }
         
         // Create a new topology URL map.
-        Map<String, NsaTopologyReader> newTopologyUrlMap = new ConcurrentHashMap<>();
+        Map<String, NmlTopologyReader> newTopologyUrlMap = new ConcurrentHashMap<>();
         
         // Load each topology from supplied endpoint.  If we fail to load a new
         // topology, then keep the old one for now.
-        for (String endpoint : topologyManifest.getEntryList().values()) {
+        for (String entry : topologyManifest.getEntryList().values()) {
             // Check to see if we have already discovered this NSA.
-            NsaTopologyReader originalReader = topologyUrlMap.get(endpoint);
-            NsaTopologyReader reader;
+            NmlTopologyReader originalReader = topologyUrlMap.get(location);
+            NmlTopologyReader reader;
             if (originalReader == null) {
                 // We have not so create a new reader.
-                reader = new NsaTopologyReader(endpoint);
+                reader = topologyReaderFactory.getReader(entry);
             }
             else {
                 reader = originalReader;
@@ -182,14 +188,14 @@ public class PollingTopologyProvider implements TopologyProvider {
             catch (Exception ex) {
                 // If we have already read this topology successfully, then
                 // keep it on failure.
-                log.error("loadTopology: Failed to load NSA topology: " + endpoint, ex);
+                log.error("loadTopology: Failed to load NSA topology: " + entry, ex);
                 if (originalReader == null) {
                     // We have never successfully discovered this NSA so skip.
                     continue;
                 }
             }
             
-            newTopologyUrlMap.put(endpoint, reader);
+            newTopologyUrlMap.put(entry, reader);
         }
 
         // We are done so update the map with the new view.
@@ -200,7 +206,7 @@ public class PollingTopologyProvider implements TopologyProvider {
         Map<String, TopologyType> newTopologies = new ConcurrentHashMap<>();
         Map<String, EthernetPort> newEthernetPorts = new ConcurrentHashMap<>();
 
-        for (NsaTopologyReader nml : topologyUrlMap.values()) {
+        for (NmlTopologyReader nml : topologyUrlMap.values()) {
             NSAType nsa = nml.getNsa();
             if (nsa.getId() == null || nsa.getId().isEmpty()) {
                 log.error("Topology endpoint missing NSA identifier: " + nml.getTarget());
@@ -366,7 +372,7 @@ public class PollingTopologyProvider implements TopologyProvider {
         }
 
         // Add each bidirectional port as a bidirectional STP in the NSI topology.
-        Map<String, EthernetPort> ethPorts = new ConcurrentHashMap<String, EthernetPort>(ethernetPorts);
+        Map<String, EthernetPort> ethPorts = new ConcurrentHashMap<>(ethernetPorts);
         for (String key : ethPorts.keySet()) {
             EthernetPort localPort = ethPorts.remove(key);
             
@@ -388,7 +394,7 @@ public class PollingTopologyProvider implements TopologyProvider {
                 // are created even if the remote end does not have a matching
                 // STP.  Why?  Logically these unconnected STP exist even though
                 // they can never be used.
-                HashMap<Integer, Stp> processedStp = new HashMap<Integer, Stp>();
+                HashMap<Integer, Stp> processedStp = new HashMap<>();
                 
                 for (Integer vlanId : localBiPort.getVlans()) {
                     log.debug("Converting local port " + localBiPort.getPortId() + " vlan = " + vlanId);
@@ -512,14 +518,28 @@ public class PollingTopologyProvider implements TopologyProvider {
     /**
      * @return the topologyManifestReader
      */
-    public GitHubManifestReader getManifestReader() {
-        return manifestReader;
+    public TopologyManifestReader getTopologyManifestReader() {
+        return topologyManifestReader;
     }
 
     /**
      * @param topologyManifestReader the topologyManifestReader to set
      */
-    public void setManifestReader(GitHubManifestReader manifestReader) {
-        this.manifestReader = manifestReader;
+    public void setTopologyManifestReader(TopologyManifestReader manifestReader) {
+        this.topologyManifestReader = manifestReader;
+    }
+
+    /**
+     * @return the topologyReaderFactory
+     */
+    public TopologyReaderFactory getTopologyReaderFactory() {
+        return topologyReaderFactory;
+    }
+
+    /**
+     * @param topologyReaderFactory the topologyReaderFactory to set
+     */
+    public void setTopologyReaderFactory(TopologyReaderFactory topologyReaderFactory) {
+        this.topologyReaderFactory = topologyReaderFactory;
     }
 }
