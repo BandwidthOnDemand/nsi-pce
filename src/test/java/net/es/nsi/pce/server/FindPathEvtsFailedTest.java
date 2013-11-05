@@ -51,7 +51,7 @@ public class FindPathEvtsFailedTest extends JerseyTest {
           this.getStpA().setNetworkId("urn:ogf:network:kddilabs.jp:2013:topology");
           this.setVlanA(1782);
           this.getStpZ().setLocalId("urn:ogf:network:uvalight.net:2013:ps");
-          this.getStpZ().setNetworkId("urn:ogf:network:uvalight.net:2013");
+          this.getStpZ().setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
           this.setVlanZ(1781);
         }
     };

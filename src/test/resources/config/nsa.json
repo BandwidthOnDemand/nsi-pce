@@ -82,7 +82,7 @@
         }
     },
     "urn:ogf:network:nordu.net:2013:nsa": {
-        "networkId": "urn:ogf:network:nordu.net:2013",
+        "networkId": "urn:ogf:network:nordu.net:2013:topology",
         "providerUrl": "https://nsi.nordu.net:9443/NSI/services/CS2",
         "auth": {
             "method": "NONE"
@@ -120,7 +120,7 @@
         }
     },
     "urn:ogf:network:uvalight.net:2013:nsa": {
-        "networkId": "urn:ogf:network:uvalight.net:2013",
+        "networkId": "urn:ogf:network:uvalight.net:2013:topology",
         "providerUrl": "https://nsa.uvalight.net:9443/NSI/services/CS2",
         "auth": {
             "method": "NONE"

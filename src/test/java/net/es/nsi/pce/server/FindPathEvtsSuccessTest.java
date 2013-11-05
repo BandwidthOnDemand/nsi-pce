@@ -17,7 +17,6 @@ import javax.ws.rs.core.Response;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.api.jaxb.ObjectFactory;
 import net.es.nsi.pce.api.jaxb.DirectionalityType;
 import net.es.nsi.pce.api.jaxb.EthernetVlanType;
@@ -51,14 +50,14 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
           this.getStpA().setNetworkId("urn:ogf:network:kddilabs.jp:2013:topology");
           this.setVlanA(1782);
           this.getStpZ().setLocalId("urn:ogf:network:uvalight.net:2013:ps");
-          this.getStpZ().setNetworkId("urn:ogf:network:uvalight.net:2013");
+          this.getStpZ().setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
           this.setVlanZ(1782);
         }
     };
 
     private final static StpTestData test2 = new StpTestData() {
         { this.getStpA().setLocalId("urn:ogf:network:uvalight.net:2013:ps");
-          this.getStpA().setNetworkId("urn:ogf:network:uvalight.net:2013");
+          this.getStpA().setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
           this.setVlanA(1780);
           this.getStpZ().setLocalId("urn:ogf:network:es.net:2013:ps:sunn:1");
           this.getStpZ().setNetworkId("urn:ogf:network:es.net:2013");
