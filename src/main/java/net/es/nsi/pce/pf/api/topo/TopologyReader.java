@@ -40,7 +40,7 @@ public interface TopologyReader {
      *
      * @param lastModified the lastModified to set
      */
-    public void setLastModified(Date lastModified);
+    public void setLastModified(long lastModified);
     
     /**
      * Get the date the remote topology endpoint reported as the last time the
@@ -48,7 +48,7 @@ public interface TopologyReader {
      *
      * @return the lastModified date of the remote topology document.
      */
-    public Date getLastModified();
+    public long getLastModified();
     
     /**
      * @return the NSA managing this topology.

@@ -23,7 +23,7 @@ public class RestServer {
     public static ResourceConfig getConfig(String packageName) {
         return new ResourceConfig()
                 .packages(packageName) // This seems to be broken when run outside of Jersey test.
-                .register(FindPathService.class) // Remove this is packages gets fixed.
+                .register(FindPathService.class) // Remove this if packages gets fixed.
                 .register(new MoxyXmlFeature())
                 .register(new MoxyJsonFeature())
                 .registerInstances(new JsonMoxyConfigurationContextResolver());

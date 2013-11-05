@@ -1,6 +1,5 @@
 package net.es.nsi.pce.config.http;
 
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.es.nsi.pce.config.FileBasedConfigProvider;

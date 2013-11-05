@@ -34,10 +34,10 @@ import org.glassfish.jersey.client.ClientConfig;
  */
 public class Main {
     private final static HttpConfig testServer = new HttpConfig() {
-        { url = "http://localhost:9800/"; packageName = "net.es.nsi.pce.client"; }
+        { setUrl("http://localhost:9800/"); setPackageName("net.es.nsi.pce.client"); }
     };
     
-    private final static String callbackURL = testServer.url + "aggregator/path";
+    private final static String callbackURL = testServer.getUrl() + "aggregator/path";
     
     private final static ObjectFactory factory = new ObjectFactory();
     @SuppressWarnings({"ResultOfMethodCallIgnored"})

@@ -36,7 +36,7 @@ public class WadlTest extends JerseyTest {
             fail("configure(): Could not initialize test environment.");
         }
         
-        return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceConfig().packageName);
+        return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceConfig().getPackageName());
     }
 
     @Override

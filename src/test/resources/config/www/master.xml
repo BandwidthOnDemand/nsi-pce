@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nml:Topology id="urn:ogf:network:glif.is:2013:autogole-topology" version="2013-10-29T11:30:00Z"
+        xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#"
+        xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#">
+    <nml:Topology id="urn:ogf:network:ampath.net:2013:topology" nsi:isReference="http://localhost:8400/www/topologies/ampath.net:2013.xml"/>
+    <nml:Topology id="urn:ogf:network:aist.go.jp:2013:topology" nsi:isReference="http://localhost:8400/www/topologies/aist.go.jp.xml"/>
+    <nml:Topology id="urn:ogf:network:czechlight.cesnet.cz:2013:topology:a-gole:testbed" nsi:isReference="http://localhost:8400/www/topologies/czechlight.cesnet.cz:2013.xml"/>
+    <nml:Topology id="urn:ogf:network:es.net:2013:" nsi:isReference="http://localhost:8400/www/topologies/es.net.xml"/>
+    <nml:Topology id="urn:ogf:network:geant.net:2013:topology" nsi:isReference="http://localhost:8400/www/topologies/geant.net.xml"/>
+    <nml:Topology id="urn:ogf:network:jgn-x.jp:2013:topology" nsi:isReference="http://localhost:8400/www/topologies/jgn-x.jp.xml"/>
+    <nml:Topology id="urn:ogf:network:sinet.ac.jp:2013:topology" nsi:isReference="http://localhost:8400/www/topologies/sinet.ac.jp.xml"/>
+    <nml:Topology id="urn:ogf:network:kddilabs.jp:2013:topology" nsi:isReference="http://localhost:8400/www/topologies/kddilabs.jp.xml"/>
+    <nml:Topology id="urn:ogf:network:krlight.net:2013:topology" nsi:isReference="http://localhost:8400/www/topologies/krlight.net.xml"/>
+    <nml:Topology id="urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed" nsi:isReference="http://localhost:8400/www/topologies/netherlight.net:2013.xml"/>
+    <nml:Topology id="urn:ogf:network:nordu.net:2013" nsi:isReference="http://localhost:8400/www/topologies/nordu.net:2013.xml"/>
+    <nml:Topology id="urn:ogf:network:pionier.net.pl:2013:topology" nsi:isReference="http://localhost:8400/www/topologies/pionier.net.pl.xml"/>
+    <nml:Topology id="urn:ogf:network:southernlight.net:2013" nsi:isReference="http://localhost:8400/www/topologies/southernlight.net:2013.xml"/>
+    <nml:Topology id="urn:ogf:network:uvalight.net:2013" nsi:isReference="http://localhost:8400/www/topologies/uvalight.net:2013.xml"/>
+    <nml:Topology id="urn:ogf:network:grnet.gr:2013:topology" nsi:isReference="http://localhost:8400/www/topologies/grnet.gr.xml"/>
+    <nml:Topology id="urn:ogf:network:manlan.internet2.edu:2013:" nsi:isReference="http://localhost:8400/www/topologies/manlan.internet2.edu.xml"/>
+    <!-- <nml:Topology id="urn:ogf:network:surfnet.nl:1990:topology:surfnet6:production" nsi:isReference="http://localhost:8400/www/topologies/surfnet.nl:1990.xml" /> -->
+    <nml:Topology id="urn:ogf:network:singaren.net:2013" nsi:isReference="http://localhost:8400/www/topologies/singaren.net.xml"/>
+    <nml:Topology id="urn:ogf:network:icair.org:2013" nsi:isReference="http://localhost:8400/www/topologies/icair.org:2013.xml"/>
+</nml:Topology>
+

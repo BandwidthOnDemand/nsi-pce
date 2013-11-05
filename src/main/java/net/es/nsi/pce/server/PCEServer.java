@@ -1,9 +1,11 @@
 package net.es.nsi.pce.server;
 
+import java.io.IOException;
 import net.es.nsi.pce.jersey.RestServer;
 import java.net.URI;
 import net.es.nsi.pce.config.http.HttpConfig;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,13 +17,21 @@ public enum PCEServer {
     
     private static HttpServer server = null;
     
-    public void start(HttpConfig config) throws IllegalStateException {
+    public void start(HttpConfig config) throws IllegalStateException, IOException {
         
         synchronized(this) {
-            if (server == null) { 
-                log.debug("PCEServer.start: Starting Grizzly on " + config.url + " for resources " + config.packageName);
-                server = GrizzlyHttpServerFactory.createHttpServer(URI.create(config.url), RestServer.getConfig(config.packageName));
-                log.debug("PCEServer.start: Started Grizzly.");
+            if (server == null) {
+                try {
+                    log.debug("PCEServer.start: Starting Grizzly on " + config.getUrl() + " for resources " + config.getPackageName());
+                    server = GrizzlyHttpServerFactory.createHttpServer(URI.create(config.getUrl()), RestServer.getConfig(config.getPackageName()), false);
+                    StaticHttpHandler staticHttpHandler = new StaticHttpHandler(config.getStaticPath());
+                    server.getServerConfiguration().addHttpHandler(staticHttpHandler, config.getWwwPath());
+                    server.start();
+                    log.debug("PCEServer.start: Started Grizzly.");
+                } catch (IOException ex) {
+                    log.error("Could not start HTTP server.", ex);
+                    throw ex;
+                }
             }
             else {
                 log.error("PCEServer.start: Grizzly already started.");

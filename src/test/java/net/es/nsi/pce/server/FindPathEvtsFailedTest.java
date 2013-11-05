@@ -38,10 +38,10 @@ import org.junit.Test;
 public class FindPathEvtsFailedTest extends JerseyTest {
 
     private final static HttpConfig testServer = new HttpConfig() {
-        { url = "http://localhost:9800/"; packageName = "net.es.nsi.pce.client"; }
+        { setUrl("http://localhost:9800/"); setPackageName("net.es.nsi.pce.client"); }
     };
     
-    private final static String callbackURL = testServer.url + "aggregator/path";
+    private final static String callbackURL = testServer.getUrl() + "aggregator/path";
     
     private final static ObjectFactory factory = new ObjectFactory();
     
@@ -126,8 +126,9 @@ public class FindPathEvtsFailedTest extends JerseyTest {
             System.err.println("configure(): Could not initialize test environment." + ex.toString());
             fail("configure(): Could not initialize test environment.");
         }
-        
-        return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceConfig().packageName);
+        Application app = new Application();
+        app.getProperties();
+        return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceConfig().getPackageName());
     }
 
     @Override

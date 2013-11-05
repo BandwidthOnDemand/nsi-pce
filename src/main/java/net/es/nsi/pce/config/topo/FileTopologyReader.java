@@ -3,7 +3,6 @@ package net.es.nsi.pce.config.topo;
 import net.es.nsi.pce.schema.XmlParser;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Date;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.topology.jaxb.NSAType;
 import org.slf4j.Logger;
@@ -40,13 +39,13 @@ public class FileTopologyReader extends NmlTopologyReader {
         File file = new File(this.getTarget());
         
         long currentModified = file.lastModified();
-        long lastModifiled = this.getLastModified().getTime();
+        long lastModifiled = getLastModified();
         
-        log.debug("isFileUpdated: filename = " + this.getTarget()  + ", last = " + lastModifiled + ", current = " + currentModified);
+        log.debug("isFileUpdated: filename = " + getTarget()  + ", last = " + lastModifiled + ", current = " + currentModified);
         
         // Did we have an update? 
         if (currentModified > lastModifiled) {
-            this.setLastModified(new Date(currentModified));
+            this.setLastModified(currentModified);
             return true;
         }
 
@@ -59,6 +58,7 @@ public class FileTopologyReader extends NmlTopologyReader {
      * 
      * @return The JAXB NSA element from the NML topology.
      */
+    @Override
     public NSAType readNsaTopology() throws Exception {
         // Check to see if file associated with this topology has changed.
         File configFile = new File(this.getTarget()); 

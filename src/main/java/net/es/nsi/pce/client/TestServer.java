@@ -18,7 +18,7 @@ public enum TestServer {
         
         synchronized(this) {
             if (server == null) {
-                server = GrizzlyHttpServerFactory.createHttpServer(URI.create(config.url), getConfig(config.packageName));
+                server = GrizzlyHttpServerFactory.createHttpServer(URI.create(config.getUrl()), getConfig(config.getPackageName()));
             }
         }
     }

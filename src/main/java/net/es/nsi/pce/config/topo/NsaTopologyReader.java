@@ -56,7 +56,7 @@ public class NsaTopologyReader extends NmlTopologyReader {
         RestClient.configureClient(clientConfig);
         Client client = ClientBuilder.newClient(clientConfig);
         WebTarget webGet = client.target(getTarget());
-        Response response = webGet.request(MediaType.APPLICATION_XML) .header("If-Modified-Since", DateUtils.formatDate(getLastModified(), DateUtils.PATTERN_RFC1123)).get();
+        Response response = webGet.request(MediaType.APPLICATION_XML) .header("If-Modified-Since", DateUtils.formatDate(new Date(getLastModified()), DateUtils.PATTERN_RFC1123)).get();
         
         // A 304 Not Modified indicates we already have a up-to-date document.
         if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
@@ -71,11 +71,11 @@ public class NsaTopologyReader extends NmlTopologyReader {
         
         // We want to store the last modified date as viewed from the HTTP server.
         Date lastMod = response.getLastModified();
-        log.debug("readNsaTopology: lastModified = " + getLastModified() + ", current = " + lastMod);
+        log.debug("readNsaTopology: lastModified = " + new Date(getLastModified()) + ", current = " + lastMod);
         
         if (lastMod != null) {
-            log.debug("readNsaTopology: Updating last modified time " + DateUtils.formatDate(lastMod, DateUtils.PATTERN_RFC1123));
-            setLastModified(lastMod);
+            log.debug("readNsaTopology: Updating last modified time to " + lastMod);
+            setLastModified(lastMod.getTime());
         }
 
         // Now we want the NML XML document.

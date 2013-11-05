@@ -27,7 +27,6 @@ import net.es.nsi.pce.topology.jaxb.NSAType;
 import net.es.nsi.pce.topology.jaxb.TopologyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -149,7 +148,7 @@ public class PollingTopologyProvider implements TopologyProvider {
             newManifest = getTopologyManifestReader().getManifestIfModified();
         }
         catch (Exception ex) {
-            log.error("loadNetworkTopology: Failed to load topology manifest.", ex);
+            log.error("loadNetworkTopology: Failed to load topology manifest " + getTopologyManifestReader().getTarget(), ex);
             throw ex;
         }
         
@@ -171,10 +170,11 @@ public class PollingTopologyProvider implements TopologyProvider {
         // topology, then keep the old one for now.
         for (String entry : topologyManifest.getEntryList().values()) {
             // Check to see if we have already discovered this NSA.
-            NmlTopologyReader originalReader = topologyUrlMap.get(location);
+            NmlTopologyReader originalReader = topologyUrlMap.get(entry);
             NmlTopologyReader reader;
             if (originalReader == null) {
-                // We have not so create a new reader.
+                // We not have one so create a new reader.
+                log.debug("loadNetworkTopology: creating new reader for " + entry);
                 reader = topologyReaderFactory.getReader(entry);
             }
             else {

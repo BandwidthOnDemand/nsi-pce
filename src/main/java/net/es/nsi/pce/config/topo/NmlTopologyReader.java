@@ -5,7 +5,6 @@
 package net.es.nsi.pce.config.topo;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -46,7 +45,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
     private String target = null;
     
     // Time we last read the NSA topology.
-    private Date lastModified = new Date(0L);
+    private long lastModified = 0L;
     
     // Keep the original NML NSA entry.
     private NSAType nsa = null;
@@ -84,8 +83,8 @@ public abstract class NmlTopologyReader implements TopologyReader {
      * @return the lastModified date of the remote topology document.
      */
     @Override
-    public Date getLastModified() {
-        return new Date(lastModified.getTime());
+    public long getLastModified() {
+        return lastModified;
     }
 
     /**
@@ -94,8 +93,8 @@ public abstract class NmlTopologyReader implements TopologyReader {
      * @param lastModified the lastModified to set
      */
     @Override
-    public void setLastModified(Date lastModified) {
-        this.lastModified = new Date(lastModified.getTime());
+    public void setLastModified(long lastModified) {
+        this.lastModified = lastModified;
     }
     
     /**
