@@ -262,47 +262,53 @@ public abstract class NmlTopologyReader implements TopologyReader {
                     ethPort.setDirectionality(Directionality.bidirectional);
 
                     // Process port groups containing the unidirectional references.
-                    List<JAXBElement<? extends NetworkObject>> rest = port.getRest();
-                    for (JAXBElement<?> element: rest) {
-                        if (element.getValue() instanceof PortGroupType) {
-                            PortGroupType pg = (PortGroupType) element.getValue();
-                            log.trace("Unidirectional port: " + pg.getId());
-                            EthernetPort uniPort = newEthernetPorts.get(pg.getId());
-                            if (uniPort == null) {
-                                log.error("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.  Dropping from topology!");
-                                continue;
-                            }
 
-                            if (uniPort.getOrientation() == Orientation.inbound) {
-                                ethPort.setInbound(uniPort);                                    
-                            }
-                            else if (uniPort.getOrientation() == Orientation.outbound) {
-                                ethPort.setOutbound(uniPort);
-                            }
-                            else {
-                                log.error("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
-                                throw new NoSuchElementException("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
-                            }
-                        }
-                        else if (element.getValue() instanceof PortType) {
-                            PortType p = (PortType) element.getValue();
-                            log.trace("Unidirectional port: " + p.getId());
-                            EthernetPort uniPort = newEthernetPorts.get(p.getId());
-                            if (uniPort == null) {
-                                log.error("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.");
-                                throw new NoSuchElementException("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.");
-                            }
+                    List<Object> rest = port.getRest();
+                    //for (JAXBElement<?> element: rest) {
+                    for (Object obj: rest) {
+                        if (obj instanceof JAXBElement) {
+                            JAXBElement<?> element = (JAXBElement<?>) obj;
+                            if (element.getValue() instanceof PortGroupType) {
+                                PortGroupType pg = (PortGroupType) element.getValue();
+                                log.trace("Unidirectional port: " + pg.getId());
+                                EthernetPort uniPort = newEthernetPorts.get(pg.getId());
+                                if (uniPort == null) {
+                                    log.error("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.  Dropping from topology!");
+                                    continue;
+                                }
 
-                            if (uniPort.getOrientation() == Orientation.inbound) {
-                                ethPort.setInbound(uniPort);                                    
+                                if (uniPort.getOrientation() == Orientation.inbound) {
+                                    ethPort.setInbound(uniPort);                                    
+                                }
+                                else if (uniPort.getOrientation() == Orientation.outbound) {
+                                    ethPort.setOutbound(uniPort);
+                                }
+                                else {
+                                    log.error("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
+                                    throw new NoSuchElementException("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
+                                }
                             }
-                            else if (uniPort.getOrientation() == Orientation.outbound) {
-                                ethPort.setOutbound(uniPort);
+                            else if (element.getValue() instanceof PortType) {
+                                PortType p = (PortType) element.getValue();
+
+                                log.trace("Unidirectional port: " + p.getId());
+                                EthernetPort uniPort = newEthernetPorts.get(p.getId());
+                                if (uniPort == null) {
+                                    log.error("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.");
+                                    throw new NoSuchElementException("Bidirectional port " + port.getId() + " has no correctponding unidirectional port entry.");
+                                }
+
+                                if (uniPort.getOrientation() == Orientation.inbound) {
+                                    ethPort.setInbound(uniPort);                                    
+                                }
+                                else if (uniPort.getOrientation() == Orientation.outbound) {
+                                    ethPort.setOutbound(uniPort);
+                                }
+                                else {
+                                    log.error("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
+                                    throw new NoSuchElementException("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
+                                }                                
                             }
-                            else {
-                                log.error("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
-                                throw new NoSuchElementException("Bidirectional port " + port.getId() + " has an invalid relation reference for " + uniPort.getPortId());
-                            }                                
                         }
                     }
 

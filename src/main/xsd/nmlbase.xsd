@@ -22,8 +22,8 @@
       <xs:element  name="Lifetime"  type="nml:LifeTimeType"  minOccurs="0"  maxOccurs="1"/>
       <xs:element  name="Location"  type="nml:LocationType"  minOccurs="0"  maxOccurs="1"/>
     </xs:sequence>
-    <xs:attribute  name="id"       type="xs:anyURI"    use="optional"/>
-    <xs:attribute  name="version"  type="xs:dateTime"  use="optional"/>
+    <xs:attribute    name="id"       type="xs:anyURI"    use="optional"/>
+    <xs:attribute    name="version"  type="xs:dateTime"  use="optional"/>
     <xs:anyAttribute namespace="##other" processContents="lax" />
   </xs:complexType>
 
@@ -236,7 +236,7 @@
         <xs:sequence>
           <xs:element  ref="nml:Node"  minOccurs="0"  maxOccurs="unbounded"/>
           <xs:element  name="Relation"  type="nml:NodeRelationType"  minOccurs="0"  maxOccurs="unbounded"/>
-          <xs:any  namespace="##other"  processContents="lax"  minOccurs="0"  maxOccurs="unbounded"/>
+          <xs:any      namespace="##other"  processContents="lax"  minOccurs="0"  maxOccurs="unbounded"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -287,6 +287,7 @@
       <xs:extension  base="nml:NetworkObject">
         <xs:sequence>
           <xs:element  name="Relation"  type="nml:SwitchingServiceRelationType"  minOccurs="0"  maxOccurs="unbounded"/>
+          <xs:any      namespace="##other"  processContents="lax" minOccurs="0"  maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute  name="encoding"       type="xs:anyURI"   use="optional"/>
         <xs:attribute  name="labelSwapping"  type="xs:boolean"  use="optional"/>
@@ -324,6 +325,7 @@
       <xs:extension  base="nml:NetworkObject">
         <xs:sequence>
           <xs:element  name="Relation"  type="nml:AdaptationServiceRelationType"  minOccurs="0"  maxOccurs="unbounded"/>
+          <xs:any      namespace="##other"  processContents="lax" minOccurs="0"  maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute  name="adaptationFunction"  type="xs:anyURI"  use="optional"/>
       </xs:extension>
@@ -360,6 +362,7 @@
       <xs:extension  base="nml:NetworkObject">
         <xs:sequence>
           <xs:element  name="Relation" type="nml:DeadaptationServiceRelationType"  minOccurs="0"  maxOccurs="unbounded"/>
+          <xs:any      namespace="##other"  processContents="lax" minOccurs="0"  maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute  name="adaptationFunction"  type="xs:anyURI"  use="optional"/>
       </xs:extension>
@@ -418,6 +421,7 @@
         <xs:sequence>
           <xs:group  ref="nml:BaseLinkGroup"/>
           <xs:element  name="Relation"  type="nml:LinkGroupRelationType"  minOccurs="0"  maxOccurs="unbounded"/>
+          <xs:any      namespace="##other"  processContents="lax" minOccurs="0"  maxOccurs="unbounded"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -462,6 +466,7 @@
         <xs:sequence>
           <xs:group  ref="nml:BasePortGroup"/>
           <xs:element  name="Relation" type="nml:PortGroupRelationType"  minOccurs="0"  maxOccurs="unbounded"/>
+          <xs:any      namespace="##other"  processContents="lax" minOccurs="0"  maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute  name="encoding"  type="xs:anyURI"  use="optional"/>
       </xs:extension>
@@ -477,23 +482,28 @@
 
 
   <xs:group name="BaseBidirectionalLink">
-    <xs:choice>
-      <xs:sequence>
-        <xs:element  ref="nml:Link"/>
-        <xs:element  ref="nml:Link"/>
-      </xs:sequence>
-      <xs:sequence>
-        <xs:element  ref="nml:LinkGroup"/>
-        <xs:element  ref="nml:LinkGroup"/>
-      </xs:sequence>
-    </xs:choice>
+    <xs:sequence>
+      <xs:choice>
+        <xs:sequence>
+          <xs:element  ref="nml:Link"/>
+          <xs:element  ref="nml:Link"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element  ref="nml:LinkGroup"/>
+          <xs:element  ref="nml:LinkGroup"/>
+        </xs:sequence>
+      </xs:choice>
+    </xs:sequence>
   </xs:group>
 
 
   <xs:complexType name="BidirectionalLinkType">
     <xs:complexContent>
       <xs:extension  base="nml:NetworkObject">
-        <xs:group  ref="nml:BaseBidirectionalLink"/>
+        <xs:sequence>
+          <xs:group  ref="nml:BaseBidirectionalLink"/>
+          <xs:any    namespace="##other"  processContents="lax" minOccurs="0"  maxOccurs="unbounded"/>
+        </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -506,23 +516,28 @@
 
 
   <xs:group name="BaseBidirectionalPort">
-    <xs:choice>
-      <xs:sequence>
-        <xs:element  ref="nml:Port"/>
-        <xs:element  ref="nml:Port"/>
-      </xs:sequence>
-      <xs:sequence>
-        <xs:element  ref="nml:PortGroup"/>
-        <xs:element  ref="nml:PortGroup"/>
-      </xs:sequence>
-    </xs:choice>
+    <xs:sequence>
+      <xs:choice>
+        <xs:sequence>
+          <xs:element  ref="nml:Port"/>
+          <xs:element  ref="nml:Port"/>
+        </xs:sequence>
+        <xs:sequence>
+          <xs:element  ref="nml:PortGroup"/>
+          <xs:element  ref="nml:PortGroup"/>
+        </xs:sequence>
+      </xs:choice>
+    </xs:sequence>
   </xs:group>
 
 
   <xs:complexType name="BidirectionalPortType">
     <xs:complexContent>
       <xs:extension  base="nml:NetworkObject">
-        <xs:group  ref="nml:BaseBidirectionalPort"/>
+        <xs:sequence>
+          <xs:group  ref="nml:BaseBidirectionalPort"/>
+          <xs:any    namespace="##other"  processContents="lax" minOccurs="0"  maxOccurs="unbounded"/>
+        </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
