@@ -11,11 +11,11 @@ public class NsaMap {
     private static final HashMap<String, CartesianCoordinates> map = new HashMap<String, CartesianCoordinates>() {
         private static final long serialVersionUID = 1L;
         {
-            this.put("urn:ogf:network:southernlight.net:2013", new CartesianCoordinates(400, 50));
-            this.put("urn:ogf:network:ampath.net:2013", new CartesianCoordinates(600, 50));
+            this.put("urn:ogf:network:southernlight.net:2013:topology", new CartesianCoordinates(400, 50));
+            this.put("urn:ogf:network:ampath.net:2013:topology", new CartesianCoordinates(600, 50));
             this.put("urn:ogf:network:nordu.net:2013:topology", new CartesianCoordinates(800, 50));
             this.put("urn:ogf:network:uvalight.net:2013:topology", new CartesianCoordinates(1000, 50));
-            this.put("urn:ogf:network:surfnet.nl:1990:nsa:bod", new CartesianCoordinates(1000, 50));
+            this.put("urn:ogf:network:surfnet.nl:1990:topology:surfnet7:testbed", new CartesianCoordinates(1200, 50));
             
             this.put("urn:ogf:network:singaren.net:2013", new CartesianCoordinates(50, 550));
             this.put("urn:ogf:network:es.net:2013", new CartesianCoordinates(200, 350));            

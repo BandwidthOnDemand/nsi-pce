@@ -81,6 +81,7 @@ public class Main {
         evts.setCapacity(100L);
         evts.setDirectionality(DirectionalityType.BIDIRECTIONAL);
         evts.setSymmetricPath(Boolean.TRUE);
+        evts.setMtu(9000);
         
         // Format the source STP.
         StpType srcStp = new StpType();
@@ -91,8 +92,8 @@ public class Main {
         
         // Format the destination STP.
         StpType destStp = new StpType();
-        destStp.setLocalId("urn:ogf:network:singaren.net:2013:videohost");
-        destStp.setNetworkId("urn:ogf:network:singaren.net:2013");
+        destStp.setLocalId("urn:ogf:network:jgn-x.jp:2013:bi-ps");
+        destStp.setNetworkId("urn:ogf:network:jgn-x.jp:2013:topology");
         evts.setDestSTP(destStp);
         evts.setDestVLAN(1784);
 

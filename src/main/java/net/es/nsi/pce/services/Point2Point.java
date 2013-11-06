@@ -10,6 +10,7 @@ import java.util.Set;
 import net.es.nsi.pce.api.jaxb.DirectionalityType;
 import net.es.nsi.pce.api.jaxb.EthernetBaseType;
 import net.es.nsi.pce.api.jaxb.EthernetVlanType;
+import net.es.nsi.pce.api.jaxb.ObjectFactory;
 import net.es.nsi.pce.api.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.pf.api.cons.BurstSizeConstraint;
 import net.es.nsi.pce.pf.api.cons.CapacityConstraint;
@@ -32,8 +33,24 @@ public class Point2Point {
     public static final String MTU = "mtu";
     public static final String VLAN = "http://schemas.ogf.org/nml/2012/10/ethernet#vlan";
     
+    public static P2PServiceBaseType createType(Class<?> classType) throws ClassNotFoundException {
+        ObjectFactory factory = new ObjectFactory();
+        if (classType == P2PServiceBaseType.class) {
+            return factory.createP2PServiceBaseType();
+        }
+        else if (classType == EthernetBaseType.class) {
+            return factory.createEthernetBaseType();
+        }       
+        else if (classType == EthernetVlanType.class) {
+            return factory.createEthernetVlanType();
+        }
+        else {
+            throw new ClassNotFoundException("Specified class " + classType.getCanonicalName() + " not part of P2PService definition.");
+        }
+    }
+    
     public static Set<Constraint> getConstraints(P2PServiceBaseType service) {
-        Set<Constraint> constraints = new HashSet<Constraint>();
+        Set<Constraint> constraints = new HashSet<>();
         
         // Add requested capacity.
         CapacityConstraint capacity = new CapacityConstraint();

@@ -1,6 +1,6 @@
 {
     "urn:ogf:network:ampath.net:2013:nsa": {
-        "networkId": "urn:ogf:network:ampath.net:2013",
+        "networkId": "urn:ogf:network:ampath.net:2013:topology",
         "providerUrl": "http://nsi.ampath.net:9080/NSI/services/CS2",
         "auth": {
             "method": "NONE"
@@ -112,7 +112,7 @@
         }
     },
     "urn:ogf:network:surfnet.nl:1990:nsa:bod": {
-        "networkId": "urn:ogf:network:surfnet.nl:1990:topology:surfnet6:production",
+        "networkId": "urn:ogf:network:surfnet.nl:1990:topology:surfnet7:testbed",
         "providerUrl": "https://bod.surfnet.nl/nsi/v2/provider",
         "auth": {
             "method": "OAUTH_2",
@@ -135,7 +135,7 @@
         }
     },
     "urn:ogf:network:southernlight.net:2013:nsa": {
-        "networkId": "urn:ogf:network:southernlight.net:2013",
+        "networkId": "urn:ogf:network:southernlight.net:2013:topology",
         "providerUrl": "http://agole.ansp.br:9080/NSI/services/CS2",
         "auth": {
             "method": "NONE"
