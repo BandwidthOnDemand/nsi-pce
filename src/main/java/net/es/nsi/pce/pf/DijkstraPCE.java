@@ -110,7 +110,7 @@ public class DijkstraPCE implements PCEModule {
         }
 
         // Graph<V, E> where V is the type of the vertices and E is the type of the edges.
-        Graph<Network, Sdp> graph = new SparseMultigraph<Network, Sdp>();
+        Graph<Network, Sdp> graph = new SparseMultigraph<>();
         
         // Add Networks as verticies.
         for (Network network : topo.getNetworks()) {
@@ -122,32 +122,28 @@ public class DijkstraPCE implements PCEModule {
         for (Sdp sdp : topo.getSdps()) {
             if (sdp.getDirectionality() == Directionality.bidirectional) {
                 // If we have a VLAN restriction then filter SDP based on what is usable.
-                if (srcVlan != null) {
-                    if (sdp.getA().getVlanId() == srcVlan.intValue()) {
-                        log.debug("Adding vlan filtered bidirectional edge to graph: " + sdp.getId());
-                        graph.addEdge(sdp, sdp.getA().getNetwork(), sdp.getZ().getNetwork());                        
-                    }
-                }
-                else {
-                    log.debug("Adding bidirectional edge: " + sdp.getId());
-                    graph.addEdge(sdp, sdp.getA().getNetwork(), sdp.getZ().getNetwork());
+                if (sdp.getA().getVlanId() == srcVlan.intValue()) {
+                    log.debug("Adding vlan filtered bidirectional edge to graph: " + sdp.getId());
+                    graph.addEdge(sdp,
+                            topo.getNetworkById(sdp.getA().getNetworkId()),
+                            topo.getNetworkById(sdp.getZ().getNetworkId()));                        
                 }
             }
         }
  
         // Verify that the source and destination STP are still in our topology.
-        if (!graph.containsVertex(srcStp.getNetwork())) {
+        if (!graph.containsVertex(topo.getNetworkById(srcStp.getNetworkId()))) {
             throw new IllegalArgumentException("Source STP is not contained in topology: " + srcStp);
-        } else if (!graph.containsVertex(dstStp.getNetwork())) {
+        } else if (!graph.containsVertex(topo.getNetworkById(dstStp.getNetworkId()))) {
             throw new IllegalArgumentException("Destination STP is not contained in topology: " + dstStp);
         }
 
         @SuppressWarnings("unchecked")
-        DijkstraShortestPath<Network,Sdp> alg = new DijkstraShortestPath(graph);
+        DijkstraShortestPath<Network,Sdp> alg = new DijkstraShortestPath<>(graph);
         
         List<Sdp> path;
         try {
-            path = alg.getPath(srcStp.getNetwork(), dstStp.getNetwork());
+            path = alg.getPath(topo.getNetworkById(srcStp.getNetworkId()), topo.getNetworkById(dstStp.getNetworkId()));
         } catch (Exception ex) {
             log.error("Path computation failed", ex);
             throw ex;

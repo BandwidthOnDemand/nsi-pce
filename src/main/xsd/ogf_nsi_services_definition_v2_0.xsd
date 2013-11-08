@@ -12,48 +12,48 @@
     
     The limited permissions granted above are perpetual and will not be revoked by the OGF or its successors or assignees.
     
-    Open Grid Forum NSI Connection Services Protocol v2.0 - Service Description template definition.
+    Open Grid Forum NSI Connection Services Protocol v2.0 - Service definition template definition.
 -->
-<xsd:schema targetNamespace="http://schemas.ogf.org/nsi/2013/07/services/description"
+<xsd:schema targetNamespace="http://schemas.ogf.org/nsi/2013/07/services/definition"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:tns="http://schemas.ogf.org/nsi/2013/07/services/description">
+    xmlns:tns="http://schemas.ogf.org/nsi/2013/07/services/definition">
     
     <xsd:annotation>
         <xsd:documentation xml:lang="en">
-            This is an XML schema document describing the OGF NSI Service Description
+            This is an XML schema document describing the OGF NSI Service definition
             template.
         </xsd:documentation>
     </xsd:annotation>
     
     <!-- Element definitions for services types. -->
-    <xsd:element name="serviceDescription" type="tns:ServiceDescriptionType">
+    <xsd:element name="serviceDefinition" type="tns:ServiceDefinitionType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
-                Element for representing a Service Description XML document.
+                Element for representing a Service definition XML document.
             </xsd:documentation>
         </xsd:annotation>        
     </xsd:element>
     
     <!-- Type definitions for services types. -->
-    <xsd:complexType name="ServiceDescriptionType">
+    <xsd:complexType name="ServiceDefinitionType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
                 Type defining the structure and content of a Service
-                Description document.
+                definition document.
                 
                 Attributes:
                 
-                id - A service description must have a unique identifier within
-                the network sourcing the description.
+                id - A service definition must have a unique identifier within
+                the network sourcing the definition.
                 
                 Elements:
                 
                 comment - A comment describes the basic service offered in this
-                service description.  Any differences from the global service
-                description should be identified here.
+                service definition.  Any differences from the global service
+                definition should be identified here.
                 
                 serviceType - This is the standard service type as defined in
-                the associated global service description. We allocate a
+                the associated global service definition. We allocate a
                 standard namespace for each template so they are globally
                 unique.
                 
@@ -76,7 +76,6 @@
             <xsd:element name="comment"     type="xsd:string" minOccurs="0" />
             <xsd:element name="serviceType" type="xsd:string" />
             <xsd:element name="schema"      type="tns:SchemaType" minOccurs="1" maxOccurs="unbounded" />
-            <xsd:element name="parameter"   type="tns:ParameterType" minOccurs="0" maxOccurs="unbounded" />
             <xsd:element name="attribute"   type="tns:AttributeType" minOccurs="0" maxOccurs="unbounded" />
             <xsd:element name="error"       type="tns:ErrorType" minOccurs="0" maxOccurs="unbounded" />
             <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
@@ -111,7 +110,8 @@
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:element name="comment"  type="xsd:string" minOccurs="0" />
+            <xsd:element name="comment"   type="xsd:string" minOccurs="0" />
+            <xsd:element name="parameter" type="tns:ParameterType" minOccurs="0" maxOccurs="unbounded" />
             <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
         <xsd:attribute name="name"      type="xsd:string" use="required" />
@@ -129,7 +129,7 @@
                 restrictions.  The associated service XML schema is the
                 definitive source for and type and range definitions. If a
                 parameter of the service is not contained in this service
-                descrption then it is not supported for this profile.
+                definition then it is not supported for this profile.
                 
                 Attributes:
                 
@@ -258,7 +258,7 @@
     <xsd:simpleType name="ModifiableType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
-                Indicates when in the shedule lifecycle of a reservation a
+                Indicates when in the schedule lifecycle of a reservation a
                 parameter can be modified.  There are four enumerated values
                 for modifiable:
                 

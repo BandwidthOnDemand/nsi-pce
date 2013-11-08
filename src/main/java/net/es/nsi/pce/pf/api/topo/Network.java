@@ -39,7 +39,6 @@ public class Network extends TopologyObject {
         Stp stp = new Stp();
         stp.setLocalId(port.getPortId());
         stp.setNetworkId(getNetworkId());
-        stp.setNetwork(this);
         stp.setDirectonality(port.getDirectionality());
         stp.setVlanId(vlanId.intValue());
         return stp;

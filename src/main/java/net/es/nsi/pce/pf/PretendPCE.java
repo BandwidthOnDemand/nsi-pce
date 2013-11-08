@@ -10,6 +10,7 @@ import net.es.nsi.pce.pf.api.topo.Network;
 import net.es.nsi.pce.pf.api.topo.Stp;
 
 public class PretendPCE implements PCEModule {
+    @Override
     public PCEData apply(PCEData pceData) throws Exception {
         TopoPathEndpoints pe = null;
         for (Constraint c : pceData.getConstraints()) {
@@ -19,17 +20,15 @@ public class PretendPCE implements PCEModule {
         }
         Path path = new Path();
 
-
-
         if (pe.getSrcNetwork().equals(pe.getDstNetwork())) {
             Network srcNet = new Network();
             srcNet.setNetworkId(pe.getSrcNetwork());
             Stp a = new Stp();
             a.setLocalId(pe.getSrcLocal());
-            a.setNetwork(srcNet);
+            a.setNetworkId(srcNet.getNetworkId());
             Stp z = new Stp();
             z.setLocalId(pe.getDstLocal());
-            z.setNetwork(srcNet);
+            z.setNetworkId(srcNet.getNetworkId());
             StpPair stpPair = new StpPair();
             stpPair.setA(a);
             stpPair.setZ(z);
@@ -39,24 +38,26 @@ public class PretendPCE implements PCEModule {
         } else {
             Network srcNet = new Network();
             srcNet.setNetworkId(pe.getSrcNetwork());
+            
             Network dstNet = new Network();
             dstNet.setNetworkId(pe.getDstNetwork());
+            
             Stp a = new Stp();
             a.setLocalId(pe.getSrcLocal());
-            a.setNetwork(srcNet);
+            a.setNetworkId(srcNet.getNetworkId());
 
             Stp b = new Stp();
             b.setLocalId("pretend-B");
-            b.setNetwork(srcNet);
+            b.setNetworkId(srcNet.getNetworkId());
 
 
             Stp y = new Stp();
             y.setLocalId("pretend-Y");
-            y.setNetwork(dstNet);
+            y.setNetworkId(dstNet.getNetworkId());
 
             Stp z = new Stp();
             z.setLocalId(pe.getDstLocal());
-            z.setNetwork(dstNet);
+            z.setNetworkId(dstNet.getNetworkId());
 
             StpPair first = new StpPair();
             first.setA(a);

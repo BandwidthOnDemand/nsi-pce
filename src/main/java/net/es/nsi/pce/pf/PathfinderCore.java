@@ -101,7 +101,7 @@ public class PathfinderCore {
         // For each pair of STP we need to build a resolved path.
         for (StpPair stpPair: result.getPath().getStpPairs() ) {
             // Build the resulting STP objects for this path segment.
-            String networkId = stpPair.getA().getNetwork().getNetworkId();
+            String networkId = stpPair.getA().getNetworkId();
             StpType aStpObj = new StpType();
             aStpObj.setLocalId(stpPair.getA().getLocalId());
             aStpObj.setNetworkId(networkId);

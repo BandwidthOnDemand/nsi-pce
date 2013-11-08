@@ -9,7 +9,6 @@ import net.es.nsi.pce.config.topo.nml.Directionality;
  * @author hacksaw
  */
 public class Stp extends TopologyObject {
-    private Network network;
     private String networkId;
     private String localId;
     private Directionality directionality;
@@ -20,14 +19,6 @@ public class Stp extends TopologyObject {
 
     public String getId() {
         return localId + ":vlan=" + vlanId;
-    }
-
-    public Network getNetwork() {
-        return network;
-    }
-
-    public void setNetwork(Network network) {
-        this.network = network;
     }
 
     public String getLocalId() {
@@ -116,10 +107,10 @@ public class Stp extends TopologyObject {
         }
 
         Stp that = (Stp) other;
-        if (!this.getNetwork().equals(that.getNetwork())) {
+        if (!this.getNetworkId().equalsIgnoreCase(that.getNetworkId())) {
             return false;
         }
-        else if (!this.getLocalId().equals(that.getLocalId())) {
+        else if (!this.getLocalId().equalsIgnoreCase(that.getLocalId())) {
             return false;
         }
         

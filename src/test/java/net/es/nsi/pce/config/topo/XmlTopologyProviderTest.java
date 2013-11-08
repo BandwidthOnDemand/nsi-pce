@@ -68,7 +68,7 @@ public class XmlTopologyProviderTest {
         System.out.println("Building graph...");
         
         // Graph<V, E> where V is the type of the vertices and E is the type of the edges.
-        Graph<Network, Sdp> graph = new SparseMultigraph<Network, Sdp>();
+        Graph<Network, Sdp> graph = new SparseMultigraph<>();
         
         // Add Networks as verticies first.
         for (Network network : provider.getNetworks()) {
@@ -79,7 +79,9 @@ public class XmlTopologyProviderTest {
         // Add SDP as edges.
         for (Sdp sdp : provider.getTopology().getSdps()) {
             System.out.println("Adding Edge: " + sdp.getId());
-            graph.addEdge(sdp, sdp.getA().getNetwork(), sdp.getZ().getNetwork());
+            graph.addEdge(sdp,
+                    provider.getTopology().getNetworkById(sdp.getA().getNetworkId()),
+                    provider.getTopology().getNetworkById(sdp.getZ().getNetworkId()));
         }
         
         Network a = provider.getTopology().getNetworkById("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");

@@ -777,7 +777,9 @@ public class TopologyViewer extends JPanel {
         for (Sdp sdp : topology.getSdps()) {
             if (sdp.getDirectionality() == Directionality.bidirectional &&
                     sdp.getA().getVlanId() == vlan) {
-                tGraph.addEdge(sdp, sdp.getA().getNetwork(), sdp.getZ().getNetwork());
+                tGraph.addEdge(sdp,
+                        topology.getNetworkById(sdp.getA().getNetworkId()),
+                        topology.getNetworkById(sdp.getZ().getNetworkId()));
             }
         }
         
@@ -793,8 +795,8 @@ public class TopologyViewer extends JPanel {
         }
         
         for (Sdp sdp : path) {
-            mPred.add(sdp.getA().getNetwork());
-            mPred.add(sdp.getZ().getNetwork());
+            mPred.add(topology.getNetworkById(sdp.getA().getNetworkId()));
+            mPred.add(topology.getNetworkById(sdp.getZ().getNetworkId()));
             mEdge.add(sdp);
         }
 	}
@@ -806,7 +808,7 @@ public class TopologyViewer extends JPanel {
 	 */
 	private Graph<Network, Sdp> getGraph() {
         
-		Graph<Network, Sdp> graph = new SparseMultigraph<Network, Sdp>();
+		Graph<Network, Sdp> graph = new SparseMultigraph<>();
         
         // Add Networks as verticies.
         for (Network network : topology.getNetworks()) {
@@ -816,7 +818,9 @@ public class TopologyViewer extends JPanel {
         // Add bidirectional SDP as edges.
         for (Sdp sdp : topology.getSdps()) {
             if (sdp.getDirectionality() == Directionality.bidirectional) {
-                graph.addEdge(sdp, sdp.getA().getNetwork(), sdp.getZ().getNetwork());
+                graph.addEdge(sdp,
+                        topology.getNetworkById(sdp.getA().getNetworkId()),
+                        topology.getNetworkById(sdp.getZ().getNetworkId()));
             }
         }
         

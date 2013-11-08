@@ -63,6 +63,20 @@ public interface TopologyProvider {
     public String getConfiguration();
     
     /**
+     * Load topology from the local cache source.
+     * 
+     * @throws Exception If topology discovery fails.
+     */
+    public void loadCache() throws Exception;
+    
+    /**
+     * Saves a current copy of topology to the local cache.
+     * 
+     * @throws Exception If topology discovery fails.
+     */
+    public void saveCache() throws Exception;
+    
+    /**
      * Load topology from the defined source.  This is also invoked by the
      * PCE schedule to perform an audit.
      * 

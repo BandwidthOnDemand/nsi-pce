@@ -66,8 +66,8 @@ public class AuthPCE implements PCEModule {
 
         // Now we prune bidirectional SDP from the list that have had their networks removed.
         for (Sdp sdp : topo.getSdps()) {
-            if (newTopo.getNetworkById(sdp.getA().getNetwork().getNetworkId()) != null &&
-                    newTopo.getNetworkById(sdp.getZ().getNetwork().getNetworkId()) != null) {
+            if (newTopo.getNetworkById(sdp.getA().getNetworkId()) != null &&
+                    newTopo.getNetworkById(sdp.getZ().getNetworkId()) != null) {
                 log.trace("AuthPCE.apply: Adding SDP " + sdp.getId());
                 newTopo.addSdp(sdp);
             }

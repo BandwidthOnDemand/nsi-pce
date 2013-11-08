@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://schemas.ogf.org/nsi/2013/07/topology/types"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:sd="http://schemas.ogf.org/nsi/2013/07/services/definition"
+    xmlns:tns="http://schemas.ogf.org/nsi/2013/07/topology/types">
+    
+    <xsd:import namespace="http://schemas.ogf.org/nsi/2013/07/services/definition"
+        schemaLocation="ogf_nsi_services_definition_v2_0.xsd"/>
+    
+    <xsd:element name="stp"             type="tns:StpType" />    
+    <xsd:element name="sdp"             type="tns:SdpType" />
+    <xsd:element name="transferService" type="tns:TransferServiceType" />
+    <xsd:element name="service"         type="tns:ServiceType" />
+    <xsd:element name="network"         type="tns:NetworkType" />
+    <xsd:element name="nsa"             type="tns:NsaType" />
+    <xsd:element name="collection"      type="tns:CollectionType" />
+
+    <xsd:complexType name="CollectionType">
+        <xsd:sequence>
+            <xsd:element ref="tns:stp" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element ref="tns:sdp" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element ref="tns:transferService" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element ref="tns:service" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element ref="tns:network" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element ref="tns:nsa" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="discovered" use="required" type="xsd:dateTime" />
+        <xsd:anyAttribute namespace="##other" processContents="lax" />
+    </xsd:complexType>
+    
+    <xsd:complexType name="NsiResourceType">
+        <xsd:attribute    name="id"       type="xsd:anyURI"    use="optional"/>
+        <xsd:attribute    name="name"     type="xsd:string"    use="optional"/>
+        <xsd:attribute    name="version"  type="xsd:dateTime"  use="optional"/>
+        <xsd:attribute    name="href"     type="xsd:anyURI"    use="optional"/>
+        <xsd:anyAttribute namespace="##other" processContents="lax" />
+    </xsd:complexType>
+
+    <xsd:complexType name="StpType">
+        <xsd:complexContent>
+            <xsd:extension  base="tns:NsiResourceType">
+                <xsd:sequence>
+                    <xsd:element name="networkId"      type="xsd:anyURI" />
+                    <xsd:element name="localId"        type="xsd:anyURI" />
+                    <xsd:choice>
+                        <xsd:element name="label"      type="tns:LabelType" minOccurs="0" maxOccurs="unbounded" />
+                        <xsd:element name="labelGroup" type="tns:LabelType" minOccurs="0" maxOccurs="unbounded" />
+                    </xsd:choice>
+                    <xsd:element name="serviceType"    type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+                <xsd:attribute name="type" type="tns:StpDirectionalityType" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    
+    <xsd:complexType name="SdpType">
+        <xsd:complexContent>
+            <xsd:extension  base="tns:NsiResourceType">
+                <xsd:sequence>
+                    <xsd:element name="stpA"     type="tns:ResourceRefType" />
+                    <xsd:element name="stpZ"     type="tns:ResourceRefType" />
+                    <xsd:element name="service"  type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+                <xsd:attribute name="type" type="tns:SdpDirectionalityType" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    
+    <xsd:complexType name="TransferServiceType">
+        <xsd:complexContent>
+            <xsd:extension  base="tns:NsiResourceType">
+                <xsd:sequence>
+                    <xsd:element name="service" type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="stp"     type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    
+    <xsd:complexType name="ServiceType">
+        <xsd:complexContent>
+            <xsd:extension  base="tns:NsiResourceType">
+                <xsd:sequence>
+                    <xsd:element ref="sd:serviceDefinition" minOccurs="1" />
+                    <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+                <xsd:attribute name="type" type="xsd:anyURI" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    
+    <xsd:complexType name="NetworkType">
+        <xsd:complexContent>
+            <xsd:extension  base="tns:NsiResourceType">
+                <xsd:sequence>
+                    <xsd:element name="nsa"             type="tns:ResourceRefType" minOccurs="1" />
+                    <xsd:element name="service"         type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="stp"             type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="transferService" type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>   
+    
+    <xsd:complexType name="NsaType">
+        <xsd:complexContent>
+            <xsd:extension  base="tns:NsiResourceType">
+                <xsd:sequence>
+                    <xsd:element name="network"   type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="latitude"  type="xsd:float" minOccurs="0" />
+                    <xsd:element name="longitude" type="xsd:float" minOccurs="0" />
+                    <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>  
+    
+    <xsd:complexType name="ResourceRefType">
+        <xsd:attribute name="id"   type="xsd:anyURI" />
+        <xsd:attribute name="href" type="xsd:anyURI" />
+        <xsd:attribute name="type" type="xsd:anyURI" use="optional"/>
+    </xsd:complexType>
+    
+    <xsd:complexType name="LabelType">
+        <xsd:simpleContent>
+            <xsd:extension  base="xsd:string">
+                <xsd:attribute  name="labeltype"  type="xsd:anyURI"  use="required"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+    
+    <xsd:simpleType name="StpDirectionalityType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration  value="InboundPort"/>
+            <xsd:enumeration  value="OutboundPort"/>
+            <xsd:enumeration  value="BidirectionalPort"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="SdpDirectionalityType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration  value="Unidirectional"/>
+            <xsd:enumeration  value="Bidirectional"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+</xsd:schema>

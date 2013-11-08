@@ -12,9 +12,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author hacksaw
  */
 public class Topology {
-    private ConcurrentHashMap<String, Nsa> nsas = new ConcurrentHashMap<String, Nsa>();
-    private ConcurrentHashMap<String, Network> networks = new ConcurrentHashMap<String, Network>();
-    private ConcurrentHashMap<String, Sdp> sdpLinks = new ConcurrentHashMap<String, Sdp>();
+    private ConcurrentHashMap<String, Nsa> nsas;
+    private ConcurrentHashMap<String, Network> networks;
+    private ConcurrentHashMap<String, Sdp> sdpLinks;
+    
+    public Topology() {
+        nsas = new ConcurrentHashMap<>();
+        networks = new ConcurrentHashMap<>();
+        sdpLinks = new ConcurrentHashMap<>();        
+    }
     
     public Nsa getNsaByNetwork(Network network) {
         return nsas.get(network.getNsaId());

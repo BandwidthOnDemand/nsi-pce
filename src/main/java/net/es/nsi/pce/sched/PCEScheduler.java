@@ -1,6 +1,5 @@
 package net.es.nsi.pce.sched;
 
-
 import java.util.Date;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;

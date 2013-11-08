@@ -335,7 +335,7 @@ public class PollingTopologyProvider implements TopologyProvider {
         if (log.isDebugEnabled()) {
             date = new Date();
             log.debug("----------------------------------------------------------");
-            log.debug("DynamicTopologyProvider.loadTopology(): Starting " + dateFormat.format(date));
+            log.debug("PollingTopologyProvider.loadTopology(): Starting " + dateFormat.format(date));
         }
         
         // Load the NML topology model.
@@ -541,5 +541,15 @@ public class PollingTopologyProvider implements TopologyProvider {
      */
     public void setTopologyReaderFactory(TopologyReaderFactory topologyReaderFactory) {
         this.topologyReaderFactory = topologyReaderFactory;
+    }
+
+    @Override
+    public void loadCache() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void saveCache() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

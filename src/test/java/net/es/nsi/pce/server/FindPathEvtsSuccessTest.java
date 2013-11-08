@@ -85,17 +85,6 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
         }
     };
     
-    // GLIF 2013 video demo endpoints.
-    private final static StpTestData test5 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:282");
-          this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
-          this.setVlanA(1784);
-          this.getStpZ().setLocalId("urn:ogf:network:singaren.net:2013:videohost");
-          this.getStpZ().setNetworkId("urn:ogf:network:singaren.net:2013");
-          this.setVlanZ(1784);
-        }
-    };
-    
     // Netherligh endpoints.
     private final static StpTestData test6 = new StpTestData() {
         { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:282");
@@ -114,7 +103,6 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
             this.add(test2);
             this.add(test3);
             this.add(test4);
-            this.add(test5);
             this.add(test6);
         }
     };
