@@ -20,7 +20,7 @@ public class NsaMap {
             this.put("urn:ogf:network:es.net:2013", new CartesianCoordinates(50, 550));            
             this.put("urn:ogf:network:manlan.internet2.edu:2013:", new CartesianCoordinates(50, 350));
             this.put("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed", new CartesianCoordinates(800, 350));
-            this.put("urn:ogf:network:czechlight.cesnet.cz:2013:topology:a-gole:testbed", new CartesianCoordinates(1000, 350));
+            this.put("urn:ogf:network:czechlight.cesnet.cz:2013:topology", new CartesianCoordinates(1000, 350));
             
             this.put("urn:ogf:network:kddilabs.jp:2013:topology", new CartesianCoordinates(50, 900));
             this.put("urn:ogf:network:jgn-x.jp:2013:topology", new CartesianCoordinates(200, 750));

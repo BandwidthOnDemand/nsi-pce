@@ -126,12 +126,11 @@
             "method": "NONE"
         }
     },
-    "urn:ogf:network:czechlight.cesnet.cz:2013:nsa:bod": {
-        "networkId": "urn:ogf:network:czechlight.cesnet.cz:2013:topology:a-gole:testbed",
-        "providerUrl": "https://bod2.surfnet.nl/nsi/v2/provider",
+    "urn:ogf:network:czechlight.cesnet.cz:2013:nsa": {
+        "networkId": "urn:ogf:network:czechlight.cesnet.cz:2013:topology",
+        "providerUrl": "http://opennsa.cesnet.cz:9080/NSI/services/CS2",
         "auth": {
-            "method": "OAUTH_2",
-            "token": "44e53ca6-5b48-4503-b605-388e48085b36"
+            "method": "NONE"
         }
     },
     "urn:ogf:network:southernlight.net:2013:nsa": {

@@ -1,104 +1,53 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:NSA id="urn:ogf:network:surfnet.nl:1990:nsa:bod" version="2013-10-31T13:57:41+01:00" xmlns:ns2="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns="http://schemas.ogf.org/nml/2013/05/base#"
-    xmlns:ns3="urn:ietf:params:xml:ns:vcard-4.0">
-    <name>SURFnet7 test bed</name>
-    <Location id="urn:ogf:network:surfnet.nl:1990:nsa:bod:location">
-        <long>4.954585</long>
-        <lat>52.3567</lat>
-    </Location>
-    <ns2:Service id="urn:ogf:network:surfnet.nl:1990:nsa:bod:connection-service">
-        <ns2:link>https://bod2.surfnet.nl//nsi/v2/provider</ns2:link>
-        <ns2:type>application/vnd.org.ogf.nsi.cs.v2+soap</ns2:type>
-        <ns2:Relation type="http://schemas.ogf.org/nsi/2013/09/topology#providedBy">
-            <ns2:NSA id="urn:ogf:network:surfnet.nl:1990:nsa:bod"/>
-        </ns2:Relation>
-    </ns2:Service>
-    <ns2:Relation type="http://schemas.ogf.org/nsi/2013/09/topology#adminContact">
-        <ns3:fn>
-            <ns3:text>Hans Trompert</ns3:text>
-        </ns3:fn>
-        <ns3:n>
-            <ns3:surname>Trompert</ns3:surname>
-            <ns3:given>Hans</ns3:given>
-        </ns3:n>
-        <ns3:org>
-            <ns3:text>SURFnet, http://www.surf.nl</ns3:text>
-        </ns3:org>
-    </ns2:Relation>
-    <Topology id="urn:ogf:network:surfnet.nl:1990:topology:surfnet7:testbed">
-        <name>SURFnet7 test bed</name>
-        <BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:231">
-            <name>UNI met VLAN graag</name>
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:231:out"/>
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:231:in"/>
-        </BidirectionalPort>
-        <BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:287">
-            <name>2</name>
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:287:out"/>
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:287:in"/>
-        </BidirectionalPort>
-        <BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:290">
-            <name>1</name>
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:290:out"/>
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:290:in"/>
-        </BidirectionalPort>
-        <BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:300">
-            <name>TestPoort</name>
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:300:out"/>
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:300:in"/>
-        </BidirectionalPort>
-        <BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:00:03:18:f2:9a:30-3">
-            <name>00:03:18:f2:9a:30@1-1-1-3-1</name>
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:00:03:18:f2:9a:30-3:out"/>
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:00:03:18:f2:9a:30-3:in"/>
-        </BidirectionalPort>
-        <Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:231:out">
-                <LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">666</LabelGroup>
-            </PortGroup>
-        </Relation>
-        <Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:231:in">
-                <LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">666</LabelGroup>
-            </PortGroup>
-        </Relation>
-        <Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:287:out">
-                <LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">100</LabelGroup>
-            </PortGroup>
-        </Relation>
-        <Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:287:in">
-                <LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">100</LabelGroup>
-            </PortGroup>
-        </Relation>
-        <Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:290:out"/>
-        </Relation>
-        <Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:290:in"/>
-        </Relation>
-        <Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:300:out"/>
-        </Relation>
-        <Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:300:in"/>
-        </Relation>
-        <Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:00:03:18:f2:9a:30-3:out">
-                <LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan"/>
-                <Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <PortGroup id="urn:ogf:network:startap.net:2013:netherlight-test"/>
-                </Relation>
-            </PortGroup>
-        </Relation>
-        <Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-            <PortGroup id="urn:ogf:network:surfnet.nl:1990:port:surfnet7:testbed:00:03:18:f2:9a:30-3:in">
-                <LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan"/>
-                <Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <PortGroup id="urn:ogf:network:startap.net:2013:netherlight-startap"/>
-                </Relation>
-            </PortGroup>
-        </Relation>
-    </Topology>
-</ns2:NSA>
+<nsi:NSA xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#" id="urn:ogf:network:czechlight.cesnet.cz:2013:nsa"
+    version="2013-11-06T11:49:45.370507">
+    <nsi:Service id="urn:ogf:network:czechlight.cesnet.cz:2013:nsa-cs">
+        <nsi:link>http://opennsa.cesnet.cz:9080/NSI/services/CS2</nsi:link>
+        <nsi:type>application/vnd.org.ogf.nsi.cs.v2+soap</nsi:type>
+    </nsi:Service>
+    <nml:Topology id="urn:ogf:network:czechlight.cesnet.cz:2013:topology">
+        <nml:name>czechlight.cesnet.cz:2013</nml:name>
+        <nml:BidirectionalPort id="urn:ogf:network:czechlight.cesnet.cz:2013:brno">
+            <nml:name>brno</nml:name>
+            <nml:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:brno-in"/>
+            <nml:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:brno-out"/>
+        </nml:BidirectionalPort>
+        <nml:BidirectionalPort id="urn:ogf:network:czechlight.cesnet.cz:2013:pinger">
+            <nml:name>pinger</nml:name>
+            <nml:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:pinger-in"/>
+            <nml:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:pinger-out"/>
+        </nml:BidirectionalPort>
+        <nml:BidirectionalPort id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight">
+            <nml:name>netherlight</nml:name>
+            <nml:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight-in"/>
+            <nml:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight-out"/>
+        </nml:BidirectionalPort>
+        <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+            <nml:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:brno-in">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</nml:LabelGroup>
+            </nml:PortGroup>
+            <nml:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:pinger-in">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</nml:LabelGroup>
+            </nml:PortGroup>
+            <nml:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight-in">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</nml:LabelGroup>
+                <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                    <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:czechlight:1:out"/>
+                </nml:Relation>
+            </nml:PortGroup>
+        </nml:Relation>
+        <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+            <nml:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:brno-out">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</nml:LabelGroup>
+            </nml:PortGroup>
+            <nml:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:pinger-out">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</nml:LabelGroup>
+            </nml:PortGroup>
+            <nml:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight-out">
+                <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</nml:LabelGroup>
+                <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                    <nml:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:czechlight:1:in"/>
+                </nml:Relation>
+            </nml:PortGroup>
+        </nml:Relation>
+    </nml:Topology>
+</nsi:NSA>

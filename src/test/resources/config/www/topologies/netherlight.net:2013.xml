@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns2:NSA id="urn:ogf:network:netherlight.net:2013:nsa:bod" version="2013-11-01T13:47:46+01:00" xmlns:ns2="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns="http://schemas.ogf.org/nml/2013/05/base#"
+<ns2:NSA id="urn:ogf:network:netherlight.net:2013:nsa:bod" version="2013-11-12T21:27:48+01:00" xmlns:ns2="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns="http://schemas.ogf.org/nml/2013/05/base#"
     xmlns:ns3="urn:ietf:params:xml:ns:vcard-4.0">
     <name>NetherLight A-GOLE test bed</name>
     <Location id="urn:ogf:network:netherlight.net:2013:nsa:bod:location">
@@ -221,7 +221,7 @@
             <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:czechlight:1:out">
                 <LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</LabelGroup>
                 <Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:port:a-gole:testbed:netherlight:1:in"/>
+                    <PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight-in"/>
                 </Relation>
             </PortGroup>
         </Relation>
@@ -229,7 +229,7 @@
             <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:czechlight:1:in">
                 <LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</LabelGroup>
                 <Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                    <PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:port:a-gole:testbed:netherlight:1:out"/>
+                    <PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight-out"/>
                 </Relation>
             </PortGroup>
         </Relation>
