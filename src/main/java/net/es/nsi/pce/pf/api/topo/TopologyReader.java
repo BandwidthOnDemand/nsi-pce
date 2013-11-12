@@ -4,11 +4,10 @@
  */
 package net.es.nsi.pce.pf.api.topo;
 
-import java.util.Date;
 import java.util.Map;
 import net.es.nsi.pce.config.topo.nml.EthernetPort;
-import net.es.nsi.pce.topology.jaxb.NSAType;
-import net.es.nsi.pce.topology.jaxb.TopologyType;
+import net.es.nsi.pce.nml.jaxb.NSAType;
+import net.es.nsi.pce.nml.jaxb.TopologyType;
 
 /**
  *

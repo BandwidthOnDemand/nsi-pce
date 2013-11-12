@@ -7,7 +7,7 @@ import java.awt.event.MouseEvent;
  * A nested class to demo the GraphMouseListener finding the right vertices
  * after zoom/pan.  Not used at the moment but put in as a future hook.
  */
-class TestGraphMouseListener<Network> implements GraphMouseListener<Network> {
+class TestGraphMouseListener<NetworkVertex> implements GraphMouseListener<NetworkVertex> {
 
     /**
      * This method is fired after a successful pressed and released event.
@@ -16,7 +16,7 @@ class TestGraphMouseListener<Network> implements GraphMouseListener<Network> {
      * @param me Holds the current coordinates of the network vertex.
      */
     @Override
-    public void graphClicked(Network v, MouseEvent me) {
+    public void graphClicked(NetworkVertex v, MouseEvent me) {
         System.err.println("Vertex " + v + " was clicked at (" + me.getX() + "," + me.getY() + ")");
     }
 
@@ -27,7 +27,7 @@ class TestGraphMouseListener<Network> implements GraphMouseListener<Network> {
      * @param me Holds the current coordinates of the network vertex.
      */
     @Override
-    public void graphPressed(Network v, MouseEvent me) {
+    public void graphPressed(NetworkVertex v, MouseEvent me) {
         System.err.println("Vertex " + v + " was pressed at (" + me.getX() + "," + me.getY() + ")");
     }
 
@@ -38,7 +38,7 @@ class TestGraphMouseListener<Network> implements GraphMouseListener<Network> {
      * @param me Holds the current coordinates of the network vertex.
      */
     @Override
-    public void graphReleased(Network v, MouseEvent me) {
+    public void graphReleased(NetworkVertex v, MouseEvent me) {
         System.err.println("Vertex " + v + " was released at (" + me.getX() + "," + me.getY() + ")");
     }
     

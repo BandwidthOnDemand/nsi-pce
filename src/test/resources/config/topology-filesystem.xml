@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <top:configuration xmlns:top="http://schemas.es.net/nsi/2013/08/pce/configuration">
 	<location>config/www/topologies/</location>
 	<auditInterval>300000</auditInterval>

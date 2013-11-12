@@ -7,9 +7,8 @@ import java.io.StringReader;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.topology.jaxb.ConfigurationType;
-import net.es.nsi.pce.topology.jaxb.NSAType;
-import net.es.nsi.pce.topology.jaxb.TopologyType;
+import net.es.nsi.pce.nml.jaxb.NSAType;
+import net.es.nsi.pce.nml.jaxb.TopologyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,25 +19,23 @@ import org.slf4j.LoggerFactory;
  * 
  * @author hacksaw
  */
-public class XmlParser {
+public class NmlParser {
     // Get a logger just in case we encounter a problem.
     private final Logger log = LoggerFactory.getLogger(getClass());
     
     // The JAXB context we load pre-loading in this singleton.
     private static JAXBContext jaxbContextNSA = null;
     private static JAXBContext jaxbContextTopology = null;
-    private static JAXBContext jaxbContextTopologyConfiguration = null;
         
     /**
      * Private constructor loads the JAXB context once and prevents
      * instantiation from other classes.
      */
-    private XmlParser() {
+    private NmlParser() {
         try {
             // Load a JAXB context for the NML NSAType parser.
-            jaxbContextNSA = JAXBContext.newInstance(NSAType.class);
+            jaxbContextNSA = JAXBContext.newInstance("net.es.nsi.pce.nml.jaxb", net.es.nsi.pce.nml.jaxb.ObjectFactory.class.getClassLoader());
             jaxbContextTopology = JAXBContext.newInstance(TopologyType.class);
-            jaxbContextTopologyConfiguration = JAXBContext.newInstance(ConfigurationType.class);
         }
         catch (JAXBException jaxb) {
             log.error("NmlParser: Failed to load JAXB instance", jaxb);
@@ -50,7 +47,7 @@ public class XmlParser {
      * creation.
      */
     private static class NmlParserHolder {
-        public static final XmlParser INSTANCE = new XmlParser();
+        public static final NmlParser INSTANCE = new NmlParser();
     }
 
     /**
@@ -58,7 +55,7 @@ public class XmlParser {
      * 
      * @return An NmlParser object of the NSAType.
      */
-    public static XmlParser getInstance() {
+    public static NmlParser getInstance() {
             return NmlParserHolder.INSTANCE;
     }
     
@@ -102,7 +99,7 @@ public class XmlParser {
         StringReader reader = new StringReader(xml);
         
         @SuppressWarnings("unchecked")
-        JAXBElement<TopologyType> topologyElement = (JAXBElement<TopologyType>) jaxbContextTopology.createUnmarshaller().unmarshal(reader);
+        JAXBElement<TopologyType> topologyElement = (JAXBElement<TopologyType>) jaxbContextNSA.createUnmarshaller().unmarshal(reader);
         
         // Return the NSAType object.
         return topologyElement.getValue();
@@ -126,31 +123,9 @@ public class XmlParser {
         StringReader reader = new StringReader(xml);
         
         @SuppressWarnings("unchecked")
-        JAXBElement<NSAType> nsaElement = (JAXBElement<NSAType>) jaxbContextTopology.createUnmarshaller().unmarshal(reader);
+        JAXBElement<NSAType> nsaElement = (JAXBElement<NSAType>) jaxbContextNSA.createUnmarshaller().unmarshal(reader);
         
         // Return the NSAType object.
         return nsaElement.getValue();
-    }
-    
-    /**
-     * Parse an topology configuration file from the specified file.
-     * 
-     * @param file File containing the XML formated topology configuration.
-     * @return A JAXB compiled ConfigurationType object.
-     * @throws JAXBException If the XML contained in the file is not valid.
-     * @throws FileNotFoundException If the specified file was not found.
-     */
-    public ConfigurationType parseTopologyConfiguration(String file) throws JAXBException, FileNotFoundException {
-        // Make sure we initialized properly.
-        if (jaxbContextTopologyConfiguration == null) {
-            throw new JAXBException("NmlParser: Failed to load JAXB instance");
-        }
-        
-        // Parse the specified file.
-        @SuppressWarnings("unchecked")
-        JAXBElement<ConfigurationType> configurationElement = (JAXBElement<ConfigurationType>) jaxbContextNSA.createUnmarshaller().unmarshal(new BufferedInputStream(new FileInputStream(file)));
-        
-        // Return the NSAType object.
-        return configurationElement.getValue();
     }
 }

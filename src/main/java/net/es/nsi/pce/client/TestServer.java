@@ -2,6 +2,7 @@ package net.es.nsi.pce.client;
 
 import net.es.nsi.pce.jersey.JsonMoxyConfigurationContextResolver;
 import java.net.URI;
+import net.es.nsi.pce.api.jaxb.FindPathResponseType;
 import net.es.nsi.pce.config.http.HttpConfig;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -13,6 +14,21 @@ public enum TestServer {
     INSTANCE;
     
     private static HttpServer server = null;
+    private static FindPathResponseType findPathResponse = null;
+
+    /**
+     * @return the findPathResponse
+     */
+    public FindPathResponseType getFindPathResponse() {
+        return findPathResponse;
+    }
+
+    /**
+     * @param aFindPathResponse the findPathResponse to set
+     */
+    public void setFindPathResponse(FindPathResponseType aFindPathResponse) {
+        findPathResponse = aFindPathResponse;
+    }
     
     public void start(HttpConfig config) throws IllegalStateException {
         

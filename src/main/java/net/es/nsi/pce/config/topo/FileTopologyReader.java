@@ -1,10 +1,10 @@
 package net.es.nsi.pce.config.topo;
 
-import net.es.nsi.pce.schema.XmlParser;
+import net.es.nsi.pce.schema.NmlParser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.topology.jaxb.NSAType;
+import net.es.nsi.pce.nml.jaxb.NSAType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -79,7 +79,7 @@ public class FileTopologyReader extends NmlTopologyReader {
 
         NSAType newNsa;
         try {
-            newNsa = XmlParser.getInstance().parseNSAFromFile(ap);
+            newNsa = NmlParser.getInstance().parseNSAFromFile(ap);
             log.info("Loaded topology for NSA " + newNsa.getId());
         }
         catch (JAXBException | FileNotFoundException jaxb) {

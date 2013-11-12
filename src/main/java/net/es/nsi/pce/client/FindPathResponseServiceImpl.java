@@ -21,6 +21,7 @@ public class FindPathResponseServiceImpl implements FindPathResponseService {
     @Override
     public Response findPathResponse(FindPathResponseType response) {
         System.out.println("findPathResponse: " + response.getCorrelationId() + ", " + response.getStatus().name());
+        TestServer.INSTANCE.setFindPathResponse(response);
         return Response.ok().build();
     }
 

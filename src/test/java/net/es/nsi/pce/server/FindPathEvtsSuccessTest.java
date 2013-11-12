@@ -22,6 +22,8 @@ import net.es.nsi.pce.api.jaxb.DirectionalityType;
 import net.es.nsi.pce.api.jaxb.EthernetVlanType;
 import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
 import net.es.nsi.pce.api.jaxb.FindPathRequestType;
+import net.es.nsi.pce.api.jaxb.FindPathResponseType;
+import net.es.nsi.pce.api.jaxb.FindPathStatusType;
 import net.es.nsi.pce.api.jaxb.ReplyToType;
 import net.es.nsi.pce.jersey.RestClient;
 
@@ -32,6 +34,7 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 
@@ -85,7 +88,18 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
         }
     };
     
-    // Netherligh endpoints.
+    // Fifth test request two STP on either end of an SDP.
+    private final static StpTestData test5 = new StpTestData() {
+        { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1");
+          this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
+          this.setVlanA(1779);
+          this.getStpZ().setLocalId("urn:ogf:network:manlan.internet2.edu:2013:netherlight");
+          this.getStpZ().setNetworkId("urn:ogf:network:manlan.internet2.edu:2013:");
+          this.setVlanZ(1779);
+        }
+    };
+    
+    // Netherlight endpoints.
     private final static StpTestData test6 = new StpTestData() {
         { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:282");
           this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
@@ -103,6 +117,7 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
             this.add(test2);
             this.add(test3);
             this.add(test4);
+            this.add(test5);
             this.add(test6);
         }
     };
@@ -203,7 +218,22 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
 
         JAXBElement<FindPathRequestType> jaxbRequest = factory.createFindPathRequest(req);
 
+        // Reset our results for this run.
+        TestServer.INSTANCE.setFindPathResponse(null);
+        
         Response response = webTarget.request(mediaType).post(Entity.entity(new GenericEntity<JAXBElement<FindPathRequestType>>(jaxbRequest) {}, mediaType));
+        
         assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
+        
+        FindPathResponseType findPathResponse = TestServer.INSTANCE.getFindPathResponse();
+        int count = 0;
+        while(findPathResponse == null && count < 30) {
+            count++;
+            Thread.sleep(1000);
+        }
+        
+        assertNotNull(findPathResponse);
+        
+        assertEquals(FindPathStatusType.SUCCESS, findPathResponse.getStatus());
     }
 }

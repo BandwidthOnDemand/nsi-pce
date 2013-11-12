@@ -32,8 +32,6 @@
  
     <bean id="AuthPCE" class="net.es.nsi.pce.pf.AuthPCE" scope="singleton" />
 
-    <bean id="PretendPCE" class="net.es.nsi.pce.pf.PretendPCE" scope="singleton" />
-
     <bean id="chainPCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
         <property name="moduleList">
             <list>
@@ -46,7 +44,7 @@
     <bean id="treePCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
         <property name="moduleList">
             <list>
-                <ref bean="PretendPCE" />
+                <ref bean="DijkstraPCE" />
             </list>
         </property>
     </bean>

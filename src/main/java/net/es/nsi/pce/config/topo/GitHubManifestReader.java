@@ -1,6 +1,6 @@
 package net.es.nsi.pce.config.topo;
 
-import net.es.nsi.pce.schema.XmlParser;
+import net.es.nsi.pce.schema.NmlParser;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +14,8 @@ import javax.ws.rs.core.Response.Status;
 import javax.xml.namespace.QName;
 import net.es.nsi.pce.config.topo.nml.TopologyManifest;
 import net.es.nsi.pce.jersey.RestClient;
-import net.es.nsi.pce.topology.jaxb.NetworkObject;
-import net.es.nsi.pce.topology.jaxb.TopologyType;
+import net.es.nsi.pce.nml.jaxb.NetworkObject;
+import net.es.nsi.pce.nml.jaxb.TopologyType;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,7 +138,7 @@ public class GitHubManifestReader implements TopologyManifestReader {
         String xml = response.readEntity(String.class);
         
         // Parse the master topology. 
-        TopologyType topology = XmlParser.getInstance().parseTopologyFromString(xml);
+        TopologyType topology = NmlParser.getInstance().parseTopologyFromString(xml);
         
         // Create an internal object to hold the master list.
         TopologyManifest newManifest = new TopologyManifest();

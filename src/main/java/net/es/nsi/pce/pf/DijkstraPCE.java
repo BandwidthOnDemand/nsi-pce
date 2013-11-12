@@ -1,23 +1,21 @@
 package net.es.nsi.pce.pf;
 
+import java.util.List;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.pf.api.cons.TopoPathEndpoints;
-
-import java.util.List;
-import net.es.nsi.pce.config.topo.nml.Directionality;
-import net.es.nsi.pce.pf.api.topo.Network;
-import net.es.nsi.pce.pf.api.topo.Sdp;
-import net.es.nsi.pce.pf.api.topo.Stp;
-import net.es.nsi.pce.pf.api.topo.Topology;
-import net.es.nsi.pce.services.Point2Point;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.es.nsi.pce.pf.api.topo.NsiTopology;
+import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.topology.jaxb.SdpType;
+import net.es.nsi.pce.topology.jaxb.NetworkType;
+import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
 
 /**
  * Main path computation class using Dijkstra's shortest path on an NSI
@@ -40,68 +38,52 @@ public class DijkstraPCE implements PCEModule {
 
         // Malformed request.
         if (pe == null) {
-            throw new IllegalArgumentException("No path endpoints found.");
+            throw new IllegalArgumentException("No path endpoints found in request.");
         }
-                
-        Topology topo = pceData.getTopology();
 
-        Network srcNet = topo.getNetworkById(pe.getSrcNetwork());
-        Network dstNet = topo.getNetworkById(pe.getDstNetwork());
+        // Verify both networks in request are known in our topology.
+        NsiTopology nsiTopology = pceData.getTopology();
+        NetworkType srcNetwork = nsiTopology.getNetworkById(pe.getSrcNetwork());
+        NetworkType dstNetwork = nsiTopology.getNetworkById(pe.getDstNetwork());
 
-        if (srcNet == null) {
-            throw new IllegalArgumentException("Unknown src network " + pe.getSrcNetwork());
+        if (srcNetwork == null) {
+            throw new IllegalArgumentException("Unknown source network " + pe.getSrcNetwork());
         }
-        else if (dstNet == null) {
-            throw new IllegalArgumentException("Unknown dst network " + pe.getDstNetwork());
+        else if (dstNetwork == null) {
+            throw new IllegalArgumentException("Unknown destination network " + pe.getDstNetwork());
         }
         
-        // Build the Ethernet STP identifiers using local Id and vlan Ids.
-        String srcStpId = pe.getSrcLocal();
-        String dstStpId = pe.getDstLocal();
-        Integer srcVlan = Point2Point.getVlanLabel(pe.getSrcLabels());
-        Integer dstVlan = Point2Point.getVlanLabel(pe.getDstLabels());
-
-        // Build the internal format for STP id.
-        if (srcStpId != null && srcVlan != null) {
-            srcStpId = srcStpId + ":vlan=" + srcVlan.toString();
-        }
+        // TODO: Need to make this a generic label switching path finder!
         
-        if (dstStpId != null && dstVlan != null) {
-            dstStpId = dstStpId + ":vlan=" + dstVlan.toString();
-        }
+        // Build the STP identifiers using local Id and vlan Ids.
+        String srcStpId = nsiTopology.newStpId(pe.getSrcNetwork(), pe.getSrcLocal(), pe.getSrcLabel());
+        String dstStpId = nsiTopology.newStpId(pe.getDstNetwork(), pe.getDstLocal(), pe.getDstLabel());
         
         // Look up the STP within our model matching the request.
-        Stp srcStp = srcNet.getStp(srcStpId);
-        Stp dstStp = dstNet.getStp(dstStpId);
+        StpType srcStp = nsiTopology.getStp(srcStpId);
+        StpType dstStp = nsiTopology.getStp(dstStpId);
 
         // TODO: If we decide to allow blind routing to a network then remove
         // these tests for a null STP.
         if (srcStp == null) {
-            throw new IllegalArgumentException("Unknown source STP " + pe.getSrcLocal() + ", vlan=" + srcVlan);
+            throw new IllegalArgumentException("Unknown source STP " + srcStpId);
         }
         else if (dstStp == null) {
-            throw new IllegalArgumentException("Unknown destination STP " + pe.getDstLocal() + ", vlan=" + dstVlan);
+            throw new IllegalArgumentException("Unknown destination STP " + dstStpId);
         }
-        
-        log.debug("source STP:" + srcStp.getId());
-        log.debug("destination STP:" + dstStp.getId());
 
-        // Make sure we have matching vlans before proceeding.  This restriction
-        // can be removed later when vlan interchange is supported.
-        if (srcVlan == null || dstVlan == null) {
-            IllegalArgumentException ex = new IllegalArgumentException("Path computation failed: source and/or destination VLAN not provided");
-            log.error("Path computation failed", ex);
-            throw ex;
-        }
-        else if (srcVlan.compareTo(dstVlan) != 0) {
-            IllegalArgumentException ex = new IllegalArgumentException("Path computation failed: source and destination VLAN mismatch");
-            log.error("Path computation failed", ex);
-            throw ex;                        
+        // We currently do not support label swapping so make sure the source
+        // and destination labels match.  This restriction can be removed later
+        // when the TransferService is introdcued.
+        if (!nsiTopology.labelEquals(srcStp.getLabel(), dstStp.getLabel())) {
+            IllegalArgumentException ex = new IllegalArgumentException("Source and destination STP label mismatch");
+            log.error("Path computation failed due to label mismatch", ex);
+            throw ex;                 
         }
         
         // We can save time by handling the special case of A and Z STP in same
         // network.
-        if (srcNet.equals(dstNet)) {
+        if (srcNetwork.equals(dstNetwork)) {
             StpPair pathPair = new StpPair();
             pathPair.setA(srcStp);
             pathPair.setZ(dstStp);
@@ -110,40 +92,41 @@ public class DijkstraPCE implements PCEModule {
         }
 
         // Graph<V, E> where V is the type of the vertices and E is the type of the edges.
-        Graph<Network, Sdp> graph = new SparseMultigraph<>();
+        Graph<NetworkType, SdpType> graph = new SparseMultigraph<>();
         
         // Add Networks as verticies.
-        for (Network network : topo.getNetworks()) {
-            log.debug("Adding Vertex: " + network.getNetworkId());
+        for (NetworkType network : nsiTopology.getNetworks()) {
+            log.debug("Adding Vertex: " + network.getId());
             graph.addVertex(network);
         }        
 
         // Add bidirectional SDP as edges.
-        for (Sdp sdp : topo.getSdps()) {
-            if (sdp.getDirectionality() == Directionality.bidirectional) {
-                // If we have a VLAN restriction then filter SDP based on what is usable.
-                if (sdp.getA().getVlanId() == srcVlan.intValue()) {
-                    log.debug("Adding vlan filtered bidirectional edge to graph: " + sdp.getId());
-                    graph.addEdge(sdp,
-                            topo.getNetworkById(sdp.getA().getNetworkId()),
-                            topo.getNetworkById(sdp.getZ().getNetworkId()));                        
-                }
+        for (SdpType sdp : nsiTopology.getSdps()) {
+            if (sdp.getType() == SdpDirectionalityType.BIDIRECTIONAL) {
+                // Get the component STP of this edge.
+                StpType stpA = nsiTopology.getStp(sdp.getStpA().getId());
+                StpType stpZ = nsiTopology.getStp(sdp.getStpZ().getId());
+                
+                // Until the TransferService is supported we must filter edges
+                // to match the label of source and destination STP.
+                if (nsiTopology.labelEquals(srcStp.getLabel(), stpA.getLabel())) {
+                    graph.addEdge(sdp, nsiTopology.getNetworkById(stpA.getNetworkId()), nsiTopology.getNetworkById(stpZ.getNetworkId()));
+                }                         
             }
         }
  
         // Verify that the source and destination STP are still in our topology.
-        if (!graph.containsVertex(topo.getNetworkById(srcStp.getNetworkId()))) {
-            throw new IllegalArgumentException("Source STP is not contained in topology: " + srcStp);
-        } else if (!graph.containsVertex(topo.getNetworkById(dstStp.getNetworkId()))) {
-            throw new IllegalArgumentException("Destination STP is not contained in topology: " + dstStp);
+        if (!graph.containsVertex(nsiTopology.getNetworkById(srcStp.getNetworkId()))) {
+            throw new IllegalArgumentException("Source STP is not in computed topology: " + srcStp);
+        } else if (!graph.containsVertex(nsiTopology.getNetworkById(dstStp.getNetworkId()))) {
+            throw new IllegalArgumentException("Destination STP is not in computed topology: " + dstStp);
         }
 
-        @SuppressWarnings("unchecked")
-        DijkstraShortestPath<Network,Sdp> alg = new DijkstraShortestPath<>(graph);
+        DijkstraShortestPath<NetworkType, SdpType> alg = new DijkstraShortestPath<>(graph);
         
-        List<Sdp> path;
+        List<SdpType> path;
         try {
-            path = alg.getPath(topo.getNetworkById(srcStp.getNetworkId()), topo.getNetworkById(dstStp.getNetworkId()));
+            path = alg.getPath(nsiTopology.getNetworkById(srcStp.getNetworkId()), nsiTopology.getNetworkById(dstStp.getNetworkId()));
         } catch (Exception ex) {
             log.error("Path computation failed", ex);
             throw ex;
@@ -153,23 +136,27 @@ public class DijkstraPCE implements PCEModule {
         
         // Check to see if there is a valid path.
         if (path.isEmpty()) {
-            throw new Exception("No path found.");
+            throw new Exception("No path found using provided criteria");
         }
         
+        // Now we pull the individual edge segments out of the result and
+        // determine the component STPs.
         int i = 0;
         StpPair pathPair = new StpPair();
         pathPair.setA(srcStp);
-        for (Sdp edge: path) {
+        for (SdpType edge: path) {
             log.debug("--- Edge: " + edge.getId());
             StpPair nextPathPair = new StpPair();
-            
-            if (pathPair.getA().getNetworkId().equalsIgnoreCase(edge.getA().getNetworkId())) {
-                pathPair.setZ(edge.getA());
-                nextPathPair.setA(edge.getZ());
+            StpType stpA = nsiTopology.getStp(edge.getStpA().getId());
+            StpType stpZ = nsiTopology.getStp(edge.getStpZ().getId());
+                    
+            if (pathPair.getA().getNetworkId().equalsIgnoreCase(stpA.getNetworkId())) {
+                pathPair.setZ(stpA);
+                nextPathPair.setA(stpZ);
             }
             else {
-                pathPair.setZ(edge.getZ());
-                nextPathPair.setA(edge.getA());
+                pathPair.setZ(stpZ);
+                nextPathPair.setA(stpA);
             }
 
             pceData.getPath().getStpPairs().add(i, pathPair);
@@ -180,7 +167,7 @@ public class DijkstraPCE implements PCEModule {
         pceData.getPath().getStpPairs().add(i, pathPair);
 
         for (StpPair pair : pceData.getPath().getStpPairs()) {
-            log.debug("Pair: " + pair.getA() + " -- " + pair.getZ());
+            log.debug("Pair: " + pair.getA().getId() + " -- " + pair.getZ().getId());
         }
         return pceData;
     }

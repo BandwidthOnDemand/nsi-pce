@@ -1,6 +1,6 @@
 package net.es.nsi.pce.pf.api;
 
-import net.es.nsi.pce.pf.api.topo.Stp;
+import net.es.nsi.pce.topology.jaxb.StpType;
 
 /**
  * Defines a pair of STP (A and Z end) used in the PCE path composition.
@@ -8,12 +8,12 @@ import net.es.nsi.pce.pf.api.topo.Stp;
  * @author hacksaw
  */
 public class StpPair implements Cloneable {
-    private Stp a;
-    private Stp z;
+    private StpType a;
+    private StpType z;
 
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (! (other instanceof Stp) ) return false;
+        if (! (other instanceof StpType) ) return false;
 
         StpPair that = (StpPair) other;
         return (
@@ -23,24 +23,26 @@ public class StpPair implements Cloneable {
     }
 
 
-    public Stp getA() {
+    public StpType getA() {
         return a;
     }
 
-    public void setA(Stp a) {
+    public void setA(StpType a) {
         this.a = a;
     }
 
-    public Stp getZ() {
+    public StpType getZ() {
         return z;
     }
 
-    public void setZ(Stp z) {
+    public void setZ(StpType z) {
         this.z = z;
     }
+    @Override
     public String toString() {
-        return a.toString()+ " -- "+z.toString();
+        return a.toString() + " -- " + z.toString();
     }
+    @Override
     public StpPair clone() {
         StpPair foo = new StpPair();
         foo.setA(a);

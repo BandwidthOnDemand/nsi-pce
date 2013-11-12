@@ -19,7 +19,7 @@ import net.es.nsi.pce.pf.api.cons.DirectionalityConstraint;
 import net.es.nsi.pce.pf.api.cons.MtuConstraint;
 import net.es.nsi.pce.pf.api.cons.SymmetricPathConstraint;
 import net.es.nsi.pce.pf.api.cons.TopoPathEndpoints;
-import net.es.nsi.pce.topology.jaxb.LabelType;
+import net.es.nsi.pce.nml.jaxb.LabelType;
 
 /**
  *
@@ -110,12 +110,12 @@ public class Point2Point {
             LabelType srcLabel = new LabelType();
             srcLabel.setLabeltype(VLAN);
             srcLabel.setValue(Integer.toString(evts.getSourceVLAN()));
-            pe.getSrcLabels().add(srcLabel);
+            pe.setSrcLabel(srcLabel);
             
             LabelType dstLabel = new LabelType();
             dstLabel.setLabeltype(VLAN);
             dstLabel.setValue(Integer.toString(evts.getDestVLAN()));
-            pe.getDstLabels().add(dstLabel);
+            pe.setDstLabel(dstLabel);
         }
         
         constraints.add(pe);

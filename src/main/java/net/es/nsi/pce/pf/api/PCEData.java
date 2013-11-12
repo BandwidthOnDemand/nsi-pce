@@ -1,7 +1,7 @@
 package net.es.nsi.pce.pf.api;
 
 import net.es.nsi.pce.pf.api.cons.Constraint;
-import net.es.nsi.pce.pf.api.topo.Topology;
+import net.es.nsi.pce.pf.api.topo.NsiTopology;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +24,7 @@ import java.util.Set;
 public class PCEData {
     private Path path = new Path();
     private Set<Constraint> constraints = new HashSet<Constraint>();
-    private Topology topology = new Topology();
+    private NsiTopology topology = new NsiTopology();
 
     public Path getPath() {
         return path;
@@ -38,11 +38,11 @@ public class PCEData {
         return constraints;
     }
 
-    public Topology getTopology() {
+    public NsiTopology getTopology() {
         return topology;
     }
 
-    public void setTopology(Topology topology) {
+    public void setTopology(NsiTopology topology) {
         this.topology = topology;
     }
 }

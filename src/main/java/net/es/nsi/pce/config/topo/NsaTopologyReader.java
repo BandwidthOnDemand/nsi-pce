@@ -1,6 +1,6 @@
 package net.es.nsi.pce.config.topo;
 
-import net.es.nsi.pce.schema.XmlParser;
+import net.es.nsi.pce.schema.NmlParser;
 import java.util.Date;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
@@ -9,7 +9,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.es.nsi.pce.jersey.RestClient;
-import net.es.nsi.pce.topology.jaxb.NSAType;
+import net.es.nsi.pce.nml.jaxb.NSAType;
 import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
@@ -84,7 +84,7 @@ public class NsaTopologyReader extends NmlTopologyReader {
         log.debug("readNsaTopology: input message " + xml);
         
         // Parse the NSA topology. 
-        NSAType topology = XmlParser.getInstance().parseNsaFromString(xml);
+        NSAType topology = NmlParser.getInstance().parseNsaFromString(xml);
         
         // We shoudl never get this - an exception should be thrown.
         if (topology == null) {

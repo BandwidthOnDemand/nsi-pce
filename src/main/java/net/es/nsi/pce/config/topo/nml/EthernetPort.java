@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class EthernetPort extends Port {
     private final static String VLAN_LABEL = "http://schemas.ogf.org/nml/2012/10/ethernet#vlan";
     
-    private Set<Integer> vlans = new LinkedHashSet<Integer>();
+    private Set<Integer> vlans = new LinkedHashSet<>();
 
     /**
      * @return the vlans

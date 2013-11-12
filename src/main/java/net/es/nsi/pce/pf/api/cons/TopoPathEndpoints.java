@@ -1,7 +1,7 @@
 package net.es.nsi.pce.pf.api.cons;
 
 import java.util.ArrayList;
-import net.es.nsi.pce.topology.jaxb.LabelType;
+import net.es.nsi.pce.nml.jaxb.LabelType;
 
 /**
  * Defines a PCEData constraint for source and destination STP for the path.
@@ -11,11 +11,11 @@ import net.es.nsi.pce.topology.jaxb.LabelType;
 public class TopoPathEndpoints extends TopoConstraint {
     private String srcLocal;
     private String srcNetwork;
-    private ArrayList<LabelType> srcLabels = new ArrayList<LabelType>();
+    private LabelType srcLabel;
     
     private String dstLocal;
     private String dstNetwork;
-    private ArrayList<LabelType> dstLabels = new ArrayList<LabelType>();
+    private LabelType dstLabel;
     
     public String getSrcLocal() {
         return srcLocal;
@@ -50,30 +50,30 @@ public class TopoPathEndpoints extends TopoConstraint {
     }
 
     /**
-     * @return the srcLabels
+     * @return the srcLabel
      */
-    public ArrayList<LabelType> getSrcLabels() {
-        return srcLabels;
+    public LabelType getSrcLabel() {
+        return srcLabel;
     }
 
     /**
-     * @param srcLabels the srcLabels to set
+     * @param srcLabel the srcLabels to set
      */
-    public void setSrcLabels(ArrayList<LabelType> srcLabels) {
-        this.srcLabels = srcLabels;
+    public void setSrcLabel(LabelType srcLabel) {
+        this.srcLabel = srcLabel;
     }
 
     /**
-     * @return the dstLabels
+     * @return the dstLabel
      */
-    public ArrayList<LabelType> getDstLabels() {
-        return dstLabels;
+    public LabelType getDstLabel() {
+        return dstLabel;
     }
 
     /**
      * @param dstLabels the dstLabels to set
      */
-    public void setDstLabels(ArrayList<LabelType> dstLabels) {
-        this.dstLabels = dstLabels;
+    public void setDstLabel(LabelType dstLabel) {
+        this.dstLabel = dstLabel;
     }
 }

@@ -7,12 +7,18 @@ import net.es.nsi.pce.config.nsa.auth.AuthCredential;
 import net.es.nsi.pce.config.nsa.auth.AuthProvider;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
-import net.es.nsi.pce.pf.api.topo.Topology;
+import net.es.nsi.pce.pf.api.topo.NsiTopology;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
 import net.es.nsi.pce.api.jaxb.AuthMethodType;
-import net.es.nsi.pce.pf.api.topo.Sdp;
+import net.es.nsi.pce.topology.jaxb.NetworkType;
+import net.es.nsi.pce.topology.jaxb.NsaType;
+import net.es.nsi.pce.topology.jaxb.ResourceRefType;
+import net.es.nsi.pce.topology.jaxb.SdpType;
+import net.es.nsi.pce.topology.jaxb.ServiceType;
+import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.topology.jaxb.TransferServiceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,53 +34,105 @@ public class AuthPCE implements PCEModule {
     
     @Override
     public PCEData apply(PCEData pceData) throws Exception {
-        log.trace("AuthPCE.apply: Starting ...");
+        log.debug("AuthPCE.apply: Starting ...");
         
+        // Get the Spring context and the required providers.
         SpringContext sc  = SpringContext.getInstance();
         ApplicationContext context = sc.getContext();
         AuthProvider ap = (AuthProvider) context.getBean("authProvider");
         ServiceInfoProvider sip = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
 
-        Topology topo = pceData.getTopology();
-        Topology newTopo = new Topology();
-        for (String networkId : topo.getNetworkIds()) {
-            ServiceInfo si = sip.byNetworkId(networkId);
+        // Get the current topology which we will filter into our new topology.
+        NsiTopology topology = pceData.getTopology();
+        NsiTopology newTopology = new NsiTopology();
+        
+        // Check to see if we have credentials for communicating directly with
+        // the target network.
+        
+        // TODO: When we support control plane peering topology this pruning
+        // will not be required.
+        for (String nsaId : topology.getNsaIds()) {
+            ServiceInfo si = sip.byNsaId(nsaId);
             if (si == null) {
-                log.error("AuthPCE.apply: Could not find service info for network id " + networkId + ", not including it in topology.");
+                log.error("AuthPCE.apply: Could not find service info for NSA Id " + nsaId + ", not including it in topology.");
             } else {
-                String nsaId = si.getNsaId();
-                
-                log.trace("AuthPCE.apply: networkId = " + networkId + ", nsaId = " + nsaId);
-                
                 AuthMethodType method = ap.getMethod(nsaId);
                 Map<AuthCredential, String> credentials = ap.getCredentials(nsaId);
 
+                // Discard the network if we do not have a credentials entry.
                 if (method == null) {
-                    log.error("AuthPCE.apply: No auth method known for networkId " + networkId + ", not including it in topology.");
-
-                } else if (method.equals(AuthMethodType.NONE)) {
-                    newTopo.addNetwork(topo.getNetworkById(networkId));
-                } else {
-                    if (credentials == null || credentials.isEmpty()) {
-                        log.error("AuthPCE.apply: No credentials for networkId " + networkId + ", not including it in topology");
-                    } else {
-                        newTopo.addNetwork(topo.getNetworkById(networkId));
-                    }
+                    log.error("AuthPCE.apply: No auth method known for NSA Id " + nsaId + ", not including it in topology.");
                 }
-            }
+                else if (method.equals(AuthMethodType.NONE)) {
+                    log.debug("AuthPCE.apply: Adding nsaId = " + nsaId);
+                    newTopology.addNsa(topology.getNsa(nsaId));
+                }
+                else if (credentials == null || credentials.isEmpty()) {
+                    log.error("AuthPCE.apply: No credentials for NSA Id " + nsaId + ", not including it in topology");
+                }
+                else {
+                    log.debug("AuthPCE.apply: Adding nsaId = " + nsaId);
+                    newTopology.addNsa(topology.getNsa(nsaId));
+                }             
+            }           
         }
-
-        // Now we prune bidirectional SDP from the list that have had their networks removed.
-        for (Sdp sdp : topo.getSdps()) {
-            if (newTopo.getNetworkById(sdp.getA().getNetworkId()) != null &&
-                    newTopo.getNetworkById(sdp.getZ().getNetworkId()) != null) {
-                log.trace("AuthPCE.apply: Adding SDP " + sdp.getId());
-                newTopo.addSdp(sdp);
+        
+        // Now we need to copy the associated networks to the new topology.
+        for (NsaType nsa : newTopology.getNsas()) {
+            for (ResourceRefType networkRef : nsa.getNetwork()) {
+                NetworkType network = topology.getNetworkById(networkRef.getId());
+                if (network != null) {
+                    //log.debug("AuthPCE.apply: Adding Network " + network.getId());
+                    newTopology.addNetwork(network);
+                    
+                    // Now the STPs associated with this network.
+                    for (ResourceRefType stpRef : network.getStp()) {
+                        StpType stp = topology.getStp(stpRef.getId());
+                        if (stp != null) {
+                            //log.debug("AuthPCE.apply: Adding STP " + stp.getId());
+                            newTopology.addStp(stp);
+                        }
+                    }
+                    
+                    // The transfer services.
+                    for (ResourceRefType tsRef : network.getTransferService()) {
+                        TransferServiceType ts = topology.getTransferService(tsRef.getId());
+                        if (ts != null) {
+                            //log.debug("AuthPCE.apply: Adding TransferService " + ts.getId());
+                            newTopology.addTransferService(ts);
+                        }
+                    }
+                    
+                    // The services.
+                    for (ResourceRefType serviceRef : network.getService()) {
+                        ServiceType service = topology.getService(serviceRef.getId());
+                        if (service != null) {
+                            //log.debug("AuthPCE.apply: Adding Service " + service.getId());
+                            newTopology.addService(service);
+                        }
+                    }                    
+                }
+            }            
+        }
+        
+        // Now we prune bidirectional SDP from the list that have had their
+        // networks removed.
+        for (SdpType sdp : topology.getSdps()) {
+            StpType stpA = topology.getStp(sdp.getStpA().getId());
+            StpType stpZ = topology.getStp(sdp.getStpZ().getId());
+            
+            if (newTopology.getNetworkById(stpA.getNetworkId()) != null &&
+                    newTopology.getNetworkById(stpZ.getNetworkId()) != null) {
+                //log.debug("AuthPCE.apply: Adding SDP " + sdp.getId());
+                newTopology.addSdp(sdp);
             }
         }
         
         PCEData result = pceData;
-        result.setTopology(newTopo);
+        result.setTopology(newTopology);
+        
+        log.debug("AuthPCE.apply: ... Finished.");
+        
         return result;
     }
 }

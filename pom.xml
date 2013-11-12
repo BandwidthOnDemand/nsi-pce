@@ -209,14 +209,14 @@
                     </configuration>
                   </execution>
                   <execution>
-                    <id>service.description</id>
+                    <id>topology</id>
                     <goals>
                         <goal>xjc</goal>
                     </goals>
                     <configuration>
                         <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
                         <schemaFiles>ogf_nsi_services_definition_v2_0.xsd, nsi-topology.xsd</schemaFiles>
-                        <packageName>net.es.nsi.pce.sd.jaxb</packageName>
+                        <packageName>net.es.nsi.pce.topology.jaxb</packageName>
                         <staleFile>${project.build.directory}/jaxb2/.sdXjcStaleFlag</staleFile>
                         <clearOutputDir>false</clearOutputDir>
                     </configuration>
@@ -228,9 +228,22 @@
                     </goals>
                     <configuration>
                         <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
-                        <schemaFiles>nmlbase.xsd, nsi-ext.xsd, topology-discovery-configuration.xsd</schemaFiles>
-                        <packageName>net.es.nsi.pce.topology.jaxb</packageName>
+                        <schemaFiles>nmlbase.xsd, nsi-ext.xsd</schemaFiles>
+                        <packageName>net.es.nsi.pce.nml.jaxb</packageName>
                         <staleFile>${project.build.directory}/jaxb2/.nmlXjcStaleFlag</staleFile>
+                        <clearOutputDir>false</clearOutputDir>
+                    </configuration>
+                  </execution>
+                  <execution>
+                    <id>config</id>
+                    <goals>
+                        <goal>xjc</goal>
+                    </goals>
+                    <configuration>
+                        <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
+                        <schemaFiles>topology-discovery-configuration.xsd</schemaFiles>
+                        <packageName>net.es.nsi.pce.config.jaxb</packageName>
+                        <staleFile>${project.build.directory}/jaxb2/.configXjcStaleFlag</staleFile>
                         <clearOutputDir>false</clearOutputDir>
                     </configuration>
                   </execution>

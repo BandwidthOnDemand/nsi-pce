@@ -141,12 +141,11 @@
             "method": "NONE"
         }
     },
-    "urn:ogf:network:urn:ogf:network:sinet.ac.jp:2013:nsa": {
+    "urn:ogf:network:sinet.ac.jp:2013:nsa": {
         "networkId": "urn:ogf:network:sinet.ac.jp:2013:topology",
         "providerUrl": "http://150.100.12.124:9090/sinet_upa/services/connectionprovider",
         "auth": {
             "method": "NONE"
         }
     }
-
 }

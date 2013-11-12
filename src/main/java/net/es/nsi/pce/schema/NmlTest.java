@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
-import net.es.nsi.pce.topology.jaxb.NetworkObject;
-import net.es.nsi.pce.topology.jaxb.TopologyType;
+import net.es.nsi.pce.nml.jaxb.NetworkObject;
+import net.es.nsi.pce.nml.jaxb.TopologyType;
 
 /**
  *

@@ -21,6 +21,7 @@ import net.es.nsi.pce.api.jaxb.DirectionalityType;
 import net.es.nsi.pce.api.jaxb.EthernetVlanType;
 import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
 import net.es.nsi.pce.api.jaxb.FindPathRequestType;
+import net.es.nsi.pce.api.jaxb.FindPathResponseType;
 import net.es.nsi.pce.api.jaxb.ObjectFactory;
 import net.es.nsi.pce.api.jaxb.ReplyToType;
 import net.es.nsi.pce.api.jaxb.StpType;
@@ -104,5 +105,19 @@ public class Main {
         WebTarget webTarget = client.target("http://localhost:8400/paths/find");
         response = webTarget.request(MediaType.APPLICATION_JSON).post(Entity.json(new GenericEntity<JAXBElement<FindPathRequestType>>(jaxbRequest) {}));
         System.out.println("Post result " + response.getStatus());
+        
+        FindPathResponseType findPathResponse = TestServer.INSTANCE.getFindPathResponse();
+        int count = 0;
+        while(findPathResponse == null && count < 30) {
+            count++;
+            Thread.sleep(1000);
+        }
+        
+        if (findPathResponse != null) {
+            System.out.println("FindPath Result: " + findPathResponse.getStatus().value());
+        }
+        else {
+            System.err.println("Failed to get result");
+        }
     }
 }

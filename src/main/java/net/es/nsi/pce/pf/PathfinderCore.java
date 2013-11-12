@@ -35,7 +35,7 @@ public class PathfinderCore {
     private ApplicationContext context = null;
     private ServiceInfoProvider sip = null;
     private AuthProvider ap = null;
-    private TopologyProvider tp = null;
+    private TopologyProvider topologyProvider = null;
     
     /**
      * Default constructor for this class.  Performs lookups on the Spring
@@ -49,7 +49,7 @@ public class PathfinderCore {
         context = sc.getContext();
         sip = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
         ap = (AuthProvider) context.getBean("authProvider");
-        tp = (TopologyProvider) context.getBean("topologyProvider");       
+        topologyProvider = (TopologyProvider) context.getBean("topologyProvider");       
     }
     
     /**
@@ -72,8 +72,8 @@ public class PathfinderCore {
         
         pceData.getConstraints().addAll(Point2Point.getConstraints(p2ps));
 
-        pceData.setTopology(tp.getTopology());
-
+        pceData.setTopology(topologyProvider.getTopology());
+      
         PCEModule pce;
         if (algorithm == null) {
             pce = (PCEModule) context.getBean("chainPCE");

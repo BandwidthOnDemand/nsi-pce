@@ -22,6 +22,8 @@ import net.es.nsi.pce.api.jaxb.DirectionalityType;
 import net.es.nsi.pce.api.jaxb.EthernetVlanType;
 import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
 import net.es.nsi.pce.api.jaxb.FindPathRequestType;
+import net.es.nsi.pce.api.jaxb.FindPathResponseType;
+import net.es.nsi.pce.api.jaxb.FindPathStatusType;
 import net.es.nsi.pce.api.jaxb.ReplyToType;
 import net.es.nsi.pce.jersey.RestClient;
 
@@ -32,6 +34,7 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 
@@ -78,7 +81,7 @@ public class FindPathEvtsFailedTest extends JerseyTest {
         }
     };
 
-    // Fourth test request with unidirectional STP.
+    // Fourth test requests a unidirectional STP.
     private final static StpTestData test4 = new StpTestData() {
         { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1");
           this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
@@ -89,14 +92,14 @@ public class FindPathEvtsFailedTest extends JerseyTest {
         }
     };
 
-    // Fith test request two STP on either end of an SDP.
+    // Fifth test request a path with unknown STP.
     private final static StpTestData test5 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1");
-          this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
-          this.setVlanA(1779);
-          this.getStpZ().setLocalId("urn:ogf:network:manlan.internet2.edu:2013:netherlight");
-          this.getStpZ().setNetworkId("urn:ogf:network:manlan.internet2.edu:2013:");
-          this.setVlanZ(1779);
+        { this.getStpA().setLocalId("urn:ogf:network:aist.go.jp:2013:bi-ps");
+          this.getStpA().setNetworkId("urn:ogf:network:aist.go.jp:2013:topology");
+          this.setVlanA(1780);
+          this.getStpZ().setLocalId("urn:ogf:network:pionier.net.pl:2013:bi-ps-999");
+          this.getStpZ().setNetworkId("urn:ogf:network:pionier.net.pl:2013:topology");
+          this.setVlanZ(1780);
         }
     };
     
@@ -140,32 +143,32 @@ public class FindPathEvtsFailedTest extends JerseyTest {
     @Test
     public void testXmlFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testSuccessfulPath(MediaType.APPLICATION_XML, test);
+            testPCE(MediaType.APPLICATION_XML, test);
         }
     }
     
     @Test
     public void testJsonFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testSuccessfulPath(MediaType.APPLICATION_JSON, test);
+            testPCE(MediaType.APPLICATION_JSON, test);
         }
     }
     
     @Test
     public void testVersionedXmlFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testSuccessfulPath("application/vnd.net.es.pce.v1+xml", test);
+            testPCE("application/vnd.net.es.pce.v1+xml", test);
         }
     }
 
     @Test
     public void testVersionedJsonFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testSuccessfulPath("application/vnd.net.es.pce.v1+json", test);
+            testPCE("application/vnd.net.es.pce.v1+json", test);
         }
     }
         
-    public void testSuccessfulPath(String mediaType, StpTestData test) throws Exception {
+    public void testPCE(String mediaType, StpTestData test) throws Exception {
         final WebTarget webTarget = target().path("paths/find");
         
         // Fill in our valid path request.
@@ -208,7 +211,22 @@ public class FindPathEvtsFailedTest extends JerseyTest {
 
         JAXBElement<FindPathRequestType> jaxbRequest = factory.createFindPathRequest(req);
 
+        // Reset our results for this run.
+        TestServer.INSTANCE.setFindPathResponse(null);
+        
         Response response = webTarget.request(mediaType).post(Entity.entity(new GenericEntity<JAXBElement<FindPathRequestType>>(jaxbRequest) {}, mediaType));
+        
         assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
+        
+        FindPathResponseType findPathResponse = TestServer.INSTANCE.getFindPathResponse();
+        int count = 0;
+        while(findPathResponse == null && count < 30) {
+            count++;
+            Thread.sleep(1000);
+        }
+        
+        assertNotNull(findPathResponse);
+        
+        assertEquals(FindPathStatusType.FAILED, findPathResponse.getStatus());        
     }
 }

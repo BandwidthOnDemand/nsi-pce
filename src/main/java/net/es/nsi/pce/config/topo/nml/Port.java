@@ -2,8 +2,8 @@ package net.es.nsi.pce.config.topo.nml;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.es.nsi.pce.topology.jaxb.LabelGroupType;
-import net.es.nsi.pce.topology.jaxb.LabelType;
+import net.es.nsi.pce.nml.jaxb.LabelGroupType;
+import net.es.nsi.pce.nml.jaxb.LabelType;
 
 /**
  * This class models an NML port object.

@@ -44,7 +44,7 @@
                     <xsd:element name="networkId"      type="xsd:anyURI" />
                     <xsd:element name="localId"        type="xsd:anyURI" />
                     <xsd:choice>
-                        <xsd:element name="label"      type="tns:LabelType" minOccurs="0" maxOccurs="unbounded" />
+                        <xsd:element name="label"      type="tns:LabelType" minOccurs="0" maxOccurs="1" />
                         <xsd:element name="labelGroup" type="tns:LabelType" minOccurs="0" maxOccurs="unbounded" />
                     </xsd:choice>
                     <xsd:element name="serviceType"    type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
@@ -61,7 +61,6 @@
                 <xsd:sequence>
                     <xsd:element name="stpA"     type="tns:ResourceRefType" />
                     <xsd:element name="stpZ"     type="tns:ResourceRefType" />
-                    <xsd:element name="service"  type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:sequence>
                 <xsd:attribute name="type" type="tns:SdpDirectionalityType" use="required"/>
@@ -73,6 +72,7 @@
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
                 <xsd:sequence>
+                    <xsd:element name="network" type="tns:ResourceRefType" minOccurs="1" />
                     <xsd:element name="service" type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
                     <xsd:element name="stp"     type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
@@ -85,6 +85,7 @@
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
                 <xsd:sequence>
+                    <xsd:element name="network" type="tns:ResourceRefType" minOccurs="1" />
                     <xsd:element ref="sd:serviceDefinition" minOccurs="1" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:sequence>
@@ -139,6 +140,7 @@
             <xsd:enumeration  value="InboundPort"/>
             <xsd:enumeration  value="OutboundPort"/>
             <xsd:enumeration  value="BidirectionalPort"/>
+            <xsd:enumeration  value="Undefined"/>
         </xsd:restriction>
     </xsd:simpleType>
 
@@ -146,6 +148,7 @@
         <xsd:restriction base="xsd:string">
             <xsd:enumeration  value="Unidirectional"/>
             <xsd:enumeration  value="Bidirectional"/>
+            <xsd:enumeration  value="Undefined"/>
         </xsd:restriction>
     </xsd:simpleType>
 </xsd:schema>

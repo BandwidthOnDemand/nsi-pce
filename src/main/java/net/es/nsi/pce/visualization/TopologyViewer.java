@@ -46,6 +46,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
@@ -53,15 +54,20 @@ import javax.swing.JButton;
 import javax.swing.JMenuBar;
 import javax.swing.JRadioButton;
 import net.es.nsi.pce.config.SpringContext;
-import net.es.nsi.pce.config.topo.nml.Directionality;
-import net.es.nsi.pce.pf.api.topo.Network;
-import net.es.nsi.pce.pf.api.topo.Sdp;
-import net.es.nsi.pce.pf.api.topo.Stp;
-import net.es.nsi.pce.pf.api.topo.Topology;
 import net.es.nsi.pce.pf.api.topo.TopologyProvider;
 import org.apache.commons.collections15.functors.ChainedTransformer;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.springframework.context.ApplicationContext;
+
+
+import net.es.nsi.pce.pf.api.topo.NsiTopology;
+import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.topology.jaxb.SdpType;
+import net.es.nsi.pce.topology.jaxb.NetworkType;
+import net.es.nsi.pce.topology.jaxb.ResourceRefType;
+import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple NSI/NML topology viewer with shortest path computation.
@@ -70,15 +76,18 @@ import org.springframework.context.ApplicationContext;
  */
 public class TopologyViewer extends JPanel {
 	private static final long serialVersionUID = 7526217664458188502L;
+    
+    private final Logger log;
+    
 
     // VLAN menu pull down default.
     private static final String UNSET = "unset";
     
 	//Starting vertex as specified in pull down selector.
-	private Network mSourceNetwork;
+	private NetworkVertex mSourceNetwork;
 
 	//Ending vertex as specified in pull down selector.
-	private Network mDestinationNetwork;
+	private NetworkVertex mDestinationNetwork;
     
     // VLAN id for path finding as specified in pull down selector.
     private int mVlanId = -1;
@@ -89,17 +98,19 @@ public class TopologyViewer extends JPanel {
     // Destination STP in the context of mTo network.
     private String mDestinationSTP = null;
     
+    private HashMap<String, NetworkVertex> networkVerticies;
+            
     // The Graph model displayed.
-	private Graph<Network,Sdp> mGraph;
+	private Graph<NetworkVertex, SdpType> mGraph;
     
     // The list of verticies computed to be on the shortest path.
-	private Set<Network> mPred = new HashSet<Network>();
+	private Set<NetworkVertex> mPred = new HashSet<>();
     
     // The list of edges computed to be on the shortest path.
-    private Set<Sdp> mEdge = new HashSet<Sdp>();
+    private Set<SdpType> mEdge = new HashSet<>();
     
     // The NSI topology used to build the graph.
-	private Topology topology;
+	private NsiTopology nsiTopology;
     
     private ScalingControl scaler = new CrossoverScalingControl();
 
@@ -113,11 +124,13 @@ public class TopologyViewer extends JPanel {
     @SuppressWarnings("unchecked")
 	public TopologyViewer(String configDir) throws Exception {
         // Configure path to log4j configuration.
-        String log4jConfig = new StringBuilder(configDir).append("log4j.xml").toString().replace("/", File.separator);
+        String log4jConfig = new StringBuilder(configDir).append("log4j-viewer.xml").toString().replace("/", File.separator);
         String beanConfig = new StringBuilder(configDir).append("beans.xml").toString().replace("/", File.separator);
         
         // Load and watch the log4j configuration file for changes.
         DOMConfigurator.configureAndWatch(log4jConfig, 45 * 1000);
+        
+        log = LoggerFactory.getLogger(getClass());
         
         // Get a reference to the topology provider through spring.
         SpringContext sc = SpringContext.getInstance();
@@ -129,17 +142,24 @@ public class TopologyViewer extends JPanel {
             provider.loadTopology();
         }
         catch (Exception ex) {
-            System.err.println("loadTopology() Failed: ");
+            log.error("loadTopology() failed", ex);
             throw ex;
         }
         
-        topology = provider.getTopology();
+        nsiTopology = provider.getTopology();
+        
+        // Populate a local NetworkVertex view extending the NSI Network object.
+        networkVerticies = new HashMap<>();
+        for (NetworkType network : nsiTopology.getNetworks()) {
+            log.debug("Adding vertex " + network.getId());
+            networkVerticies.put(network.getId(), new NetworkVertex(network));
+        }    
         
 		this.mGraph = getGraph();
         
         Dimension layoutSize = new Dimension(Display.maxX,Display.maxY);
 
-        final Layout<Network,Sdp> layout = new StaticLayout<Network,Sdp>(mGraph,
+        final Layout<NetworkVertex, SdpType> layout = new StaticLayout<>(mGraph,
         		new ChainedTransformer(new Transformer[]{
         				new NetworkTransformer(),
         				new XYPixelTransformer(layoutSize)
@@ -148,15 +168,15 @@ public class TopologyViewer extends JPanel {
         layout.setSize(layoutSize);
         
         // The visual component and renderer for the graph
-        final VisualizationViewer<Network, Sdp> vv =  new VisualizationViewer<Network, Sdp>(layout, layoutSize);
+        final VisualizationViewer<NetworkVertex, SdpType> vv =  new VisualizationViewer<>(layout, layoutSize);
         
-        vv.getRenderContext().setVertexDrawPaintTransformer(new NetworkVertexDrawPaintFunction<Network>());
-        vv.getRenderContext().setVertexFillPaintTransformer(new NetworkVertexFillPaintFunction<Network>());
+        vv.getRenderContext().setVertexDrawPaintTransformer(new NetworkVertexDrawPaintFunction<NetworkVertex>());
+        vv.getRenderContext().setVertexFillPaintTransformer(new NetworkVertexFillPaintFunction<NetworkVertex>());
         vv.getRenderContext().setEdgeDrawPaintTransformer(new SdpEdgePaintFunction());
         vv.getRenderContext().setEdgeStrokeTransformer(new SdpEdgeStrokeFunction());
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<Network>());
-        vv.setGraphMouse(new DefaultModalGraphMouse<Network, Sdp>());
-        vv.addGraphMouseListener(new TestGraphMouseListener<Network>());
+        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller<NetworkVertex>());
+        vv.setGraphMouse(new DefaultModalGraphMouse<NetworkVertex, SdpType>());
+        vv.addGraphMouseListener(new TestGraphMouseListener<NetworkVertex>());
         vv.setBackground(Color.WHITE);
         
         vv.addPreRenderPaintable(new VisualizationViewer.Paintable(){
@@ -176,16 +196,16 @@ public class TopologyViewer extends JPanel {
                 if(mPred == null) return;
                 
                 // For all edges, paint edges that are in shortest path
-                for (Sdp e : layout.getGraph().getEdges()) {
+                for (SdpType e : layout.getGraph().getEdges()) {
                     
                     if(isOnShortestPath(e)) {
-                        Network v1 = mGraph.getEndpoints(e).getFirst();
-                        Network v2 = mGraph.getEndpoints(e).getSecond();
+                        NetworkVertex v1 = mGraph.getEndpoints(e).getFirst();
+                        NetworkVertex v2 = mGraph.getEndpoints(e).getSecond();
                         Point2D p1 = layout.transform(v1);
                         Point2D p2 = layout.transform(v2);
                         vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p1);
                         vv.getRenderContext().getMultiLayerTransformer().transform(Layer.LAYOUT, p2);
-                        Renderer<Network, Sdp> renderer = vv.getRenderer();
+                        Renderer<NetworkVertex, SdpType> renderer = vv.getRenderer();
                         renderer.renderEdge(vv.getRenderContext(), layout, e);
                     }
                 }
@@ -204,10 +224,9 @@ public class TopologyViewer extends JPanel {
  
         // add my listeners for ToolTips
         vv.setVertexToolTipTransformer(new ToStringLabeller());
-        vv.setEdgeToolTipTransformer(new Transformer<Sdp, String>() {
+        vv.setEdgeToolTipTransformer(new Transformer<SdpType, String>() {
             @Override
-			public String transform(Sdp edge) {
-                System.out.println("transform: " + mGraph.getEndpoints(edge).toString());
+			public String transform(SdpType edge) {
 				return "E" + mGraph.getEndpoints(edge).toString();
 			}
         });
@@ -222,7 +241,7 @@ public class TopologyViewer extends JPanel {
         vv.setBackground(Display.backgroundColor);
 
         final GraphZoomScrollPane panel = new GraphZoomScrollPane(vv);
-        final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse<Number,Number>();
+        final AbstractModalGraphMouse graphMouse = new DefaultModalGraphMouse<Number, Number>();
         vv.setGraphMouse(graphMouse);
         vv.addKeyListener(graphMouse.getModeKeyListener());
 
@@ -245,7 +264,7 @@ public class TopologyViewer extends JPanel {
      * @param e The STP edge to test for membership in the shortest path.
      * @return True if the edge is in the shortest path, and false otherwise.
      */
-    boolean isOnShortestPath( Sdp e ) {
+    boolean isOnShortestPath(SdpType e) {
         // If there are not edges then there is no this one can be in the
         // shortest path.
         if (mEdge == null || mEdge.isEmpty()) {
@@ -264,12 +283,15 @@ public class TopologyViewer extends JPanel {
      * Determines the colour to paint an SDP based on whether it is a member of
      * the shortest path.  
      */
-	public class SdpEdgePaintFunction implements Transformer<Sdp, Paint> {
+	public class SdpEdgePaintFunction implements Transformer<SdpType, Paint> {
 	    
         @Override
-		public Paint transform(Sdp e) {
+		public Paint transform(SdpType e) {
             // Filter first based on vlan selection.
-            if (mVlanId != -1 && mVlanId != e.getA().getVlanId()) {
+            StpType stpA = nsiTopology.getStp(e.getStpA().getId());
+            int vlanId = nsiTopology.getVlanId(stpA);
+            
+            if (mVlanId != -1 && mVlanId != vlanId) {
                 return Display.backgroundColor;
             }
             
@@ -293,16 +315,19 @@ public class TopologyViewer extends JPanel {
      * Determines the thickness to paint an SDP based on whether it is a member 
      * of the shortest path (thick) or not (thin).  
      */
-	public class SdpEdgeStrokeFunction implements Transformer<Sdp,Stroke> {
+	public class SdpEdgeStrokeFunction implements Transformer<SdpType, Stroke> {
         protected final Stroke INVISIBLE = new BasicStroke(0);
         protected final Stroke THIN = new BasicStroke(1);
         protected final Stroke THICK = new BasicStroke(5);
 
         @Override
-        public Stroke transform(Sdp e) {
+        public Stroke transform(SdpType e) {
             
             // Filter first based on vlan selection.
-            if (mVlanId != -1 && mVlanId != e.getA().getVlanId()) {
+            StpType stpA = nsiTopology.getStp(e.getStpA().getId());
+            int vlanId = nsiTopology.getVlanId(stpA);
+            
+            if (mVlanId != -1 && mVlanId != vlanId) {
                 return INVISIBLE;
             }
             
@@ -323,27 +348,27 @@ public class TopologyViewer extends JPanel {
     }
     
     /**
-     * Determines the colour to paint outline of a Network vertex based on
+     * Determines the colour to paint outline of a NetworkVertex vertex based on
      * whether it is a member of the shortest path.  
      */
-	public class NetworkVertexDrawPaintFunction<Network> implements Transformer<Network,Paint> {
+	public class NetworkVertexDrawPaintFunction<NetworkVertex> implements Transformer<NetworkVertex, Paint> {
 
         @Override
-		public Paint transform(Network v) {
+		public Paint transform(NetworkVertex v) {
 			return Color.black;
 		}
 
 	}
 
     /**
-     * Determines the colour to fill a Network vertex based on whether it is
+     * Determines the colour to fill a NetworkVertex vertex based on whether it is
      * a member of the shortest path.  
      */
-	public class NetworkVertexFillPaintFunction<Network> implements Transformer<Network,Paint> {
+	public class NetworkVertexFillPaintFunction<NetworkVertex> implements Transformer<NetworkVertex, Paint> {
 
         @Override
-		public Paint transform( Network v ) {
-            // Source and destination Network verticies are filled with blue.
+		public Paint transform( NetworkVertex v ) {
+            // Source and destination NetworkVertex verticies are filled with blue.
 			if ( v == mSourceNetwork) {
 				return Color.BLUE;
 			}
@@ -375,7 +400,7 @@ public class TopologyViewer extends JPanel {
      * 
      * @return The configured JPanel.
      */
-	private JPanel setUpControls(final VisualizationViewer<Network, Sdp> vv) {
+	private JPanel setUpControls(final VisualizationViewer<NetworkVertex, SdpType> vv) {
         
         Box controls = Box.createHorizontalBox();
 
@@ -407,7 +432,7 @@ public class TopologyViewer extends JPanel {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
-                    vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<Network, Sdp>());
+                    vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.Line<NetworkVertex, SdpType>());
                     vv.repaint();
                 }
             }
@@ -418,7 +443,7 @@ public class TopologyViewer extends JPanel {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
-                    vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.QuadCurve<Network, Sdp>());
+                    vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.QuadCurve<NetworkVertex, SdpType>());
                     vv.repaint();
                 }
             }
@@ -429,7 +454,7 @@ public class TopologyViewer extends JPanel {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if(e.getStateChange() == ItemEvent.SELECTED) {
-                    vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.CubicCurve<Network, Sdp>());
+                    vv.getRenderContext().setEdgeShapeTransformer(new EdgeShape.CubicCurve<NetworkVertex, SdpType>());
                     vv.repaint();
                 }
             }
@@ -546,9 +571,9 @@ public class TopologyViewer extends JPanel {
      */
 	private Component getNetworkSelectionBox(final boolean source) {
 
-		Set<String> s = new TreeSet<String>();
+		Set<String> s = new TreeSet<>();
 		
-		for (Network v : mGraph.getVertices()) {
+		for (NetworkVertex v : mGraph.getVertices()) {
 			s.add(v.getName());
 		}
         
@@ -563,14 +588,14 @@ public class TopologyViewer extends JPanel {
 				String v = (String) choices.getSelectedItem();
 					
 				if (source) {
-					mSourceNetwork = topology.getNetworkByName(v);
+					mSourceNetwork = getNetworkByName(v);
                     
                     sourceStpPanel.removeAll();
                     sourceStpPanel.add(getSourceStpSelectionBox());
                     sourceStpPanel.updateUI();
                     
 				} else {
-					mDestinationNetwork = topology.getNetworkByName(v);
+					mDestinationNetwork = getNetworkByName(v);
                     
                     destinationStpPanel.removeAll();
                     destinationStpPanel.add(getDestinationStpSelectionBox());
@@ -591,10 +616,12 @@ public class TopologyViewer extends JPanel {
      */
     private Component getVlanIdBox() {
 
-        Set<String> s = new TreeSet<String>();
-        for (Network v : mGraph.getVertices()) {
-            for (Stp stp : v.getStps()) {
-                s.add(Integer.toString(stp.getVlanId()));
+        Set<String> s = new TreeSet<>();
+        for (StpType stp : nsiTopology.getStps()) {
+
+            String vlanid = nsiTopology.getStringVlanId(stp.getLabel());
+            if (vlanid != null) {
+                s.add(vlanid);
             }
         }
         // Need the ability to unset the vlanId so give an unset option.
@@ -638,10 +665,15 @@ public class TopologyViewer extends JPanel {
     
     private Component getSourceStpSelectionBox() {
 
-        Set<String> s = new TreeSet<String>();
+        Set<String> s = new TreeSet<>();
         if (mSourceNetwork != null) {
-            for (Stp stp : mSourceNetwork.getStps()) {
-                if (mVlanId == -1 || mVlanId == stp.getVlanId()) {
+            // Iterate through each STP in the target network.
+            for (ResourceRefType stpRef : mSourceNetwork.getStp()) {
+                // Determine if the STP has a matching label.
+                StpType stp = nsiTopology.getStp(stpRef.getId());
+                int vlanId = nsiTopology.getVlanId(stp);
+                
+                if (mVlanId == -1 || mVlanId == vlanId) {
                     s.add(stp.getId());
                 }
             }
@@ -679,8 +711,13 @@ public class TopologyViewer extends JPanel {
     private Component getDestinationStpSelectionBox() {
         Set<String> s = new TreeSet<String>();
         if (mDestinationNetwork != null) {
-            for (Stp stp : mDestinationNetwork.getStps()) {
-                if (mVlanId == -1 || mVlanId == stp.getVlanId()) {
+            // Iterate through each STP in the target network.
+            for (ResourceRefType stpRef : mDestinationNetwork.getStp()) {
+                // Determine if the STP has a matching label.
+                StpType stp = nsiTopology.getStp(stpRef.getId());
+                int vlanId = nsiTopology.getVlanId(stp);
+
+                if (mVlanId == -1 || mVlanId == vlanId) {
                     s.add(stp.getId());
                 }
             }
@@ -737,7 +774,7 @@ public class TopologyViewer extends JPanel {
 		}
         
         // If no vlan is selected we will need to route for all possible.
-        Graph<Network,Sdp> tGraph;
+        Graph<NetworkVertex, SdpType> tGraph;
         int vlan = mVlanId;
         
         if (vlan == -1) {
@@ -745,11 +782,13 @@ public class TopologyViewer extends JPanel {
             int sourceVlanId = -1;
             int destnationVlanId = -1;
             if (mSourceSTP != null && !mSourceSTP.isEmpty()) {
-                sourceVlanId = mSourceNetwork.getStp(mSourceSTP).getVlanId();
+                StpType stp = nsiTopology.getStp(mSourceSTP);
+                sourceVlanId = nsiTopology.getVlanId(stp);
             }
             
             if (mDestinationSTP != null && !mDestinationSTP.isEmpty()) {
-                destnationVlanId = mDestinationNetwork.getStp(mDestinationSTP).getVlanId();
+                StpType stp = nsiTopology.getStp(mDestinationSTP);
+                destnationVlanId = nsiTopology.getVlanId(stp);
             }
             
             // No vlan restrictions so we use the whole graph.
@@ -766,37 +805,42 @@ public class TopologyViewer extends JPanel {
         }
         
         // Build a temporary graph for out path computation.
-        tGraph = new SparseMultigraph<Network, Sdp>();
+        tGraph = new SparseMultigraph<>();
 
         // Add Networks as verticies.
-        for (Network network : topology.getNetworks()) {
+        for (NetworkVertex network : networkVerticies.values()) {
             tGraph.addVertex(network);
         }        
 
         // Add bidirectional SDP as edges.
-        for (Sdp sdp : topology.getSdps()) {
-            if (sdp.getDirectionality() == Directionality.bidirectional &&
-                    sdp.getA().getVlanId() == vlan) {
-                tGraph.addEdge(sdp,
-                        topology.getNetworkById(sdp.getA().getNetworkId()),
-                        topology.getNetworkById(sdp.getZ().getNetworkId()));
+        for (SdpType sdp : nsiTopology.getSdps()) {
+            if (sdp.getType() == SdpDirectionalityType.BIDIRECTIONAL) {
+                StpType stpA = nsiTopology.getStp(sdp.getStpA().getId());
+                StpType stpZ = nsiTopology.getStp(sdp.getStpZ().getId());
+                int vlanId = nsiTopology.getVlanId(stpA);                               
+                if (vlanId == vlan) {
+                    tGraph.addEdge(sdp,
+                        networkVerticies.get(stpA.getNetworkId()),
+                        networkVerticies.get(stpZ.getNetworkId()));
+                }
             }
         }
         
-        @SuppressWarnings("unchecked")
-        DijkstraShortestPath<Network,Sdp> alg = new DijkstraShortestPath(tGraph);
+        DijkstraShortestPath<NetworkVertex, SdpType> alg = new DijkstraShortestPath<>(tGraph);
         
-        List<Sdp> path;
+        List<SdpType> path;
         try {
             path = alg.getPath(mSourceNetwork, mDestinationNetwork);
         } catch (Exception ex) {
-            System.err.println("Path computation failed: " + ex.getMessage());
+            log.error("Path computation failed: " + ex);
             throw ex;
         }
         
-        for (Sdp sdp : path) {
-            mPred.add(topology.getNetworkById(sdp.getA().getNetworkId()));
-            mPred.add(topology.getNetworkById(sdp.getZ().getNetworkId()));
+        for (SdpType sdp : path) {
+            StpType stpA = nsiTopology.getStp(sdp.getStpA().getId());
+            StpType stpZ = nsiTopology.getStp(sdp.getStpZ().getId());
+            mPred.add(networkVerticies.get(stpA.getNetworkId()));
+            mPred.add(networkVerticies.get(stpZ.getNetworkId()));
             mEdge.add(sdp);
         }
 	}
@@ -806,26 +850,43 @@ public class TopologyViewer extends JPanel {
      * 
 	 * @return the NSI graph for visualization.
 	 */
-	private Graph<Network, Sdp> getGraph() {
-        
-		Graph<Network, Sdp> graph = new SparseMultigraph<>();
+	private Graph<NetworkVertex, SdpType> getGraph() {
+		Graph<NetworkVertex, SdpType> graph = new SparseMultigraph<>();
         
         // Add Networks as verticies.
-        for (Network network : topology.getNetworks()) {
+        for (NetworkVertex network : networkVerticies.values()) {
             graph.addVertex(network);
         }        
 
         // Add bidirectional SDP as edges.
-        for (Sdp sdp : topology.getSdps()) {
-            if (sdp.getDirectionality() == Directionality.bidirectional) {
+        for (SdpType sdp : nsiTopology.getSdps()) {
+            if (sdp.getType() == SdpDirectionalityType.BIDIRECTIONAL) {
+                StpType stpA = nsiTopology.getStp(sdp.getStpA().getId());
+                StpType stpZ = nsiTopology.getStp(sdp.getStpZ().getId());
                 graph.addEdge(sdp,
-                        topology.getNetworkById(sdp.getA().getNetworkId()),
-                        topology.getNetworkById(sdp.getZ().getNetworkId()));
+                        networkVerticies.get(stpA.getNetworkId()),
+                        networkVerticies.get(stpZ.getNetworkId()));
             }
         }
         
 		return graph;
 	}
+    
+    /**
+     * Get a Network object from this topology matching the provided networkId.
+     * 
+     * @param networkId Identifier for the Network object to retrieve.
+     * @return Matching Network object, or null otherwise.
+     */
+    public NetworkVertex getNetworkByName(String name) {
+        for (NetworkVertex network : networkVerticies.values()) {
+            if (name.contentEquals(network.getName())) {
+                return network;
+            }
+        }
+        
+        return null;
+    }
     
     /**
      * Main for the TopologyViewer.

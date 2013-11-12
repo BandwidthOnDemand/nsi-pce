@@ -1,6 +1,5 @@
 package net.es.nsi.pce.config.topo;
 
-import net.es.nsi.pce.schema.XmlParser;
 import java.io.FileNotFoundException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -13,21 +12,29 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.config.topo.nml.BidirectionalEthernetPort;
-import net.es.nsi.pce.config.topo.nml.Directionality;
 import net.es.nsi.pce.config.topo.nml.EthernetPort;
 import net.es.nsi.pce.config.topo.nml.TopologyManifest;
-import net.es.nsi.pce.pf.api.topo.Network;
-import net.es.nsi.pce.pf.api.topo.Nsa;
-import net.es.nsi.pce.pf.api.topo.Sdp;
-import net.es.nsi.pce.pf.api.topo.Stp;
-import net.es.nsi.pce.pf.api.topo.Topology;
+//import net.es.nsi.pce.pf.api.topo.Network;
+//import net.es.nsi.pce.pf.api.topo.Nsa;
+import net.es.nsi.pce.pf.api.topo.NsiTopology;
+//import net.es.nsi.pce.pf.api.topo.Sdp;
+//import net.es.nsi.pce.pf.api.topo.Stp;
+//import net.es.nsi.pce.pf.api.topo.Topology;
 import net.es.nsi.pce.pf.api.topo.TopologyProvider;
-import net.es.nsi.pce.topology.jaxb.ConfigurationType;
-import net.es.nsi.pce.topology.jaxb.NSAType;
-import net.es.nsi.pce.topology.jaxb.TopologyType;
+import net.es.nsi.pce.config.jaxb.ConfigurationType;
+import net.es.nsi.pce.schema.TopologyConfigurationParser;
+//import net.es.nsi.pce.nml.jaxb.NSAType;
+//import net.es.nsi.pce.nml.jaxb.TopologyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.topology.jaxb.SdpType;
+import net.es.nsi.pce.topology.jaxb.NsaType;
+import net.es.nsi.pce.topology.jaxb.NetworkType;
+import net.es.nsi.pce.topology.jaxb.ResourceRefType;
+
 
 /**
  * Dynamically download the NSI/NML topology from peer NSA, parse, and
@@ -64,15 +71,15 @@ public class PollingTopologyProvider implements TopologyProvider {
     private Map<String, NmlTopologyReader> topologyUrlMap = new ConcurrentHashMap<>();
 
     // Map holding the network topologies indexed by network Id.
-    private Map<String, NSAType> nsas = new ConcurrentHashMap<>();
+    private Map<String, net.es.nsi.pce.nml.jaxb.NSAType> nsas = new ConcurrentHashMap<>();
     
     // Map holding the network topologies indexed by network Id.
-    private Map<String, TopologyType> topologies = new ConcurrentHashMap<>();
+    private Map<String, net.es.nsi.pce.nml.jaxb.TopologyType> topologies = new ConcurrentHashMap<>();
     
     // Map holding the network topologies indexed by network Id.
     private Map<String, EthernetPort> ethernetPorts = new ConcurrentHashMap<>();
 
-    private Topology nsiTopology = new Topology();
+    private NsiTopology nsiTopology = new NsiTopology();
     
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     private Date date;
@@ -122,7 +129,7 @@ public class PollingTopologyProvider implements TopologyProvider {
     }
     
     private void loadTopologyConfiguration() throws JAXBException, FileNotFoundException {
-        ConfigurationType config = XmlParser.getInstance().parseTopologyConfiguration(configuration);
+        ConfigurationType config = TopologyConfigurationParser.getInstance().parse(configuration);
         
         setLocation(config.getLocation());
         
@@ -202,12 +209,12 @@ public class PollingTopologyProvider implements TopologyProvider {
         topologyUrlMap = newTopologyUrlMap;
         
         // Consolidate individual topologies in one master list.
-        Map<String, NSAType> newNsas = new ConcurrentHashMap<>();
-        Map<String, TopologyType> newTopologies = new ConcurrentHashMap<>();
+        Map<String, net.es.nsi.pce.nml.jaxb.NSAType> newNsas = new ConcurrentHashMap<>();
+        Map<String, net.es.nsi.pce.nml.jaxb.TopologyType> newTopologies = new ConcurrentHashMap<>();
         Map<String, EthernetPort> newEthernetPorts = new ConcurrentHashMap<>();
 
         for (NmlTopologyReader nml : topologyUrlMap.values()) {
-            NSAType nsa = nml.getNsa();
+            net.es.nsi.pce.nml.jaxb.NSAType nsa = nml.getNsa();
             if (nsa.getId() == null || nsa.getId().isEmpty()) {
                 log.error("Topology endpoint missing NSA identifier: " + nml.getTarget());
                 continue;
@@ -341,34 +348,54 @@ public class PollingTopologyProvider implements TopologyProvider {
         // Load the NML topology model.
         loadNetworkTopology();
 
-        // Create the NSI STP network topology.
-        Topology newNsiTopology = new Topology();
-        
-        for (NSAType nsaType : nsas.values()) {
-            Nsa nsa = new Nsa();
-            nsa.setId(nsaType.getId());
-            nsa.setName(nsaType.toString());
-            if (nsaType.getLocation() != null) {
-                nsa.setLatitude(nsaType.getLocation().getLat());
-                nsa.setLongitude(nsaType.getLocation().getLong());
-            }
-            
-            for (TopologyType topology : nsaType.getTopology()) {
-                nsa.addNetworkId(topology.getId());
-                
-                Network net = new Network();
-                net.setNetworkId(topology.getId());
-                String name = topology.getName();
-                if (name == null || name.isEmpty()) {
-                    name = topology.getId();
-                }
+        // Create the NSI topology.
+        NsiTopology newNsiTopology = new NsiTopology();
 
-                net.setName(name);
-                net.setNsaId(nsaType.getId());
-                newNsiTopology.addNetwork(net);                
+        /* Each NML object must be mapped through to an equivalent NSI Topology
+         * object.  Ww start by parsing the NSA objects, extracting Topology
+         * objects to created networks.
+         */
+        for (net.es.nsi.pce.nml.jaxb.NSAType nmlNsa : nsas.values()) {
+            // Create the NSI NSA object.
+            NsaType nsiNsa = new NsaType();
+            nsiNsa.setId(nmlNsa.getId());
+            nsiNsa.setHref("unset");
+            nsiNsa.setName(nmlNsa.getName());
+            if (nmlNsa.getLocation() != null) {
+                nsiNsa.setLatitude(nmlNsa.getLocation().getLat());
+                nsiNsa.setLongitude(nmlNsa.getLocation().getLong());
             }
             
-            newNsiTopology.addNsa(nsa);
+            // Create the NSA resource reference.
+            ResourceRefType nsiNsaRef  = new ResourceRefType();
+            nsiNsaRef.setId(nmlNsa.getId());
+            nsiNsaRef.setHref("unset");            
+            
+            // Process each Topology object under this NSA object.
+            for (net.es.nsi.pce.nml.jaxb.TopologyType nmlTopology : nmlNsa.getTopology()) {
+                // Create a new NSI Network object.
+                NetworkType nsiNetwork = new NetworkType();
+                nsiNetwork.setId(nmlTopology.getId());
+                String name = nmlTopology.getName();
+                if (name == null || name.isEmpty()) {
+                    name = nmlTopology.getId();
+                }
+                nsiNetwork.setName(name);
+
+                // Add this network object to our NSI topology.
+                newNsiTopology.addNetwork(nsiNetwork);
+                
+                // We need to build a reference to this new Network object for
+                // use in the NSA object.
+                ResourceRefType nsiNetworkRef  = new ResourceRefType();
+                nsiNetworkRef.setId(nmlTopology.getId());
+                nsiNetworkRef.setHref("unset");
+                
+                nsiNsa.getNetwork().add(nsiNetworkRef);
+            }
+            
+            // Add this compeleted NSA object to the NSI topology.
+            newNsiTopology.addNsa(nsiNsa);
         }
 
         // Add each bidirectional port as a bidirectional STP in the NSI topology.
@@ -382,42 +409,50 @@ public class PollingTopologyProvider implements TopologyProvider {
                 log.debug("Converting Ethernet port to STP: " + localPort.getPortId());
                 
                 BidirectionalEthernetPort localBiPort = (BidirectionalEthernetPort) localPort;
-                Network localNetwork = newNsiTopology.getNetworkById(localBiPort.getTopologyId());
+                NetworkType nsiLocalNetwork = newNsiTopology.getNetworkById(localBiPort.getTopologyId());
                 
                 // This should never happen but skip the port if it does.
-                if (localNetwork == null) {
+                if (nsiLocalNetwork == null) {
                     log.error("Could not find network " + localBiPort.getTopologyId());
                     continue;
                 }
 
-                // We create an STP per vlan for the local Ethernet port.  There
+                // We create an STP per vlan for the local Ethernet port.  They
                 // are created even if the remote end does not have a matching
                 // STP.  Why?  Logically these unconnected STP exist even though
                 // they can never be used.
-                HashMap<Integer, Stp> processedStp = new HashMap<>();
+                HashMap<Integer, StpType> processedStp = new HashMap<>();
                 
                 for (Integer vlanId : localBiPort.getVlans()) {
                     log.debug("Converting local port " + localBiPort.getPortId() + " vlan = " + vlanId);
                     
-                    // Create the local STP and store in network topology.
-                    Stp localStp = localNetwork.newStp(localBiPort, vlanId);
-                    localNetwork.put(localStp.getId(), localStp);
+                    // Create the local STP.
+                    StpType nsiLocalStp = newNsiTopology.newStp(nsiLocalNetwork, localBiPort, vlanId);
+                    
+                    // Create a reference to this new STP.
+                    ResourceRefType nsiLocalStpRef = newNsiTopology.newStpRef(nsiLocalStp);
+                    
+                    // Update this network to hold the STP reference.
+                    nsiLocalNetwork.getStp().add(nsiLocalStpRef);
+                    
+                    // Add this STP to the NSI Topology.
+                    newNsiTopology.addStp(nsiLocalStp);
                     
                     // Save it for SDP processing.
-                    processedStp.put(vlanId, localStp);
+                    processedStp.put(vlanId, nsiLocalStp);
                 }
                 
                 // We only process remote end STP if one exists.  If there is
-                // no remote end then we do not create an SDP either.
+                // no remote end then we do not create an SDP.
                 BidirectionalEthernetPort remoteBiPort = localBiPort.getRemotePort();
-                Network remoteNetwork;
+                NetworkType nsiRemoteNetwork;
                 if (remoteBiPort != null) {
                     log.debug("Found remote biport for conversion " + remoteBiPort.getPortId());
                     
                     // Remove remote port matching the local port so we do not
                     // process it twice.
                     ethPorts.remove(remoteBiPort.getPortId());
-                    remoteNetwork = newNsiTopology.getNetworkById(remoteBiPort.getTopologyId());
+                    nsiRemoteNetwork = newNsiTopology.getNetworkById(remoteBiPort.getTopologyId());
                     
                     // Create the remote STP so we don't need to do it later
                     // when visiting the remote network.
@@ -425,18 +460,23 @@ public class PollingTopologyProvider implements TopologyProvider {
                         log.debug("Converting remote port " + remoteBiPort.getPortId() + " vlan = " + vlanId);
 
                         // Create the remote STP and store in remote network topology.
-                        Stp remoteStp = remoteNetwork.newStp(remoteBiPort, vlanId);
-                        remoteNetwork.put(remoteStp.getId(), remoteStp);
+                        StpType nsiRemoteStp = newNsiTopology.newStp(nsiRemoteNetwork, remoteBiPort, vlanId);
+                        
+                        // Create a reference to this new remote STP.
+                        ResourceRefType nsiRemoteStpRef = newNsiTopology.newStpRef(nsiRemoteStp);
+                        
+                        // Update this network to hold the STP reference.
+                        nsiRemoteNetwork.getStp().add(nsiRemoteStpRef);
+                    
+                        // Add this STP to the NSI Topology.
+                        newNsiTopology.addStp(nsiRemoteStp);
                         
                         // Create an SDP if there is a matching local STP.
-                        Stp localStp = processedStp.get(vlanId);
-                        if (localStp != null) {
-                            Sdp sdp = new Sdp();
-                            sdp.setA(localStp);
-                            sdp.setZ(remoteStp);
-                            sdp.setDirectionality(Directionality.bidirectional);
-                            newNsiTopology.addSdp(sdp);
-                            log.debug("Added SDP: " + sdp.getId());                            
+                        StpType nsiLocalStp = processedStp.get(vlanId);
+                        if (nsiLocalStp != null) {
+                            SdpType nsiSdp = newNsiTopology.newSdp(nsiLocalStp, nsiRemoteStp);
+                            newNsiTopology.addSdp(nsiSdp);
+                            log.debug("Added SDP: " + nsiSdp.getId());                            
                         }
                     }          
                 }
@@ -452,13 +492,13 @@ public class PollingTopologyProvider implements TopologyProvider {
         if (log.isDebugEnabled()) {
             // Dump Netoworks for debug.
             log.debug("The following Networks were created:");
-            for (Network network : nsiTopology.getNetworks()) {
-                log.debug("    " + network.getNetworkId());
+            for (NetworkType network : nsiTopology.getNetworks()) {
+                log.debug("    " + network.getId());
             }
 
             // Dump SDP links for debug.
             log.debug("The following SDP links were created:");
-            for (Sdp sdp : nsiTopology.getSdps()) {
+            for (SdpType sdp : nsiTopology.getSdps()) {
                 log.debug("    " + sdp.getId());
             }
 
@@ -469,7 +509,7 @@ public class PollingTopologyProvider implements TopologyProvider {
     }
     
     @Override
-    public Topology getTopology() {
+    public NsiTopology getTopology() {
         return nsiTopology;
     }
     
@@ -479,7 +519,7 @@ public class PollingTopologyProvider implements TopologyProvider {
     }
 
     @Override
-    public Collection<Network> getNetworks() {
+    public Collection<NetworkType> getNetworks() {
         return nsiTopology.getNetworks();
     }
     
