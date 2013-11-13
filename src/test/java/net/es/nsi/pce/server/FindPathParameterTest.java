@@ -44,7 +44,7 @@ import org.junit.Test;
 public class FindPathParameterTest extends JerseyTest {
 
     private final static HttpConfig testServer = new HttpConfig() {
-        { setUrl("http://localhost:9800/"); setPackageName("net.es.nsi.pce.client"); }
+        { setUrl("http://localhost:9801/"); setPackageName("net.es.nsi.pce.client"); }
     };
     
     private final static String callbackURL = testServer.getUrl() + "aggregator/path";
