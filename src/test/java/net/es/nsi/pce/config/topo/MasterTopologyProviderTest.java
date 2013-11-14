@@ -4,6 +4,7 @@
  */
 package net.es.nsi.pce.config.topo;
 
+import net.es.nsi.pce.topology.provider.GitHubManifestReader;
 import net.es.nsi.pce.config.topo.nml.TopologyManifest;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;

@@ -86,8 +86,8 @@ public class Main {
         
         // Format the source STP.
         StpType srcStp = new StpType();
-        srcStp.setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:282");
-        srcStp.setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
+        srcStp.setLocalId("urn:ogf:network:uvalight.net:2013:ps");
+        srcStp.setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
         evts.setSourceSTP(srcStp);
         evts.setSourceVLAN(1784);
         

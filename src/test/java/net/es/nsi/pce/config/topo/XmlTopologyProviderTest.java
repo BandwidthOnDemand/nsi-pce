@@ -9,14 +9,14 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import java.util.List;
 
-import net.es.nsi.pce.pf.api.topo.NsiTopology;
+import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
 
 
-import net.es.nsi.pce.pf.api.topo.TopologyProvider;
+import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.test.TestConfig;
 import org.junit.Test;
 import static org.junit.Assert.fail;

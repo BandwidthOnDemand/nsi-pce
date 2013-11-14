@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.es.nsi.pce.config.topo;
+package net.es.nsi.pce.topology.provider;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +17,7 @@ import net.es.nsi.pce.config.topo.nml.Directionality;
 import net.es.nsi.pce.config.topo.nml.EthernetPort;
 import net.es.nsi.pce.config.topo.nml.Orientation;
 import net.es.nsi.pce.config.topo.nml.Relationships;
-import net.es.nsi.pce.pf.api.topo.TopologyReader;
+import net.es.nsi.pce.topology.provider.TopologyReader;
 import net.es.nsi.pce.nml.jaxb.BidirectionalPortType;
 import net.es.nsi.pce.nml.jaxb.LabelGroupType;
 import net.es.nsi.pce.nml.jaxb.LabelType;

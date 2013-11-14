@@ -15,14 +15,16 @@ import javax.ws.rs.core.MediaType;
  */
 public class Utilities {
     public static Map<String, String> getNameSpace() {
-        Map<String, String> namespacePrefixMapper = new HashMap<String, String>(2);
+        Map<String, String> namespacePrefixMapper = new HashMap<>(3);
         namespacePrefixMapper.put("http://schemas.es.net/nsi/2013/08/pce/messages", "m");
         namespacePrefixMapper.put("http://schemas.ogf.org/nsi/2013/07/services/point2point", "p");
+        namespacePrefixMapper.put("http://schemas.ogf.org/nsi/2013/07/topology/types", "t");
         return namespacePrefixMapper;
     }
     
     public static boolean validMediaType(String mediaType) {
-        HashSet<String> mediaTypes = new HashSet() {
+        HashSet<String> mediaTypes = new HashSet<String>() {
+            private static final long serialVersionUID = 1L;
             {
                 add(MediaType.APPLICATION_JSON);
                 add(MediaType.APPLICATION_XML);

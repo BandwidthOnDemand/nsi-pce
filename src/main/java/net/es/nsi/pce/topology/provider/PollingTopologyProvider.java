@@ -1,4 +1,4 @@
-package net.es.nsi.pce.config.topo;
+package net.es.nsi.pce.topology.provider;
 
 import java.io.FileNotFoundException;
 import java.text.DateFormat;
@@ -14,17 +14,9 @@ import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.config.topo.nml.BidirectionalEthernetPort;
 import net.es.nsi.pce.config.topo.nml.EthernetPort;
 import net.es.nsi.pce.config.topo.nml.TopologyManifest;
-//import net.es.nsi.pce.pf.api.topo.Network;
-//import net.es.nsi.pce.pf.api.topo.Nsa;
-import net.es.nsi.pce.pf.api.topo.NsiTopology;
-//import net.es.nsi.pce.pf.api.topo.Sdp;
-//import net.es.nsi.pce.pf.api.topo.Stp;
-//import net.es.nsi.pce.pf.api.topo.Topology;
-import net.es.nsi.pce.pf.api.topo.TopologyProvider;
+import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.config.jaxb.ConfigurationType;
 import net.es.nsi.pce.schema.TopologyConfigurationParser;
-//import net.es.nsi.pce.nml.jaxb.NSAType;
-//import net.es.nsi.pce.nml.jaxb.TopologyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -214,15 +206,15 @@ public class PollingTopologyProvider implements TopologyProvider {
         Map<String, EthernetPort> newEthernetPorts = new ConcurrentHashMap<>();
 
         for (NmlTopologyReader nml : topologyUrlMap.values()) {
-            net.es.nsi.pce.nml.jaxb.NSAType nsa = nml.getNsa();
-            if (nsa.getId() == null || nsa.getId().isEmpty()) {
+            net.es.nsi.pce.nml.jaxb.NSAType nmlNsa = nml.getNsa();
+            if (nmlNsa.getId() == null || nmlNsa.getId().isEmpty()) {
                 log.error("Topology endpoint missing NSA identifier: " + nml.getTarget());
                 continue;
             }
             
             log.debug("Processing topology for " + nml.getNsa().getId());
             
-            newNsas.put(nsa.getId(), nsa);
+            newNsas.put(nmlNsa.getId(), nmlNsa);
             newTopologies.putAll(nml.getTopologies());
             newEthernetPorts.putAll(nml.getEthernetPorts());
         }
@@ -357,40 +349,22 @@ public class PollingTopologyProvider implements TopologyProvider {
          */
         for (net.es.nsi.pce.nml.jaxb.NSAType nmlNsa : nsas.values()) {
             // Create the NSI NSA object.
-            NsaType nsiNsa = new NsaType();
-            nsiNsa.setId(nmlNsa.getId());
-            nsiNsa.setHref("unset");
-            nsiNsa.setName(nmlNsa.getName());
-            if (nmlNsa.getLocation() != null) {
-                nsiNsa.setLatitude(nmlNsa.getLocation().getLat());
-                nsiNsa.setLongitude(nmlNsa.getLocation().getLong());
-            }
+            NsaType nsiNsa = newNsiTopology.newNsa(nmlNsa);
             
             // Create the NSA resource reference.
-            ResourceRefType nsiNsaRef  = new ResourceRefType();
-            nsiNsaRef.setId(nmlNsa.getId());
-            nsiNsaRef.setHref("unset");            
+            ResourceRefType nsiNsaRef = newNsiTopology.newNsaRef(nsiNsa);
             
             // Process each Topology object under this NSA object.
             for (net.es.nsi.pce.nml.jaxb.TopologyType nmlTopology : nmlNsa.getTopology()) {
                 // Create a new NSI Network object.
-                NetworkType nsiNetwork = new NetworkType();
-                nsiNetwork.setId(nmlTopology.getId());
-                String name = nmlTopology.getName();
-                if (name == null || name.isEmpty()) {
-                    name = nmlTopology.getId();
-                }
-                nsiNetwork.setName(name);
+                NetworkType nsiNetwork = newNsiTopology.newNetwork(nmlTopology);
 
                 // Add this network object to our NSI topology.
                 newNsiTopology.addNetwork(nsiNetwork);
                 
                 // We need to build a reference to this new Network object for
                 // use in the NSA object.
-                ResourceRefType nsiNetworkRef  = new ResourceRefType();
-                nsiNetworkRef.setId(nmlTopology.getId());
-                nsiNetworkRef.setHref("unset");
-                
+                ResourceRefType nsiNetworkRef = newNsiTopology.newNetworkRef(nsiNetwork);
                 nsiNsa.getNetwork().add(nsiNetworkRef);
             }
             

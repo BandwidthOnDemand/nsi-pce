@@ -18,15 +18,15 @@
     </bean>
 
     <!-- Configuration for local directory reader topology provider. -->
-    <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.PollingTopologyProvider" init-method="initialize" scope="singleton">
+    <bean id="topologyProvider" class="net.es.nsi.pce.topology.provider.PollingTopologyProvider" init-method="initialize" scope="singleton">
         <property name="configuration" value="config/topology-filesystem.xml"/>
         <property name="topologyManifestReader" ref="topologyManifestReader"/>
         <property name="topologyReaderFactory" ref="topologyReaderFactory"/>
     </bean>
 
-    <bean id="topologyManifestReader" class="net.es.nsi.pce.config.topo.FileManifestReader" scope="prototype" />
+    <bean id="topologyManifestReader" class="net.es.nsi.pce.topology.provider.FileManifestReader" scope="prototype" />
 
-    <bean id="topologyReaderFactory" class="net.es.nsi.pce.config.topo.FileTopologyReaderFactory" scope="prototype" />
+    <bean id="topologyReaderFactory" class="net.es.nsi.pce.topology.provider.FileTopologyReaderFactory" scope="prototype" />
 
     <bean id="DijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="singleton" />
  

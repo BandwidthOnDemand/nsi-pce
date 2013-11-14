@@ -54,13 +54,13 @@ import javax.swing.JButton;
 import javax.swing.JMenuBar;
 import javax.swing.JRadioButton;
 import net.es.nsi.pce.config.SpringContext;
-import net.es.nsi.pce.pf.api.topo.TopologyProvider;
+import net.es.nsi.pce.topology.provider.TopologyProvider;
 import org.apache.commons.collections15.functors.ChainedTransformer;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.springframework.context.ApplicationContext;
 
 
-import net.es.nsi.pce.pf.api.topo.NsiTopology;
+import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;

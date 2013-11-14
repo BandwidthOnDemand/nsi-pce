@@ -4,7 +4,7 @@ import java.io.File;
 import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.config.http.HttpConfigProvider;
 import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
-import net.es.nsi.pce.pf.api.topo.TopologyProvider;
+import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.sched.PCEScheduler;
 import net.es.nsi.pce.sched.TopologyAudit;
 import net.es.nsi.pce.server.Main;

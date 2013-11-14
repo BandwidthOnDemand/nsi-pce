@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.es.nsi.pce.pf.api.topo;
+package net.es.nsi.pce.topology.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,14 +21,27 @@ import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.TransferServiceType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author hacksaw
  */
 public class NsiTopology {
-    private final static String NML_LABEL_VLAN = "http://schemas.ogf.org/nml/2012/10/ethernet#vlan";
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
+    private final static String NML_LABEL_VLAN = "http://schemas.ogf.org/nml/2012/10/ethernet#vlan";
+
+    // REST interface URL for each resource type.
+    private static final String NSI_ROOT_STPS = "/topology/stps/";
+    private static final String NSI_ROOT_SDPS = "/topology/sdps/";
+    private static final String NSI_ROOT_TRANSFERSERVICES = "/topology/transferservices/";
+    private static final String NSI_ROOT_SERVICES = "/topology/services/";
+    private static final String NSI_ROOT_NETWORKS = "/topology/networks/";
+    private static final String NSI_ROOT_NSAS = "/topology/nsas/";
+    
+    // The NSI Topology model.
     private ConcurrentHashMap<String, StpType> stps = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, SdpType> sdps = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, TransferServiceType> transferServices = new ConcurrentHashMap<>();
@@ -176,6 +190,17 @@ public class NsiTopology {
         return stps.values();
     }
     
+    public Collection<StpType> getStpsByNetworkId(String networkId) {
+        Collection<StpType> stpList = new ArrayList<>();
+        
+        NetworkType network = getNetworkById(networkId);
+        for (ResourceRefType stpRef : network.getStp()) {
+            stpList.add(getStp(stpRef.getId()));
+        }
+        
+        return stpList;
+    }
+    
     /**
      * Clear the Topology.
      */
@@ -289,7 +314,7 @@ public class NsiTopology {
         // Set the STP attributes.
         stp.setId(port.getPortId() + ":vlan=" + vlanId.toString());
         stp.setName("unset in newStp");
-        stp.setHref("unset in newStp");
+        stp.setHref(NSI_ROOT_STPS + stp.getId());
         
         if (port.isBidirectional()) {
             stp.setType(StpDirectionalityType.BIDIRECTIONAL_PORT);
@@ -410,7 +435,8 @@ public class NsiTopology {
         // Set the STP attributes.
         sdp.setId(stpA.getId() + "::" + stpZ.getId());
         sdp.setName("unset in newSdp");
-        sdp.setHref("unset in newSdp");
+        
+        sdp.setHref(NSI_ROOT_SDPS + sdp.getId());
 
         // Set the STP references.
         sdp.setStpA(this.newStpRef(stpA));
@@ -457,5 +483,48 @@ public class NsiTopology {
     
     public Set<String> getNsaIds() {
         return nsas.keySet();
+    }
+    
+    public NsaType newNsa(net.es.nsi.pce.nml.jaxb.NSAType nmlNsa) {
+        NsaType nsiNsa = new NsaType();
+        nsiNsa.setId(nmlNsa.getId());
+        nsiNsa.setName(nmlNsa.getName());
+
+        nsiNsa.setHref(NSI_ROOT_NSAS + nsiNsa.getId());
+        
+        if (nmlNsa.getLocation() != null) {
+            nsiNsa.setLatitude(nmlNsa.getLocation().getLat());
+            nsiNsa.setLongitude(nmlNsa.getLocation().getLong());
+        }
+        
+        return nsiNsa;
+    }
+    
+    public ResourceRefType newNsaRef(NsaType nsa) {
+        ResourceRefType nsaRef = new ResourceRefType();
+        nsaRef.setId(nsa.getId());
+        nsaRef.setHref(nsa.getHref());
+        return nsaRef;
+    }
+    
+    public NetworkType newNetwork(net.es.nsi.pce.nml.jaxb.TopologyType nmlTopology) {
+        NetworkType nsiNetwork = new NetworkType();
+        nsiNetwork.setId(nmlTopology.getId());
+        String name = nmlTopology.getName();
+        if (name == null || name.isEmpty()) {
+            name = nmlTopology.getId();
+        }
+        nsiNetwork.setName(name);
+
+        nsiNetwork.setHref(NSI_ROOT_NETWORKS + nsiNetwork.getId());
+        
+        return nsiNetwork;
+    }
+    
+    public ResourceRefType newNetworkRef(NetworkType network) {
+        ResourceRefType nsaRef = new ResourceRefType();
+        nsaRef.setId(network.getId());
+        nsaRef.setHref(network.getHref());
+        return nsaRef;
     }
 }

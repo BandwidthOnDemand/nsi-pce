@@ -1,7 +1,7 @@
 package net.es.nsi.pce.pf.api;
 
 import net.es.nsi.pce.pf.api.cons.Constraint;
-import net.es.nsi.pce.pf.api.topo.NsiTopology;
+import net.es.nsi.pce.topology.model.NsiTopology;
 
 import java.util.HashSet;
 import java.util.Set;

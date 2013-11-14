@@ -11,7 +11,7 @@ import net.es.nsi.pce.config.nsa.auth.AuthProvider;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.StpPair;
-import net.es.nsi.pce.pf.api.topo.TopologyProvider;
+import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.api.jaxb.AuthObjectType;
 import net.es.nsi.pce.api.jaxb.EthernetBaseType;
 import net.es.nsi.pce.api.jaxb.EthernetVlanType;

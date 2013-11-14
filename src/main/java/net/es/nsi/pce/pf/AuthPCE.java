@@ -7,7 +7,7 @@ import net.es.nsi.pce.config.nsa.auth.AuthCredential;
 import net.es.nsi.pce.config.nsa.auth.AuthProvider;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
-import net.es.nsi.pce.pf.api.topo.NsiTopology;
+import net.es.nsi.pce.topology.model.NsiTopology;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Map;

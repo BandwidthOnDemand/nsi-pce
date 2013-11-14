@@ -6,8 +6,8 @@ package net.es.nsi.pce.test;
 
 import java.io.File;
 import net.es.nsi.pce.config.SpringContext;
-import net.es.nsi.pce.config.topo.NmlTopologyReader;
-import net.es.nsi.pce.pf.api.topo.TopologyProvider;
+import net.es.nsi.pce.topology.provider.NmlTopologyReader;
+import net.es.nsi.pce.topology.provider.TopologyProvider;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.springframework.context.ApplicationContext;
 

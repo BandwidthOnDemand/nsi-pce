@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.es.nsi.pce.pf.api.topo;
+package net.es.nsi.pce.topology.provider;
 
 import java.util.Map;
 import net.es.nsi.pce.config.topo.nml.EthernetPort;

@@ -18,15 +18,15 @@
     </bean>
 
     <!-- Topology providers are configured through the config parameter and initialize methods. -->
-    <bean id="topologyProvider" class="net.es.nsi.pce.config.topo.PollingTopologyProvider" init-method="initialize" scope="singleton">
+    <bean id="topologyProvider" class="net.es.nsi.pce.topology.provider.PollingTopologyProvider" init-method="initialize" scope="singleton">
         <property name="configuration" value="config/topology-localhost.xml"/>
         <property name="topologyManifestReader" ref="topologyManifestReader"/>
         <property name="topologyReaderFactory" ref="topologyReaderFactory"/>
     </bean>
 
-    <bean id="topologyManifestReader" class="net.es.nsi.pce.config.topo.GitHubManifestReader" scope="prototype" />
+    <bean id="topologyManifestReader" class="net.es.nsi.pce.topology.provider.GitHubManifestReader" scope="prototype" />
 
-    <bean id="topologyReaderFactory" class="net.es.nsi.pce.config.topo.NsaTopologyReaderFactory" scope="prototype" />
+    <bean id="topologyReaderFactory" class="net.es.nsi.pce.topology.provider.NsaTopologyReaderFactory" scope="prototype" />
 
     <bean id="DijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="singleton" />
  
