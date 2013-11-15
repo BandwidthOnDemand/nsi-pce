@@ -13,7 +13,7 @@ import net.es.nsi.pce.config.topo.nml.EthernetPort;
 import net.es.nsi.pce.config.topo.nml.Orientation;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
-import net.es.nsi.pce.topology.jaxb.LabelType;
+import net.es.nsi.pce.topology.jaxb.TypeValueType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
@@ -354,8 +354,8 @@ public class NsiTopology {
         serviceType.setType("http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE");
         stp.getServiceType().add(serviceType);
         
-        LabelType label = new LabelType();
-        label.setLabeltype(NML_LABEL_VLAN);
+        TypeValueType label = new TypeValueType();
+        label.setType(NML_LABEL_VLAN);
         label.setValue(vlanId.toString());
         stp.setLabel(label);
 
@@ -395,7 +395,7 @@ public class NsiTopology {
         return stpRef;
     }
     
-    public boolean labelEquals(LabelType a, LabelType b) {
+    public boolean labelEquals(TypeValueType a, TypeValueType b) {
         if (a == null && b == null) {
             return true;
         }
@@ -405,7 +405,7 @@ public class NsiTopology {
         else if (b == null) {
             return false;
         }
-        else if (!a.getLabeltype().contentEquals(b.getLabeltype())) {
+        else if (!a.getType().contentEquals(b.getType())) {
             return false;
         }
         
@@ -429,10 +429,10 @@ public class NsiTopology {
         return getVlanId(stp.getLabel());
     }
         
-    public int getVlanId(LabelType label) {
+    public int getVlanId(TypeValueType label) {
         int vlanId = -1;
         
-        if (NML_LABEL_VLAN.equalsIgnoreCase(label.getLabeltype()) &&
+        if (NML_LABEL_VLAN.equalsIgnoreCase(label.getType()) &&
                 label.getValue() != null && !label.getValue().isEmpty()) {
             vlanId = Integer.parseInt(label.getValue());
         }
@@ -440,8 +440,8 @@ public class NsiTopology {
         return vlanId;
     }
     
-    public String getStringVlanId(LabelType label) {
-        if (NML_LABEL_VLAN.equalsIgnoreCase(label.getLabeltype()) &&
+    public String getStringVlanId(TypeValueType label) {
+        if (NML_LABEL_VLAN.equalsIgnoreCase(label.getType()) &&
                 label.getValue() != null && !label.getValue().isEmpty()) {
             return label.getValue();
         }

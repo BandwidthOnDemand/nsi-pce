@@ -99,7 +99,7 @@ public class TopologyService {
         if (labelType != null && !labelType.isEmpty()) {
             for (Iterator<StpType> iter = stps.getStp().iterator(); iter.hasNext();) {
                 StpType stp = iter.next();
-                if (!stp.getLabel().getLabeltype().contentEquals(labelType)) {
+                if (!stp.getLabel().getType().contentEquals(labelType)) {
                     iter.remove();
                 }
                 else if (labelValue != null && !labelValue.isEmpty()) {
