@@ -30,10 +30,11 @@
     </xsd:complexType>
     
     <xsd:complexType name="NsiResourceType">
-        <xsd:attribute    name="id"       type="xsd:anyURI"    use="optional"/>
-        <xsd:attribute    name="name"     type="xsd:string"    use="optional"/>
-        <xsd:attribute    name="version"  type="xsd:dateTime"  use="optional"/>
-        <xsd:attribute    name="href"     type="xsd:anyURI"    use="optional"/>
+        <xsd:attribute    name="id"         type="xsd:anyURI"    use="optional"/>
+        <xsd:attribute    name="name"       type="xsd:string"    use="optional"/>
+        <xsd:attribute    name="version"    type="xsd:dateTime"  use="optional"/>
+        <xsd:attribute    name="discovered" type="xsd:dateTime"  use="optional"/>
+        <xsd:attribute    name="href"       type="xsd:anyURI"    use="optional"/>
         <xsd:anyAttribute namespace="##other" processContents="lax" />
     </xsd:complexType>
 

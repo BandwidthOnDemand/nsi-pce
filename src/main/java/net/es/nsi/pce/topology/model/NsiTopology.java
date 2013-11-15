@@ -1,14 +1,14 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.topology.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.config.topo.nml.EthernetPort;
 import net.es.nsi.pce.config.topo.nml.Orientation;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
@@ -48,6 +48,9 @@ public class NsiTopology {
     private ConcurrentHashMap<String, ServiceType> services = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, NetworkType> networks = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, NsaType> nsas = new ConcurrentHashMap<>();
+    
+    // The time of the most recent discovered item.
+    private long lastModified = 0L;
 
     /*************************************************************************
      * The base type adders.
@@ -316,6 +319,20 @@ public class NsiTopology {
         stp.setName("unset in newStp");
         stp.setHref(NSI_ROOT_STPS + stp.getId());
         
+        // Set the discovered time.
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(port.getDiscovered());
+        try {
+            XMLGregorianCalendar newXMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+            stp.setDiscovered(newXMLGregorianCalendar);
+        } catch (DatatypeConfigurationException ex) {
+            log.error("newStp: Failed to convert discovered time.");
+        }
+
+        // Set the NML version of the object.
+        stp.setVersion(network.getVersion());
+
+        // Determine the type of port.
         if (port.isBidirectional()) {
             stp.setType(StpDirectionalityType.BIDIRECTIONAL_PORT);
         }
@@ -330,10 +347,11 @@ public class NsiTopology {
         stp.setLocalId(port.getPortId());
         stp.setNetworkId(network.getId());
         
+        // Build the service resource type.
         ResourceRefType serviceType = new ResourceRefType();
-        serviceType.setId("unset in newStp");
+        serviceType.setId("urn:ogf:network:netherlight.net:2012:service:EVTS.A-GOLE");
         serviceType.setHref("unset in newStp");
-        serviceType.setType("unset in newStp");
+        serviceType.setType("http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE");
         stp.getServiceType().add(serviceType);
         
         LabelType label = new LabelType();
@@ -342,6 +360,9 @@ public class NsiTopology {
         stp.setLabel(label);
 
         return stp;
+    }
+
+    public NsiTopology() {
     }
     
     public String newStpId(String neworkId, String localId, net.es.nsi.pce.nml.jaxb.LabelType label) {
@@ -489,6 +510,7 @@ public class NsiTopology {
         NsaType nsiNsa = new NsaType();
         nsiNsa.setId(nmlNsa.getId());
         nsiNsa.setName(nmlNsa.getName());
+        nsiNsa.setVersion(nmlNsa.getVersion());
 
         nsiNsa.setHref(NSI_ROOT_NSAS + nsiNsa.getId());
         
@@ -526,5 +548,19 @@ public class NsiTopology {
         nsaRef.setId(network.getId());
         nsaRef.setHref(network.getHref());
         return nsaRef;
+    }
+
+    /**
+     * @return the lastModified
+     */
+    public long getLastModified() {
+        return lastModified;
+    }
+
+    /**
+     * @param lastModified the lastModified to set
+     */
+    public void setLastModified(long lastModified) {
+        this.lastModified = lastModified;
     }
 }

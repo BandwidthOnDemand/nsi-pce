@@ -71,7 +71,11 @@ public class PollingTopologyProvider implements TopologyProvider {
     // Map holding the network topologies indexed by network Id.
     private Map<String, EthernetPort> ethernetPorts = new ConcurrentHashMap<>();
 
+    // The NSI Topology model used by path finding.
     private NsiTopology nsiTopology = new NsiTopology();
+    
+    // The last time an NML object was discovered.
+    private long lastModified = 0L;
     
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     private Date date;
@@ -135,7 +139,6 @@ public class PollingTopologyProvider implements TopologyProvider {
     private void loadNetworkTopology() throws Exception {
         if (log.isDebugEnabled()) {
             date = new Date();
-            log.debug("----------------------------------------------------------");
             log.debug("loadNetworkTopology(): Starting " + dateFormat.format(date));
         }
 
@@ -195,6 +198,7 @@ public class PollingTopologyProvider implements TopologyProvider {
             }
             
             newTopologyUrlMap.put(entry, reader);
+            updateLastModified(reader.getLastDiscovered());
         }
 
         // We are done so update the map with the new view.
@@ -333,7 +337,6 @@ public class PollingTopologyProvider implements TopologyProvider {
     public synchronized void loadTopology() throws Exception {
         if (log.isDebugEnabled()) {
             date = new Date();
-            log.debug("----------------------------------------------------------");
             log.debug("PollingTopologyProvider.loadTopology(): Starting " + dateFormat.format(date));
         }
         
@@ -461,6 +464,7 @@ public class PollingTopologyProvider implements TopologyProvider {
             }
         }
  
+        newNsiTopology.setLastModified(getLastModified());
         nsiTopology = newNsiTopology;
         
         if (log.isDebugEnabled()) {
@@ -478,7 +482,6 @@ public class PollingTopologyProvider implements TopologyProvider {
 
             date = new Date();
             log.debug("PollingTopologyProvider.loadTopology(): Ending " + dateFormat.format(date));
-            log.debug("----------------------------------------------------------");
         }
     }
     
@@ -565,5 +568,26 @@ public class PollingTopologyProvider implements TopologyProvider {
     @Override
     public void saveCache() throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    /**
+     * @return the lastModified
+     */
+    public long getLastModified() {
+        return lastModified;
+    }
+
+    /**
+     * @param lastModified the lastModified to set
+     */
+    public void setLastModified(long lastModified) {
+        this.lastModified = lastModified;
+    }
+    
+    public long updateLastModified(long lastModified) {
+        if (this.lastModified < lastModified) {
+            this.lastModified = lastModified;
+        }
+        return this.lastModified;
     }
 }

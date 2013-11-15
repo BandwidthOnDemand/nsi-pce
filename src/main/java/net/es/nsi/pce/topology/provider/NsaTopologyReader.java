@@ -78,7 +78,8 @@ public class NsaTopologyReader extends NmlTopologyReader {
             setLastModified(lastMod.getTime());
         }
 
-        // Now we want the NML XML document.
+        // Now we want the NML XML document.  We have to read this as a string
+        // because GitHub is returning incorrect media type (text/plain).
         String xml = response.readEntity(String.class);
         
         log.debug("readNsaTopology: input message " + xml);
@@ -86,7 +87,7 @@ public class NsaTopologyReader extends NmlTopologyReader {
         // Parse the NSA topology. 
         NSAType topology = NmlParser.getInstance().parseNsaFromString(xml);
         
-        // We shoudl never get this - an exception should be thrown.
+        // We should never get this - an exception should be thrown.
         if (topology == null) {
             log.error("readNsaTopology: Failed to parse NSA topology " + getTarget());
         }

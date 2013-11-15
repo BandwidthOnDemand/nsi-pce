@@ -17,7 +17,6 @@ import net.es.nsi.pce.config.topo.nml.Directionality;
 import net.es.nsi.pce.config.topo.nml.EthernetPort;
 import net.es.nsi.pce.config.topo.nml.Orientation;
 import net.es.nsi.pce.config.topo.nml.Relationships;
-import net.es.nsi.pce.topology.provider.TopologyReader;
 import net.es.nsi.pce.nml.jaxb.BidirectionalPortType;
 import net.es.nsi.pce.nml.jaxb.LabelGroupType;
 import net.es.nsi.pce.nml.jaxb.LabelType;
@@ -44,8 +43,11 @@ public abstract class NmlTopologyReader implements TopologyReader {
     // The remote location of the file to read.
     private String target = null;
     
-    // Time we last read the NSA topology.
+    // If-Modified-Since value as retruned from remote server for NSA topology.
     private long lastModified = 0L;
+    
+    // Time we last discovered an NSA topology change.
+    private long lastDiscovered = 0L;
     
     // Keep the original NML NSA entry.
     private NSAType nsa = null;
@@ -95,6 +97,20 @@ public abstract class NmlTopologyReader implements TopologyReader {
     @Override
     public void setLastModified(long lastModified) {
         this.lastModified = lastModified;
+    }
+
+    /**
+     * @return the lastDiscovered
+     */
+    public long getLastDiscovered() {
+        return lastDiscovered;
+    }
+
+    /**
+     * @param lastDiscovered the lastDiscovered to set
+     */
+    public void setLastDiscovered(long lastDiscovered) {
+        this.lastDiscovered = lastDiscovered;
     }
     
     /**
@@ -168,6 +184,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
                     ethPort.setPortId(portGroup.getId());
                     ethPort.setOrientation(orientation);
                     ethPort.setDirectionality(Directionality.unidirectional);
+                    ethPort.setDiscovered(getLastDiscovered());
 
                     // Extract the labels associated with this port and create individual VLAN labels.
                     ethPort.setLabelGroups(portGroup.getLabelGroup());
@@ -211,6 +228,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
                     ethPort.setPortId(port.getId());
                     ethPort.setOrientation(orientation);
                     ethPort.setDirectionality(Directionality.unidirectional);
+                    ethPort.setDiscovered(getLastDiscovered());
 
                     // Extract the label associated with this port and create the VLAN.
                     LabelType label = port.getLabel();
@@ -260,6 +278,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
                     ethPort.setPortId(port.getId());
                     ethPort.setOrientation(Orientation.inboundOutbound);
                     ethPort.setDirectionality(Directionality.bidirectional);
+                    ethPort.setDiscovered(getLastDiscovered());
 
                     // Process port groups containing the unidirectional references.
 
@@ -359,7 +378,9 @@ public abstract class NmlTopologyReader implements TopologyReader {
         // Looks like we have a change and need to process.
         log.info("Topology change detected, loading new version of " + getNsa().getId());
         
+        this.setLastDiscovered(System.currentTimeMillis());
         this.processUpdate();
+
     }
     
     
@@ -381,6 +402,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
         if (getNsa() == null) {
             // We don't have a previous version so update with this version.
             this.setNsa(newNsa);
+            
             log.debug("loadNsaTopology: no old topology so accepting new " + newNsa.getId());
         }
         else {

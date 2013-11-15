@@ -16,9 +16,10 @@ public class Port {
     private String portId;
     private Directionality directionality;
     private Orientation orientation;
-    private List<String> connectedTo = new ArrayList<String>();;
-    private List<LabelType> labels = new ArrayList<LabelType>();
-    private List<LabelGroupType> labelGroups = new ArrayList<LabelGroupType>();
+    private List<String> connectedTo = new ArrayList<>();;
+    private List<LabelType> labels = new ArrayList<>();
+    private List<LabelGroupType> labelGroups = new ArrayList<>();
+    private long discovered = 0L;
     
     
     /**
@@ -135,5 +136,19 @@ public class Port {
      */
     public void setConnectedTo(List<String> connectedTo) {
         this.connectedTo = connectedTo;
+    }
+
+    /**
+     * @return the discovered
+     */
+    public long getDiscovered() {
+        return discovered;
+    }
+
+    /**
+     * @param discovered the discovered to set
+     */
+    public void setDiscovered(long discovered) {
+        this.discovered = discovered;
     }
 }
