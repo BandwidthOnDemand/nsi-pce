@@ -16,9 +16,9 @@ import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
+import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpType;
-import net.es.nsi.pce.topology.jaxb.TransferServiceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,12 +94,12 @@ public class AuthPCE implements PCEModule {
                         }
                     }
                     
-                    // The transfer services.
-                    for (ResourceRefType tsRef : network.getTransferService()) {
-                        TransferServiceType ts = topology.getTransferService(tsRef.getId());
+                    // The Service Domains.
+                    for (ResourceRefType tsRef : network.getServiceDomain()) {
+                        ServiceDomainType ts = topology.getServiceDomain(tsRef.getId());
                         if (ts != null) {
-                            //log.debug("AuthPCE.apply: Adding TransferService " + ts.getId());
-                            newTopology.addTransferService(ts);
+                            //log.debug("AuthPCE.apply: Adding TransferFunction " + ts.getId());
+                            newTopology.addServiceDomain(ts);
                         }
                     }
                     

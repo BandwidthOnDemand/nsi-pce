@@ -291,6 +291,7 @@
         </xs:sequence>
         <xs:attribute  name="encoding"       type="xs:anyURI"   use="optional"/>
         <xs:attribute  name="labelSwapping"  type="xs:boolean"  use="optional"/>
+        <xs:attribute  name="labelType"      type="xs:anyURI"   use="optional"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

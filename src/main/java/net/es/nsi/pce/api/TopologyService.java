@@ -4,6 +4,7 @@
  */
 package net.es.nsi.pce.api;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
@@ -22,6 +23,8 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.config.ConfigurationManager;
 import net.es.nsi.pce.topology.jaxb.CollectionType;
+import net.es.nsi.pce.topology.jaxb.NetworkType;
+import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ObjectFactory;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.StpType;
@@ -83,7 +86,7 @@ public class TopologyService {
                 
                 // Check each STP in the result set to see if it matches the serviceType.
                 boolean found = false;
-                for (ResourceRefType serviceRef : stp.getServiceType()) {
+                for (ResourceRefType serviceRef : stp.getService()) {
                     if (serviceType.contentEquals(serviceRef.getType())) {
                         found = true;
                     }
@@ -181,4 +184,225 @@ public class TopologyService {
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<StpType>>(nsiFactory.createStp(stp)) {}).build();
     }
+    
+    @GET
+    @Path("/networks")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
+    public Response getNetworks(
+            @QueryParam("nsaId") String nsaId,
+            @QueryParam("serviceType") String serviceType,
+            @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
+        
+        // Get a reference to topology provider and get the NSI Topology model.
+        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        NsiTopology nsiTopology = topologyProvider.getTopology();
+        
+        // We are stuffing the results into a collection object.
+        ObjectFactory nsiFactory = new ObjectFactory();
+        CollectionType networks = nsiFactory.createCollectionType();
+
+        // Do initial population of results based on NSA filter.
+        if (nsaId != null && !nsaId.isEmpty()) {
+            Collection<NetworkType> networksByNsaId = nsiTopology.getNetworksByNsaId(nsaId);
+            
+            if (networksByNsaId != null && !networksByNsaId.isEmpty()) {
+                networks.getNetwork().addAll(nsiTopology.getNetworksByNsaId(nsaId));
+            }
+        }
+        else {
+            networks.getNetwork().addAll(nsiTopology.getNetworks());
+        }
+
+        // Now we remove based on the remaining filters.
+        if (serviceType != null && !serviceType.isEmpty()) {
+            for (Iterator<NetworkType> iter = networks.getNetwork().iterator(); iter.hasNext();) {
+                NetworkType network = iter.next();
+                
+                // Check each STP in the result set to see if it matches the serviceType.
+                boolean found = false;
+                for (ResourceRefType serviceRef : network.getService()) {
+                    if (serviceType.contentEquals(serviceRef.getType())) {
+                        found = true;
+                    }
+                }
+                
+                // If we didn't find a matching serviceType in this STP we do not return it.
+                if (!found) {
+                    iter.remove();
+                }
+            } 
+        }
+        
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+                
+        // Now filter by the If-Modified-Since header.  TODO: Validate the Network discovered value is populated.
+        if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTimeInMillis(DateUtils.parseDate(ifModifiedSince).getTime());
+            XMLGregorianCalendar modified = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+            for (Iterator<NetworkType> iter = networks.getNetwork().iterator(); iter.hasNext();) {
+                NetworkType network = iter.next();
+                if (!(modified.compare(network.getDiscovered()) == DatatypeConstants.LESSER)) {
+                    iter.remove();
+                }
+            }
+            
+            // If no Networks then return a 304 to indicate no modifications.
+            if (networks.getNetwork().isEmpty()) {
+                // Send back a 304
+                return Response.notModified().header("Last-Modified", date).build();
+            }
+        }
+
+        // Just a 200 response.
+        return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<CollectionType>>(nsiFactory.createCollection(networks)){}).build();
+    }
+    
+    @GET
+    @Path("/networks/{networkId}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
+    public Response getNetwork(
+            @PathParam("networkId") String networkId,
+            @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
+        
+        // Verify we have the networkId from the request path.  Not sure if this
+        // would ever happen.
+        if (networkId == null || networkId.isEmpty()) {
+            log.error("getNetwork: Path parameter networkId must be provided.");
+            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
+        }
+        
+        // Get a reference to topology provider and get the NSI Topology model.
+        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        NsiTopology nsiTopology = topologyProvider.getTopology();
+        
+        // Try to locate the requested Network.
+        NetworkType network = nsiTopology.getNetwork(networkId);
+        if (network == null) {
+            log.error("getNetwork: Requested networkId does not exist.");
+            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested networkId does not exist.").build());            
+        }
+        
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+
+        // Now filter by the If-Modified-Since header.
+        if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTimeInMillis(DateUtils.parseDate(ifModifiedSince).getTime());
+            XMLGregorianCalendar modified = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+            if (!(modified.compare(network.getDiscovered()) == DatatypeConstants.LESSER)) {
+                return Response.notModified().header("Last-Modified", date).build();
+            }
+        }
+        
+        ObjectFactory nsiFactory = new ObjectFactory();
+        
+        // Just a 200 response.
+        return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<NetworkType>>(nsiFactory.createNetwork(network)) {}).build();
+    }
+    
+    @GET
+    @Path("/networks/{networkId}/stps")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
+    public Response getStpsByNetwork(
+            @PathParam("networkId") String networkId,
+            @QueryParam("serviceType") String serviceType,
+            @QueryParam("labelType") String labelType,
+            @QueryParam("labelValue") String labelValue,
+            @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
+        
+        // Verify we have the networkId from the request path.  Not sure if this
+        // would ever happen.
+        if (networkId == null || networkId.isEmpty()) {
+            log.error("getStpsByNetwork: Path parameter networkId must be provided.");
+            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
+        }
+        
+        return getStps(networkId, serviceType, labelType, labelValue, ifModifiedSince);
+    }
+    
+    @GET
+    @Path("/nsas")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
+    public Response getNsas(
+            @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
+        
+        // Get a reference to topology provider and get the NSI Topology model.
+        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        NsiTopology nsiTopology = topologyProvider.getTopology();
+        
+        // We are stuffing the results into a collection object.
+        ObjectFactory nsiFactory = new ObjectFactory();
+        CollectionType nsas = nsiFactory.createCollectionType();
+
+        // Do initial population of all NSA.
+        nsas.getNsa().addAll(nsiTopology.getNsas());
+              
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+                
+        // Now filter by the If-Modified-Since header.  TODO: Validate the Network discovered value is populated.
+        if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTimeInMillis(DateUtils.parseDate(ifModifiedSince).getTime());
+            XMLGregorianCalendar modified = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+            for (Iterator<NsaType> iter = nsas.getNsa().iterator(); iter.hasNext();) {
+                NsaType nsa = iter.next();
+                if (!(modified.compare(nsa.getDiscovered()) == DatatypeConstants.LESSER)) {
+                    iter.remove();
+                }
+            }
+            
+            // If no NSA then return a 304 to indicate no modifications.
+            if (nsas.getNsa().isEmpty()) {
+                // Send back a 304
+                return Response.notModified().header("Last-Modified", date).build();
+            }
+        }
+
+        // Just a 200 response.
+        return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<CollectionType>>(nsiFactory.createCollection(nsas)){}).build();
+    }
+    
+    @GET
+    @Path("/nsas/{nsaId}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
+    public Response getNsa(
+            @PathParam("nsaId") String nsaId,
+            @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
+        
+        // Verify we have the networkId from the request path.  Not sure if this
+        // would ever happen.
+        if (nsaId == null || nsaId.isEmpty()) {
+            log.error("getNsa: Path parameter nsaId must be provided.");
+            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter nsaId must be provided.").build());
+        }
+        
+        // Get a reference to topology provider and get the NSI Topology model.
+        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        NsiTopology nsiTopology = topologyProvider.getTopology();
+        
+        // Try to locate the requested Network.
+        NsaType nsa = nsiTopology.getNsa(nsaId);
+        if (nsa == null) {
+            log.error("getNsa: Requested nsaId does not exist.");
+            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested nsaId does not exist.").build());            
+        }
+              
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+
+        // Now filter by the If-Modified-Since header.
+        if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTimeInMillis(DateUtils.parseDate(ifModifiedSince).getTime());
+            XMLGregorianCalendar modified = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+            if (!(modified.compare(nsa.getDiscovered()) == DatatypeConstants.LESSER)) {
+                return Response.notModified().header("Last-Modified", date).build();
+            }
+        }
+        
+        ObjectFactory nsiFactory = new ObjectFactory();
+        
+        // Just a 200 response.
+        return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<NsaType>>(nsiFactory.createNsa(nsa)) {}).build();
+    }  
 }

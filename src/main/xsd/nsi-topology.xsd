@@ -1,25 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema targetNamespace="http://schemas.ogf.org/nsi/2013/07/topology/types"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:sd="http://schemas.ogf.org/nsi/2013/07/services/definition"
+    xmlns:sd="http://schemas.ogf.org/nsi/2013/12/services/definition"
     xmlns:tns="http://schemas.ogf.org/nsi/2013/07/topology/types">
     
-    <xsd:import namespace="http://schemas.ogf.org/nsi/2013/07/services/definition"
+    <xsd:import namespace="http://schemas.ogf.org/nsi/2013/12/services/definition"
         schemaLocation="ogf_nsi_services_definition_v2_0.xsd"/>
     
-    <xsd:element name="stp"             type="tns:StpType" />    
-    <xsd:element name="sdp"             type="tns:SdpType" />
-    <xsd:element name="transferService" type="tns:TransferServiceType" />
-    <xsd:element name="service"         type="tns:ServiceType" />
-    <xsd:element name="network"         type="tns:NetworkType" />
-    <xsd:element name="nsa"             type="tns:NsaType" />
-    <xsd:element name="collection"      type="tns:CollectionType" />
+    <xsd:element name="stp"               type="tns:StpType" />    
+    <xsd:element name="sdp"               type="tns:SdpType" />
+    <xsd:element name="serviceAdaptation" type="tns:ServiceAdaptationType" />
+    <xsd:element name="serviceDomain"     type="tns:ServiceDomainType" />
+    <xsd:element name="service"           type="tns:ServiceType" />
+    <xsd:element name="network"           type="tns:NetworkType" />
+    <xsd:element name="nsa"               type="tns:NsaType" />
+    <xsd:element name="collection"        type="tns:CollectionType" />
 
     <xsd:complexType name="CollectionType">
         <xsd:sequence>
             <xsd:element ref="tns:stp" minOccurs="0" maxOccurs="unbounded" />
             <xsd:element ref="tns:sdp" minOccurs="0" maxOccurs="unbounded" />
-            <xsd:element ref="tns:transferService" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element ref="tns:serviceDomain" minOccurs="0" maxOccurs="unbounded" />
             <xsd:element ref="tns:service" minOccurs="0" maxOccurs="unbounded" />
             <xsd:element ref="tns:network" minOccurs="0" maxOccurs="unbounded" />
             <xsd:element ref="tns:nsa" minOccurs="0" maxOccurs="unbounded" />
@@ -48,7 +49,7 @@
                         <xsd:element name="label"      type="tns:TypeValueType" minOccurs="0" maxOccurs="1" />
                         <xsd:element name="labelGroup" type="tns:TypeValueType" minOccurs="0" maxOccurs="unbounded" />
                     </xsd:choice>
-                    <xsd:element name="serviceType"    type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="service"        type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
                     <xsd:element name="property"       type="tns:TypeValueType" minOccurs="0" maxOccurs="unbounded" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:sequence>
@@ -69,8 +70,42 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
+
+    <xsd:complexType name="ServiceAdaptationType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                An Adaptation provides the ability to create connections using
+                STP of different Service Types.  Adaptations are used to connect
+                two Transfer Functions together allowing a path finder to
+                determine if it was possible to “enter” an STP in one Transfer
+                Function and “exit” an STP on a different Transfer Function.
+                
+                An Adaptation is defined through a Service Definition
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension  base="tns:NsiResourceType">
+                <xsd:sequence>
+                    <xsd:element name="network"             type="tns:ResourceRefType" minOccurs="1" />
+                    <xsd:element name="service"             type="tns:ResourceRefType" minOccurs="1" />
+                    <xsd:element name="fromServiceDomain"   type="tns:ResourceRefType" minOccurs="1" maxOccurs="unbounded" />
+                    <xsd:element name="toServiceDomain"     type="tns:ResourceRefType" minOccurs="1" maxOccurs="unbounded" />
+                    <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+                <xsd:attribute name="type" type="tns:AdaptationDirectionalityType" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
     
-    <xsd:complexType name="TransferServiceType">
+    <xsd:complexType name="ServiceDomainType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                Transfer Functions contain a set of STP of the same Service Type
+                that are capable of being interconnected without restriction.
+                
+                
+            </xsd:documentation>
+        </xsd:annotation>
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
                 <xsd:sequence>
@@ -79,6 +114,7 @@
                     <xsd:element name="stp"     type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:sequence>
+                <xsd:attribute name="type" type="xsd:anyURI" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
@@ -100,10 +136,10 @@
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
                 <xsd:sequence>
-                    <xsd:element name="nsa"             type="tns:ResourceRefType" minOccurs="1" />
-                    <xsd:element name="service"         type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
-                    <xsd:element name="stp"             type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
-                    <xsd:element name="transferService" type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="nsa"           type="tns:ResourceRefType" minOccurs="1" />
+                    <xsd:element name="service"       type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="stp"           type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="serviceDomain" type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:sequence>
             </xsd:extension>
@@ -147,6 +183,14 @@
     </xsd:simpleType>
 
     <xsd:simpleType name="SdpDirectionalityType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration  value="Unidirectional"/>
+            <xsd:enumeration  value="Bidirectional"/>
+            <xsd:enumeration  value="Undefined"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+    <xsd:simpleType name="AdaptationDirectionalityType">
         <xsd:restriction base="xsd:string">
             <xsd:enumeration  value="Unidirectional"/>
             <xsd:enumeration  value="Bidirectional"/>

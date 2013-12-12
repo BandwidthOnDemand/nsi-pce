@@ -360,7 +360,7 @@ public class PollingTopologyProvider implements TopologyProvider {
             // Process each Topology object under this NSA object.
             for (net.es.nsi.pce.nml.jaxb.TopologyType nmlTopology : nmlNsa.getTopology()) {
                 // Create a new NSI Network object.
-                NetworkType nsiNetwork = newNsiTopology.newNetwork(nmlTopology);
+                NetworkType nsiNetwork = newNsiTopology.newNetwork(nmlTopology, nsiNsa);
 
                 // Add this network object to our NSI topology.
                 newNsiTopology.addNetwork(nsiNetwork);

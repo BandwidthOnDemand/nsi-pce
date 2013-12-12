@@ -20,7 +20,7 @@ import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
-import net.es.nsi.pce.topology.jaxb.TransferServiceType;
+import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public class NsiTopology {
     // REST interface URL for each resource type.
     private static final String NSI_ROOT_STPS = "/topology/stps/";
     private static final String NSI_ROOT_SDPS = "/topology/sdps/";
-    private static final String NSI_ROOT_TRANSFERSERVICES = "/topology/transferservices/";
+    private static final String NSI_ROOT_SERVICEDOMAINS = "/topology/servicedomains/";
     private static final String NSI_ROOT_SERVICES = "/topology/services/";
     private static final String NSI_ROOT_NETWORKS = "/topology/networks/";
     private static final String NSI_ROOT_NSAS = "/topology/nsas/";
@@ -44,7 +44,7 @@ public class NsiTopology {
     // The NSI Topology model.
     private ConcurrentHashMap<String, StpType> stps = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, SdpType> sdps = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, TransferServiceType> transferServices = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ServiceDomainType> serviceDomains = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, ServiceType> services = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, NetworkType> networks = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, NsaType> nsas = new ConcurrentHashMap<>();
@@ -63,7 +63,7 @@ public class NsiTopology {
      * @return The STP object stored.
      */
     public StpType addStp(StpType stp) {
-        return stps.put(stp.getId(), stp);
+        return stps.put(stp.getId().toLowerCase(), stp);
     }
 
     /**
@@ -73,17 +73,17 @@ public class NsiTopology {
      * @return The SDP object stored.
      */
     public SdpType addSdp(SdpType sdp) {
-        return sdps.put(sdp.getId(), sdp);
+        return sdps.put(sdp.getId().toLowerCase(), sdp);
     }
     
     /**
-     * Add a TransferService object to the topology indexed by transferServiceId.
+     * Add a ServiceDomain object to the topology indexed by serviceDomainId.
      * 
-     * @param transferService The TransferService object to store.
-     * @return The TransferService object stored.
+     * @param serviceDomain The ServiceDomain object to store.
+     * @return The ServiceDomain object stored.
      */
-    public TransferServiceType addTransferService(TransferServiceType transferService) {
-        return transferServices.put(transferService.getId(), transferService);
+    public ServiceDomainType addServiceDomain(ServiceDomainType serviceDomain) {
+        return serviceDomains.put(serviceDomain.getId().toLowerCase(), serviceDomain);
     }
 
     /**
@@ -93,7 +93,7 @@ public class NsiTopology {
      * @return The Service object stored.
      */
     public ServiceType addService(ServiceType service) {
-        return services.put(service.getId(), service);
+        return services.put(service.getId().toLowerCase(), service);
     }
     
     /**
@@ -103,7 +103,7 @@ public class NsiTopology {
      * @return The Network object stored.
      */
     public NetworkType addNetwork(NetworkType network) {
-        return networks.put(network.getId(), network);
+        return networks.put(network.getId().toLowerCase(), network);
     }
     
     /**
@@ -113,7 +113,7 @@ public class NsiTopology {
      * @return The NSA object stored.
      */
     public NsaType addNsa(NsaType nsa) {
-        return nsas.put(nsa.getId(), nsa);
+        return nsas.put(nsa.getId().toLowerCase(), nsa);
     }
     
     /*************************************************************************
@@ -127,7 +127,7 @@ public class NsiTopology {
      * @return The requested STP object.
      */
     public StpType getStp(String stpId) {
-        return stps.get(stpId);
+        return stps.get(stpId.toLowerCase());
     }
 
     /**
@@ -137,17 +137,17 @@ public class NsiTopology {
      * @return The requested SDP object.
      */
     public SdpType getSdp(String sdpId) {
-        return sdps.get(sdpId);
+        return sdps.get(sdpId.toLowerCase());
     }    
     
     /**
-     * Get the TransferService object corresponding to transferServiceId.
+     * Get the ServiceDomain object corresponding to serviceDomainId.
      * 
-     * @param transferServiceId The TransferService object to get.
-     * @return The requested TransferService object.
+     * @param serviceDomainId The ServiceDomain object to get.
+     * @return The requested ServiceDomain object.
      */
-    public TransferServiceType getTransferService(String transferServiceId) {
-        return transferServices.get(transferServiceId);
+    public ServiceDomainType getServiceDomain(String serviceDomainId) {
+        return serviceDomains.get(serviceDomainId.toLowerCase());
     }
     
     /**
@@ -157,7 +157,7 @@ public class NsiTopology {
      * @return The requested Service object.
      */
     public ServiceType getService(String serviceId) {
-        return services.get(serviceId);
+        return services.get(serviceId.toLowerCase());
     }
     
     /**
@@ -167,7 +167,7 @@ public class NsiTopology {
      * @return The requested Network object.
      */
     public NetworkType getNetwork(String networkId) {
-        return networks.get(networkId);
+        return networks.get(networkId.toLowerCase());
     }
     
     /**
@@ -177,7 +177,7 @@ public class NsiTopology {
      * @return The requested NSA object.
      */
     public NsaType getNsa(String nsaId) {
-        return nsas.get(nsaId);
+        return nsas.get(nsaId.toLowerCase());
     }
     
     /*************************************************************************
@@ -210,7 +210,7 @@ public class NsiTopology {
     public void clear() {
         stps.clear();
         sdps.clear();
-        transferServices.clear();
+        serviceDomains.clear();
         services.clear();
         networks.clear();
         nsas.clear();
@@ -233,11 +233,11 @@ public class NsiTopology {
      * @return 
      */
     public NsaType getNsaByNetworkId(String networkId) {
-        NetworkType network = networks.get(networkId);
+        NetworkType network = networks.get(networkId.toLowerCase());
         if (network == null) {
             return null;
         }
-        return nsas.get(network.getNsa().getId());
+        return nsas.get(network.getNsa().getId().toLowerCase());
     }
     
     /**
@@ -247,7 +247,7 @@ public class NsiTopology {
      * @return Matching Network object, or null otherwise.
      */
     public NetworkType getNetworkById(String networkId) {
-        return networks.get(networkId);
+        return networks.get(networkId.toLowerCase());
     }
     
     /**
@@ -258,7 +258,7 @@ public class NsiTopology {
      */
     public NetworkType getNetworkByName(String name) {
         for (NetworkType network : networks.values()) {
-            if (name.contentEquals(network.getName())) {
+            if (name.equalsIgnoreCase(network.getName())) {
                 return network;
             }
         }
@@ -266,6 +266,19 @@ public class NsiTopology {
         return null;
     }
     
+    public Collection<NetworkType> getNetworksByNsaId(String nsaId) {
+        ArrayList<NetworkType> results = new ArrayList<>();
+        
+        if (nsaId != null && !nsaId.isEmpty()) {
+            for (NetworkType network : networks.values()) {             
+                if (nsaId.equalsIgnoreCase(network.getNsa().getId())) {
+                    results.add(network);
+                }
+            }
+        }
+        return results;
+    }
+
     /**
      * Get a set of networkIds associated with this topology.
      * 
@@ -315,7 +328,7 @@ public class NsiTopology {
         StpType stp = new StpType();
         
         // Set the STP attributes.
-        stp.setId(port.getPortId() + ":vlan=" + vlanId.toString());
+        stp.setId(port.getPortId() + "?vlan=" + vlanId.toString());
         stp.setName("unset in newStp");
         stp.setHref(NSI_ROOT_STPS + stp.getId());
         
@@ -352,7 +365,7 @@ public class NsiTopology {
         serviceType.setId("urn:ogf:network:netherlight.net:2012:service:EVTS.A-GOLE");
         serviceType.setHref("unset in newStp");
         serviceType.setType("http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE");
-        stp.getServiceType().add(serviceType);
+        stp.getService().add(serviceType);
         
         TypeValueType label = new TypeValueType();
         label.setType(NML_LABEL_VLAN);
@@ -360,9 +373,6 @@ public class NsiTopology {
         stp.setLabel(label);
 
         return stp;
-    }
-
-    public NsiTopology() {
     }
     
     public String newStpId(String neworkId, String localId, net.es.nsi.pce.nml.jaxb.LabelType label) {
@@ -380,7 +390,7 @@ public class NsiTopology {
         
         // Build the internal format for STP identifier.
         if (localId != null && postfix != null) {
-            return  localId + ":" + postfix;
+            return  localId + "?" + postfix;
         }
         
         return localId;
@@ -405,7 +415,7 @@ public class NsiTopology {
         else if (b == null) {
             return false;
         }
-        else if (!a.getType().contentEquals(b.getType())) {
+        else if (!a.getType().equalsIgnoreCase(b.getType())) {
             return false;
         }
         
@@ -418,7 +428,7 @@ public class NsiTopology {
         else if (a.getValue() == null) {
             return false;
         }
-        else if (!a.getValue().contentEquals(b.getValue())) {
+        else if (!a.getValue().equalsIgnoreCase(b.getValue())) {
             return false;
         }        
         
@@ -490,8 +500,8 @@ public class NsiTopology {
         return serviceRef;
     }
     
-    public Collection<TransferServiceType> getTransferServices() {
-        return transferServices.values();
+    public Collection<ServiceDomainType> getServiceDomains() {
+        return serviceDomains.values();
     }
     
     public Collection<ServiceType> getServices() {
@@ -529,8 +539,10 @@ public class NsiTopology {
         return nsaRef;
     }
     
-    public NetworkType newNetwork(net.es.nsi.pce.nml.jaxb.TopologyType nmlTopology) {
+    public NetworkType newNetwork(net.es.nsi.pce.nml.jaxb.TopologyType nmlTopology, NsaType nsiNsa) {
         NetworkType nsiNetwork = new NetworkType();
+        
+        // Set the Id and naming information.
         nsiNetwork.setId(nmlTopology.getId());
         String name = nmlTopology.getName();
         if (name == null || name.isEmpty()) {
@@ -538,7 +550,16 @@ public class NsiTopology {
         }
         nsiNetwork.setName(name);
 
+        // Create a direct reference to this Network object.
         nsiNetwork.setHref(NSI_ROOT_NETWORKS + nsiNetwork.getId());
+        
+        // Set the reference to the managing NSA.
+        ResourceRefType nsiNsaRef = this.newNsaRef(nsiNsa);
+        nsiNetwork.setNsa(nsiNsaRef);
+        
+        // Use the managing NSA values for discovered and version.
+        nsiNetwork.setDiscovered(nsiNsa.getDiscovered());  
+        nsiNetwork.setVersion(nsiNsa.getVersion());
         
         return nsiNetwork;
     }

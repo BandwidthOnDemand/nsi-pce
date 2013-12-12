@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.topology.jaxb.CollectionType;
+import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ClientConfig;
@@ -55,20 +56,20 @@ public class TopologyClient {
         }
         
         // Get a list of STP filtered by labelType and value.
-        stps = webTarget.path("stps").queryParam("labelType", "http://schemas.ogf.org/nml/2012/10/ethernet#vlan").queryParam("labelValue", "1780").request(MediaType.APPLICATION_JSON).get(CollectionType.class);
+        stps = webTarget.path("stps").queryParam("labelType", "http://schemas.ogf.org/nml/2012/10/ethernet#vlan").queryParam("labelValue", "1784").request(MediaType.APPLICATION_JSON).get(CollectionType.class);
 
         // Dump the full list of STP.
-        System.out.println("Discovered " + stps.getStp().size() + " STPs with vlan=1780.");
+        System.out.println("Discovered " + stps.getStp().size() + " STPs with vlan=1784.");
         for (StpType stp : stps.getStp()) {
             System.out.println(stp.getId());
         }
         
         // Get a specific STP.
-        String Target_STP = "stps/urn:ogf:network:icair.org:2013:krlight:vlan=1780";
+        String Target_STP = "stps/urn:ogf:network:icair.org:2013:krlight?vlan=1780";
         response = webTarget.path(Target_STP).queryParam("labelType", "http://schemas.ogf.org/nml/2012/10/ethernet#vlan").queryParam("labelValue", "1780").request(MediaType.APPLICATION_JSON).get();
 
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-            System.out.println("readNsaTopology: Failed to retrieve STP " + Target_STP);
+            System.out.println("Failed to retrieve STP " + Target_STP);
             throw new NotFoundException("Failed to retrieve STP " + Target_STP);
         }
 
@@ -83,7 +84,7 @@ public class TopologyClient {
         
         // A 304 Not Modified indicates we already have a up-to-date document.
         if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
-            System.out.println("readNsaTopology: NOT_MODIFIED returned " + Target_STP);
+            System.out.println("NOT_MODIFIED returned " + Target_STP);
         }
         else if (response.getStatus() != Response.Status.OK.getStatusCode()) {
             System.err.println("Failed to retrieve STP " + Target_STP);
@@ -92,6 +93,55 @@ public class TopologyClient {
         else {
             stp = response.readEntity(StpType.class);
             System.out.println("Should not get this: " + stp.getId());            
+        }
+        
+        // Retrieve a list of all the networks.
+        CollectionType networks = webTarget.path("networks").request(MediaType.APPLICATION_XML).get(CollectionType.class);
+        System.out.println("Networks:");
+        for (NetworkType network : networks.getNetwork()) {
+            System.out.println(network.getId());
+        }
+        
+        networks = webTarget.path("networks").queryParam("nsaId", "urn:ogf:network:uvalight.net:2013:nsa").request(MediaType.APPLICATION_XML).get(CollectionType.class);
+        System.out.println("Filtered Networks:");
+        for (NetworkType network : networks.getNetwork()) {
+            System.out.println(network.getId());
+        }
+        
+        // Get a specific Network.
+        String Target_Network = "networks/urn:ogf:network:uvalight.net:2013:Topology";
+        response = webTarget.path(Target_Network).request(MediaType.APPLICATION_JSON).get();
+
+        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+            System.out.println("Failed to retrieve Network " + Target_Network);
+            throw new NotFoundException("Failed to retrieve Network " + Target_Network);
+        }
+        
+        // Get STPs under a specific Network.
+        String Target_Network_STPS = "networks/urn:ogf:network:uvalight.net:2013:Topology/stps";
+        response = webTarget.path(Target_Network_STPS).request(MediaType.APPLICATION_JSON).get();
+
+        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+            System.out.println("Failed to retrieve Network " + Target_Network_STPS);
+            throw new NotFoundException("Failed to retrieve Network " + Target_Network_STPS);
+        }
+        
+        // Get a list of available NSA.
+        String Target_NSA = "nsas";
+        response = webTarget.path(Target_NSA).request(MediaType.APPLICATION_JSON).get();
+
+        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+            System.out.println("Failed to retrieve NSAs " + Target_NSA);
+            throw new NotFoundException("Failed to retrieve NSAs " + Target_NSA);
+        }
+        
+        // Get specific NSA entry.
+        String Target_NSA_Id = "nsas/urn:ogf:network:ampath.net:2013:nsa";
+        response = webTarget.path(Target_NSA_Id).request(MediaType.APPLICATION_JSON).get();
+
+        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+            System.out.println("Failed to retrieve NSA " + Target_NSA_Id);
+            throw new NotFoundException("Failed to retrieve NSA " + Target_NSA_Id);
         }
     }
 }

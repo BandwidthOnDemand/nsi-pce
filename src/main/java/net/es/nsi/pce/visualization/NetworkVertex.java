@@ -21,7 +21,7 @@ public class NetworkVertex extends NetworkType {
         this.nsa = network.getNsa();
         this.service = network.getService();
         this.stp = network.getStp();
-        this.transferService = network.getTransferService();
+        this.serviceDomain = network.getServiceDomain();
         this.any = network.getAny();
         this.version = network.getVersion();
     }
