@@ -6,7 +6,6 @@ package net.es.nsi.pce.test;
 
 import java.io.File;
 import net.es.nsi.pce.config.SpringContext;
-import net.es.nsi.pce.topology.provider.NmlTopologyReader;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.springframework.context.ApplicationContext;
@@ -27,9 +26,6 @@ public class TestConfig {
      * instantiation from other classes.
      */
     private TestConfig() {
-        // Build paths for configuration files.
-
-        
         // Load and watch the log4j configuration file for changes.
         DOMConfigurator.configureAndWatch(log4jConfig, 45 * 1000);
         

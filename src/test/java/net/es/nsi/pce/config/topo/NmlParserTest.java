@@ -7,7 +7,7 @@ package net.es.nsi.pce.config.topo;
 import net.es.nsi.pce.schema.NmlParser;
 import java.io.FileNotFoundException;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.nml.jaxb.NSAType;
+import net.es.nsi.pce.topology.jaxb.NmlNSAType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -21,7 +21,7 @@ public class NmlParserTest {
     @Test
     public void testSuccess() throws Exception {
         // This is a valid load of the file.
-        NSAType nsa = NmlParser.getInstance().parseNSAFromFile("src/test/resources/nml/parse/tests/netherlight.xml");
+        NmlNSAType nsa = NmlParser.getInstance().parseNSAFromFile("src/test/resources/nml/parse/tests/netherlight.xml");
         assertEquals("urn:ogf:network:netherlight.net:2013:nsa:bod", nsa.getId());      
     }
     
@@ -47,7 +47,7 @@ public class NmlParserTest {
     @Test
     public void testJAXBException() throws Exception {
         // Test a parsing error.
-        NSAType nsa = null;
+        NmlNSAType nsa = null;
         try {
             nsa = NmlParser.getInstance().parseNSAFromFile("src/test/resources/nml/parse/tests/badcontent.xml");
         }

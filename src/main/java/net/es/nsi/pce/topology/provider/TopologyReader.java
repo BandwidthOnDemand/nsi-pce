@@ -4,10 +4,8 @@
  */
 package net.es.nsi.pce.topology.provider;
 
-import java.util.Map;
-import net.es.nsi.pce.config.topo.nml.EthernetPort;
-import net.es.nsi.pce.nml.jaxb.NSAType;
-import net.es.nsi.pce.nml.jaxb.TopologyType;
+import net.es.nsi.pce.topology.jaxb.NmlNSAType;
+import net.es.nsi.pce.topology.model.NsiTopology;
 
 /**
  *
@@ -52,24 +50,16 @@ public interface TopologyReader {
     /**
      * @return the NSA managing this topology.
      */
-    public NSAType getNsa();
+    public NmlNSAType getNsa();
     
-    public void setNsa(NSAType nsa);
-            
-    /**
-     * @return the topologies
-     */
-    public Map<String, TopologyType> getTopologies();
-
-    /**
-     * @return the ethernetPorts
-     */
-    public Map<String, EthernetPort> getEthernetPorts();
+    public void setNsa(NmlNSAType nsa);
+    
+    public NsiTopology getNsiTopology();
     
     /**
      * 
      * @return
      * @throws Exception 
      */
-    public NSAType readNsaTopology() throws Exception;
+    public NmlNSAType readNsaTopology() throws Exception;
 }

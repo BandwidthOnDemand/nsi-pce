@@ -19,7 +19,7 @@ import net.es.nsi.pce.pf.api.cons.DirectionalityConstraint;
 import net.es.nsi.pce.pf.api.cons.MtuConstraint;
 import net.es.nsi.pce.pf.api.cons.SymmetricPathConstraint;
 import net.es.nsi.pce.pf.api.cons.TopoPathEndpoints;
-import net.es.nsi.pce.nml.jaxb.LabelType;
+import net.es.nsi.pce.topology.jaxb.NmlLabelType;
 
 /**
  *
@@ -107,12 +107,12 @@ public class Point2Point {
         
         if (service instanceof EthernetVlanType) {
             EthernetVlanType evts = (EthernetVlanType) service;
-            LabelType srcLabel = new LabelType();
+            NmlLabelType srcLabel = new NmlLabelType();
             srcLabel.setLabeltype(VLAN);
             srcLabel.setValue(Integer.toString(evts.getSourceVLAN()));
             pe.setSrcLabel(srcLabel);
             
-            LabelType dstLabel = new LabelType();
+            NmlLabelType dstLabel = new NmlLabelType();
             dstLabel.setLabeltype(VLAN);
             dstLabel.setValue(Integer.toString(evts.getDestVLAN()));
             pe.setDstLabel(dstLabel);
@@ -129,8 +129,8 @@ public class Point2Point {
      * @param labels List of labels associated with an STP.
      * @return VLAN value if found, null otherwise.
      */
-    public static Integer getVlanLabel(ArrayList<LabelType> labels) {
-        for (LabelType label : labels) {
+    public static Integer getVlanLabel(ArrayList<NmlLabelType> labels) {
+        for (NmlLabelType label : labels) {
             if (label.getLabeltype().equalsIgnoreCase(VLAN)) {
                 return Integer.valueOf(label.getValue());
             }

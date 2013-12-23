@@ -4,10 +4,14 @@
  */
 package net.es.nsi.pce.jersey;
 
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import javax.ws.rs.core.MediaType;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
  *
@@ -15,10 +19,11 @@ import javax.ws.rs.core.MediaType;
  */
 public class Utilities {
     public static Map<String, String> getNameSpace() {
-        Map<String, String> namespacePrefixMapper = new HashMap<>(3);
+        Map<String, String> namespacePrefixMapper = new HashMap<>(4);
         namespacePrefixMapper.put("http://schemas.es.net/nsi/2013/08/pce/messages", "m");
         namespacePrefixMapper.put("http://schemas.ogf.org/nsi/2013/07/services/point2point", "p");
-        namespacePrefixMapper.put("http://schemas.ogf.org/nsi/2013/07/topology/types", "t");
+        namespacePrefixMapper.put("http://schemas.es.net/nsi/2013/07/topology/types", "t");
+        namespacePrefixMapper.put("http://schemas.ogf.org/nsi/2013/12/services/definition", "s");
         return namespacePrefixMapper;
     }
     
@@ -35,5 +40,12 @@ public class Utilities {
         };
 
         return mediaTypes.contains(mediaType);
+    }
+    
+    public static XMLGregorianCalendar longToXMLGregorianCalendar(long discovered) throws DatatypeConfigurationException {    
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(discovered);
+        XMLGregorianCalendar newXMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+        return newXMLGregorianCalendar;
     }
 }

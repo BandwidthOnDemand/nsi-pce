@@ -2,8 +2,8 @@ package net.es.nsi.pce.config.topo.nml;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.es.nsi.pce.nml.jaxb.LabelGroupType;
-import net.es.nsi.pce.nml.jaxb.LabelType;
+import net.es.nsi.pce.topology.jaxb.NmlLabelGroupType;
+import net.es.nsi.pce.topology.jaxb.NmlLabelType;
 
 /**
  * This class models an NML port object.
@@ -17,8 +17,8 @@ public class Port {
     private Directionality directionality;
     private Orientation orientation;
     private List<String> connectedTo = new ArrayList<>();;
-    private List<LabelType> labels = new ArrayList<>();
-    private List<LabelGroupType> labelGroups = new ArrayList<>();
+    private List<NmlLabelType> labels = new ArrayList<>();
+    private List<NmlLabelGroupType> labelGroups = new ArrayList<>();
     private long discovered = 0L;
     
     
@@ -99,28 +99,28 @@ public class Port {
     /**
      * @return the labels
      */
-    public List<LabelType> getLabels() {
+    public List<NmlLabelType> getLabels() {
         return labels;
     }
 
     /**
      * @param labels the labels to set
      */
-    public void setLabels(List<LabelType> labels) {
+    public void setLabels(List<NmlLabelType> labels) {
         this.labels = labels;
     }
 
     /**
      * @return the labelGroups
      */
-    public List<LabelGroupType> getLabelGroups() {
+    public List<NmlLabelGroupType> getLabelGroups() {
         return labelGroups;
     }
 
     /**
      * @param labelGroups the labelGroups to set
      */
-    public void setLabelGroups(List<LabelGroupType> labelGroups) {
+    public void setLabelGroups(List<NmlLabelGroupType> labelGroups) {
         this.labelGroups = labelGroups;
     }
 

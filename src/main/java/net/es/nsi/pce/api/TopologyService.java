@@ -27,6 +27,7 @@ import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ObjectFactory;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
+import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
@@ -58,7 +59,7 @@ public class TopologyService {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
     public Response getStps(
             @QueryParam("networkId") String networkId,
-            @QueryParam("serviceType") String serviceType,
+            @QueryParam("serviceDomain") String serviceDomain,
             @QueryParam("labelType") String labelType,
             @QueryParam("labelValue") String labelValue,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
@@ -80,16 +81,15 @@ public class TopologyService {
         }
 
         // Now we remove based on the remaining filters.
-        if (serviceType != null && !serviceType.isEmpty()) {
+        if (serviceDomain != null && !serviceDomain.isEmpty()) {
             for (Iterator<StpType> iter = stps.getStp().iterator(); iter.hasNext();) {
                 StpType stp = iter.next();
                 
                 // Check each STP in the result set to see if it matches the serviceType.
                 boolean found = false;
-                for (ResourceRefType serviceRef : stp.getService()) {
-                    if (serviceType.contentEquals(serviceRef.getType())) {
-                        found = true;
-                    }
+                if (stp.getServiceDomain() != null && stp.getServiceDomain().getId() != null &&
+                        serviceDomain.contentEquals(stp.getServiceDomain().getId())) {
+                    found = true;
                 }
                 
                 // If we didn't find a matching serviceType in this STP we do not return it.
@@ -404,5 +404,47 @@ public class TopologyService {
         
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<NsaType>>(nsiFactory.createNsa(nsa)) {}).build();
-    }  
+    }
+    
+    @GET
+    @Path("/serviceDomains")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
+    public Response getServiceDomains(
+            @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
+        
+        // Get a reference to topology provider and get the NSI Topology model.
+        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        NsiTopology nsiTopology = topologyProvider.getTopology();
+        
+        // We are stuffing the results into a collection object.
+        ObjectFactory nsiFactory = new ObjectFactory();
+        CollectionType serviceDomains = nsiFactory.createCollectionType();
+
+        // Do initial population of all NSA.
+        serviceDomains.getServiceDomain().addAll(nsiTopology.getServiceDomains());
+              
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+                
+        // Now filter by the If-Modified-Since header.
+        if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTimeInMillis(DateUtils.parseDate(ifModifiedSince).getTime());
+            XMLGregorianCalendar modified = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+            for (Iterator<ServiceDomainType> iter = serviceDomains.getServiceDomain().iterator(); iter.hasNext();) {
+                ServiceDomainType serviceDomain = iter.next();
+                if (!(modified.compare(serviceDomain.getDiscovered()) == DatatypeConstants.LESSER)) {
+                    iter.remove();
+                }
+            }
+            
+            // If no NSA then return a 304 to indicate no modifications.
+            if (serviceDomains.getServiceDomain().isEmpty()) {
+                // Send back a 304
+                return Response.notModified().header("Last-Modified", date).build();
+            }
+        }
+
+        // Just a 200 response.
+        return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<CollectionType>>(nsiFactory.createCollection(serviceDomains)){}).build();
+    }    
 }

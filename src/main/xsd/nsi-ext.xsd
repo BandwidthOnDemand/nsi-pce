@@ -6,18 +6,18 @@
  File:      nsi-ext.xsd - The NSI extension of NML 
  Version:   $Id$
  Purpose:   
-
+ 
 --> 
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://schemas.ogf.org/nsi/2013/09/topology#"
-           xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#"
-           xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#"
-           elementFormDefault="qualified">
-
+  targetNamespace="http://schemas.ogf.org/nsi/2013/09/topology#"
+  xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#"
+  xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#"
+  elementFormDefault="qualified">
+  
   <xs:import schemaLocation="nmlbase.xsd" 
-             namespace="http://schemas.ogf.org/nml/2013/05/base#"/>
-
+    namespace="http://schemas.ogf.org/nml/2013/05/base#"/>
+  
   <xs:attribute name="isReference" type="xs:anyURI" />
   
   <xs:complexType name="NSARelationType">
@@ -36,25 +36,26 @@
       </xs:simpleType>
     </xs:attribute>
   </xs:complexType>
-
-
+  
+  <xs:element name="Relation"  type="nsi:NSARelationType"/>
+  
   <xs:complexType name="NSAType">
     <xs:complexContent>
       <xs:extension  base="nml:NetworkObject">
         <xs:sequence>
-          <xs:element  name="Service"  type="nsi:NsiServiceType"  minOccurs="0"  maxOccurs="unbounded"/>
-          <xs:element  name="Relation"  type="nsi:NSARelationType"  minOccurs="0"  maxOccurs="unbounded"/>
+          <xs:element  ref="nsi:Interface" minOccurs="0"  maxOccurs="unbounded"/>
+          <xs:element  ref="nsi:Relation"  minOccurs="0"  maxOccurs="unbounded"/>
           <xs:element  ref="nml:Topology"  minOccurs="0"  maxOccurs="unbounded"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-
-
+  
+  
   <xs:element name="NSA"  type="nsi:NSAType"/>
-
-
-  <xs:complexType name="NsiServiceRelationType">
+  
+  
+  <xs:complexType name="InterfaceRelationType">
     <xs:choice>
       <xs:element  ref="nsi:NSA"  minOccurs="1"  maxOccurs="unbounded"/>
     </xs:choice>
@@ -66,30 +67,30 @@
       </xs:simpleType>
     </xs:attribute>
   </xs:complexType>
-
-
-  <xs:group name="BaseNsiServiceContent">
+  
+  
+  <xs:group name="BaseInterfaceContent">
     <xs:sequence>
       <xs:element  name="link"         type="xs:anyURI"  minOccurs="0"  maxOccurs="1"/>
       <xs:element  name="describedBy"  type="xs:anyURI"  minOccurs="0"  maxOccurs="1"/>
       <xs:element  name="type"         type="xs:string"  minOccurs="0"  maxOccurs="1"/>
     </xs:sequence>
   </xs:group>
-
-
-  <xs:complexType name="NsiServiceType">
+  
+  
+  <xs:complexType name="InterfaceType">
     <xs:complexContent>
       <xs:extension  base="nml:NetworkObject">
         <xs:sequence>
-          <xs:group  ref="nsi:BaseNsiServiceContent"/>
-          <xs:element  name="Relation"  type="nsi:NsiServiceRelationType"  minOccurs="0"  maxOccurs="unbounded"/>
+          <xs:group  ref="nsi:BaseInterfaceContent"/>
+          <xs:element  name="Relation"  type="nsi:InterfaceRelationType"  minOccurs="0"  maxOccurs="unbounded"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-
-
-  <xs:element name="Service"  type="nsi:NsiServiceType"/>
-
-
+  
+  
+  <xs:element name="Interface"  type="nsi:InterfaceType"/>
+  
+  
 </xs:schema>

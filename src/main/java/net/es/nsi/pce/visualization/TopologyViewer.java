@@ -66,6 +66,7 @@ import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
+import net.es.nsi.pce.topology.model.NsiStpFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -289,7 +290,7 @@ public class TopologyViewer extends JPanel {
 		public Paint transform(SdpType e) {
             // Filter first based on vlan selection.
             StpType stpA = nsiTopology.getStp(e.getStpA().getId());
-            int vlanId = nsiTopology.getVlanId(stpA);
+            int vlanId = NsiStpFactory.getVlanId(stpA);
             
             if (mVlanId != -1 && mVlanId != vlanId) {
                 return Display.backgroundColor;
@@ -325,7 +326,7 @@ public class TopologyViewer extends JPanel {
             
             // Filter first based on vlan selection.
             StpType stpA = nsiTopology.getStp(e.getStpA().getId());
-            int vlanId = nsiTopology.getVlanId(stpA);
+            int vlanId = NsiStpFactory.getVlanId(stpA);
             
             if (mVlanId != -1 && mVlanId != vlanId) {
                 return INVISIBLE;
@@ -619,7 +620,7 @@ public class TopologyViewer extends JPanel {
         Set<String> s = new TreeSet<>();
         for (StpType stp : nsiTopology.getStps()) {
 
-            String vlanid = nsiTopology.getStringVlanId(stp.getLabel());
+            String vlanid = NsiStpFactory.getStringVlanId(stp.getLabel());
             if (vlanid != null) {
                 s.add(vlanid);
             }
@@ -671,7 +672,7 @@ public class TopologyViewer extends JPanel {
             for (ResourceRefType stpRef : mSourceNetwork.getStp()) {
                 // Determine if the STP has a matching label.
                 StpType stp = nsiTopology.getStp(stpRef.getId());
-                int vlanId = nsiTopology.getVlanId(stp);
+                int vlanId = NsiStpFactory.getVlanId(stp);
                 
                 if (mVlanId == -1 || mVlanId == vlanId) {
                     s.add(stp.getId());
@@ -715,7 +716,7 @@ public class TopologyViewer extends JPanel {
             for (ResourceRefType stpRef : mDestinationNetwork.getStp()) {
                 // Determine if the STP has a matching label.
                 StpType stp = nsiTopology.getStp(stpRef.getId());
-                int vlanId = nsiTopology.getVlanId(stp);
+                int vlanId = NsiStpFactory.getVlanId(stp);
 
                 if (mVlanId == -1 || mVlanId == vlanId) {
                     s.add(stp.getId());
@@ -783,12 +784,12 @@ public class TopologyViewer extends JPanel {
             int destnationVlanId = -1;
             if (mSourceSTP != null && !mSourceSTP.isEmpty()) {
                 StpType stp = nsiTopology.getStp(mSourceSTP);
-                sourceVlanId = nsiTopology.getVlanId(stp);
+                sourceVlanId = NsiStpFactory.getVlanId(stp);
             }
             
             if (mDestinationSTP != null && !mDestinationSTP.isEmpty()) {
                 StpType stp = nsiTopology.getStp(mDestinationSTP);
-                destnationVlanId = nsiTopology.getVlanId(stp);
+                destnationVlanId = NsiStpFactory.getVlanId(stp);
             }
             
             // No vlan restrictions so we use the whole graph.
@@ -817,7 +818,7 @@ public class TopologyViewer extends JPanel {
             if (sdp.getType() == SdpDirectionalityType.BIDIRECTIONAL) {
                 StpType stpA = nsiTopology.getStp(sdp.getStpA().getId());
                 StpType stpZ = nsiTopology.getStp(sdp.getStpZ().getId());
-                int vlanId = nsiTopology.getVlanId(stpA);                               
+                int vlanId = NsiStpFactory.getVlanId(stpA);                               
                 if (vlanId == vlan) {
                     tGraph.addEdge(sdp,
                         networkVerticies.get(stpA.getNetworkId()),

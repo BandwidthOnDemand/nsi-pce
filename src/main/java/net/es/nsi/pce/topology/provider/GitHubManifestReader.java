@@ -14,8 +14,8 @@ import javax.ws.rs.core.Response.Status;
 import javax.xml.namespace.QName;
 import net.es.nsi.pce.config.topo.nml.TopologyManifest;
 import net.es.nsi.pce.jersey.RestClient;
-import net.es.nsi.pce.nml.jaxb.NetworkObject;
-import net.es.nsi.pce.nml.jaxb.TopologyType;
+import net.es.nsi.pce.topology.jaxb.NmlNetworkObject;
+import net.es.nsi.pce.topology.jaxb.NmlTopologyType;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,7 +138,7 @@ public class GitHubManifestReader implements TopologyManifestReader {
         String xml = response.readEntity(String.class);
         
         // Parse the master topology. 
-        TopologyType topology = NmlParser.getInstance().parseTopologyFromString(xml);
+        NmlTopologyType topology = NmlParser.getInstance().parseTopologyFromString(xml);
         
         // Create an internal object to hold the master list.
         TopologyManifest newManifest = new TopologyManifest();
@@ -148,10 +148,10 @@ public class GitHubManifestReader implements TopologyManifestReader {
         }
         
         // Pull out the indivdual network entries.
-        List<NetworkObject> networkObjects = topology.getGroup();
-        for (NetworkObject networkObject : networkObjects) {
-            if (networkObject instanceof TopologyType) {
-                TopologyType innerTopology = (TopologyType) networkObject;
+        List<NmlNetworkObject> networkObjects = topology.getGroup();
+        for (NmlNetworkObject networkObject : networkObjects) {
+            if (networkObject instanceof NmlTopologyType) {
+                NmlTopologyType innerTopology = (NmlTopologyType) networkObject;
                 Map<QName, String> otherAttributes = innerTopology.getOtherAttributes();
                 String isReference = otherAttributes.get(_isReference_QNAME);
                 if (isReference != null && !isReference.isEmpty()) {

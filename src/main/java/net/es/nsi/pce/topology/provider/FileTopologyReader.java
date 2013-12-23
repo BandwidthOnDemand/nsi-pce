@@ -4,7 +4,7 @@ import net.es.nsi.pce.schema.NmlParser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.nml.jaxb.NSAType;
+import net.es.nsi.pce.topology.jaxb.NmlNSAType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -59,7 +59,7 @@ public class FileTopologyReader extends NmlTopologyReader {
      * @return The JAXB NSA element from the NML topology.
      */
     @Override
-    public NSAType readNsaTopology() throws Exception {
+    public NmlNSAType readNsaTopology() throws Exception {
         // Check to see if file associated with this topology has changed.
         File configFile = new File(this.getTarget()); 
         if (!configFile.exists()) {
@@ -77,7 +77,7 @@ public class FileTopologyReader extends NmlTopologyReader {
         // Looks like we have a change and need to process.
         log.debug("File change detected, loading " + ap);
 
-        NSAType newNsa;
+        NmlNSAType newNsa;
         try {
             newNsa = NmlParser.getInstance().parseNSAFromFile(ap);
             log.info("Loaded topology for NSA " + newNsa.getId());

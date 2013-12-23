@@ -5,14 +5,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.config.topo.nml.BidirectionalEthernetPort;
-import net.es.nsi.pce.config.topo.nml.EthernetPort;
 import net.es.nsi.pce.config.topo.nml.TopologyManifest;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.config.jaxb.ConfigurationType;
@@ -21,11 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
-import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
-import net.es.nsi.pce.topology.jaxb.ResourceRefType;
+import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.topology.model.NsiSdpFactory;
 
 
 /**
@@ -61,16 +57,7 @@ public class PollingTopologyProvider implements TopologyProvider {
     
     // NSA topology entries indexed by string URL.
     private Map<String, NmlTopologyReader> topologyUrlMap = new ConcurrentHashMap<>();
-
-    // Map holding the network topologies indexed by network Id.
-    private Map<String, net.es.nsi.pce.nml.jaxb.NSAType> nsas = new ConcurrentHashMap<>();
     
-    // Map holding the network topologies indexed by network Id.
-    private Map<String, net.es.nsi.pce.nml.jaxb.TopologyType> topologies = new ConcurrentHashMap<>();
-    
-    // Map holding the network topologies indexed by network Id.
-    private Map<String, EthernetPort> ethernetPorts = new ConcurrentHashMap<>();
-
     // The NSI Topology model used by path finding.
     private NsiTopology nsiTopology = new NsiTopology();
     
@@ -205,104 +192,21 @@ public class PollingTopologyProvider implements TopologyProvider {
         topologyUrlMap = newTopologyUrlMap;
         
         // Consolidate individual topologies in one master list.
-        Map<String, net.es.nsi.pce.nml.jaxb.NSAType> newNsas = new ConcurrentHashMap<>();
-        Map<String, net.es.nsi.pce.nml.jaxb.TopologyType> newTopologies = new ConcurrentHashMap<>();
-        Map<String, EthernetPort> newEthernetPorts = new ConcurrentHashMap<>();
-
+        NsiTopology newTopology = new NsiTopology();
         for (NmlTopologyReader nml : topologyUrlMap.values()) {
-            net.es.nsi.pce.nml.jaxb.NSAType nmlNsa = nml.getNsa();
-            if (nmlNsa.getId() == null || nmlNsa.getId().isEmpty()) {
-                log.error("Topology endpoint missing NSA identifier: " + nml.getTarget());
-                continue;
+            NsiTopology topology = nml.getNsiTopology();
+            for (String nsaId : topology.getNsaIds()) {
+                log.debug("Processing topology for NSA: " + nml.getNsa().getId());
             }
             
-            log.debug("Processing topology for " + nml.getNsa().getId());
-            
-            newNsas.put(nmlNsa.getId(), nmlNsa);
-            newTopologies.putAll(nml.getTopologies());
-            newEthernetPorts.putAll(nml.getEthernetPorts());
+            newTopology.add(topology);
         }
         
-        // Interconnect bidirectional ports using their unidirectional components.
-        for (EthernetPort ethPort : newEthernetPorts.values()) {
-            log.debug("Processing port " + ethPort.getPortId());
-            
-            if (ethPort.isBidirectional() && ethPort instanceof BidirectionalEthernetPort) {
-                log.debug("Consolidating bidirectional link: " + ethPort.getPortId());
-                BidirectionalEthernetPort biPort = (BidirectionalEthernetPort) ethPort;
-                
-                // Unidirectional links are in Bidirectional port definition.
-                EthernetPort inbound = biPort.getInbound();
-                EthernetPort outbound = biPort.getOutbound();
-                
-                // Verify the inbound peer unidirectional ports exist and is connected.
-                EthernetPort remoteOutbound = null;
-                if (inbound.getConnectedTo().isEmpty()) {
-                    log.debug("Bidirectional port " + biPort.getPortId() + " has no connectedTo information for inbound port: " + inbound.getPortId());
-                }
-                else {
-                    // Assume only one for now.
-                    String remotePortId = inbound.getConnectedTo().get(0);
-                    remoteOutbound = newEthernetPorts.get(remotePortId);
-                
-                    if (remoteOutbound == null) {
-                        log.error("Bidirectional port " + biPort.getPortId() + " has inbound unidirectional port " + inbound.getPortId() + " with bad remote reference " + remotePortId);
-                    }
-                }
-                
-                // Verify the outbound peer unidirectional ports exist.
-                EthernetPort remoteInbound = null;
-                if (outbound.getConnectedTo().isEmpty()) {
-                    log.debug("Bidirectional port " + biPort.getPortId() + " has no connectedTo information for inbound port: " + outbound.getPortId());
-                }
-                else {
-                    // Assume only one for now.
-                    String remotePortId = outbound.getConnectedTo().get(0);
-                    remoteInbound = newEthernetPorts.get(remotePortId);
-
-                    if (remoteInbound == null) {
-                        log.debug("Bidirectional port " + biPort.getPortId() + " has outbound unidirectional port " + outbound.getPortId() + " with bad remote reference " + remotePortId);
-                    }
-                }
-                
-                // We need valid connectivity information before we can consolidate links.
-                if (remoteOutbound == null && remoteInbound == null) {
-                    // This must be a client "Uni" port with not connectivity information.
-                    log.error("Bidirectional port " + biPort.getPortId() + " has no remote port references (Uni?).");
-                }
-                else if (remoteOutbound == null || remoteInbound == null) {
-                    log.error("Bidirectional port " + biPort.getPortId() + " cannot be consolidated due one missing remote unidirectional port reference.");
-                }
-                else {
-                    // Verify the remote ports also think they are connected to these ports.
-                    if (!inbound.getConnectedTo().contains(remoteOutbound.getPortId()) ||
-                            !remoteOutbound.getConnectedTo().contains(inbound.getPortId())) {
-                        log.error("Port " + inbound.getPortId() + " indicates connectivity to " + remoteOutbound.getPortId() + " but this port does not agree!");
-                    }
-                    else if (!outbound.getConnectedTo().contains(remoteInbound.getPortId()) ||
-                            !remoteInbound.getConnectedTo().contains(outbound.getPortId())) {
-                        log.error("Port " + outbound.getPortId() + " indicates connectivity to " + remoteInbound.getPortId() + " but this port does not agree!");
-                    }
-                    else {
-                        // We have remote port references, now find the remote bidirectional port.
-                        BidirectionalEthernetPort remotePort = findBidirectionalEthernetPortByMemberId(newEthernetPorts, remoteInbound.getPortId(), remoteOutbound.getPortId());
-                        if (remotePort == null) {
-                            log.error("BidirectionalPort " + biPort.getPortId() + " has no compatible topology peer for inbound " + remoteInbound.getPortId() + ", and outbound " + remoteOutbound.getPortId());
-                        }
-                        else {
-                            log.debug("Consolidating bidirectional ports: " + biPort.getPortId() + " and " + remotePort.getPortId());
-                            biPort.getConnectedTo().add(remotePort.getPortId());
-                            biPort.setRemotePort(remotePort);
-                        }
-                    }
-                }
-            }
-        }
+        newTopology = consolidateGlobalTopology(newTopology);
         
         // Update the gloabl topology with the new view.
-        nsas = newNsas;
-        topologies = newTopologies;
-        ethernetPorts = newEthernetPorts;
+        newTopology.setLastModified(getLastModified());
+        nsiTopology = newTopology;
         
         if (log.isDebugEnabled()) {
             date = new Date();
@@ -310,26 +214,17 @@ public class PollingTopologyProvider implements TopologyProvider {
             log.debug("----------------------------------------------------------");
         }
     }
-   
-    private BidirectionalEthernetPort findBidirectionalEthernetPortByMemberId(Map<String, EthernetPort> ethernetPorts, String inbound, String outbound) {
-        for (EthernetPort ethPort : ethernetPorts.values()) {
-            if (ethPort.isBidirectional() && ethPort instanceof BidirectionalEthernetPort) {
-                BidirectionalEthernetPort biPort = (BidirectionalEthernetPort) ethPort;
-                
-                if ((biPort.getInbound() != null && biPort.getInbound().getPortId().equalsIgnoreCase(inbound)) &&
-                        (biPort.getOutbound() != null && biPort.getOutbound().getPortId().equalsIgnoreCase(outbound))) {
-                    return biPort;
-                }
-            }
-        }
-        
-        return null;
+    
+    private NsiTopology consolidateGlobalTopology(NsiTopology topology) {
+        topology.addAllSdp(NsiSdpFactory.createUnidirectionalSdpTopology(topology.getStpMap()));
+        topology.addAllSdp(NsiSdpFactory.createBidirectionalSdps(topology.getStpMap()));
+        return topology;
     }
 
     /**
      * Take the NML topology for the set of interconnected networks and compute
-     * the NSI related topology objects (Network, STP, and SDP) used for path
-     * calculations.
+     * the NSI related topology objects (NSA, Network, Adaption, STP, and SDP)
+     * used for path calculations.
      * 
      * @throws Exception If there are invalid topologies.
      */
@@ -342,130 +237,6 @@ public class PollingTopologyProvider implements TopologyProvider {
         
         // Load the NML topology model.
         loadNetworkTopology();
-
-        // Create the NSI topology.
-        NsiTopology newNsiTopology = new NsiTopology();
-
-        /* Each NML object must be mapped through to an equivalent NSI Topology
-         * object.  Ww start by parsing the NSA objects, extracting Topology
-         * objects to created networks.
-         */
-        for (net.es.nsi.pce.nml.jaxb.NSAType nmlNsa : nsas.values()) {
-            // Create the NSI NSA object.
-            NsaType nsiNsa = newNsiTopology.newNsa(nmlNsa);
-            
-            // Create the NSA resource reference.
-            ResourceRefType nsiNsaRef = newNsiTopology.newNsaRef(nsiNsa);
-            
-            // Process each Topology object under this NSA object.
-            for (net.es.nsi.pce.nml.jaxb.TopologyType nmlTopology : nmlNsa.getTopology()) {
-                // Create a new NSI Network object.
-                NetworkType nsiNetwork = newNsiTopology.newNetwork(nmlTopology, nsiNsa);
-
-                // Add this network object to our NSI topology.
-                newNsiTopology.addNetwork(nsiNetwork);
-                
-                // We need to build a reference to this new Network object for
-                // use in the NSA object.
-                ResourceRefType nsiNetworkRef = newNsiTopology.newNetworkRef(nsiNetwork);
-                nsiNsa.getNetwork().add(nsiNetworkRef);
-            }
-            
-            // Add this compeleted NSA object to the NSI topology.
-            newNsiTopology.addNsa(nsiNsa);
-        }
-
-        // Add each bidirectional port as a bidirectional STP in the NSI topology.
-        Map<String, EthernetPort> ethPorts = new ConcurrentHashMap<>(ethernetPorts);
-        for (String key : ethPorts.keySet()) {
-            EthernetPort localPort = ethPorts.remove(key);
-            
-            // Make sure we have not already processed the port as a remote end
-            // of a previous iteration.
-            if (localPort != null && localPort.isBidirectional()) {
-                log.debug("Converting Ethernet port to STP: " + localPort.getPortId());
-                
-                BidirectionalEthernetPort localBiPort = (BidirectionalEthernetPort) localPort;
-                NetworkType nsiLocalNetwork = newNsiTopology.getNetworkById(localBiPort.getTopologyId());
-                
-                // This should never happen but skip the port if it does.
-                if (nsiLocalNetwork == null) {
-                    log.error("Could not find network " + localBiPort.getTopologyId());
-                    continue;
-                }
-
-                // We create an STP per vlan for the local Ethernet port.  They
-                // are created even if the remote end does not have a matching
-                // STP.  Why?  Logically these unconnected STP exist even though
-                // they can never be used.
-                HashMap<Integer, StpType> processedStp = new HashMap<>();
-                
-                for (Integer vlanId : localBiPort.getVlans()) {
-                    log.debug("Converting local port " + localBiPort.getPortId() + " vlan = " + vlanId);
-                    
-                    // Create the local STP.
-                    StpType nsiLocalStp = newNsiTopology.newStp(nsiLocalNetwork, localBiPort, vlanId);
-                    
-                    // Create a reference to this new STP.
-                    ResourceRefType nsiLocalStpRef = newNsiTopology.newStpRef(nsiLocalStp);
-                    
-                    // Update this network to hold the STP reference.
-                    nsiLocalNetwork.getStp().add(nsiLocalStpRef);
-                    
-                    // Add this STP to the NSI Topology.
-                    newNsiTopology.addStp(nsiLocalStp);
-                    
-                    // Save it for SDP processing.
-                    processedStp.put(vlanId, nsiLocalStp);
-                }
-                
-                // We only process remote end STP if one exists.  If there is
-                // no remote end then we do not create an SDP.
-                BidirectionalEthernetPort remoteBiPort = localBiPort.getRemotePort();
-                NetworkType nsiRemoteNetwork;
-                if (remoteBiPort != null) {
-                    log.debug("Found remote biport for conversion " + remoteBiPort.getPortId());
-                    
-                    // Remove remote port matching the local port so we do not
-                    // process it twice.
-                    ethPorts.remove(remoteBiPort.getPortId());
-                    nsiRemoteNetwork = newNsiTopology.getNetworkById(remoteBiPort.getTopologyId());
-                    
-                    // Create the remote STP so we don't need to do it later
-                    // when visiting the remote network.
-                    for (Integer vlanId : remoteBiPort.getVlans()) {
-                        log.debug("Converting remote port " + remoteBiPort.getPortId() + " vlan = " + vlanId);
-
-                        // Create the remote STP and store in remote network topology.
-                        StpType nsiRemoteStp = newNsiTopology.newStp(nsiRemoteNetwork, remoteBiPort, vlanId);
-                        
-                        // Create a reference to this new remote STP.
-                        ResourceRefType nsiRemoteStpRef = newNsiTopology.newStpRef(nsiRemoteStp);
-                        
-                        // Update this network to hold the STP reference.
-                        nsiRemoteNetwork.getStp().add(nsiRemoteStpRef);
-                    
-                        // Add this STP to the NSI Topology.
-                        newNsiTopology.addStp(nsiRemoteStp);
-                        
-                        // Create an SDP if there is a matching local STP.
-                        StpType nsiLocalStp = processedStp.get(vlanId);
-                        if (nsiLocalStp != null) {
-                            SdpType nsiSdp = newNsiTopology.newSdp(nsiLocalStp, nsiRemoteStp);
-                            newNsiTopology.addSdp(nsiSdp);
-                            log.debug("Added SDP: " + nsiSdp.getId());                            
-                        }
-                    }          
-                }
-                else {
-                    // This is okay if the port is considered a client UNI port.
-                    log.info("No topology link for port " + localPort.getPortId());
-                }
-            }
-        }
- 
-        newNsiTopology.setLastModified(getLastModified());
-        nsiTopology = newNsiTopology;
         
         if (log.isDebugEnabled()) {
             // Dump Netoworks for debug.
@@ -474,6 +245,12 @@ public class PollingTopologyProvider implements TopologyProvider {
                 log.debug("    " + network.getId());
             }
 
+            // Dump SDP links for debug.
+            log.debug("The following STP were created:");
+            for (StpType stp : nsiTopology.getStps()) {
+                log.debug(stp.getType().name() + " " + stp.getId());
+            }
+            
             // Dump SDP links for debug.
             log.debug("The following SDP links were created:");
             for (SdpType sdp : nsiTopology.getSdps()) {

@@ -8,18 +8,18 @@
     <context:component-scan base-package="net.es.nsi.pce"/>
     
     <bean id="serviceInfoProvider" class="net.es.nsi.pce.config.nsa.JsonNsaConfigProvider" init-method="loadConfig" scope="singleton">
-        <property name="filename" value="config/nsa.json"/>
+        <property name="filename" value="src/test/resources/config/nsa.json"/>
     </bean>
 
     <bean id="authProvider" class="net.es.nsi.pce.config.nsa.auth.NsaConfigAuthProvider" scope="singleton" />
 
     <bean id="httpConfigProvider" class="net.es.nsi.pce.config.http.JsonHttpConfigProvider" init-method="loadConfig" scope="singleton">
-        <property name="filename" value="config/http.json"/>
+        <property name="filename" value="src/test/resources/config/http.json"/>
     </bean>
 
     <!-- Configuration for local directory reader topology provider. -->
     <bean id="topologyProvider" class="net.es.nsi.pce.topology.provider.PollingTopologyProvider" init-method="initialize" scope="singleton">
-        <property name="configuration" value="config/topology-filesystem.xml"/>
+        <property name="configuration" value="src/test/resources/config/topology-filesystem.xml"/>
         <property name="topologyManifestReader" ref="topologyManifestReader"/>
         <property name="topologyReaderFactory" ref="topologyReaderFactory"/>
     </bean>

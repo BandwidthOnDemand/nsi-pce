@@ -13,8 +13,6 @@ import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
-import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
-
 
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.test.TestConfig;

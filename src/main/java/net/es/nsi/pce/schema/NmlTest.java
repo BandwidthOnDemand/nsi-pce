@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
-import net.es.nsi.pce.nml.jaxb.NetworkObject;
-import net.es.nsi.pce.nml.jaxb.TopologyType;
+import net.es.nsi.pce.topology.jaxb.NmlNetworkObject;
+import net.es.nsi.pce.topology.jaxb.NmlTopologyType;
 
 /**
  *
@@ -22,7 +22,7 @@ public class NmlTest {
     public static void main(String[] args) throws Exception {
         JAXBElement<?> topologyElement;
 
-         topologyElement = XmlUtilities.xmlToJaxb(TopologyType.class, "<nml:Topology id=\"urn:ogf:network:glif.is:2013:autogole-topology\"\n" +
+         topologyElement = XmlUtilities.xmlToJaxb(NmlTopologyType.class, "<nml:Topology id=\"urn:ogf:network:glif.is:2013:autogole-topology\"\n" +
 "    xmlns:nml=\"http://schemas.ogf.org/nml/2013/05/base#\"\n" +
 "    xmlns:nsi=\"http://schemas.ogf.org/nsi/2013/09/topology#\"\n" +
 "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
@@ -47,13 +47,13 @@ public class NmlTest {
 "    <nml:Topology id=\"urn:ogf:network:icair.org:2013\" nsi:isReference=\"http://pmri061.it.northwestern.edu:9080/NSI/topology/icair.org:2013.xml\" />\n" +
 "</nml:Topology>");
         
-        TopologyType topology = (TopologyType) topologyElement.getValue();
+        NmlTopologyType topology = (NmlTopologyType) topologyElement.getValue();
         System.out.println(topology.getId());
         
-        List<NetworkObject> networkObjects = topology.getGroup();
-        for (NetworkObject networkObject : networkObjects) {
-            if (networkObject instanceof TopologyType) {
-                TopologyType innerTopology = (TopologyType) networkObject;
+        List<NmlNetworkObject> networkObjects = topology.getGroup();
+        for (NmlNetworkObject networkObject : networkObjects) {
+            if (networkObject instanceof NmlTopologyType) {
+                NmlTopologyType innerTopology = (NmlTopologyType) networkObject;
                 Map<QName, String> otherAttributes = innerTopology.getOtherAttributes();
                 String isReference = otherAttributes.get(_isReference_QNAME);
                 if (isReference != null && !isReference.isEmpty()) {

@@ -9,7 +9,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.es.nsi.pce.jersey.RestClient;
-import net.es.nsi.pce.nml.jaxb.NSAType;
+import net.es.nsi.pce.topology.jaxb.NmlNSAType;
 import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ public class NsaTopologyReader extends NmlTopologyReader {
      * @return The JAXB NSA element from the NML topology.
      */
     @Override
-    public NSAType readNsaTopology() throws Exception {
+    public NmlNSAType readNsaTopology() throws Exception {
         log.debug("readNsaTopology: entering");
         
         // Use the REST client to retrieve the master topology as a string.
@@ -85,7 +85,7 @@ public class NsaTopologyReader extends NmlTopologyReader {
         log.debug("readNsaTopology: input message " + xml);
         
         // Parse the NSA topology. 
-        NSAType topology = NmlParser.getInstance().parseNsaFromString(xml);
+        NmlNSAType topology = NmlParser.getInstance().parseNsaFromString(xml);
         
         // We should never get this - an exception should be thrown.
         if (topology == null) {
