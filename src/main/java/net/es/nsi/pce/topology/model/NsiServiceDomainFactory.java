@@ -125,6 +125,9 @@ public class NsiServiceDomainFactory {
             }
         }
         
+        // Create a ServiceDomain reference for populating STP.
+        ResourceRefType serviceDomainRef = NsiServiceDomainFactory.createResourceRefType(nsiServiceDomain);
+        
         // Now we add all the bidirectional ports that have unidirectional
         // members of this SwitchingService.  This is slow...
         for (ResourceRefType inboundStp : nsiServiceDomain.getInboundStp()) {
@@ -134,10 +137,14 @@ public class NsiServiceDomainFactory {
                         // We should check for a matching outbound STP but skip for now.
                         ResourceRefType stpRef = NsiStpFactory.createResourceRefType(stp);
                         nsiServiceDomain.getBidirectionalStp().add(stpRef);
+                        stp.setServiceDomain(serviceDomainRef);
                     }
                 }
             }
         }
+        
+        // Add this ServiceDomain to the owning network.
+        nsiNetwork.getServiceDomain().add(serviceDomainRef);
         
         return nsiServiceDomain;
     }
@@ -167,12 +174,16 @@ public class NsiServiceDomainFactory {
      * @param nsiTopology NSI topology containing STP resource objects.
      */
     private static void mapPortToStp(NmlPort nmlPort, String relationType, ServiceDomainType nsiServiceDomain, NsiTopology nsiTopology) {
+        // Create a ServiceDomain reference for populating STP.
+        ResourceRefType serviceDomainRef = NsiServiceDomainFactory.createResourceRefType(nsiServiceDomain);
+        
         // If there are no labels associated with the port then we have a single STP.
         if (nmlPort.getLabels() == null || nmlPort.getLabels().isEmpty()) {
             String stpId = NsiStpFactory.createStpId(nmlPort.getId(), null);
 
             // Retrieve the STP so re can build a reference.
             StpType stp = nsiTopology.getStp(stpId);
+            stp.setServiceDomain(serviceDomainRef);
             ResourceRefType stpRef = NsiStpFactory.createResourceRefType(stp);
             switch (relationType) {
                 case Relationships.hasInboundPort:
@@ -190,6 +201,7 @@ public class NsiServiceDomainFactory {
 
                 // Retrieve the STP so re can build a reference.
                 StpType stp = nsiTopology.getStp(stpId);
+                stp.setServiceDomain(serviceDomainRef);
                 ResourceRefType stpRef = NsiStpFactory.createResourceRefType(stp);
                 switch (relationType) {
                     case Relationships.hasInboundPort:

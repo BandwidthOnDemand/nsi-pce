@@ -1,0 +1,4 @@
+<top:configuration xmlns:top="http://schemas.es.net/nsi/2013/08/pce/configuration">
+	<location>http://localhost:8400/www/master.xml</location>
+	<auditInterval>300000</auditInterval>
+</top:configuration>

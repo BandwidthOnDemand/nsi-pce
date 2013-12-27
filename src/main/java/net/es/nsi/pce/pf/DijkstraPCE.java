@@ -18,6 +18,7 @@ import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
+import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.model.NsiStpFactory;
 
@@ -104,15 +105,6 @@ public class DijkstraPCE implements PCEModule {
                 throw new IllegalArgumentException("00706:UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST:" + dstStpId);
             }
         }
-
-        // We currently do not support label swapping so make sure the source
-        // and destination labels match.  This restriction can be removed later
-        // when the TransferService is introdcued.
-        if (!NsiStpFactory.labelEquals(srcStp.getLabel(), dstStp.getLabel())) {
-            IllegalArgumentException ex = new IllegalArgumentException("00703:LABEL_INTERCANGE_NOT_SUPPORTED:Source and destination STP label mismatch");
-            log.error("Path computation failed due to label mismatch", ex);
-            throw ex;                 
-        }
         
         // We can save time by handling the special case of A and Z STP in same
         // network.
@@ -125,13 +117,13 @@ public class DijkstraPCE implements PCEModule {
         }
 
         // Graph<V, E> where V is the type of the vertices and E is the type of the edges.
-        Graph<NetworkType, SdpType> graph = new SparseMultigraph<>();
+        Graph<ServiceDomainType, SdpType> graph = new SparseMultigraph<>();
         
-        // Add Networks as verticies.
-        for (NetworkType network : nsiTopology.getNetworks()) {
-            log.debug("Adding Vertex: " + network.getId());
-            graph.addVertex(network);
-        }        
+        // Add ServiceDomains as verticies.
+        for (ServiceDomainType serviceDomain : nsiTopology.getServiceDomains()) {
+            log.debug("Adding Vertex: " + serviceDomain.getId());
+            graph.addVertex(serviceDomain);
+        }
 
         // Add bidirectional SDP as edges.
         for (SdpType sdp : nsiTopology.getSdps()) {
@@ -140,27 +132,30 @@ public class DijkstraPCE implements PCEModule {
                 StpType stpA = nsiTopology.getStp(sdp.getStpA().getId());
                 StpType stpZ = nsiTopology.getStp(sdp.getStpZ().getId());
                 
-                // Until the TransferService is supported we must filter edges
-                // to match the label of source and destination STP.
-                if (NsiStpFactory.labelEquals(srcStp.getLabel(), stpA.getLabel())) {
-                    graph.addEdge(sdp, nsiTopology.getNetworkById(stpA.getNetworkId()), nsiTopology.getNetworkById(stpZ.getNetworkId()));
-                }                         
+                ServiceDomainType aServiceDomain = nsiTopology.getServiceDomain(stpA.getServiceDomain().getId());
+                ServiceDomainType bServiceDomain = nsiTopology.getServiceDomain(stpZ.getServiceDomain().getId());                
+
+                graph.addEdge(sdp, aServiceDomain, bServiceDomain);                    
             }
         }
  
         // Verify that the source and destination STP are still in our topology.
         // TODO: When can this occur?
-        if (!graph.containsVertex(nsiTopology.getNetworkById(srcStp.getNetworkId()))) {
-            throw new IllegalArgumentException("00403:NO_PATH_FOUND:Source network for source STP no longer in topology " + srcStp);
-        } else if (!graph.containsVertex(nsiTopology.getNetworkById(dstStp.getNetworkId()))) {
-            throw new IllegalArgumentException("00403:NO_PATH_FOUND:Source network for destination STP no longer in topology " + dstStp);
-        }
+        //if (!graph.containsVertex(nsiTopology.getNetworkById(srcStp.getNetworkId()))) {
+        //    throw new IllegalArgumentException("00403:NO_PATH_FOUND:Source network for source STP no longer in topology " + srcStp);
+        //} else if (!graph.containsVertex(nsiTopology.getNetworkById(dstStp.getNetworkId()))) {
+        //    throw new IllegalArgumentException("00403:NO_PATH_FOUND:Source network for destination STP no longer in topology " + dstStp);
+        //}
 
-        DijkstraShortestPath<NetworkType, SdpType> alg = new DijkstraShortestPath<>(graph);
+        DijkstraShortestPath<ServiceDomainType, SdpType> alg = new DijkstraShortestPath<>(graph);
         
         List<SdpType> path;
         try {
-            path = alg.getPath(nsiTopology.getNetworkById(srcStp.getNetworkId()), nsiTopology.getNetworkById(dstStp.getNetworkId()));
+            //path = alg.getPath(nsiTopology.getNetworkById(srcStp.getNetworkId()), nsiTopology.getNetworkById(dstStp.getNetworkId()));
+            
+            ServiceDomainType sourceServiceDomain = nsiTopology.getServiceDomain(srcStp.getServiceDomain().getId());
+            ServiceDomainType destinationServiceDomain = nsiTopology.getServiceDomain(dstStp.getServiceDomain().getId());
+            path = alg.getPath(sourceServiceDomain, destinationServiceDomain);
         } catch (Exception ex) {
             log.error("00403:NO_PATH_FOUND:Path computation failed", ex);
             throw ex;
