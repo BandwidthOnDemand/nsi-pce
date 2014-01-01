@@ -289,7 +289,7 @@ public class TopologyViewer extends JPanel {
         @Override
 		public Paint transform(SdpType e) {
             // Filter first based on vlan selection.
-            StpType stpA = nsiTopology.getStp(e.getStpA().getId());
+            StpType stpA = nsiTopology.getStp(e.getDemarcationA().getStp().getId());
             int vlanId = NsiStpFactory.getVlanId(stpA);
             
             if (mVlanId != -1 && mVlanId != vlanId) {
@@ -325,7 +325,7 @@ public class TopologyViewer extends JPanel {
         public Stroke transform(SdpType e) {
             
             // Filter first based on vlan selection.
-            StpType stpA = nsiTopology.getStp(e.getStpA().getId());
+            StpType stpA = nsiTopology.getStp(e.getDemarcationA().getStp().getId());
             int vlanId = NsiStpFactory.getVlanId(stpA);
             
             if (mVlanId != -1 && mVlanId != vlanId) {
@@ -816,8 +816,8 @@ public class TopologyViewer extends JPanel {
         // Add bidirectional SDP as edges.
         for (SdpType sdp : nsiTopology.getSdps()) {
             if (sdp.getType() == SdpDirectionalityType.BIDIRECTIONAL) {
-                StpType stpA = nsiTopology.getStp(sdp.getStpA().getId());
-                StpType stpZ = nsiTopology.getStp(sdp.getStpZ().getId());
+                StpType stpA = nsiTopology.getStp(sdp.getDemarcationA().getStp().getId());
+                StpType stpZ = nsiTopology.getStp(sdp.getDemarcationZ().getStp().getId());
                 int vlanId = NsiStpFactory.getVlanId(stpA);                               
                 if (vlanId == vlan) {
                     tGraph.addEdge(sdp,
@@ -838,8 +838,8 @@ public class TopologyViewer extends JPanel {
         }
         
         for (SdpType sdp : path) {
-            StpType stpA = nsiTopology.getStp(sdp.getStpA().getId());
-            StpType stpZ = nsiTopology.getStp(sdp.getStpZ().getId());
+            StpType stpA = nsiTopology.getStp(sdp.getDemarcationA().getStp().getId());
+            StpType stpZ = nsiTopology.getStp(sdp.getDemarcationZ().getStp().getId());
             mPred.add(networkVerticies.get(stpA.getNetworkId()));
             mPred.add(networkVerticies.get(stpZ.getNetworkId()));
             mEdge.add(sdp);
@@ -862,8 +862,8 @@ public class TopologyViewer extends JPanel {
         // Add bidirectional SDP as edges.
         for (SdpType sdp : nsiTopology.getSdps()) {
             if (sdp.getType() == SdpDirectionalityType.BIDIRECTIONAL) {
-                StpType stpA = nsiTopology.getStp(sdp.getStpA().getId());
-                StpType stpZ = nsiTopology.getStp(sdp.getStpZ().getId());
+                StpType stpA = nsiTopology.getStp(sdp.getDemarcationA().getStp().getId());
+                StpType stpZ = nsiTopology.getStp(sdp.getDemarcationZ().getStp().getId());
                 graph.addEdge(sdp,
                         networkVerticies.get(stpA.getNetworkId()),
                         networkVerticies.get(stpZ.getNetworkId()));

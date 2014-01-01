@@ -207,7 +207,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
             
             // Now we convert the unidirectional NML Ports to STP.
             for (NmlPort port : uniPortMap.values()) {
-                Collection<StpType> newStps = NsiStpFactory.createStps(port, null);
+                Collection<StpType> newStps = NsiStpFactory.createStps(port, newNsiTopology);
                 newNsiTopology.addAllStp(newStps);
             }
             

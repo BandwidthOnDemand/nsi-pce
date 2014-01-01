@@ -66,8 +66,8 @@ public class XmlTopologyProviderTest {
         for (SdpType sdp : provider.getTopology().getSdps()) {
             System.out.println("Adding Edge: " + sdp.getId());
             
-            StpType stpA = nsiTopology.getStp(sdp.getStpA().getId());
-            StpType stpZ = nsiTopology.getStp(sdp.getStpZ().getId());
+            StpType stpA = nsiTopology.getStp(sdp.getDemarcationA().getStp().getId());
+            StpType stpZ = nsiTopology.getStp(sdp.getDemarcationZ().getStp().getId());
             
             graph.addEdge(sdp,
                     provider.getTopology().getNetworkById(stpA.getNetworkId()),

@@ -20,6 +20,7 @@
         <xsd:sequence>
             <xsd:element ref="tns:stp" minOccurs="0" maxOccurs="unbounded" />
             <xsd:element ref="tns:sdp" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element ref="tns:serviceAdaptation" minOccurs="0" maxOccurs="unbounded" />
             <xsd:element ref="tns:serviceDomain" minOccurs="0" maxOccurs="unbounded" />
             <xsd:element ref="tns:service" minOccurs="0" maxOccurs="unbounded" />
             <xsd:element ref="tns:network" minOccurs="0" maxOccurs="unbounded" />
@@ -49,6 +50,7 @@
                     <xsd:element name="inboundStp"    type="tns:ResourceRefType" minOccurs="0" />
                     <xsd:element name="outboundStp"   type="tns:ResourceRefType" minOccurs="0" />
                     <xsd:element name="connectedTo"   type="xsd:anyURI" minOccurs="0" />
+                    <xsd:element name="network"       type="tns:ResourceRefType" minOccurs="0" />
                     <xsd:element name="serviceDomain" type="tns:ResourceRefType" minOccurs="0" />
                     <xsd:element name="property"      type="tns:TypeValueType" minOccurs="0" maxOccurs="unbounded" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
@@ -62,8 +64,8 @@
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
                 <xsd:sequence>
-                    <xsd:element name="stpA"     type="tns:ResourceRefType" />
-                    <xsd:element name="stpZ"     type="tns:ResourceRefType" />
+                    <xsd:element name="demarcationA"  type="tns:DemarcationType" />
+                    <xsd:element name="demarcationZ"  type="tns:DemarcationType" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:sequence>
                 <xsd:attribute name="type" type="tns:SdpDirectionalityType" use="required"/>
@@ -71,6 +73,14 @@
         </xsd:complexContent>
     </xsd:complexType>
 
+    <xsd:complexType name="DemarcationType">
+        <xsd:sequence>
+            <xsd:element name="stp"           type="tns:ResourceRefType" />
+            <xsd:element name="serviceDomain" type="tns:ResourceRefType" />
+            <xsd:element name="network"       type="tns:ResourceRefType" />
+        </xsd:sequence>
+    </xsd:complexType>
+    
     <xsd:complexType name="ServiceAdaptationType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
@@ -137,10 +147,11 @@
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
                 <xsd:sequence>
-                    <xsd:element name="nsa"           type="tns:ResourceRefType" minOccurs="1" />
-                    <xsd:element name="service"       type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
-                    <xsd:element name="stp"           type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
-                    <xsd:element name="serviceDomain" type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="nsa"               type="tns:ResourceRefType" minOccurs="1" />
+                    <xsd:element name="service"           type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="serviceDomain"     type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="serviceAdaptation" type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="stp"               type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:sequence>
             </xsd:extension>

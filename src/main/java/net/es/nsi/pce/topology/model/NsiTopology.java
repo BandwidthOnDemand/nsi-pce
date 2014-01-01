@@ -378,7 +378,8 @@ public class NsiTopology {
     public Set<SdpType> getSdpMember(String stpId) {
         HashSet<SdpType> result = new HashSet<>();
         for (SdpType sdp : sdps.values()) {
-            if (sdp.getStpA().getId().equals(stpId) || sdp.getStpZ().getId().equals(stpId)) {
+            if (sdp.getDemarcationA().getStp().getId().equals(stpId) ||
+                    sdp.getDemarcationZ().getStp().getId().equals(stpId)) {
                 result.add(sdp);
             }
         }

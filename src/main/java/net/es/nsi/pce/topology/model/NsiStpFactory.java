@@ -3,6 +3,7 @@ package net.es.nsi.pce.topology.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import net.es.nsi.pce.config.topo.nml.Orientation;
+import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NmlLabelType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
@@ -99,6 +100,10 @@ public class NsiStpFactory {
             stpLabel.setValue(label.getValue());
             stp.setLabel(stpLabel);
         }
+
+        // Finally, link this back into the containing Network resource.
+        NetworkType network = nsiTopology.getNetworkById(stp.getNetworkId());
+        stp.setNetwork(NsiNetworkFactory.createResourceRefType(network));
         
         return stp;
     }

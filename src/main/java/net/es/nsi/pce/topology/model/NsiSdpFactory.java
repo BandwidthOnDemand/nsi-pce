@@ -6,7 +6,6 @@ package net.es.nsi.pce.topology.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
@@ -14,6 +13,7 @@ import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.topology.jaxb.DemarcationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +30,24 @@ public class NsiSdpFactory {
 
         // Set the STP attributes.
         sdp.setId(stpA.getId() + "::" + stpZ.getId());
-        sdp.setName("unset in newSdp");
+        sdp.setName(sdp.getId());
         
         sdp.setHref(NSI_ROOT_SDPS + sdp.getId());
 
-        // Set the STP references.
-        sdp.setStpA(NsiStpFactory.createResourceRefType(stpA));
-        sdp.setStpZ(NsiStpFactory.createResourceRefType(stpZ));
+        // Set the STP endpoint references.
+        DemarcationType a = new DemarcationType();
+        DemarcationType z = new DemarcationType();
+        
+        a.setStp(NsiStpFactory.createResourceRefType(stpA));
+        a.setNetwork(stpA.getNetwork());
+        a.setServiceDomain(stpA.getServiceDomain());
+        
+        z.setStp(NsiStpFactory.createResourceRefType(stpZ));
+        z.setNetwork(stpZ.getNetwork());
+        z.setServiceDomain(stpZ.getServiceDomain());        
+        
+        sdp.setDemarcationA(a);
+        sdp.setDemarcationZ(z);
         
         // Determine the type of SDP.
         if (stpA.getType() == StpDirectionalityType.BIDIRECTIONAL &&

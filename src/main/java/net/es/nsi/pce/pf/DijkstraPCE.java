@@ -128,12 +128,8 @@ public class DijkstraPCE implements PCEModule {
         // Add bidirectional SDP as edges.
         for (SdpType sdp : nsiTopology.getSdps()) {
             if (sdp.getType() == SdpDirectionalityType.BIDIRECTIONAL) {
-                // Get the component STP of this edge.
-                StpType stpA = nsiTopology.getStp(sdp.getStpA().getId());
-                StpType stpZ = nsiTopology.getStp(sdp.getStpZ().getId());
-                
-                ServiceDomainType aServiceDomain = nsiTopology.getServiceDomain(stpA.getServiceDomain().getId());
-                ServiceDomainType bServiceDomain = nsiTopology.getServiceDomain(stpZ.getServiceDomain().getId());                
+                ServiceDomainType aServiceDomain = nsiTopology.getServiceDomain(sdp.getDemarcationA().getServiceDomain().getId());
+                ServiceDomainType bServiceDomain = nsiTopology.getServiceDomain(sdp.getDemarcationZ().getServiceDomain().getId());                
 
                 graph.addEdge(sdp, aServiceDomain, bServiceDomain);                    
             }
@@ -176,8 +172,8 @@ public class DijkstraPCE implements PCEModule {
         for (SdpType edge: path) {
             log.debug("--- Edge: " + edge.getId());
             StpPair nextPathPair = new StpPair();
-            StpType stpA = nsiTopology.getStp(edge.getStpA().getId());
-            StpType stpZ = nsiTopology.getStp(edge.getStpZ().getId());
+            StpType stpA = nsiTopology.getStp(edge.getDemarcationA().getStp().getId());
+            StpType stpZ = nsiTopology.getStp(edge.getDemarcationZ().getStp().getId());
                     
             if (pathPair.getA().getNetworkId().equalsIgnoreCase(stpA.getNetworkId())) {
                 pathPair.setZ(stpA);
