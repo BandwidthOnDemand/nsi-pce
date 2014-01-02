@@ -18,6 +18,8 @@ import net.es.nsi.pce.topology.jaxb.CollectionType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
+import net.es.nsi.pce.topology.jaxb.SdpType;
+import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
@@ -150,7 +152,30 @@ public class TopologyTest extends JerseyTest {
             response = root.path(service.getHref()).request(MediaType.APPLICATION_JSON).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         }
-    }   
+    }
+    
+    @Test
+    public void testGetServiceDomains() throws Exception {
+        // Get a list of all ServiceDomains.
+        Response response = topology.path("serviceDomains").request(MediaType.APPLICATION_JSON).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // We want to run some model consistency checks.
+        CollectionType collection = response.readEntity(CollectionType.class);
+        List<ServiceDomainType> serviceDomains = collection.getServiceDomain();
+        for (ServiceDomainType serviceDomain : serviceDomains) {
+            // For each ServiceDomain retrieved we want to read the individual entry.
+            response = root.path(serviceDomain.getHref()).request(MediaType.APPLICATION_JSON).get();
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            
+            // Now the linked resources.
+            ServiceDomainType serviceDomainGet = response.readEntity(ServiceDomainType.class);
+            assertEquals(serviceDomain.getId(), serviceDomainGet.getId());
+            
+            response = root.path(serviceDomainGet.getService().getHref()).request(MediaType.APPLICATION_JSON).get();
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        }
+    }
     
     @Test
     public void testGetStp() throws Exception {
@@ -198,5 +223,72 @@ public class TopologyTest extends JerseyTest {
                 assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
             }
         }
-    }    
+    }
+    
+    @Test
+    public void testGetStpByNetworkId() throws Exception {
+        // Get a list of all STP filtered by Network Id.
+        Response response = topology.path("stps").queryParam("networkId", "urn:ogf:network:uvalight.net:2013:topology").request(MediaType.APPLICATION_JSON).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Get the returned list so we can count the number of entries.
+        CollectionType collection = response.readEntity(CollectionType.class);
+        int filteredStpSize = collection.getStp().size();
+        
+        // Get all the STP under the same network using a network rooted query.
+        response = topology.path("networks/urn:ogf:network:uvalight.net:2013:topology/stps").request(MediaType.APPLICATION_JSON).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        
+        collection = response.readEntity(CollectionType.class);
+        assertEquals(filteredStpSize, collection.getStp().size());
+    }
+    
+    @Test
+    public void testGetSdp() throws Exception {
+        // Get a list of all STP.
+        Response response = topology.path("sdps").request(MediaType.APPLICATION_JSON).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // We want to run some model consistency checks.  Test at most 10
+        // entries otherwise this will take way too long.
+        CollectionType collection = response.readEntity(CollectionType.class);
+        List<SdpType> sdps = collection.getSdp();
+        int count = 0;
+        for (SdpType sdp : sdps) {
+            count++;
+            if (count > 10) {
+                break;
+            }
+
+            // For each SDP retrieved we want to read the individual entry.
+            response = topology.path("sdps/" + sdp.getId()).request(MediaType.APPLICATION_JSON).get();
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            
+            StpType sdpGet = response.readEntity(StpType.class);
+            assertEquals(sdp.getId(), sdpGet.getId());
+            
+            // Read the direct SDP HREF.
+            response = root.path(sdpGet.getHref()).request(MediaType.APPLICATION_JSON).get();
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());            
+            
+            // Now verify the linked resources of this SDP exist.
+            response = root.path(sdp.getDemarcationA().getStp().getHref()).request(MediaType.APPLICATION_JSON).get();
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            
+            response = root.path(sdp.getDemarcationA().getServiceDomain().getHref()).request(MediaType.APPLICATION_JSON).get();
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+            response = root.path(sdp.getDemarcationA().getNetwork().getHref()).request(MediaType.APPLICATION_JSON).get();
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            
+            response = root.path(sdp.getDemarcationZ().getStp().getHref()).request(MediaType.APPLICATION_JSON).get();
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            
+            response = root.path(sdp.getDemarcationZ().getServiceDomain().getHref()).request(MediaType.APPLICATION_JSON).get();
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+            response = root.path(sdp.getDemarcationZ().getNetwork().getHref()).request(MediaType.APPLICATION_JSON).get();
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        }
+    }  
 }

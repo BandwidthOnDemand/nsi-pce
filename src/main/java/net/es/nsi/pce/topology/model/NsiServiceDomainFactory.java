@@ -87,7 +87,7 @@ public class NsiServiceDomainFactory {
         // Make sure we found a corresponding service before storing.
         if (service != null) {
             ResourceRefType nsiServiceRef = NsiServiceFactory.createResourceRefType(service);
-            nsiServiceDomain.setService(nsiServiceRef);     
+            nsiServiceDomain.setService(nsiServiceRef);
         }
         else {
             log.error("NML SwitchingService " + switchingService.getId() + " does not have a valid ServiceDefinition.");

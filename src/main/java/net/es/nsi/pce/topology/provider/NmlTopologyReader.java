@@ -600,6 +600,21 @@ public abstract class NmlTopologyReader implements TopologyReader {
         if (newSwitchingServices.isEmpty()) {
             NmlSwitchingServiceType switchingService = newNmlSwitchingService(nmlTopology, portMap);
             newSwitchingServices.put(switchingService.getId(), switchingService);
+            
+            // Now we need to add the new ServiceDefinition as a service to the
+            // NSI topology model.
+            for (Object object : switchingService.getAny()) {
+                if (object instanceof JAXBElement) {
+                    JAXBElement<?> jaxb = (JAXBElement) object;
+                    if (jaxb.getValue() instanceof ServiceDefinitionType) {
+                        ServiceDefinitionType serviceDefinition = (ServiceDefinitionType) jaxb.getValue();
+                        ServiceType service = NsiServiceFactory.createServiceType(serviceDefinition, nsiNetwork);
+                        nsiTopology.addService(service);
+                        ResourceRefType serviceRef = NsiServiceFactory.createResourceRefType(service);
+                        nsiNetwork.getService().add(serviceRef);
+                    }
+                }            
+            }
         }
 
         // Process SwitchingService elements and created the equivalent NSI
@@ -658,7 +673,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
         serviceDefinition.setId(nmlTopology.getId() + ":ServiceDefinition:default");
         serviceDefinition.setServiceType("http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE");
         switchingService.getAny().add(factory.createServiceDefinition(serviceDefinition));
-            
+
         return switchingService;
     }
 }
