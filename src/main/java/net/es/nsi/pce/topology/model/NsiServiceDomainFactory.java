@@ -168,6 +168,7 @@ public class NsiServiceDomainFactory {
         ResourceRefType serviceDomainRef = new ResourceRefType();
         serviceDomainRef.setId(serviceDomain.getId());
         serviceDomainRef.setHref(serviceDomain.getHref());
+        serviceDomainRef.setType(serviceDomain.getService().getType());
         return serviceDomainRef;
     }
 

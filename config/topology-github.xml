@@ -1,4 +1,5 @@
 <top:configuration xmlns:top="http://schemas.es.net/nsi/2013/08/pce/configuration">
 	<location>https://raw.github.com/jeroenh/AutoGOLE-Topologies/master/master.xml</location>
 	<auditInterval>200000</auditInterval>
+    <defaultServiceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</defaultServiceType>
 </top:configuration>

@@ -1,9 +1,6 @@
 package net.es.nsi.pce.topology.provider;
 
-import java.util.Collection;
-import java.util.Set;
 import net.es.nsi.pce.topology.model.NsiTopology;
-import net.es.nsi.pce.topology.jaxb.NetworkType;
 
 /**
  * Interface definition for an NSI Topology provider.
@@ -19,20 +16,6 @@ public interface TopologyProvider {
      * @return The discovered NSI topology.
      */
     public NsiTopology getTopology();
-    
-    /**
-     * Get a list of network identifiers defined within topology.
-     * 
-     * @return A set of network identifiers.
-     */
-    public Set<String> getNetworkIds();
-    
-    /**
-     * Get a list of Network objects defined in topology.
-     * 
-     * @return List of Network objects.
-     */
-    public Collection<NetworkType> getNetworks();
 
     /**
      * Get the audit interval (in milliseconds) used by scheduler to schedule

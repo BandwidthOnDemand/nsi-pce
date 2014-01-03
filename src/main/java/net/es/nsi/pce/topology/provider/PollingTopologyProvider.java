@@ -51,6 +51,9 @@ public class PollingTopologyProvider implements TopologyProvider {
     
     // Time between topology refreshes.
     private long auditInterval = 30*60*1000;  // Default 30 minute polling time.
+    
+    // Default serviceType provided by topology.
+    private String defaultServiceType = "http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE";
 
     // Our topology manifest.
     private TopologyManifest topologyManifest;
@@ -110,6 +113,20 @@ public class PollingTopologyProvider implements TopologyProvider {
     public void setAuditInterval(long auditInterval) {
         this.auditInterval = auditInterval;
     }
+
+    /**
+     * @return the defaultServiceType
+     */
+    public String getDefaultServiceType() {
+        return defaultServiceType;
+    }
+
+    /**
+     * @param defaultServiceType the defaultServiceType to set
+     */
+    public void setDefaultServiceType(String defaultServiceType) {
+        this.defaultServiceType = defaultServiceType;
+    }
     
     private void loadTopologyConfiguration() throws JAXBException, FileNotFoundException {
         ConfigurationType config = TopologyConfigurationParser.getInstance().parse(configuration);
@@ -119,7 +136,12 @@ public class PollingTopologyProvider implements TopologyProvider {
         if (config.getAuditInterval() > 0) {
             setAuditInterval(config.getAuditInterval());
         }
-
+        
+        if (config.getDefaultServiceType() != null &&
+                !config.getDefaultServiceType().isEmpty()) {
+            setDefaultServiceType(config.getDefaultServiceType());
+        }
+        
         topologyManifestReader.setTarget(getLocation());
     }
 
@@ -165,6 +187,7 @@ public class PollingTopologyProvider implements TopologyProvider {
                 // We not have one so create a new reader.
                 log.debug("loadNetworkTopology: creating new reader for " + entry);
                 reader = topologyReaderFactory.getReader(entry);
+                reader.setDefaultServiceType(defaultServiceType);
             }
             else {
                 reader = originalReader;
@@ -267,12 +290,10 @@ public class PollingTopologyProvider implements TopologyProvider {
         return nsiTopology;
     }
     
-    @Override
     public Set<String> getNetworkIds() {
         return nsiTopology.getNetworkIds();
     }
 
-    @Override
     public Collection<NetworkType> getNetworks() {
         return nsiTopology.getNetworks();
     }

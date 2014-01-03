@@ -56,13 +56,15 @@ public class XmlTopologyProviderTest {
         // Graph<V, E> where V is the type of the vertices and E is the type of the edges.
         Graph<NetworkType, SdpType> graph = new SparseMultigraph<>();
         
+        NsiTopology nsiTopology = provider.getTopology();
+                
         // Add Networks as verticies first.
-        for (NetworkType network : provider.getNetworks()) {
+        for (NetworkType network : nsiTopology.getNetworks()) {
             System.out.println("Adding Vertex: " + network.getId());
             graph.addVertex(network);
         }
+        
         // Add SDP as edges.
-        NsiTopology nsiTopology = provider.getTopology();
         for (SdpType sdp : provider.getTopology().getSdps()) {
             System.out.println("Adding Edge: " + sdp.getId());
             

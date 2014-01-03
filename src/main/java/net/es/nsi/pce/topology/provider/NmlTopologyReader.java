@@ -64,6 +64,9 @@ public abstract class NmlTopologyReader implements TopologyReader {
     // Time we last discovered an NSA topology change.
     private long lastDiscovered = 0L;
     
+    // The default serviceType offered by this topology.
+    private String defaultServiceType = null;
+    
     // Keep the original NML NSA entry.
     private NmlNSAType nsa = null;
     
@@ -122,6 +125,20 @@ public abstract class NmlTopologyReader implements TopologyReader {
      */
     public void setLastDiscovered(long lastDiscovered) {
         this.lastDiscovered = lastDiscovered;
+    }
+
+    /**
+     * @return the defaultServiceType
+     */
+    public String getDefaultServiceType() {
+        return defaultServiceType;
+    }
+
+    /**
+     * @param defaultServiceType the defaultServiceType to set
+     */
+    public void setDefaultServiceType(String defaultServiceType) {
+        this.defaultServiceType = defaultServiceType;
     }
     
     /**
@@ -675,7 +692,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
         ObjectFactory factory = new ObjectFactory();
         ServiceDefinitionType serviceDefinition = factory.createServiceDefinitionType();
         serviceDefinition.setId(nmlTopology.getId() + ":ServiceDefinition:default");
-        serviceDefinition.setServiceType("http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE");
+        serviceDefinition.setServiceType(defaultServiceType);
         switchingService.getAny().add(factory.createServiceDefinition(serviceDefinition));
 
         return switchingService;
