@@ -1,14 +1,17 @@
 package net.es.nsi.pce.topology;
 
+import java.util.Date;
 import java.util.List;
 import net.es.nsi.pce.jersey.RestServer;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 
@@ -23,6 +26,8 @@ import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
+import org.apache.http.client.utils.DateUtils;
+import org.glassfish.jersey.client.ChunkedInput;
 
 
 public class TopologyTest extends JerseyTest {
@@ -57,7 +62,79 @@ public class TopologyTest extends JerseyTest {
         System.out.println("Ping result " + response.getStatus());
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     }
-    
+
+    @Test
+    public void testAllTopology() throws Exception {
+        // Get a list of all topology resources.
+        Response response = topology.request(MediaType.APPLICATION_JSON).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        
+        // The test topology is too big for a single blocking read so we need
+        // to use the jersey client chunked read.  It would appear that a single
+        // read is all that is required for this JSON based message.
+        final ChunkedInput<CollectionType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<CollectionType>>() {});
+        CollectionType chunk;
+        CollectionType finalTopology = null;
+        while ((chunk = chunkedInput.read()) != null) {
+            System.out.println("Chunk received...");
+            finalTopology = chunk;
+        }
+        
+        assertNotNull(finalTopology);
+        
+        System.out.println("Nsa: " + finalTopology.getNsa().size());
+        System.out.println("Networks: " + finalTopology.getNetwork().size());
+        System.out.println("Stps: " + finalTopology.getStp().size());
+        System.out.println("Services: " + finalTopology.getService().size());
+        System.out.println("ServiceDomains: " + finalTopology.getServiceDomain().size());
+        System.out.println("ServiceAdaptations: " + finalTopology.getServiceAdaptation().size());
+        System.out.println("Sdps: " + finalTopology.getSdp().size());
+        
+        // Verify the complete topology retrieval matches the individual ones.
+
+        // Get a list of NSA.
+        response = topology.path("nsas").request(MediaType.APPLICATION_JSON).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        CollectionType collection = response.readEntity(CollectionType.class);
+        assertEquals(collection.getNsa().size(), finalTopology.getNsa().size());
+        
+        // Get a list of networks.
+        response = topology.path("networks").request(MediaType.APPLICATION_JSON).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        collection = response.readEntity(CollectionType.class);
+        assertEquals(collection.getNetwork().size(), finalTopology.getNetwork().size());
+
+        // Get a list of all Services.
+        response = topology.path("services").request(MediaType.APPLICATION_JSON).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        collection = response.readEntity(CollectionType.class);
+        assertEquals(collection.getService().size(), finalTopology.getService().size());
+        
+        // Get a list of all ServicesDomains.
+        response = topology.path("serviceDomains").request(MediaType.APPLICATION_JSON).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        collection = response.readEntity(CollectionType.class);
+        assertEquals(collection.getServiceDomain().size(), finalTopology.getServiceDomain().size());
+        
+        // Get a list of all ServiceAdaptations.
+        response = topology.path("serviceAdaptations").request(MediaType.APPLICATION_JSON).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        collection = response.readEntity(CollectionType.class);
+        assertEquals(collection.getServiceAdaptation().size(), finalTopology.getServiceAdaptation().size());
+        
+        // Get a list of all STP.
+        response = topology.path("stps").request(MediaType.APPLICATION_JSON).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        collection = response.readEntity(CollectionType.class);
+        assertEquals(collection.getStp().size(), finalTopology.getStp().size());
+        
+        // Get a list of all SDP.
+        response = topology.path("sdps").request(MediaType.APPLICATION_JSON).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        collection = response.readEntity(CollectionType.class);
+        assertEquals(collection.getSdp().size(), finalTopology.getSdp().size());
+    }
+
     @Test
     public void testGetNsa() throws Exception {
         // Get a list of NSA.
@@ -290,5 +367,17 @@ public class TopologyTest extends JerseyTest {
             response = root.path(sdp.getDemarcationZ().getNetwork().getHref()).request(MediaType.APPLICATION_JSON).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         }
-    }  
+    }
+    
+    @Test
+    public void testLastModified() throws Exception {
+        // Get a specific STP.
+        Response response = topology.path("stps/urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:526?vlan=1784").request(MediaType.APPLICATION_JSON).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        
+        Date lastMod = response.getLastModified();
+        
+        response = topology.path("stps/urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:526?vlan=1784").request(MediaType.APPLICATION_XML) .header("If-Modified-Since", DateUtils.formatDate(lastMod, DateUtils.PATTERN_RFC1123)).get();
+        assertEquals(Response.Status.NOT_MODIFIED.getStatusCode(), response.getStatus());
+    }
 }

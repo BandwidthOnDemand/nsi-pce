@@ -2,11 +2,17 @@ package net.es.nsi.pce.topology.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.JAXBElement;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.config.topo.nml.Relationships;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NmlLabelType;
@@ -14,6 +20,7 @@ import net.es.nsi.pce.topology.jaxb.NmlPortGroupType;
 import net.es.nsi.pce.topology.jaxb.NmlPortType;
 import net.es.nsi.pce.topology.jaxb.NmlSwitchingServiceRelationType;
 import net.es.nsi.pce.topology.jaxb.NmlSwitchingServiceType;
+import net.es.nsi.pce.topology.jaxb.NsiResourceType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.ServiceDefinitionType;
 import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
@@ -21,6 +28,7 @@ import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.provider.NmlPort;
+import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -458,5 +466,21 @@ public class NsiServiceDomainFactory {
         }
         
         return results;
+    }
+    
+    public static List<ServiceDomainType> ifModifiedSince(String ifModifiedSince, List<ServiceDomainType> serviceDomainList) throws DatatypeConfigurationException {
+        if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTimeInMillis(DateUtils.parseDate(ifModifiedSince).getTime());
+            XMLGregorianCalendar modified = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+            for (Iterator<ServiceDomainType> iter = serviceDomainList.iterator(); iter.hasNext();) {
+                NsiResourceType resource = iter.next();
+                if (!(modified.compare(resource.getDiscovered()) == DatatypeConstants.LESSER)) {
+                    iter.remove();
+                }
+            }
+        }
+        
+        return serviceDomainList;
     }
 }

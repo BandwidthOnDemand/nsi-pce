@@ -2,14 +2,23 @@ package net.es.nsi.pce.topology.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.List;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.config.topo.nml.Orientation;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NmlLabelType;
+import net.es.nsi.pce.topology.jaxb.NsiResourceType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.TypeValueType;
 import net.es.nsi.pce.topology.provider.NmlPort;
+import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -291,5 +300,21 @@ public class NsiStpFactory {
         }
         
         return null;
+    }
+    
+    public static List<StpType> ifModifiedSince(String ifModifiedSince, List<StpType> stpList) throws DatatypeConfigurationException {
+        if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTimeInMillis(DateUtils.parseDate(ifModifiedSince).getTime());
+            XMLGregorianCalendar modified = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+            for (Iterator<StpType> iter = stpList.iterator(); iter.hasNext();) {
+                NsiResourceType resource = iter.next();
+                if (!(modified.compare(resource.getDiscovered()) == DatatypeConstants.LESSER)) {
+                    iter.remove();
+                }
+            }
+        }
+        
+        return stpList;
     }
 }

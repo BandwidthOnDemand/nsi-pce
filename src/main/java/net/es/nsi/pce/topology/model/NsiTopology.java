@@ -11,6 +11,7 @@ import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
+import net.es.nsi.pce.topology.jaxb.ServiceAdaptationType;
 import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
@@ -27,6 +28,7 @@ public class NsiTopology {
     // The NSI Topology model.
     private ConcurrentHashMap<String, StpType> stps = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, SdpType> sdps = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ServiceAdaptationType> serviceAdaptations = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, ServiceDomainType> serviceDomains = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, ServiceType> services = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, NetworkType> networks = new ConcurrentHashMap<>();
@@ -47,6 +49,7 @@ public class NsiTopology {
     public NsiTopology add(NsiTopology topology) {
         stps.putAll(topology.getStpMap());
         sdps.putAll(topology.getSdpMap());
+        serviceAdaptations.putAll(topology.getServiceAdaptationMap());
         serviceDomains.putAll(topology.getServiceDomainMap());
         services.putAll(topology.getServiceMap());
         networks.putAll(topology.getNetworkMap());
@@ -93,7 +96,39 @@ public class NsiTopology {
             sdps.put(sdp.getId().toLowerCase(), sdp);
         }
     }
+
+    public Collection<ServiceAdaptationType> getServiceAdaptations() {
+        return serviceAdaptations.values();
+    }
+        
+    public ServiceAdaptationType getServiceAdaptation(String serviceAdaptationId) {
+        return serviceAdaptations.get(serviceAdaptationId.toLowerCase());
+    }
     
+    public Map<String, ServiceAdaptationType> getServiceAdaptationMap() {
+        return Collections.unmodifiableMap(serviceAdaptations);
+    }
+    
+    /**
+     * 
+     * @param serviceAdaptationList 
+     */
+    public void addAllServiceAdaptations(Collection<ServiceAdaptationType> serviceAdaptationList) {
+        for (ServiceAdaptationType serviceAdaptation : serviceAdaptationList) {
+            serviceAdaptations.put(serviceAdaptation.getId().toLowerCase(), serviceAdaptation);
+        }
+    }
+
+    /**
+     * Add a ServiceAdaptationType object to the topology indexed by serviceAdaptationId.
+     * 
+     * @param serviceAdaptation The ServiceAdaptation object to store.
+     * @return The ServiceAdaptation object stored.
+     */
+    public ServiceAdaptationType addService(ServiceAdaptationType serviceAdaptation) {
+        return serviceAdaptations.put(serviceAdaptation.getId().toLowerCase(), serviceAdaptation);
+    }
+
     /**
      * Add a ServiceDomain object to the topology indexed by serviceDomainId.
      * 
@@ -272,6 +307,7 @@ public class NsiTopology {
     public void clear() {
         stps.clear();
         sdps.clear();
+        serviceAdaptations.clear();
         serviceDomains.clear();
         services.clear();
         networks.clear();

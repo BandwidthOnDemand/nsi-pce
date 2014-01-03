@@ -249,8 +249,12 @@ public abstract class NmlTopologyReader implements TopologyReader {
                 
         // Looks like we have a change and need to process.
         log.info("Topology change detected, loading new version of " + getNsa().getId());
-        
-        this.setLastDiscovered(System.currentTimeMillis());
+
+        // Strip off the subsecond component.  This is needed to avoid the
+        // inaccuracies of the HTTP date fields during comparisons since they
+        // are based on seconds.
+        long currentTime = System.currentTimeMillis();
+        this.setLastDiscovered(currentTime - currentTime % 1000);
         this.processUpdate();
     }
     

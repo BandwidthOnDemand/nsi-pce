@@ -6,14 +6,24 @@ package net.es.nsi.pce.topology.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
+import net.es.nsi.pce.topology.jaxb.NsaType;
+import net.es.nsi.pce.topology.jaxb.NsiResourceType;
+import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -214,6 +224,22 @@ public class NsiSdpFactory {
                         }
                     }
 
+                }
+            }
+        }
+        
+        return sdpList;
+    }
+    
+    public static List<SdpType> ifModifiedSince(String ifModifiedSince, List<SdpType> sdpList) throws DatatypeConfigurationException {
+        if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTimeInMillis(DateUtils.parseDate(ifModifiedSince).getTime());
+            XMLGregorianCalendar modified = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+            for (Iterator<SdpType> iter = sdpList.iterator(); iter.hasNext();) {
+                NsiResourceType resource = iter.next();
+                if (!(modified.compare(resource.getDiscovered()) == DatatypeConstants.LESSER)) {
+                    iter.remove();
                 }
             }
         }
