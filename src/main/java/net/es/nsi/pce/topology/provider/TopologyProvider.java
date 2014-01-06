@@ -1,5 +1,6 @@
 package net.es.nsi.pce.topology.provider;
 
+import java.util.Collection;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
 /**
@@ -68,4 +69,19 @@ public interface TopologyProvider {
      * @throws Exception If topology discovery fails.
      */
     public void loadTopology() throws Exception;
+    
+    public long getLastAudit();
+    
+    public long getLastModified();
+    
+    /**
+     * 
+     * @return The current status of the topology provider.
+     */
+    public TopologyStatus getSummaryStatus();
+    
+    public TopologyProviderStatus getManifestStatus();
+    
+    public Collection<TopologyProviderStatus> getProviderStatus();
+    
 }

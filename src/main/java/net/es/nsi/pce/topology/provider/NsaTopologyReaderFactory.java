@@ -18,7 +18,7 @@ public class NsaTopologyReaderFactory implements TopologyReaderFactory {
     }
     
     @Override
-    public NmlTopologyReader getReader(String target) {
-        return new NsaTopologyReader(target);
+    public NmlTopologyReader getReader(String id, String target) {
+        return new NsaTopologyReader(id, target);
     }
 }

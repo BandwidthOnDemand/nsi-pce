@@ -1,10 +1,7 @@
 package net.es.nsi.pce.topology.provider;
 
 import java.io.FileNotFoundException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,9 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
-import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.model.NsiSdpFactory;
 
 
@@ -52,6 +47,9 @@ public class PollingTopologyProvider implements TopologyProvider {
     // Time between topology refreshes.
     private long auditInterval = 30*60*1000;  // Default 30 minute polling time.
     
+    // Time of last audit.
+    private long lastAudit = 0;
+    
     // Default serviceType provided by topology.
     private String defaultServiceType = "http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE";
 
@@ -67,9 +65,15 @@ public class PollingTopologyProvider implements TopologyProvider {
     // The last time an NML object was discovered.
     private long lastModified = 0L;
     
-    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    private Date date;
+    // Overall discovery status. 
+    private TopologyStatus summaryStatus = TopologyStatus.Initializing;
+    
+    // The topology manifest discovery status. 
+    private TopologyProviderStatus manifestStatus = null;
 
+    // The topology provider discovery status. 
+    private Map<String, TopologyProviderStatus> providerStatus = new ConcurrentHashMap<>();
+    
     /**
      * Default class constructor.
      */
@@ -146,19 +150,19 @@ public class PollingTopologyProvider implements TopologyProvider {
     }
 
     private void loadNetworkTopology() throws Exception {
-        if (log.isDebugEnabled()) {
-            date = new Date();
-            log.debug("loadNetworkTopology(): Starting " + dateFormat.format(date));
-        }
-
         loadTopologyConfiguration();
-                
+        
+        // Identify that we have started an audit.
+        manifestAuditStart();
+        
         // Get an updated copy of the topology manifest file.
         TopologyManifest newManifest;
         try {
             newManifest = getTopologyManifestReader().getManifestIfModified();
         }
         catch (Exception ex) {
+            // Identify that we have failed the audit.
+            manifestAuditError();
             log.error("loadNetworkTopology: Failed to load topology manifest " + getTopologyManifestReader().getTarget(), ex);
             throw ex;
         }
@@ -170,28 +174,39 @@ public class PollingTopologyProvider implements TopologyProvider {
         
         // Check to see if we have a valid topology manifest.
         if (topologyManifest == null) {
+            // Identify that we have failed the audit.
+            manifestAuditError();
             log.error("loadNetworkTopology: Failed to load topology manifest " + getTopologyManifestReader().getTarget());
             throw new NotFoundException("Failed to load topology manifest " + getTopologyManifestReader().getTarget());               
         }
         
+        // Identify s successful audit.
+        manifestAuditSuccess();
+        
         // Create a new topology URL map.
         Map<String, NmlTopologyReader> newTopologyUrlMap = new ConcurrentHashMap<>();
-        
+        Map<String, TopologyProviderStatus> newProviderStatus = new ConcurrentHashMap<>();
         // Load each topology from supplied endpoint.  If we fail to load a new
         // topology, then keep the old one for now.
-        for (String entry : topologyManifest.getEntryList().values()) {
+        Map<String, String> entryList = topologyManifest.getEntryList();
+        for (Map.Entry<String, String> entry : entryList.entrySet()) {
+            String id = entry.getKey();
+            String href = entry.getValue();
+            
             // Check to see if we have already discovered this NSA.
-            NmlTopologyReader originalReader = topologyUrlMap.get(entry);
+            NmlTopologyReader originalReader = topologyUrlMap.get(id);
             NmlTopologyReader reader;
             if (originalReader == null) {
                 // We not have one so create a new reader.
-                log.debug("loadNetworkTopology: creating new reader for " + entry);
-                reader = topologyReaderFactory.getReader(entry);
+                reader = topologyReaderFactory.getReader(id, href);
                 reader.setDefaultServiceType(defaultServiceType);
             }
             else {
                 reader = originalReader;
             }
+            
+            // Identify this provider audit as starting.
+            TopologyProviderStatus auditStatus = providerAuditStart(reader, newProviderStatus);
             
             // Attempt to discover this topology.
             try {
@@ -200,29 +215,28 @@ public class PollingTopologyProvider implements TopologyProvider {
             catch (Exception ex) {
                 // If we have already read this topology successfully, then
                 // keep it on failure.
-                log.error("loadTopology: Failed to load NSA topology: " + entry, ex);
+                providerAuditError(auditStatus);
+                
+                log.error("loadTopology: Failed to load NSA topology, id=" + id + ", href=" + href, ex);
                 if (originalReader == null) {
                     // We have never successfully discovered this NSA so skip.
                     continue;
                 }
             }
             
-            newTopologyUrlMap.put(entry, reader);
+            newTopologyUrlMap.put(id, reader);
             updateLastModified(reader.getLastDiscovered());
+            providerAuditSuccess(reader, auditStatus);
         }
 
         // We are done so update the map with the new view.
         topologyUrlMap = newTopologyUrlMap;
+        providerStatus = newProviderStatus;
         
         // Consolidate individual topologies in one master list.
         NsiTopology newTopology = new NsiTopology();
         for (NmlTopologyReader nml : topologyUrlMap.values()) {
-            NsiTopology topology = nml.getNsiTopology();
-            for (String nsaId : topology.getNsaIds()) {
-                log.debug("Processing topology for NSA: " + nml.getNsa().getId());
-            }
-            
-            newTopology.add(topology);
+            newTopology.add(nml.getNsiTopology());
         }
         
         newTopology = consolidateGlobalTopology(newTopology);
@@ -230,12 +244,6 @@ public class PollingTopologyProvider implements TopologyProvider {
         // Update the gloabl topology with the new view.
         newTopology.setLastModified(getLastModified());
         nsiTopology = newTopology;
-        
-        if (log.isDebugEnabled()) {
-            date = new Date();
-            log.debug("PollingTopologyProvider.loadNetworkTopology(): Ending " + dateFormat.format(date));
-            log.debug("----------------------------------------------------------");
-        }
     }
     
     private NsiTopology consolidateGlobalTopology(NsiTopology topology) {
@@ -252,37 +260,21 @@ public class PollingTopologyProvider implements TopologyProvider {
      * @throws Exception If there are invalid topologies.
      */
     @Override
-    public synchronized void loadTopology() throws Exception {
-        if (log.isDebugEnabled()) {
-            date = new Date();
-            log.debug("PollingTopologyProvider.loadTopology(): Starting " + dateFormat.format(date));
-        }
+    public synchronized void loadTopology() throws Exception {   
+        summaryAuditStart();
         
         // Load the NML topology model.
-        loadNetworkTopology();
-        
-        if (log.isDebugEnabled()) {
-            // Dump Netoworks for debug.
-            log.debug("The following Networks were created:");
-            for (NetworkType network : nsiTopology.getNetworks()) {
-                log.debug("    " + network.getId());
-            }
-
-            // Dump SDP links for debug.
-            log.debug("The following STP were created:");
-            for (StpType stp : nsiTopology.getStps()) {
-                log.debug(stp.getType().name() + " " + stp.getId());
-            }
-            
-            // Dump SDP links for debug.
-            log.debug("The following SDP links were created:");
-            for (SdpType sdp : nsiTopology.getSdps()) {
-                log.debug("    " + sdp.getId());
-            }
-
-            date = new Date();
-            log.debug("PollingTopologyProvider.loadTopology(): Ending " + dateFormat.format(date));
+        try {
+            loadNetworkTopology();
         }
+        catch (Exception ex) {
+            summaryAuditError();
+            log.error("loadNetworkTopology failed, setting provider status to Error", ex);
+            throw ex;
+        }
+        
+        // We completed a topology audit so mark it as such.
+        summaryAuditSuccess();
     }
     
     @Override
@@ -371,6 +363,7 @@ public class PollingTopologyProvider implements TopologyProvider {
     /**
      * @return the lastModified
      */
+    @Override
     public long getLastModified() {
         return lastModified;
     }
@@ -388,4 +381,140 @@ public class PollingTopologyProvider implements TopologyProvider {
         }
         return this.lastModified;
     }
+
+    /**
+     * @return the lastAudit
+     */
+    @Override
+    public long getLastAudit() {
+        return lastAudit;
+    }
+
+    /**
+     * @param lastAudit the lastAudit to set
+     */
+    public void setLastAudit(long lastAudit) {
+        this.lastAudit = lastAudit;
+    }
+
+    /**
+     * @return the summaryStatus
+     */
+    @Override
+    public TopologyStatus getSummaryStatus() {
+        return summaryStatus;
+    }
+
+    /**
+     * @param summaryStatus the overallStatus to set
+     */
+    public void setSummaryStatus(TopologyStatus summaryStatus) {
+        this.summaryStatus = summaryStatus;
+    }
+    
+    private void summaryAuditStart() {
+        // Set the provider status if this is not our first time.
+        if (summaryStatus != TopologyStatus.Initializing) {
+            summaryStatus = TopologyStatus.Auditing;
+        }
+        
+        setLastAudit(System.currentTimeMillis());
+    }
+
+    private void summaryAuditError() {
+        summaryStatus = TopologyStatus.Error;
+    }
+    
+    private void summaryAuditSuccess() {
+        summaryStatus = TopologyStatus.Completed;
+        
+        // Determine if any of the component audits have failed.  A manifest
+        // failure would already be taggeed as an summary error.
+        for (TopologyProviderStatus provider : providerStatus.values()) {
+            if (provider.getStatus() == TopologyStatus.Error) {
+                summaryStatus = TopologyStatus.PartiallyComplete;
+                break;
+            }
+        }
+    }
+    
+    private void manifestAuditStart() {
+        if (manifestStatus == null) {
+            manifestStatus = new TopologyProviderStatus();
+            
+            if (getTopologyManifestReader() != null) {
+                manifestStatus.setId(getTopologyManifestReader().getId());
+                manifestStatus.setHref(getTopologyManifestReader().getTarget());
+            }
+        }
+        else {
+            manifestStatus.setStatus(TopologyStatus.Auditing);
+            manifestStatus.setLastAudit(System.currentTimeMillis());
+        }
+    }
+    
+    private void manifestAuditError() {
+        manifestStatus.setStatus(TopologyStatus.Error);
+    }
+    
+    private void manifestAuditSuccess() {
+        manifestStatus.setId(getTopologyManifestReader().getId());
+        manifestStatus.setHref(getTopologyManifestReader().getTarget());
+        manifestStatus.setStatus(TopologyStatus.Completed);
+        manifestStatus.setLastSuccessfulAudit(getManifestStatus().getLastAudit());
+        manifestStatus.setLastModified(getTopologyManifestReader().getLastModified());
+    }
+
+    /**
+     * @return the manifestStatus
+     */
+    @Override
+    public TopologyProviderStatus getManifestStatus() {
+        return manifestStatus;
+    }
+    
+    private TopologyProviderStatus providerAuditStart(NmlTopologyReader reader, Map<String, TopologyProviderStatus> newProviderStatus) {
+        String id = reader.getId();
+        String href = reader.getTarget();
+        
+        TopologyProviderStatus local = providerStatus.get(id);
+        
+        if (local != null) {
+            // We have an existing entry for this provider so we update it.
+            local.setStatus(TopologyStatus.Auditing);
+        }
+        else {
+            // We have a new entry so create a status and set defaults.
+            local = new TopologyProviderStatus();
+            local.setId(id);
+            local.setHref(href);
+            local.setStatus(TopologyStatus.Initializing);
+        }
+        
+        local.setLastAudit(System.currentTimeMillis());
+        
+        // Add into our new status map.
+        newProviderStatus.put(id, local);
+        return local;
+    }
+    
+    private void providerAuditError(TopologyProviderStatus local) {
+        local.setStatus(TopologyStatus.Error);
+    }
+    
+    private void providerAuditSuccess(NmlTopologyReader reader, TopologyProviderStatus local) {
+        local.setStatus(TopologyStatus.Completed);
+        local.setLastSuccessfulAudit(local.getLastAudit());
+        local.setLastModified(reader.getLastModified());
+        local.setLastDiscovered(reader.getLastDiscovered());
+    }
+    
+    /**
+     * @return the manifestStatus
+     */
+    @Override
+    public Collection<TopologyProviderStatus> getProviderStatus() {
+        return providerStatus.values();
+    }
+    
 }

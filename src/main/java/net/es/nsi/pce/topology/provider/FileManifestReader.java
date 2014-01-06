@@ -17,6 +17,9 @@ import org.springframework.stereotype.Component;
 public class FileManifestReader implements TopologyManifestReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
     
+    // The manifest identifier.
+    private String id = getClass().getName();
+    
     // The remote location of the file to read.
     private String target = null;
     
@@ -196,5 +199,13 @@ public class FileManifestReader implements TopologyManifestReader {
         
         // There must not have been a change.
         return null;
+    }
+
+    /**
+     * @return the id
+     */
+    @Override
+    public String getId() {
+        return id;
     }
 }

@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.topology.jaxb.CollectionType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
+import net.es.nsi.pce.topology.jaxb.StatusType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ClientConfig;
@@ -36,7 +37,17 @@ public class TopologyClient {
         Response response = webTarget.path("ping").request(MediaType.APPLICATION_JSON).get();
         
         System.out.println("Ping result " + response.getStatus());
-       
+        
+        // Retrieve topology service status.
+        response = webTarget.path("status").request(MediaType.APPLICATION_JSON).get();       
+        System.out.println("Status result " + response.getStatus());
+        if (response.getStatus() == 200) {
+            StatusType status = response.readEntity(StatusType.class);
+            System.out.println("Summary status " + status.getStatus().getLabel());
+            System.out.println("Last audit " + status.getLastAudit());
+            System.out.println("Last modified " + status.getLastModified());
+        }
+        
         // Retrieve a full list of STPs within the topology model.
         CollectionType stps = webTarget.path("stps").request(MediaType.APPLICATION_JSON).get(CollectionType.class);
         

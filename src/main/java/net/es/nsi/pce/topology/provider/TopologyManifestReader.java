@@ -39,6 +39,13 @@ public interface TopologyManifestReader {
     TopologyManifest getManifestIfModified() throws Exception;
 
     /**
+     * Returns the identifier of this manifest reader.
+     * 
+     * @return the identifier of the manifest reader.
+     */
+    String getId();
+    
+    /**
      * Returns the configured remote topology endpoint.
      *
      * @return the target

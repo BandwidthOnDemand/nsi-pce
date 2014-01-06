@@ -18,7 +18,7 @@ public class FileTopologyReaderFactory implements TopologyReaderFactory {
     }
     
     @Override
-    public NmlTopologyReader getReader(String target) {
-        return new FileTopologyReader(target);
+    public NmlTopologyReader getReader(String id, String target) {
+        return new FileTopologyReader(id, target);
     }
 }

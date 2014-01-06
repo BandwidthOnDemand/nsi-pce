@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 public class XmlUtilities {
 
     private static final Logger logger = LoggerFactory.getLogger(XmlUtilities.class);
-
+        
 	/**
 	 * Utility method to marshal a JAXB annotated java object to an XML
          * formatted string.  This class is generic enough to be used for any

@@ -7,7 +7,6 @@ package net.es.nsi.pce.config.topo.nml;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
  * Models the master topology list as converted from NML.

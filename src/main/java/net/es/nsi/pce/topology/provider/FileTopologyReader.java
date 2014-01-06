@@ -31,7 +31,8 @@ public class FileTopologyReader extends NmlTopologyReader {
      * 
      * @param target Location of the NSA's XML based NML topology.
      */
-    public FileTopologyReader(String target) {
+    public FileTopologyReader(String id, String target) {
+        this.setId(id);
         this.setTarget(target);
     }
     

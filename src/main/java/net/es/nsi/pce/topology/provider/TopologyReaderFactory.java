@@ -10,5 +10,5 @@ package net.es.nsi.pce.topology.provider;
  */
 public interface TopologyReaderFactory {
     public NmlTopologyReader getReader();
-    public NmlTopologyReader getReader(String target);
+    public NmlTopologyReader getReader(String id, String target);
 }

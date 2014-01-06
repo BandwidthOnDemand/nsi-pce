@@ -58,8 +58,13 @@ public class TopologyTest extends JerseyTest {
     public void testPing() {
         // Simple ping to determine if interface is available.
         Response response = topology.path("ping").request(MediaType.APPLICATION_JSON).get();
-        
-        System.out.println("Ping result " + response.getStatus());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+    }
+    
+    @Test
+    public void testStatus() {
+        // Simple status to determine current state of topology discovery.
+        Response response = topology.path("status").request(MediaType.APPLICATION_JSON).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     }
 
@@ -368,7 +373,7 @@ public class TopologyTest extends JerseyTest {
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         }
     }
-    
+
     @Test
     public void testLastModified() throws Exception {
         // Get a specific STP.
@@ -377,7 +382,29 @@ public class TopologyTest extends JerseyTest {
         
         Date lastMod = response.getLastModified();
         
-        response = topology.path("stps/urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:526?vlan=1784").request(MediaType.APPLICATION_XML) .header("If-Modified-Since", DateUtils.formatDate(lastMod, DateUtils.PATTERN_RFC1123)).get();
+        response = topology.path("stps/urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:526?vlan=1784").request(MediaType.APPLICATION_XML).header("If-Modified-Since", DateUtils.formatDate(lastMod, DateUtils.PATTERN_RFC1123)).get();
         assertEquals(Response.Status.NOT_MODIFIED.getStatusCode(), response.getStatus());
+        
+        // Get a list of all topology resources.
+        response = topology.request(MediaType.APPLICATION_JSON).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        
+        // The test topology is too big for a single blocking read so we need
+        // to use the jersey client chunked read.  It would appear that a single
+        // read is all that is required for this JSON based message.
+        final ChunkedInput<CollectionType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<CollectionType>>() {});
+        CollectionType chunk;
+        CollectionType finalTopology = null;
+        while ((chunk = chunkedInput.read()) != null) {
+            System.out.println("Chunk received...");
+            finalTopology = chunk;
+        }
+        
+        assertNotNull(finalTopology);
+        
+        lastMod = response.getLastModified();
+        
+        response = topology.request(MediaType.APPLICATION_JSON).header("If-Modified-Since", DateUtils.formatDate(lastMod, DateUtils.PATTERN_RFC1123)).get();
+        assertEquals(Response.Status.NOT_MODIFIED.getStatusCode(), response.getStatus());        
     }
 }

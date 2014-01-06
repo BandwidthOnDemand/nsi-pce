@@ -55,10 +55,13 @@ import org.springframework.stereotype.Component;
 public abstract class NmlTopologyReader implements TopologyReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
     
+    // The identifier of this reader.
+    private String id = null;
+    
     // The remote location of the file to read.
     private String target = null;
     
-    // If-Modified-Since value as retruned from remote server for NSA topology.
+    // If-Modified-Since value as returned from remote server for NSA topology.
     private long lastModified = 0L;
     
     // Time we last discovered an NSA topology change.
@@ -71,7 +74,25 @@ public abstract class NmlTopologyReader implements TopologyReader {
     private NmlNSAType nsa = null;
     
     private NsiTopology nsiTopology = new NsiTopology();
-     
+
+    /**
+     * Returns the identifier for this topology.
+     * 
+     * @return the target
+     */
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    @Override
+    public void setId(String id) {
+        this.id = id;
+    }
+    
     /**
      * Returns the configured remote topology endpoint.
      * 

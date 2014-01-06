@@ -34,6 +34,9 @@ public class GitHubManifestReader implements TopologyManifestReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
     
     private final static QName _isReference_QNAME = new QName("http://schemas.ogf.org/nsi/2013/09/topology#", "isReference");
+
+    // The remote location of the file to read.
+    private String id = getClass().getName();
     
     // The remote location of the file to read.
     private String target = null;
@@ -59,6 +62,16 @@ public class GitHubManifestReader implements TopologyManifestReader {
         this.target = target;
     }
 
+    /**
+     * Returns the identifier of this manifest reader.
+     * 
+     * @return the identifier of the manifest reader.
+     */
+    @Override
+    public String getId() {
+        return id;
+    }
+    
     /**
      * Returns the configured remote topology endpoint.
      * 

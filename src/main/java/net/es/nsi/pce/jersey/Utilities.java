@@ -42,9 +42,13 @@ public class Utilities {
         return mediaTypes.contains(mediaType);
     }
     
-    public static XMLGregorianCalendar longToXMLGregorianCalendar(long discovered) throws DatatypeConfigurationException {    
+    public static XMLGregorianCalendar longToXMLGregorianCalendar(long time) throws DatatypeConfigurationException {
+        if (time <= 0) {
+            return null;
+        }
+        
         GregorianCalendar cal = new GregorianCalendar();
-        cal.setTimeInMillis(discovered);
+        cal.setTimeInMillis(time);
         XMLGregorianCalendar newXMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
         return newXMLGregorianCalendar;
     }

@@ -13,6 +13,18 @@ import net.es.nsi.pce.topology.model.NsiTopology;
  */
 public interface TopologyReader {
     /**
+     * Returns the identifier for this topology.
+     * 
+     * @return the target
+     */
+    public String getId();
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(String id);
+    
+    /**
      * Sets the remote topology endpoint.
      *
      * @param target the target to set
