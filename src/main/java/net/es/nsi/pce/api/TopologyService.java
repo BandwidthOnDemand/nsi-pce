@@ -280,7 +280,7 @@ public class TopologyService {
                 return Response.notModified().header("Last-Modified", date).build();
             }
         }
-        
+
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<CollectionType>>(nsiFactory.createCollection(stps)) {}).build();
     }

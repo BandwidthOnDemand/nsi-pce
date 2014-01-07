@@ -294,8 +294,10 @@ public class NsiTopology {
         Collection<StpType> stpList = new ArrayList<>();
         
         NetworkType network = getNetworkById(networkId);
-        for (ResourceRefType stpRef : network.getStp()) {
-            stpList.add(getStp(stpRef.getId()));
+        if (network != null) {
+            for (ResourceRefType stpRef : network.getStp()) {
+                stpList.add(getStp(stpRef.getId()));
+            }
         }
         
         return stpList;

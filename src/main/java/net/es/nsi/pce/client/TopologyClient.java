@@ -37,11 +37,15 @@ public class TopologyClient {
         Response response = webTarget.path("ping").request(MediaType.APPLICATION_JSON).get();
         
         System.out.println("Ping result " + response.getStatus());
+        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+            System.out.println("Topology serivce not available.");
+            return;
+        }
         
         // Retrieve topology service status.
         response = webTarget.path("status").request(MediaType.APPLICATION_JSON).get();       
         System.out.println("Status result " + response.getStatus());
-        if (response.getStatus() == 200) {
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             StatusType status = response.readEntity(StatusType.class);
             System.out.println("Summary status " + status.getStatus().getLabel());
             System.out.println("Last audit " + status.getLastAudit());
@@ -49,30 +53,45 @@ public class TopologyClient {
         }
         
         // Retrieve a full list of STPs within the topology model.
-        CollectionType stps = webTarget.path("stps").request(MediaType.APPLICATION_JSON).get(CollectionType.class);
-        
-        // Dump the full list of STP.
-        System.out.println("Discovered " + stps.getStp().size() + " STPs.");
-        for (StpType stp : stps.getStp()) {
-            System.out.println(stp.getId());
+        response = webTarget.path("stps").request(MediaType.APPLICATION_JSON).get();
+        System.out.println("Retrieve /topology/stps status = " + response.getStatus());
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+            CollectionType stps = response.readEntity(CollectionType.class);
+            System.out.println(stps.getStp().size() + " STPs returned.");
         }
-        
+        else if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+            System.out.println("Resource not found.");
+        }
+        else {
+            System.err.println("Error reading STPs");
+        }
+
         // Get a list of STP filtered by networkId.
-        stps = webTarget.path("stps").queryParam("networkId", "urn:ogf:network:uvalight.net:2013:topology").request(MediaType.APPLICATION_JSON).get(CollectionType.class);
-
-        // Dump the full list of STP.
-        System.out.println("Discovered " + stps.getStp().size() + " STPs.");
-        for (StpType stp : stps.getStp()) {
-            System.out.println(stp.getId());
+        response = webTarget.path("stps").queryParam("networkId", "urn:ogf:network:uvalight.net:2013:topology").request(MediaType.APPLICATION_JSON).get();
+        System.out.println("Retrieve /topology/stps?networkId=urn:ogf:network:uvalight.net:2013:topology status = " + response.getStatus());
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+            CollectionType stps = response.readEntity(CollectionType.class);
+            System.out.println(stps.getStp().size() + " STPs returned.");
         }
-        
-        // Get a list of STP filtered by labelType and value.
-        stps = webTarget.path("stps").queryParam("labelType", "http://schemas.ogf.org/nml/2012/10/ethernet#vlan").queryParam("labelValue", "1784").request(MediaType.APPLICATION_JSON).get(CollectionType.class);
+        else if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+            System.out.println("Resource not found.");
+        }
+        else {
+            System.err.println("Error reading STPs");
+        }
 
-        // Dump the full list of STP.
-        System.out.println("Discovered " + stps.getStp().size() + " STPs with vlan=1784.");
-        for (StpType stp : stps.getStp()) {
-            System.out.println(stp.getId());
+        // Get a list of STP filtered by labelType and value.
+        response = webTarget.path("stps").queryParam("labelType", "http://schemas.ogf.org/nml/2012/10/ethernet#vlan").queryParam("labelValue", "1784").request(MediaType.APPLICATION_JSON).get();
+        System.out.println("Retrieve /topology/stps with vlan=1784 status = " + response.getStatus());
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+            CollectionType stps = response.readEntity(CollectionType.class);
+            System.out.println(stps.getStp().size() + " STPs returned.");
+        }
+        else if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+            System.out.println("Resource not found.");
+        }
+        else {
+            System.err.println("Error reading STPs");
         }
         
         // Get a specific STP.
@@ -80,30 +99,30 @@ public class TopologyClient {
         response = webTarget.path(Target_STP).request(MediaType.APPLICATION_JSON).get();
 
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-            System.out.println("Failed to retrieve STP " + Target_STP);
-            throw new NotFoundException("Failed to retrieve STP " + Target_STP);
-        }
-
-        Date lastMod = response.getLastModified();
-        System.out.println("Last-Modified = " + lastMod);
-        
-        StpType stp = response.readEntity(StpType.class);
-        System.out.println(stp.getId());
-        
-        // Now we do the same query but asking for only chnages.
-        response = webTarget.path(Target_STP).request(MediaType.APPLICATION_XML) .header("If-Modified-Since", DateUtils.formatDate(lastMod, DateUtils.PATTERN_RFC1123)).get();
-        
-        // A 304 Not Modified indicates we already have a up-to-date document.
-        if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
-            System.out.println("NOT_MODIFIED returned " + Target_STP);
-        }
-        else if (response.getStatus() != Response.Status.OK.getStatusCode()) {
             System.err.println("Failed to retrieve STP " + Target_STP);
-            throw new NotFoundException("Failed to retrieve STP " + Target_STP);
         }
         else {
-            stp = response.readEntity(StpType.class);
-            System.out.println("Should not get this: " + stp.getId());            
+            Date lastMod = response.getLastModified();
+            System.out.println("Last-Modified = " + lastMod);
+        
+            StpType stp = response.readEntity(StpType.class);
+            System.out.println(stp.getId());
+        
+            // Now we do the same query but asking for only changes.
+            response = webTarget.path(Target_STP).request(MediaType.APPLICATION_XML) .header("If-Modified-Since", DateUtils.formatDate(lastMod, DateUtils.PATTERN_RFC1123)).get();
+        
+            // A 304 Not Modified indicates we already have a up-to-date document.
+            if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
+                System.out.println("NOT_MODIFIED returned " + Target_STP);
+            }
+            else if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+                System.err.println("Failed to retrieve STP " + Target_STP);
+                throw new NotFoundException("Failed to retrieve STP " + Target_STP);
+            }
+            else {
+                stp = response.readEntity(StpType.class);
+                System.out.println("Should not get this: " + stp.getId());            
+            }
         }
         
         System.out.println("Get list of all Networks.");
@@ -130,19 +149,19 @@ public class TopologyClient {
         response = webTarget.path(Target_Network).request(MediaType.APPLICATION_JSON).get();
 
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-            System.out.println("Failed to retrieve Network " + Target_Network);
-            throw new NotFoundException("Failed to retrieve Network " + Target_Network);
+            System.err.println("Failed to retrieve Network " + Target_Network);
         }
-        
-        System.out.println("Get a list of all STP in a specific Network.");
-        
-        // Get STPs under a specific Network.
-        String Target_Network_STPS = "networks/urn:ogf:network:uvalight.net:2013:Topology/stps";
-        response = webTarget.path(Target_Network_STPS).request(MediaType.APPLICATION_JSON).get();
+        else {
+            System.out.println("Get a list of all STP in a specific Network.");
 
-        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-            System.out.println("Failed to retrieve Network " + Target_Network_STPS);
-            throw new NotFoundException("Failed to retrieve Network " + Target_Network_STPS);
+            // Get STPs under a specific Network.
+            String Target_Network_STPS = "networks/urn:ogf:network:uvalight.net:2013:Topology/stps";
+            response = webTarget.path(Target_Network_STPS).request(MediaType.APPLICATION_JSON).get();
+
+            if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+                System.out.println("Failed to retrieve Network " + Target_Network_STPS);
+                throw new NotFoundException("Failed to retrieve Network " + Target_Network_STPS);
+            }
         }
         
         System.out.println("Get a list of all available NSA.");
@@ -152,8 +171,7 @@ public class TopologyClient {
         response = webTarget.path(Target_NSA).request(MediaType.APPLICATION_JSON).get();
 
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-            System.out.println("Failed to retrieve NSAs " + Target_NSA);
-            throw new NotFoundException("Failed to retrieve NSAs " + Target_NSA);
+            System.err.println("Failed to retrieve NSAs " + Target_NSA);
         }
         
         System.out.println("Read specific NSA entry.");
@@ -164,16 +182,16 @@ public class TopologyClient {
 
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
             System.out.println("Failed to retrieve NSA " + Target_NSA_Id);
-            throw new NotFoundException("Failed to retrieve NSA " + Target_NSA_Id);
         }
-        
-        // Get a list of available ServiceDomains.
-        String Target_ServiceDomains = "serviceDomains";
-        response = webTarget.path(Target_ServiceDomains).request(MediaType.APPLICATION_JSON).get();
+        else {
+            // Get a list of available ServiceDomains.
+            String Target_ServiceDomains = "serviceDomains";
+            response = webTarget.path(Target_ServiceDomains).request(MediaType.APPLICATION_JSON).get();
 
-        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-            System.out.println("Failed to retrieve ServiceDomains " + Target_ServiceDomains);
-            throw new NotFoundException("Failed to retrieve ServiceDomains " + Target_ServiceDomains);
+            if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+                System.out.println("Failed to retrieve ServiceDomains " + Target_ServiceDomains);
+                throw new NotFoundException("Failed to retrieve ServiceDomains " + Target_ServiceDomains);
+            }
         }
     }
 }
