@@ -94,7 +94,7 @@ public enum ConfigurationManager {
             // Start the task scheduler.
             log.info("Starting task scheduler...");
             log.info("--- Adding topology audit " + getTopologyProvider().getAuditInterval());
-            PCEScheduler.getInstance().add("TopologyAudit", TopologyAudit.class, getTopologyProvider().getAuditInterval());
+            PCEScheduler.getInstance().add("periodicTopologyAudit", "TopologyAudit", TopologyAudit.class, getTopologyProvider().getAuditInterval());
             PCEScheduler.getInstance().start();
             log.info("...Task scheduler started.");
 

@@ -18,7 +18,6 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.config.ConfigurationManager;
-import net.es.nsi.pce.jersey.Utilities;
 import net.es.nsi.pce.topology.jaxb.CollectionType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
@@ -28,10 +27,7 @@ import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.ServiceAdaptationType;
 import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.ServiceType;
-import net.es.nsi.pce.topology.jaxb.StatusType;
 import net.es.nsi.pce.topology.jaxb.StpType;
-import net.es.nsi.pce.topology.jaxb.TopologyProviderType;
-import net.es.nsi.pce.topology.jaxb.TopologyStatusType;
 import net.es.nsi.pce.topology.model.NsiNetworkFactory;
 import net.es.nsi.pce.topology.model.NsiNsaFactory;
 import net.es.nsi.pce.topology.model.NsiSdpFactory;
@@ -41,8 +37,6 @@ import net.es.nsi.pce.topology.model.NsiServiceFactory;
 import net.es.nsi.pce.topology.model.NsiStpFactory;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
-import net.es.nsi.pce.topology.provider.TopologyProviderStatus;
-import net.es.nsi.pce.topology.provider.TopologyStatus;
 import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,88 +106,6 @@ public class TopologyService {
         
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<CollectionType>>(nsiFactory.createCollection(collection)) {}).build();
-    }
-    
-    @GET
-    @Path("/ping")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
-    public Response ping() throws Exception {
-        // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
-        NsiTopology nsiTopology = topologyProvider.getTopology();
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
-        return Response.ok().header("Last-Modified", date).build();
-    }
-    
-    @GET
-    @Path("/status")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
-    public Response status() throws Exception {
-        // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
-        
-        ObjectFactory nsiFactory = new ObjectFactory();
-        
-        // Get the overall topology provider status.
-        TopologyStatusType topologyStatus = nsiFactory.createTopologyStatusType();
-        TopologyStatus providerStatus = topologyProvider.getSummaryStatus();
-        topologyStatus.setCode(providerStatus.getCode());
-        topologyStatus.setLabel(providerStatus.getLabel());
-        topologyStatus.setDescription(providerStatus.getDescription());
-        
-        // Create and populate the status element to return in response.
-        StatusType status = nsiFactory.createStatusType();
-        status.setStatus(topologyStatus);
-        status.setAuditInterval(topologyProvider.getAuditInterval());
-        status.setLastAudit(Utilities.longToXMLGregorianCalendar(topologyProvider.getLastAudit()));
-        status.setLastModified(Utilities.longToXMLGregorianCalendar(topologyProvider.getLastModified()));
-        
-        // Populate the manifest status if available.
-        TopologyProviderStatus manifestStatus = topologyProvider.getManifestStatus();
-        if (manifestStatus != null) {
-            TopologyProviderType manifest = nsiFactory.createTopologyProviderType();
-            manifest.setId(manifestStatus.getId());
-            manifest.setHref(manifestStatus.getHref());
-            
-            TopologyStatusType manStatus = nsiFactory.createTopologyStatusType();
-            TopologyStatus stat = manifestStatus.getStatus();
-            manStatus.setCode(stat.getCode());
-            manStatus.setLabel(stat.getLabel());
-            manStatus.setDescription(stat.getDescription());
-            manifest.setStatus(manStatus);
-            
-            manifest.setLastAudit(Utilities.longToXMLGregorianCalendar(manifestStatus.getLastAudit()));
-            manifest.setLastSuccessfulAudit(Utilities.longToXMLGregorianCalendar(manifestStatus.getLastSuccessfulAudit()));
-            manifest.setLastModified(Utilities.longToXMLGregorianCalendar(manifestStatus.getLastModified()));
-            manifest.setLastDiscovered(Utilities.longToXMLGregorianCalendar(manifestStatus.getLastDiscovered()));
-            
-            status.setManifest(manifest);
-        }
-        
-        // Populate the individual topology providers status.
-        Collection<TopologyProviderStatus> provstat = topologyProvider.getProviderStatus();
-        for (TopologyProviderStatus ps : provstat) {
-            TopologyProviderType provider = nsiFactory.createTopologyProviderType();
-            provider.setId(ps.getId());
-            provider.setHref(ps.getHref());
-            
-            TopologyStatusType provStatus = nsiFactory.createTopologyStatusType();
-            TopologyStatus stat = ps.getStatus();
-            provStatus.setCode(stat.getCode());
-            provStatus.setLabel(stat.getLabel());
-            provStatus.setDescription(stat.getDescription());
-            provider.setStatus(provStatus);
-            
-            provider.setLastAudit(Utilities.longToXMLGregorianCalendar(ps.getLastAudit()));
-            provider.setLastSuccessfulAudit(Utilities.longToXMLGregorianCalendar(ps.getLastSuccessfulAudit()));
-            provider.setLastModified(Utilities.longToXMLGregorianCalendar(ps.getLastModified()));
-            provider.setLastDiscovered(Utilities.longToXMLGregorianCalendar(ps.getLastDiscovered()));
-            
-            status.getProvider().add(provider);      
-        }
-        
-        String date = DateUtils.formatDate(new Date(topologyProvider.getLastAudit()), DateUtils.PATTERN_RFC1123);
-        return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<StatusType>>(nsiFactory.createStatus(status)) {}).build();
     }
 
     @GET
@@ -1136,5 +1048,25 @@ public class TopologyService {
         
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<SdpType>>(nsiFactory.createSdp(sdp)) {}).build();
+    }
+    
+    /*****************************************************
+     * OAM related REST interfaces for Topology service.
+     *****************************************************/
+    
+    /**
+     * 
+     * @return
+     * @throws Exception 
+     */
+    @GET
+    @Path("/ping")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
+    public Response ping() throws Exception {
+        // Get a reference to topology provider and get the NSI Topology model.
+        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        NsiTopology nsiTopology = topologyProvider.getTopology();
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        return Response.ok().header("Last-Modified", date).build();
     }
 }

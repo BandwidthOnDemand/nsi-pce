@@ -1,5 +1,7 @@
 package net.es.nsi.pce.topology.provider;
 
+import net.es.nsi.pce.logs.PceLogs;
+import net.es.nsi.pce.logs.PceErrors;
 import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.Map;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.model.NsiSdpFactory;
+import net.es.nsi.pce.logs.PceLogger;
 
 
 /**
@@ -74,6 +77,8 @@ public class PollingTopologyProvider implements TopologyProvider {
     // The topology provider discovery status. 
     private Map<String, TopologyProviderStatus> providerStatus = new ConcurrentHashMap<>();
     
+    private PceLogger topologyLogger = PceLogger.getLogger();
+    
     /**
      * Default class constructor.
      */
@@ -87,6 +92,17 @@ public class PollingTopologyProvider implements TopologyProvider {
      */
     public PollingTopologyProvider(String configFile) {
         this.configuration = configFile;
+    }
+    
+     /**
+     * For this provider we read the topology source from an XML configuration
+     * file.
+     * 
+     * @param source Path to the XML configuration file.
+     */
+    @Override
+    public void initialize() throws Exception {
+        this.loadTopologyConfiguration();
     }
 
     /**
@@ -133,23 +149,47 @@ public class PollingTopologyProvider implements TopologyProvider {
     }
     
     private void loadTopologyConfiguration() throws JAXBException, FileNotFoundException {
-        ConfigurationType config = TopologyConfigurationParser.getInstance().parse(configuration);
+        ConfigurationType config;
+        
+        try {
+            config = TopologyConfigurationParser.getInstance().parse(configuration);
+        }
+        catch (FileNotFoundException nf) {
+            topologyLogger.error(PceErrors.CONFIGURATION_INVALID_FILENAME, "configurationFile", configuration);
+            throw nf;
+        }
+        catch (JAXBException jaxb) {
+            topologyLogger.error(PceErrors.CONFIGURATION_INVALID_XML, "configurationFile", configuration);
+            throw jaxb;
+        }
+        
+        if (config.getLocation() == null || config.getLocation().isEmpty()) {
+            topologyLogger.error(PceErrors.CONFIGURATION_MISSING_MANIFEST_LOCATION, "location");
+            throw new FileNotFoundException("Topology manifest location was not provided.");
+        }
         
         setLocation(config.getLocation());
-        
+
         if (config.getAuditInterval() > 0) {
             setAuditInterval(config.getAuditInterval());
+        }
+        else {
+            topologyLogger.error(PceErrors.CONFIGURATION_INVALID_AUDIT_INTERVAL, "auditInterval", Long.toString(config.getAuditInterval()));
         }
         
         if (config.getDefaultServiceType() != null &&
                 !config.getDefaultServiceType().isEmpty()) {
             setDefaultServiceType(config.getDefaultServiceType());
         }
+        else {
+            topologyLogger.error(PceErrors.CONFIGURATION_MISSING_SERVICETYPE, "defaultServiceType", getDefaultServiceType());            
+        }
         
         topologyManifestReader.setTarget(getLocation());
     }
 
-    private void loadNetworkTopology() throws Exception {
+    private void loadNetworkTopology() throws Exception {    
+        // Load topology configuration for this run.
         loadTopologyConfiguration();
         
         // Identify that we have started an audit.
@@ -186,6 +226,7 @@ public class PollingTopologyProvider implements TopologyProvider {
         // Create a new topology URL map.
         Map<String, NmlTopologyReader> newTopologyUrlMap = new ConcurrentHashMap<>();
         Map<String, TopologyProviderStatus> newProviderStatus = new ConcurrentHashMap<>();
+        
         // Load each topology from supplied endpoint.  If we fail to load a new
         // topology, then keep the old one for now.
         Map<String, String> entryList = topologyManifest.getEntryList();
@@ -228,14 +269,10 @@ public class PollingTopologyProvider implements TopologyProvider {
             updateLastModified(reader.getLastDiscovered());
             providerAuditSuccess(reader, auditStatus);
         }
-
-        // We are done so update the map with the new view.
-        topologyUrlMap = newTopologyUrlMap;
-        providerStatus = newProviderStatus;
         
         // Consolidate individual topologies in one master list.
         NsiTopology newTopology = new NsiTopology();
-        for (NmlTopologyReader nml : topologyUrlMap.values()) {
+        for (NmlTopologyReader nml : newTopologyUrlMap.values()) {
             newTopology.add(nml.getNsiTopology());
         }
         
@@ -243,6 +280,10 @@ public class PollingTopologyProvider implements TopologyProvider {
         
         // Update the gloabl topology with the new view.
         newTopology.setLastModified(getLastModified());
+        
+        // We are done so update the map with the new view.
+        topologyUrlMap = newTopologyUrlMap;
+        providerStatus = newProviderStatus;        
         nsiTopology = newTopology;
     }
     
@@ -269,7 +310,7 @@ public class PollingTopologyProvider implements TopologyProvider {
         }
         catch (Exception ex) {
             summaryAuditError();
-            log.error("loadNetworkTopology failed, setting provider status to Error", ex);
+            log.error("loadNetworkTopology: Failed", ex);
             throw ex;
         }
         
@@ -309,18 +350,17 @@ public class PollingTopologyProvider implements TopologyProvider {
     @Override
     public String getConfiguration() {
         return configuration;
-    }
-    
+    }    
      /**
      * For this provider we read the topology source from an XML configuration
      * file.
      * 
      * @param source Path to the XML configuration file.
      */
-    @Override
-    public void initialize() throws Exception {
-        this.loadTopologyConfiguration();
-    }   
+    //@Override
+    //public void initialize() throws Exception {
+    //    this.loadTopologyConfiguration(topologyErrors);
+    //}   
 
     /**
      * @return the topologyManifestReader
@@ -413,15 +453,22 @@ public class PollingTopologyProvider implements TopologyProvider {
     }
     
     private void summaryAuditStart() {
+        long auditTime = System.currentTimeMillis();
+        
+        // Let the logger know we are starting another topology discovery run.
+        topologyLogger.setAuditTimeStamp(auditTime);
+        topologyLogger.log(PceLogs.AUDIT_START, "PollingTopologyProvider", "Full topology audit starting.");
+        
         // Set the provider status if this is not our first time.
         if (summaryStatus != TopologyStatus.Initializing) {
             summaryStatus = TopologyStatus.Auditing;
         }
         
-        setLastAudit(System.currentTimeMillis());
+        setLastAudit(auditTime);
     }
 
     private void summaryAuditError() {
+        topologyLogger.error(PceErrors.AUDIT, "PollingTopologyProvider");
         summaryStatus = TopologyStatus.Error;
     }
     
@@ -436,9 +483,18 @@ public class PollingTopologyProvider implements TopologyProvider {
                 break;
             }
         }
+        
+        if (summaryStatus == TopologyStatus.Completed) {
+            topologyLogger.log(PceLogs.AUDIT_SUCCESSFUL, "PollingTopologyProvider", "Topology audit completed successfully.");
+        }
+        else {
+            topologyLogger.log(PceLogs.AUDIT_PARTIAL, "PollingTopologyProvider", "Topology audit completed partially successful.");
+        }
     }
     
     private void manifestAuditStart() {
+        topologyLogger.log(PceLogs.AUDIT_START, getTopologyManifestReader().getId(), "Manifest audit starting for " + getTopologyManifestReader().getTarget());
+        
         if (manifestStatus == null) {
             manifestStatus = new TopologyProviderStatus();
             
@@ -454,10 +510,12 @@ public class PollingTopologyProvider implements TopologyProvider {
     }
     
     private void manifestAuditError() {
+        topologyLogger.error(PceErrors.AUDIT_MANIFEST, getTopologyManifestReader().getId(), getTopologyManifestReader().getTarget());
         manifestStatus.setStatus(TopologyStatus.Error);
     }
     
     private void manifestAuditSuccess() {
+        topologyLogger.log(PceLogs.AUDIT_SUCCESSFUL, getTopologyManifestReader().getId(), "Manifest audit completed successfully for " + getTopologyManifestReader().getTarget());
         manifestStatus.setId(getTopologyManifestReader().getId());
         manifestStatus.setHref(getTopologyManifestReader().getTarget());
         manifestStatus.setStatus(TopologyStatus.Completed);
@@ -477,6 +535,8 @@ public class PollingTopologyProvider implements TopologyProvider {
         String id = reader.getId();
         String href = reader.getTarget();
         
+        topologyLogger.log(PceLogs.AUDIT_START, id, "NSA audit starting for " + href);
+
         TopologyProviderStatus local = providerStatus.get(id);
         
         if (local != null) {
@@ -499,10 +559,12 @@ public class PollingTopologyProvider implements TopologyProvider {
     }
     
     private void providerAuditError(TopologyProviderStatus local) {
+        topologyLogger.error(PceErrors.AUDIT, local.getId(), local.getHref());
         local.setStatus(TopologyStatus.Error);
     }
     
     private void providerAuditSuccess(NmlTopologyReader reader, TopologyProviderStatus local) {
+        topologyLogger.log(PceLogs.AUDIT_SUCCESSFUL, local.getId(), local.getHref());
         local.setStatus(TopologyStatus.Completed);
         local.setLastSuccessfulAudit(local.getLastAudit());
         local.setLastModified(reader.getLastModified());

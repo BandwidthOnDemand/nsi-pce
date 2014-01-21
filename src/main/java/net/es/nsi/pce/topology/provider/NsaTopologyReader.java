@@ -1,5 +1,6 @@
 package net.es.nsi.pce.topology.provider;
 
+import net.es.nsi.pce.logs.PceErrors;
 import net.es.nsi.pce.schema.NmlParser;
 import java.util.Date;
 import javax.ws.rs.NotFoundException;
@@ -10,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.topology.jaxb.NmlNSAType;
+import net.es.nsi.pce.logs.PceLogger;
 import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class NsaTopologyReader extends NmlTopologyReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private PceLogger topologyLogger = PceLogger.getLogger();
     
     /**
      * Default class constructor.
@@ -50,14 +53,20 @@ public class NsaTopologyReader extends NmlTopologyReader {
      */
     @Override
     public NmlNSAType readNsaTopology() throws Exception {
-        log.debug("readNsaTopology: entering");
-        
         // Use the REST client to retrieve the master topology as a string.
         ClientConfig clientConfig = new ClientConfig();
         RestClient.configureClient(clientConfig);
         Client client = ClientBuilder.newClient(clientConfig);
         WebTarget webGet = client.target(getTarget());
-        Response response = webGet.request(MediaType.APPLICATION_XML) .header("If-Modified-Since", DateUtils.formatDate(new Date(getLastModified()), DateUtils.PATTERN_RFC1123)).get();
+        
+        Response response = null;
+        try {
+            response = webGet.request(MediaType.APPLICATION_XML).header("If-Modified-Since", DateUtils.formatDate(new Date(getLastModified()), DateUtils.PATTERN_RFC1123)).get();
+        }
+        catch (Exception ex) {
+            topologyLogger.error(PceErrors.AUDIT_NSA_COMMS, getTarget(), ex.getMessage());
+            throw ex;
+        }
         
         // A 304 Not Modified indicates we already have a up-to-date document.
         if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
@@ -66,7 +75,7 @@ public class NsaTopologyReader extends NmlTopologyReader {
         }
         
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-            log.error("readNsaTopology: Failed to retrieve NSA topology " + getTarget());
+            topologyLogger.error(PceErrors.AUDIT_NSA_COMMS, getTarget(), Integer.toString(response.getStatus()));
             throw new NotFoundException("Failed to retrieve NSA topology " + getTarget());
         }
         
@@ -90,7 +99,7 @@ public class NsaTopologyReader extends NmlTopologyReader {
         
         // We should never get this - an exception should be thrown.
         if (topology == null) {
-            log.error("readNsaTopology: Failed to parse NSA topology " + getTarget());
+            topologyLogger.error(PceErrors.AUDIT_NSA_XML_PARSE, getTarget());
         }
         
         return topology;

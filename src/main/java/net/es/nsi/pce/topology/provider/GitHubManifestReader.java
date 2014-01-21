@@ -1,5 +1,6 @@
 package net.es.nsi.pce.topology.provider;
 
+import net.es.nsi.pce.logs.PceErrors;
 import net.es.nsi.pce.schema.NmlParser;
 import java.util.Date;
 import java.util.List;
@@ -11,11 +12,13 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import net.es.nsi.pce.config.topo.nml.TopologyManifest;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.topology.jaxb.NmlNetworkObject;
 import net.es.nsi.pce.topology.jaxb.NmlTopologyType;
+import net.es.nsi.pce.logs.PceLogger;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +35,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class GitHubManifestReader implements TopologyManifestReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private PceLogger topologyLogger = PceLogger.getLogger();
     
     private final static QName _isReference_QNAME = new QName("http://schemas.ogf.org/nsi/2013/09/topology#", "isReference");
 
@@ -122,13 +126,21 @@ public class GitHubManifestReader implements TopologyManifestReader {
      * 
      * @return The list of topology endpoints from the remote NML topology.
      */
-    private TopologyManifest readManifest() throws Exception {
+    private TopologyManifest readManifest() throws NotFoundException, JAXBException {
         // Use the REST client to retrieve the master topology as a string.
         ClientConfig clientConfig = new ClientConfig();
         RestClient.configureClient(clientConfig);
         Client client = ClientBuilder.newClient(clientConfig);
         WebTarget webGet = client.target(getTarget());
-        Response response = webGet.request(MediaType.APPLICATION_XML) .header("If-Modified-Since", DateUtils.formatDate(new Date(getLastModified()), DateUtils.PATTERN_RFC1123)).get();
+        
+        Response response = null;
+        try {
+            response = webGet.request(MediaType.APPLICATION_XML) .header("If-Modified-Since", DateUtils.formatDate(new Date(getLastModified()), DateUtils.PATTERN_RFC1123)).get();
+        }
+        catch (Exception ex) {
+            topologyLogger.error(PceErrors.AUDIT_MANIFEST_COMMS, getTarget(), ex.getMessage());
+            throw ex;
+        }
         
         // A 304 Not Modified indicates we already have a up-to-date document.
         if (response.getStatus() == Status.NOT_MODIFIED.getStatusCode()) {
@@ -136,7 +148,7 @@ public class GitHubManifestReader implements TopologyManifestReader {
         }
         
         if (response.getStatus() != Status.OK.getStatusCode()) {
-            log.error("readManifest: Failed to retrieve master topology " + getTarget());
+            topologyLogger.error(PceErrors.AUDIT_MANIFEST_COMMS, getTarget(), Integer.toString(response.getStatus()));
             throw new NotFoundException("Failed to retrieve master topology " + getTarget());
         }
         
@@ -150,9 +162,15 @@ public class GitHubManifestReader implements TopologyManifestReader {
         // Now we want the NML XML document.
         String xml = response.readEntity(String.class);
         
-        // Parse the master topology. 
-        NmlTopologyType topology = NmlParser.getInstance().parseTopologyFromString(xml);
-        
+        // Parse the master topology.
+        NmlTopologyType topology;
+        try {
+            topology = NmlParser.getInstance().parseTopologyFromString(xml);
+        } catch (JAXBException ex) {
+            topologyLogger.error(PceErrors.AUDIT_MANIFEST_XML_PARSE, getTarget(), ex.getMessage());
+            throw ex;
+        }
+
         // Create an internal object to hold the master list.
         TopologyManifest newManifest = new TopologyManifest();
         newManifest.setId(topology.getId());
@@ -172,7 +190,7 @@ public class GitHubManifestReader implements TopologyManifestReader {
                     newManifest.setTopologyURL(networkObject.getId(), isReference);
                 }
                 else {
-                    log.error("readManifest: topology id: " + networkObject.getId() + ", isReference: not present.");
+                    topologyLogger.error(PceErrors.AUDIT_MANIFEST_MISSING_ISREFERENCE, getTarget(), networkObject.getId());
                 }
             }
         }

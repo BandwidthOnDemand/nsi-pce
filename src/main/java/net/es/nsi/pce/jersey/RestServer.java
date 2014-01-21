@@ -9,6 +9,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBElement;
 import net.es.nsi.pce.api.FindPathService;
+import net.es.nsi.pce.api.ManagementService;
 import net.es.nsi.pce.api.TopologyService;
 import net.es.nsi.pce.api.jaxb.FindPathErrorType;
 import net.es.nsi.pce.api.jaxb.ObjectFactory;
@@ -26,6 +27,7 @@ public class RestServer {
                 .packages(packageName) // This seems to be broken when run outside of Jersey test.
                 .register(FindPathService.class) // Remove this if packages gets fixed.
                 .register(TopologyService.class) // Remove this if packages gets fixed.
+                .register(ManagementService.class) // Remove this if packages gets fixed.
                 .register(new MoxyXmlFeature())
                 .register(new MoxyJsonFeature())
                 .registerInstances(new JsonMoxyConfigurationContextResolver());

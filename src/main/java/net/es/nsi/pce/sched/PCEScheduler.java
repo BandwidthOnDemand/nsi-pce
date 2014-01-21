@@ -1,11 +1,15 @@
 package net.es.nsi.pce.sched;
 
 import java.util.Date;
+import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.SimpleTrigger;
+import static org.quartz.TriggerBuilder.*;
+import static org.quartz.SimpleScheduleBuilder.*;
+import static org.quartz.JobBuilder.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,21 +64,28 @@ public class PCEScheduler {
     
     /**
      * Add the specified job to the scheduler with the first instance running
-     * as current time + interval.
+     * at current time + interval.
      * 
      * @param jobName The name of the job.
      * @param jobClass An instance of this class will be executed.
      * @param interval The time in milliseconds between invocations of this job.
      * @throws SchedulerException 
      */
-    public void add(String jobName, Class<?> jobClass, long interval) throws SchedulerException {
+    public void add(String jobName, String jobGroup, Class<? extends Job> jobClass, long interval) throws SchedulerException {
         // At the job to the scheduler but have first instance start in "interval" time.
         Date currentDate = new Date(System.currentTimeMillis() + interval);
-        SimpleTrigger trigger = new SimpleTrigger(jobName + "Trigger", jobName);
-        trigger.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
-        trigger.setRepeatInterval(interval);
-        trigger.setStartTime(currentDate);
-        JobDetail cfgReloadJobDetail = new JobDetail(jobName, jobName, jobClass);
+        SimpleTrigger trigger = newTrigger()
+                .withIdentity(jobName, jobGroup)
+                .startAt(currentDate)
+                .withSchedule(simpleSchedule()
+                    .withIntervalInMilliseconds(interval)
+                    .withRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY))
+                .build();
+
+        JobDetail cfgReloadJobDetail = newJob(jobClass)
+                .withIdentity(jobName, jobName)
+                .build();
+        
         this.scheduler.scheduleJob(cfgReloadJobDetail, trigger);
     }
     

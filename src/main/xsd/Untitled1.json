@@ -1,0 +1,27 @@
+{
+    "correlationId": "f270b7aa-f683-497e-ae71-9a9c01404178",
+    "replyTo": {
+        "url": "http://localhost:9800/aggregator/path",
+        "mediaType": "application/json"
+    },
+    "algorithm": "CHAIN",
+    "startTime": "2014-01-16T00:34:01.164Z",
+    "endTime": "2014-01-16T00:44:01.167Z",
+    "serviceType": "http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE",
+    "p.evts": [{
+        "capacity": 100,
+        "directionality": "Bidirectional",
+        "symmetricPath": true,
+        "sourceSTP": {
+            "networkId": "urn:ogf:network:uvalight.net:2013:topology",
+            "localId": "urn:ogf:network:uvalight.net:2013:ps"
+        },
+        "destSTP": {
+            "networkId": "urn:ogf:network:jgn-x.jp:2013:topology",
+            "localId": "urn:ogf:network:jgn-x.jp:2013:bi-ps"
+        },
+        "mtu": 9000,
+        "sourceVLAN": 1784,
+        "destVLAN": 1784
+    }]
+}

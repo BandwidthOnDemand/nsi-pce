@@ -4,6 +4,7 @@
  */
 package net.es.nsi.pce.topology.model;
 
+import net.es.nsi.pce.logs.PceLogger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.GregorianCalendar;
@@ -21,8 +22,8 @@ import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
-import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.NsiResourceType;
+import net.es.nsi.pce.logs.PceErrors;
 import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +81,7 @@ public class NsiSdpFactory {
     
     public static Collection<SdpType> createUnidirectionalSdpTopology(Map<String, StpType> stpMap) {
         Logger log = LoggerFactory.getLogger(NsiSdpFactory.class);
+        PceLogger topologyLogger = PceLogger.getLogger();
         
         // Validate that an inbound STP is connected to an oubound STP on
         // the remote end, and likewise, and outbound STP is connected to
@@ -93,7 +95,7 @@ public class NsiSdpFactory {
             
             StpType remoteStp = stpMap.get(remoteStpId);
             if (remoteStp == null) {
-                log.error("STP " + stp.getId() + " has invalid remote STP reference " + remoteStpId);
+                topologyLogger.error(PceErrors.STP_INVALID_REMOTE_REFERNCE, stp.getId(), remoteStpId);
                 continue;
             }
             
@@ -103,13 +105,13 @@ public class NsiSdpFactory {
                 // Check to see if this outbound STP is connected to an inbound
                 // STP at the far end, and that they agree to be connected.
                 if (remoteStp.getType() != StpDirectionalityType.INBOUND) {
-                    log.error("Outbound STP " + stp.getId() + " is not connected to inbound STP type " + remoteStpId);
+                    topologyLogger.error(PceErrors.STP_OUTBOUND_REFERNCE_MISMATCH, stp.getId(), remoteStpId);
                     continue;
                 }
                 
                 if (remoteStpConnectedTo == null ||
                         !remoteStpConnectedTo.equalsIgnoreCase(stp.getId())) {
-                    log.error("Inbound STP " + stp.getId() + " references remote STP " + remoteStpId + " but remote STP's reference does not match");
+                    topologyLogger.error(PceErrors.STP_REMOTE_REFERNCE_MISMATCH, stp.getId(), remoteStpId);
                 }
                 
                 // Create a unidirectional SDP for each Outbound/Inbound pair.
@@ -121,13 +123,13 @@ public class NsiSdpFactory {
                 // majority of these were already checked in the outbound case
                 // but there may be some stragglers.
                 if (remoteStp.getType() != StpDirectionalityType.OUTBOUND) {
-                    log.error("Inbound STP " + stp.getId() + " is not connected to outbound STP type " + remoteStpId);
+                    topologyLogger.error(PceErrors.STP_INBOUND_REFERNCE_MISMATCH, stp.getId(), remoteStpId);
                     continue;
                 }
 
                 if (remoteStpConnectedTo == null ||
                         !remoteStpConnectedTo.equalsIgnoreCase(stp.getId())) {
-                    log.error("Inbound STP " + stp.getId() + " references remote STP " + remoteStpId + " but remote STP's reference does not match");
+                    topologyLogger.error(PceErrors.STP_REMOTE_REFERNCE_MISMATCH, stp.getId(), remoteStpId);
                 }
             }
         }
@@ -138,6 +140,7 @@ public class NsiSdpFactory {
     
     public static Collection<SdpType> createBidirectionalSdps(Map<String, StpType> stpMap) {
         Logger log = LoggerFactory.getLogger(NsiSdpFactory.class);
+        PceLogger topologyLogger = PceLogger.getLogger();
         
         // Validate that an inbound STP is connected to an oubound STP on
         // the remote end, and likewise, and outbound STP is connected to
@@ -160,20 +163,20 @@ public class NsiSdpFactory {
                 // not have been created.
                 ResourceRefType inboundStpRef = stp.getInboundStp();
                 if (inboundStpRef == null) {
-                    log.error("Bidirectional STP " + stp.getId() + " has invalid inbound STP reference.");
+                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_INBOUND_REFERNCE_MISMATCH, stp.getId());
                     continue;
                 }
                 
                 ResourceRefType outboundStpRef = stp.getOutboundStp();
                 if (outboundStpRef == null) {
-                    log.error("Bidirectional STP " + stp.getId() + " has invalid outbound STP reference.");
+                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_OUTBOUND_REFERNCE_MISMATCH, stp.getId());
                     continue;
                 }
                 
                 // Make sure these references resolve to real STP resources.
                 StpType inboundStp = stpMap.get(inboundStpRef.getId());
                 if (inboundStp == null) {
-                    log.error("Bidirectional STP " + stp.getId() + " has missing inbound STP " + inboundStpRef.getId());
+                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_INVALID_INBOUND_STP, stp.getId(), inboundStpRef.getId());
                     continue;
                 }
                 else if (inboundStp.getConnectedTo() == null) {
@@ -184,7 +187,7 @@ public class NsiSdpFactory {
                 
                 StpType outboundStp = stpMap.get(outboundStpRef.getId());
                 if (outboundStp == null) {
-                    log.error("Bidirectional STP " + stp.getId() + " has missing outbound STP " + outboundStpRef.getId());
+                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_INVALID_OUTBOUND_STP, stp.getId(), outboundStpRef.getId());
                     continue;
                 }
                 else if (outboundStp.getConnectedTo() == null) {
@@ -196,13 +199,13 @@ public class NsiSdpFactory {
                 // Determine if the STP are connected to anything.
                 StpType remoteInboundStp = stpMap.get(outboundStp.getConnectedTo());
                 if (remoteInboundStp == null) {
-                    log.error("Bidirectional STP " + stp.getId() + " has invalid remote inbound STP reference " + outboundStp.getConnectedTo());
+                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_REMOTE_REFERNCE_MISMATCH, stp.getId(), outboundStp.getConnectedTo());
                     continue;
                 }
 
                 StpType remoteOutboundStp = stpMap.get(inboundStp.getConnectedTo());
                 if (remoteOutboundStp == null) {
-                    log.error("Bidirectional STP " + stp.getId() + " has invalid remote outbound STP reference " + inboundStp.getConnectedTo());
+                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_REMOTE_REFERNCE_MISMATCH, stp.getId(), inboundStp.getConnectedTo());
                     continue;
                 }
                 

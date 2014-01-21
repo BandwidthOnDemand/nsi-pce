@@ -12,9 +12,11 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.es.nsi.pce.jersey.RestClient;
+import net.es.nsi.pce.managemenet.jaxb.LogType;
+import net.es.nsi.pce.managemenet.jaxb.LogsType;
+import net.es.nsi.pce.managemenet.jaxb.StatusType;
 import net.es.nsi.pce.topology.jaxb.CollectionType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
-import net.es.nsi.pce.topology.jaxb.StatusType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ClientConfig;
@@ -50,6 +52,24 @@ public class TopologyClient {
             System.out.println("Summary status " + status.getStatus().getLabel());
             System.out.println("Last audit " + status.getLastAudit());
             System.out.println("Last modified " + status.getLastModified());
+        }
+        
+        // Retrieve topology service status.
+        response = webTarget.path("logs").request(MediaType.APPLICATION_JSON).get();       
+        System.out.println("Logs result " + response.getStatus());
+        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+            LogsType logs = response.readEntity(LogsType.class);
+            for (LogType log : logs.getLog()) {
+                System.out.println("Retreiving: " + log.getId());
+                
+                response = webTarget.path("logs/" + log.getId()).request(MediaType.APPLICATION_JSON).get();
+                if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                    System.out.println("Got it: " + log.getId());
+                }
+                else {
+                    System.out.println("Error reading: " + log.getId() + " (" + response.getStatus() + ")");
+                }
+            }
         }
         
         // Retrieve a full list of STPs within the topology model.

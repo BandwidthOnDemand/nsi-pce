@@ -11,6 +11,13 @@ import net.es.nsi.pce.topology.model.NsiTopology;
 
 public interface TopologyProvider {
     /**
+     * Initialize the NSI topology provider.
+     * 
+     * @Exception Will throw an exception if the provider cannot be initialized.
+     */
+    public void initialize() throws Exception;
+    
+    /**
      * Get the discovered NSI network topology.  Will load a copy of topology
      * if it has not yet been loaded.
      * 
@@ -33,13 +40,6 @@ public interface TopologyProvider {
      * @param configuration The source from which to load NSI topology.
      */
     public void setConfiguration(String configuration);
-
-    /**
-     * Initialize the NSI topology provider.
-     * 
-     * @Exception Will throw an exception if the provider cannot be initialized.
-     */
-    public void initialize() throws Exception;
     
     /**
      * Get the configuration for NSI topology discovery.

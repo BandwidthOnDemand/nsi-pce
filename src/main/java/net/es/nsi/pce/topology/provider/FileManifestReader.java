@@ -1,7 +1,9 @@
 package net.es.nsi.pce.topology.provider;
 
+import net.es.nsi.pce.logs.PceErrors;
 import java.io.File;
 import net.es.nsi.pce.config.topo.nml.TopologyManifest;
+import net.es.nsi.pce.logs.PceLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FileManifestReader implements TopologyManifestReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private PceLogger topologyLogger = PceLogger.getLogger();
     
     // The manifest identifier.
     private String id = getClass().getName();
@@ -94,9 +97,17 @@ public class FileManifestReader implements TopologyManifestReader {
      * 
      * @return The list of topology endpoints from the remote NML topology.
      */
-    private TopologyManifest readManifest() throws Exception {
+    private TopologyManifest readManifest() throws NullPointerException {
         // Get a list of files for supplied directory.
-        File folder = new File(target);
+        File folder = null;
+        try {
+            folder = new File(target);
+        }
+        catch (NullPointerException ex) {
+            topologyLogger.error(PceErrors.AUDIT_MANIFEST_FILE, "FileManifestReader", target);
+            throw ex;
+        }
+        
         long lastMod = folder.lastModified();
         
         // If directory was not modified we return.

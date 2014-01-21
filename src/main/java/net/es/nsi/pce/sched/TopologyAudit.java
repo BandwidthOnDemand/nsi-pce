@@ -3,6 +3,8 @@ package net.es.nsi.pce.sched;
 
 import net.es.nsi.pce.config.SpringContext;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
+
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -14,6 +16,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author hacksaw
  */
+@DisallowConcurrentExecution
 public class TopologyAudit implements Job {
     private final Logger log = LoggerFactory.getLogger(getClass());
     

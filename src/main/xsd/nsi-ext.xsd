@@ -45,12 +45,18 @@
         <xs:sequence>
           <xs:element  ref="nsi:Interface" minOccurs="0"  maxOccurs="unbounded"/>
           <xs:element  ref="nsi:Relation"  minOccurs="0"  maxOccurs="unbounded"/>
-          <xs:element  ref="nml:Topology"  minOccurs="0"  maxOccurs="unbounded"/>
+          <xs:element  ref="nml:Topology"  minOccurs="0"  maxOccurs="unbounded"  />
+          <xs:element name="extension" type="nsi:ExtensionType" minOccurs="0" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
   
+  <xs:complexType name="ExtensionType">
+    <xs:sequence>
+      <xs:any      namespace="##other"  processContents="lax"  minOccurs="0"  maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
   
   <xs:element name="NSA"  type="nsi:NSAType"/>
   

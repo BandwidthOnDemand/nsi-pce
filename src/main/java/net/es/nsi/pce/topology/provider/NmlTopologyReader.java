@@ -4,6 +4,7 @@
  */
 package net.es.nsi.pce.topology.provider;
 
+import net.es.nsi.pce.logs.PceErrors;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ import net.es.nsi.pce.topology.model.NsiServiceFactory;
 import net.es.nsi.pce.topology.model.NsiServiceDomainFactory;
 import net.es.nsi.pce.topology.model.NsiStpFactory;
 import net.es.nsi.pce.topology.model.NsiTopology;
+import net.es.nsi.pce.logs.PceLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -54,6 +56,7 @@ import org.springframework.stereotype.Component;
 @Component
 public abstract class NmlTopologyReader implements TopologyReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private PceLogger topologyLogger = PceLogger.getLogger();
     
     // The identifier of this reader.
     private String id = null;
@@ -428,10 +431,11 @@ public abstract class NmlTopologyReader implements TopologyReader {
                     // Log an error if we have more than one connectedTo
                     // relationship but continue.
                     if (count == 0) {
-                        log.error("Unidirectional port " + portGroup.getId() + " has zero isAlias relationships.");
+                        topologyLogger.error(PceErrors.STP_NO_REMOTE_REFERNCE, portGroup.getId());
+                        
                     }
                     else if (count > 1) {
-                        log.error("Unidirectional port " + portGroup.getId() + " has " + count + "isAlias relationships.");
+                        topologyLogger.error(PceErrors.STP_MULTIPLE_REMOTE_REFERNCES, portGroup.getId(), Integer.toString(count));
                     }
 
                     // Store this port information in our scratch pad.
@@ -456,9 +460,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
                     String connectedTo = null;
                     int count = 0;
                     for (NmlPortRelationType pgRelation : port.getRelation()) {
-                        log.debug("Looking for isAlias relationship: " + pgRelation.getType());
                         if (Relationships.isAlias(pgRelation.getType())) {
-                            log.debug("Found isAlias relationship.");
                             for (NmlPortType alias : pgRelation.getPort()) {
                                 log.debug("isAlias: " + alias.getId());
                                 connectedTo = alias.getId();
@@ -470,10 +472,10 @@ public abstract class NmlTopologyReader implements TopologyReader {
                     // Log an error if we have more than one connectedTo
                     // relationship but continue.
                     if (count == 0) {
-                        log.error("Unidirectional port " + port.getId() + " has zero isAlias relationships.");
+                        topologyLogger.error(PceErrors.STP_NO_REMOTE_REFERNCE, port.getId());
                     }
                     else if (count > 1) {
-                        log.error("Unidirectional port " + port.getId() + " has " + count + "isAlias relationships.");
+                        topologyLogger.error(PceErrors.STP_MULTIPLE_REMOTE_REFERNCES, port.getId(), Integer.toString(count));
                     }
 
                     // Store this port information in our scratch pad.
@@ -504,12 +506,9 @@ public abstract class NmlTopologyReader implements TopologyReader {
         // reference individual undirection Ports or PortGroups.
         List<NmlNetworkObject> groups = nmlTopology.getGroup();
         for (NmlNetworkObject group : groups) {
-            log.debug("NML NetworkObject id: " + group.getId());
-
             // Process the BidirectionalPort.  It will contain references
             // to either member Port or PortGroup elements.
             if (group instanceof NmlBidirectionalPortType) {
-                log.debug("NML BidirectionalPortType: " + group.getId());
                 NmlBidirectionalPortType port = (NmlBidirectionalPortType) group;
 
                 // Process port groups containing the unidirectional references.
@@ -521,8 +520,6 @@ public abstract class NmlTopologyReader implements TopologyReader {
                         JAXBElement<?> element = (JAXBElement<?>) obj;
                         if (element.getValue() instanceof NmlPortGroupType) {
                             NmlPortGroupType pg = (NmlPortGroupType) element.getValue();
-                            log.debug("NML Unidirectional port: " + pg.getId());
-
                             NmlPort tmp = uniPortMap.get(pg.getId());
                             if (tmp != null) {
                                 if (tmp.getOrientation() == Orientation.inbound) {
@@ -532,7 +529,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
                                     outbound = tmp;
                                 }
                                 else {
-                                    log.error("Bidirectional port " + port.getId() + " has invalid undirectional port reference (" + pg.getId());
+                                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_INVALID_MEMEBER_VALUE, port.getId(), "has invalid undirectional port group reference (" + pg.getId() + ") orientation type (" + tmp.getOrientation().toString() + ").");
                                 }
                             }
                         }
@@ -549,7 +546,8 @@ public abstract class NmlTopologyReader implements TopologyReader {
                                     outbound = tmp;
                                 }
                                 else {
-                                    log.error("Bidirectional port " + port.getId() + " has invalid undirectional port reference (" + p.getId());
+                                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_INVALID_MEMEBER_VALUE, port.getId(), "has invalid undirectional port group reference (" + p.getId() + ") orientation type (" + tmp.getOrientation().toString() + ").");
+
                                 }
                             }                        
                         }
@@ -557,11 +555,11 @@ public abstract class NmlTopologyReader implements TopologyReader {
                 }
 
                 if (inbound == null) {
-                    log.error("Bidirectional port " + port.getId() + " does not have an associated inbound unidirectional port. Dropping from topology!");
+                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_MISSING_INBOUND_STP, port.getId());
                     continue; 
                 }
                 else if (outbound == null) {
-                    log.error("Bidirectional port " + port.getId() + " does not have an associated outbound unidirectional port.  Dropping from topology!");
+                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_MISSING_OUTBOUND_STP, port.getId());
                     continue;
                 }
 
@@ -585,7 +583,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
                         }
 
                         if (!found) {
-                            log.error("Bidirectional port " + port.getId() + " contains unidirectional ports with differing label ranges.  Dropping from topology!");
+                            topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_LABEL_RANGE_MISMATCH, port.getId(), inLabel.getLabeltype() + "=" + inLabel.getValue());
                             consistent = false;
                             break;
                         }
@@ -595,10 +593,13 @@ public abstract class NmlTopologyReader implements TopologyReader {
                       continue;
                     }
                 }
-                else {
-                    log.error("Bidirectional port " + port.getId() + " contains unidirectional ports with differing label ranges.");
-                    //throw new IllegalArgumentException("Bidirectional port " + port.getId() + " contains unidirectional ports with differing vlan ranges.");                            
+                else if (inLabels == null){
+                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_LABEL_RANGE_MISMATCH, port.getId(), "no inbound STP labels");                            
                     continue;
+                }
+                else if (outLabels == null) {
+                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_LABEL_RANGE_MISMATCH, port.getId(), "no outbound STP labels");                            
+                    continue;                    
                 }
 
                 // Build the bidirection Port using unidirectional Labels

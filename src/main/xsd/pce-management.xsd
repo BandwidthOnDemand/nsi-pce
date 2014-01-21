@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://schemas.es.net/nsi/2013/07/management/types"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:tns="http://schemas.es.net/nsi/2013/07/management/types">
+    
+    <!-- OAM relatated elements and types. -->
+    <xsd:element name="status"            type="tns:StatusType" />
+    <xsd:element name="logs"              type="tns:LogsType" />
+    <xsd:element name="log"               type="tns:LogType" />
+    
+    <xsd:complexType name="StatusType">
+        <xsd:sequence>
+            <xsd:element name="status"        type="tns:TopologyStatusType" />
+            <xsd:element name="auditInterval" type="xsd:long" />
+            <xsd:element name="lastAudit"     type="xsd:dateTime" />
+            <xsd:element name="lastModified"  type="xsd:dateTime" minOccurs="0" />
+            <xsd:element name="manifest"      type="tns:TopologyProviderType" minOccurs="0" />
+            <xsd:element name="provider"      type="tns:TopologyProviderType" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="TopologyStatusType">
+        <xsd:sequence>
+            <xsd:element name="code" type="xsd:int" />
+            <xsd:element name="label" type="xsd:string" />
+            <xsd:element name="description" type="xsd:string" />
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="TopologyProviderType">
+        <xsd:sequence>
+            <xsd:element name="status"              type="tns:TopologyStatusType" />
+            <xsd:element name="lastAudit"           type="xsd:dateTime" />
+            <xsd:element name="lastSuccessfulAudit" type="xsd:dateTime" minOccurs="0" />
+            <xsd:element name="lastModified"        type="xsd:dateTime" minOccurs="0" />
+            <xsd:element name="lastDiscovered"      type="xsd:dateTime" minOccurs="0" />
+        </xsd:sequence>
+        <xsd:attribute name="id"   type="xsd:anyURI" />
+        <xsd:attribute name="href" type="xsd:anyURI" />
+    </xsd:complexType>
+    
+    <xsd:complexType name="LogsType">
+        <xsd:sequence>
+            <xsd:element ref="tns:log" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="LogType">
+        <xsd:sequence>
+            <xsd:element name="code"        type="xsd:int" />
+            <xsd:element name="label"       type="xsd:string" />
+            <xsd:element name="description" type="xsd:string" />
+            <xsd:element name="resource"    type="xsd:anyURI" />
+        </xsd:sequence>
+        <xsd:attribute name="id"   type="xsd:string" />
+        <xsd:attribute name="type" type="tns:LogEnumType" />
+        <xsd:attribute name="href" type="xsd:anyURI" />
+        <xsd:attribute name="audit" type="xsd:dateTime" />
+        <xsd:attribute name="date" type="xsd:dateTime" />
+    </xsd:complexType>
+    
+    <xsd:simpleType name="LogEnumType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration  value="Log"/>
+            <xsd:enumeration  value="Error"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+</xsd:schema>

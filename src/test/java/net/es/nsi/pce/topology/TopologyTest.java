@@ -60,13 +60,6 @@ public class TopologyTest extends JerseyTest {
         Response response = topology.path("ping").request(MediaType.APPLICATION_JSON).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     }
-    
-    @Test
-    public void testStatus() {
-        // Simple status to determine current state of topology discovery.
-        Response response = topology.path("status").request(MediaType.APPLICATION_JSON).get();
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-    }
 
     @Test
     public void testAllTopology() throws Exception {
@@ -245,7 +238,15 @@ public class TopologyTest extends JerseyTest {
         // We want to run some model consistency checks.
         CollectionType collection = response.readEntity(CollectionType.class);
         List<ServiceDomainType> serviceDomains = collection.getServiceDomain();
+        
+        int count = 0;
         for (ServiceDomainType serviceDomain : serviceDomains) {
+            // Limit iterations to avoind long builds.
+            count++;
+            if (count > 10) {
+                break;
+            }
+            
             // For each ServiceDomain retrieved we want to read the individual entry.
             response = root.path(serviceDomain.getHref()).request(MediaType.APPLICATION_JSON).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
