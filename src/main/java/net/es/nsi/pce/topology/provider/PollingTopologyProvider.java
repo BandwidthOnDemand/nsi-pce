@@ -16,10 +16,10 @@ import net.es.nsi.pce.schema.TopologyConfigurationParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.model.NsiSdpFactory;
 import net.es.nsi.pce.logs.PceLogger;
+import net.es.nsi.pce.managemenet.jaxb.TopologyStatusType;
 
 
 /**
@@ -69,7 +69,7 @@ public class PollingTopologyProvider implements TopologyProvider {
     private long lastModified = 0L;
     
     // Overall discovery status. 
-    private TopologyStatus summaryStatus = TopologyStatus.Initializing;
+    private TopologyStatusType summaryStatus = TopologyStatusType.INITIALIZING;
     
     // The topology manifest discovery status. 
     private TopologyProviderStatus manifestStatus = null;
@@ -155,16 +155,16 @@ public class PollingTopologyProvider implements TopologyProvider {
             config = TopologyConfigurationParser.getInstance().parse(configuration);
         }
         catch (FileNotFoundException nf) {
-            topologyLogger.error(PceErrors.CONFIGURATION_INVALID_FILENAME, "configurationFile", configuration);
+            topologyLogger.errorAudit(PceErrors.CONFIGURATION_INVALID_FILENAME, "configurationFile", configuration);
             throw nf;
         }
         catch (JAXBException jaxb) {
-            topologyLogger.error(PceErrors.CONFIGURATION_INVALID_XML, "configurationFile", configuration);
+            topologyLogger.errorAudit(PceErrors.CONFIGURATION_INVALID_XML, "configurationFile", configuration);
             throw jaxb;
         }
         
         if (config.getLocation() == null || config.getLocation().isEmpty()) {
-            topologyLogger.error(PceErrors.CONFIGURATION_MISSING_MANIFEST_LOCATION, "location");
+            topologyLogger.errorAudit(PceErrors.CONFIGURATION_MISSING_MANIFEST_LOCATION, "location");
             throw new FileNotFoundException("Topology manifest location was not provided.");
         }
         
@@ -174,7 +174,7 @@ public class PollingTopologyProvider implements TopologyProvider {
             setAuditInterval(config.getAuditInterval());
         }
         else {
-            topologyLogger.error(PceErrors.CONFIGURATION_INVALID_AUDIT_INTERVAL, "auditInterval", Long.toString(config.getAuditInterval()));
+            topologyLogger.errorAudit(PceErrors.CONFIGURATION_INVALID_AUDIT_INTERVAL, "auditInterval", Long.toString(config.getAuditInterval()));
         }
         
         if (config.getDefaultServiceType() != null &&
@@ -182,7 +182,7 @@ public class PollingTopologyProvider implements TopologyProvider {
             setDefaultServiceType(config.getDefaultServiceType());
         }
         else {
-            topologyLogger.error(PceErrors.CONFIGURATION_MISSING_SERVICETYPE, "defaultServiceType", getDefaultServiceType());            
+            topologyLogger.errorAudit(PceErrors.CONFIGURATION_MISSING_SERVICETYPE, "defaultServiceType", getDefaultServiceType());            
         }
         
         topologyManifestReader.setTarget(getLocation());
@@ -441,14 +441,14 @@ public class PollingTopologyProvider implements TopologyProvider {
      * @return the summaryStatus
      */
     @Override
-    public TopologyStatus getSummaryStatus() {
+    public TopologyStatusType getSummaryStatus() {
         return summaryStatus;
     }
 
     /**
      * @param summaryStatus the overallStatus to set
      */
-    public void setSummaryStatus(TopologyStatus summaryStatus) {
+    public void setSummaryStatus(TopologyStatusType summaryStatus) {
         this.summaryStatus = summaryStatus;
     }
     
@@ -457,43 +457,46 @@ public class PollingTopologyProvider implements TopologyProvider {
         
         // Let the logger know we are starting another topology discovery run.
         topologyLogger.setAuditTimeStamp(auditTime);
-        topologyLogger.log(PceLogs.AUDIT_START, "PollingTopologyProvider", "Full topology audit starting.");
+        topologyLogger.logAudit(PceLogs.AUDIT_START, "PollingTopologyProvider", "Full topology audit starting.");
         
         // Set the provider status if this is not our first time.
-        if (summaryStatus != TopologyStatus.Initializing) {
-            summaryStatus = TopologyStatus.Auditing;
+        if (summaryStatus != TopologyStatusType.INITIALIZING) {
+            summaryStatus = TopologyStatusType.AUDITING;
         }
         
         setLastAudit(auditTime);
     }
 
     private void summaryAuditError() {
-        topologyLogger.error(PceErrors.AUDIT, "PollingTopologyProvider");
-        summaryStatus = TopologyStatus.Error;
+        topologyLogger.errorAudit(PceErrors.AUDIT, "PollingTopologyProvider");
+        summaryStatus = TopologyStatusType.ERROR;
+        topologyLogger.clearAuditTimeStamp();
     }
     
     private void summaryAuditSuccess() {
-        summaryStatus = TopologyStatus.Completed;
+        summaryStatus = TopologyStatusType.COMPLETED;
         
         // Determine if any of the component audits have failed.  A manifest
         // failure would already be taggeed as an summary error.
         for (TopologyProviderStatus provider : providerStatus.values()) {
-            if (provider.getStatus() == TopologyStatus.Error) {
-                summaryStatus = TopologyStatus.PartiallyComplete;
+            if (provider.getStatus() == TopologyStatusType.ERROR) {
+                summaryStatus = TopologyStatusType.PARTIALLY_COMPLETED;
                 break;
             }
         }
         
-        if (summaryStatus == TopologyStatus.Completed) {
-            topologyLogger.log(PceLogs.AUDIT_SUCCESSFUL, "PollingTopologyProvider", "Topology audit completed successfully.");
+        if (summaryStatus == TopologyStatusType.COMPLETED) {
+            topologyLogger.logAudit(PceLogs.AUDIT_SUCCESSFUL, "PollingTopologyProvider", "Topology audit completed successfully.");
         }
         else {
-            topologyLogger.log(PceLogs.AUDIT_PARTIAL, "PollingTopologyProvider", "Topology audit completed partially successful.");
+            topologyLogger.logAudit(PceLogs.AUDIT_PARTIAL, "PollingTopologyProvider", "Topology audit completed partially successful.");
         }
+        
+        topologyLogger.clearAuditTimeStamp();
     }
     
     private void manifestAuditStart() {
-        topologyLogger.log(PceLogs.AUDIT_START, getTopologyManifestReader().getId(), "Manifest audit starting for " + getTopologyManifestReader().getTarget());
+        topologyLogger.logAudit(PceLogs.AUDIT_MANIFEST_START, getTopologyManifestReader().getId(), getTopologyManifestReader().getTarget());
         
         if (manifestStatus == null) {
             manifestStatus = new TopologyProviderStatus();
@@ -504,21 +507,21 @@ public class PollingTopologyProvider implements TopologyProvider {
             }
         }
         else {
-            manifestStatus.setStatus(TopologyStatus.Auditing);
+            manifestStatus.setStatus(TopologyStatusType.AUDITING);
             manifestStatus.setLastAudit(System.currentTimeMillis());
         }
     }
     
     private void manifestAuditError() {
-        topologyLogger.error(PceErrors.AUDIT_MANIFEST, getTopologyManifestReader().getId(), getTopologyManifestReader().getTarget());
-        manifestStatus.setStatus(TopologyStatus.Error);
+        topologyLogger.errorAudit(PceErrors.AUDIT_MANIFEST, getTopologyManifestReader().getId(), getTopologyManifestReader().getTarget());
+        manifestStatus.setStatus(TopologyStatusType.ERROR);
     }
     
     private void manifestAuditSuccess() {
-        topologyLogger.log(PceLogs.AUDIT_SUCCESSFUL, getTopologyManifestReader().getId(), "Manifest audit completed successfully for " + getTopologyManifestReader().getTarget());
+        topologyLogger.logAudit(PceLogs.AUDIT_MANIFEST_SUCCESSFUL, getTopologyManifestReader().getId(), getTopologyManifestReader().getTarget());
         manifestStatus.setId(getTopologyManifestReader().getId());
         manifestStatus.setHref(getTopologyManifestReader().getTarget());
-        manifestStatus.setStatus(TopologyStatus.Completed);
+        manifestStatus.setStatus(TopologyStatusType.COMPLETED);
         manifestStatus.setLastSuccessfulAudit(getManifestStatus().getLastAudit());
         manifestStatus.setLastModified(getTopologyManifestReader().getLastModified());
     }
@@ -535,20 +538,20 @@ public class PollingTopologyProvider implements TopologyProvider {
         String id = reader.getId();
         String href = reader.getTarget();
         
-        topologyLogger.log(PceLogs.AUDIT_START, id, "NSA audit starting for " + href);
+        topologyLogger.logAudit(PceLogs.AUDIT_NSA_START, id, href);
 
         TopologyProviderStatus local = providerStatus.get(id);
         
         if (local != null) {
             // We have an existing entry for this provider so we update it.
-            local.setStatus(TopologyStatus.Auditing);
+            local.setStatus(TopologyStatusType.AUDITING);
         }
         else {
             // We have a new entry so create a status and set defaults.
             local = new TopologyProviderStatus();
             local.setId(id);
             local.setHref(href);
-            local.setStatus(TopologyStatus.Initializing);
+            local.setStatus(TopologyStatusType.INITIALIZING);
         }
         
         local.setLastAudit(System.currentTimeMillis());
@@ -559,13 +562,13 @@ public class PollingTopologyProvider implements TopologyProvider {
     }
     
     private void providerAuditError(TopologyProviderStatus local) {
-        topologyLogger.error(PceErrors.AUDIT, local.getId(), local.getHref());
-        local.setStatus(TopologyStatus.Error);
+        topologyLogger.errorAudit(PceErrors.AUDIT, local.getId(), local.getHref());
+        local.setStatus(TopologyStatusType.ERROR);
     }
     
     private void providerAuditSuccess(NmlTopologyReader reader, TopologyProviderStatus local) {
-        topologyLogger.log(PceLogs.AUDIT_SUCCESSFUL, local.getId(), local.getHref());
-        local.setStatus(TopologyStatus.Completed);
+        topologyLogger.logAudit(PceLogs.AUDIT_NSA_SUCCESSFUL, local.getId(), local.getHref());
+        local.setStatus(TopologyStatusType.COMPLETED);
         local.setLastSuccessfulAudit(local.getLastAudit());
         local.setLastModified(reader.getLastModified());
         local.setLastDiscovered(reader.getLastDiscovered());

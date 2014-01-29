@@ -20,6 +20,9 @@ import org.slf4j.LoggerFactory;
 public class TopologyAudit implements Job {
     private final Logger log = LoggerFactory.getLogger(getClass());
     
+    public static final String JOBNAME = "FullTopologyAudit";
+    public static final String JOBGROUP = "TopologyManagement";
+    
     /**
      * This method is invoked by the scheduler when it is time for a topology
      * audit.
@@ -29,7 +32,7 @@ public class TopologyAudit implements Job {
      */
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        log.info("TopologyAudit: running...");
+        log.info("TopologyAudit: running " + jobExecutionContext.getJobDetail().getKey().getName());
         
         // Get a reference to the topology provider.
         SpringContext sc = SpringContext.getInstance();

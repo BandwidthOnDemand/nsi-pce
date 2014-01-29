@@ -138,7 +138,7 @@ public class GitHubManifestReader implements TopologyManifestReader {
             response = webGet.request(MediaType.APPLICATION_XML) .header("If-Modified-Since", DateUtils.formatDate(new Date(getLastModified()), DateUtils.PATTERN_RFC1123)).get();
         }
         catch (Exception ex) {
-            topologyLogger.error(PceErrors.AUDIT_MANIFEST_COMMS, getTarget(), ex.getMessage());
+            topologyLogger.errorAudit(PceErrors.AUDIT_MANIFEST_COMMS, getTarget(), ex.getMessage());
             throw ex;
         }
         
@@ -148,7 +148,7 @@ public class GitHubManifestReader implements TopologyManifestReader {
         }
         
         if (response.getStatus() != Status.OK.getStatusCode()) {
-            topologyLogger.error(PceErrors.AUDIT_MANIFEST_COMMS, getTarget(), Integer.toString(response.getStatus()));
+            topologyLogger.errorAudit(PceErrors.AUDIT_MANIFEST_COMMS, getTarget(), Integer.toString(response.getStatus()));
             throw new NotFoundException("Failed to retrieve master topology " + getTarget());
         }
         
@@ -167,7 +167,7 @@ public class GitHubManifestReader implements TopologyManifestReader {
         try {
             topology = NmlParser.getInstance().parseTopologyFromString(xml);
         } catch (JAXBException ex) {
-            topologyLogger.error(PceErrors.AUDIT_MANIFEST_XML_PARSE, getTarget(), ex.getMessage());
+            topologyLogger.errorAudit(PceErrors.AUDIT_MANIFEST_XML_PARSE, getTarget(), ex.getMessage());
             throw ex;
         }
 
@@ -190,7 +190,7 @@ public class GitHubManifestReader implements TopologyManifestReader {
                     newManifest.setTopologyURL(networkObject.getId(), isReference);
                 }
                 else {
-                    topologyLogger.error(PceErrors.AUDIT_MANIFEST_MISSING_ISREFERENCE, getTarget(), networkObject.getId());
+                    topologyLogger.errorAudit(PceErrors.AUDIT_MANIFEST_MISSING_ISREFERENCE, getTarget(), networkObject.getId());
                 }
             }
         }

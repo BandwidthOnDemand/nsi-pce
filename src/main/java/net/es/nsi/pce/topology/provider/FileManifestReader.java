@@ -104,7 +104,7 @@ public class FileManifestReader implements TopologyManifestReader {
             folder = new File(target);
         }
         catch (NullPointerException ex) {
-            topologyLogger.error(PceErrors.AUDIT_MANIFEST_FILE, "FileManifestReader", target);
+            topologyLogger.errorAudit(PceErrors.AUDIT_MANIFEST_FILE, "FileManifestReader", target);
             throw ex;
         }
         

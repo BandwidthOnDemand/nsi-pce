@@ -112,19 +112,28 @@ public class PceLogger {
         }
     }
     
+    public void clearAuditTimeStamp() {
+        auditTimeStamp = null;
+    }
+    
     public void setAuditTimeStamp(long time) {
-        try {
-            auditTimeStamp = Utilities.longToXMLGregorianCalendar(time);
+        if (time == 0) {
+            auditTimeStamp = null;
         }
-        catch (DatatypeConfigurationException ex) {
-            // Ignore for now.
+        else {
+            try {
+                auditTimeStamp = Utilities.longToXMLGregorianCalendar(time);
+            }
+            catch (DatatypeConfigurationException ex) {
+                // Ignore for now.
+            }
         }
     }
 
     /**
-     * Create a new topology error resource and populate the attributes.
+     * Create a new log resource and populate the attributes.
      * 
-     * @return new error with shell attributes populated.
+     * @return new LogType with shell attributes populated.
      */
     private LogType createEntry() {
         long time = System.currentTimeMillis();
@@ -132,7 +141,6 @@ public class PceLogger {
         LogType entry = logFactory.createLogType();
         entry.setId(createId());
         entry.setHref(NSI_ROOT_LOGS + entry.getId());
-        entry.setAudit(auditTimeStamp);
         
         try {
             entry.setDate(Utilities.longToXMLGregorianCalendar(time));
@@ -156,6 +164,7 @@ public class PceLogger {
      * 
      * @param tError The type of error being generated.
      * @param resource The resource the error is impacting.
+     * @param description A description of the log.
      * @return new error fully populated.
      * @throws DatatypeConfigurationException if there is an error converting data.
      */
@@ -165,6 +174,25 @@ public class PceLogger {
         log.setCode(tLog.getCode());
         log.setLabel(tLog.getLabel());
         log.setDescription(description);
+        log.setResource(resource);
+        logLog(log);
+        return log;
+    }
+    
+    /**
+     * Create a topology error with the provided error information.
+     * 
+     * @param tError The type of error being generated.
+     * @param resource The resource the error is impacting.
+     * @return new error fully populated.
+     * @throws DatatypeConfigurationException if there is an error converting data.
+     */
+    public LogType log(PceLogs tLog, String resource) {
+        LogType log = createEntry();
+        log.setType(LogEnumType.LOG);
+        log.setCode(tLog.getCode());
+        log.setLabel(tLog.getLabel());
+        log.setDescription(tLog.getDescription());
         log.setResource(resource);
         logLog(log);
         return log;
@@ -184,6 +212,55 @@ public class PceLogger {
     public LogType error(PceErrors tError, String primaryResource, String secondaryResource) {
         LogType error = createEntry();
         error.setType(LogEnumType.ERROR);
+        error.setCode(tError.getCode());
+        error.setLabel(tError.getLabel());
+        error.setDescription(String.format(tError.getDescription(), secondaryResource));
+        error.setResource(primaryResource);
+        logError(error);
+        return error;
+    }
+    
+
+    public LogType logAudit(PceLogs tLog, String resource, String description) {
+        LogType log = createEntry();
+        log.setType(LogEnumType.LOG);
+        log.setAudit(auditTimeStamp);
+        log.setCode(tLog.getCode());
+        log.setLabel(tLog.getLabel());
+        log.setDescription(description);
+        log.setResource(resource);
+        logLog(log);
+        return log;
+    }
+
+    public LogType logAudit(PceLogs tLog, String resource) {
+        LogType log = createEntry();
+        log.setType(LogEnumType.LOG);
+        log.setAudit(auditTimeStamp);
+        log.setCode(tLog.getCode());
+        log.setLabel(tLog.getLabel());
+        log.setDescription(tLog.getDescription());
+        log.setResource(resource);
+        logLog(log);
+        return log;
+    }
+    
+    public LogType errorAudit(PceErrors tError, String resource) {
+        LogType error = createEntry();
+        error.setType(LogEnumType.ERROR);
+        error.setAudit(auditTimeStamp);
+        error.setCode(tError.getCode());
+        error.setLabel(tError.getLabel());
+        error.setDescription(tError.getDescription());
+        error.setResource(resource);
+        logError(error);
+        return error;
+    }
+
+    public LogType errorAudit(PceErrors tError, String primaryResource, String secondaryResource) {
+        LogType error = createEntry();
+        error.setType(LogEnumType.ERROR);
+        error.setAudit(auditTimeStamp);
         error.setCode(tError.getCode());
         error.setLabel(tError.getLabel());
         error.setDescription(String.format(tError.getDescription(), secondaryResource));
@@ -221,7 +298,12 @@ public class PceLogger {
         sb.append(", resource: ");
         sb.append(tError.getResource());
         sb.append(", description: ");
-        sb.append(tError.getDescription());         
+        sb.append(tError.getDescription());
+        
+        if (tError.getAudit() != null) {
+            sb.append(", audit: ");
+            sb.append(tError.getAudit().toString());
+        }
         logger.error(sb.toString());
     }
     
@@ -233,7 +315,12 @@ public class PceLogger {
         sb.append(", resource: ");
         sb.append(tLog.getResource());
         sb.append(", description: ");
-        sb.append(tLog.getDescription());         
+        sb.append(tLog.getDescription());
+        
+        if (tLog.getAudit() != null) {
+            sb.append(", audit: ");
+            sb.append(tLog.getAudit().toString());
+        }
         logger.info(sb.toString());
     }
 }

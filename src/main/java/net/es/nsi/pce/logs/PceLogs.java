@@ -12,9 +12,18 @@ import java.util.Map;
  * @author hacksaw
  */
 public enum PceLogs {
-    AUDIT_START(1, "AUDIT_START", "Topology audit has started."),
-    AUDIT_SUCCESSFUL(2, "AUDIT_SUCCESSFUL", "Topology audit has completed successfully."),
-    AUDIT_PARTIAL(3, "AUDIT_PARTIAL", "Topology audit completed partially successful.");
+    AUDIT_START(1001, "AUDIT_START", "Audit has started."),
+    AUDIT_SUCCESSFUL(1002, "AUDIT_SUCCESSFUL", "Audit has completed successfully."),
+    AUDIT_PARTIAL(1003, "AUDIT_PARTIAL", "Audit completed partially successful."),
+    AUDIT_MANIFEST_START(1004, "AUDIT_MANIFEST_START", "Manifest audit has started (%s)."),
+    AUDIT_MANIFEST_SUCCESSFUL(1005, "AUDIT_MANIFEST_SUCCESSFUL", "Manifest audit completed successfully (%s)."),    
+    AUDIT_NSA_START(1006, "AUDIT_NSA_START", "NSA audit has started (%s)."),
+    AUDIT_NSA_SUCCESSFUL(1007, "AUDIT_NSA_SUCCESSFUL", "NSA audit completed successfully (%s)."),
+    AUDIT_USER(1008, "AUDIT_USER", "User initiated audit requested."),
+    AUDIT_HAULTED(1009, "AUDIT_HAULTED", "User requested suspension of audit."),
+    AUDIT_SCHEDULED(1010, "AUDIT_SCHEDULED", "User requested a schedule of an audit."),
+    
+    END(9000, "", "");
     
     private int code;
     private String label;

@@ -64,7 +64,7 @@ public class NsaTopologyReader extends NmlTopologyReader {
             response = webGet.request(MediaType.APPLICATION_XML).header("If-Modified-Since", DateUtils.formatDate(new Date(getLastModified()), DateUtils.PATTERN_RFC1123)).get();
         }
         catch (Exception ex) {
-            topologyLogger.error(PceErrors.AUDIT_NSA_COMMS, getTarget(), ex.getMessage());
+            topologyLogger.errorAudit(PceErrors.AUDIT_NSA_COMMS, getTarget(), ex.getMessage());
             throw ex;
         }
         
@@ -75,7 +75,7 @@ public class NsaTopologyReader extends NmlTopologyReader {
         }
         
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-            topologyLogger.error(PceErrors.AUDIT_NSA_COMMS, getTarget(), Integer.toString(response.getStatus()));
+            topologyLogger.errorAudit(PceErrors.AUDIT_NSA_COMMS, getTarget(), Integer.toString(response.getStatus()));
             throw new NotFoundException("Failed to retrieve NSA topology " + getTarget());
         }
         
@@ -99,7 +99,7 @@ public class NsaTopologyReader extends NmlTopologyReader {
         
         // We should never get this - an exception should be thrown.
         if (topology == null) {
-            topologyLogger.error(PceErrors.AUDIT_NSA_XML_PARSE, getTarget());
+            topologyLogger.errorAudit(PceErrors.AUDIT_NSA_XML_PARSE, getTarget());
         }
         
         return topology;

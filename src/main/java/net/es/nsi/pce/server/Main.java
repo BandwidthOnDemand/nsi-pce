@@ -1,6 +1,10 @@
 package net.es.nsi.pce.server;
 
 import net.es.nsi.pce.config.ConfigurationManager;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.Options;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -12,7 +16,9 @@ import org.slf4j.LoggerFactory;
  * @author hacksaw
  */
 public class Main {
-    static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
+    
+    private static final String defaultPath = "config/";
 
     // Keep running PCE while true.
     private static boolean keepRunning = true;
@@ -45,10 +51,26 @@ public class Main {
      */
     @SuppressWarnings({"ResultOfMethodCallIgnored"})
     public static void main(String[] args) throws Exception {
-        // Load PCE configuration from disk.
-        ConfigurationManager.INSTANCE.initialize("config/");
+        // Create Options object to hold our command line options.
+        Options options = new Options();
 
-        // Start the main HTP container.
+        // Configuration directory option.
+        options.addOption("c", true, "configuration directory");
+        
+        // Parse the command line options.
+        CommandLineParser parser = new GnuParser();
+        CommandLine cmd = parser.parse(options, args);
+        
+        // Look for our options.
+        String path = cmd.getOptionValue("c");
+        if(path == null) {
+            path = defaultPath;
+        }
+        
+        // Load PCE configuration from disk.
+        ConfigurationManager.INSTANCE.initialize(path);
+
+        // Start the main HTTP container.
         log.info("Path Computation Engine starting...");
         PCEServer.INSTANCE.start(ConfigurationManager.INSTANCE.getPceConfig());
         log.info("PCE initialized and running.");
@@ -56,6 +78,7 @@ public class Main {
         // Listen for a shutdown event so we can clean up.
         Runtime.getRuntime().addShutdownHook(
             new Thread() {
+                @Override
                 public void run() {
                     log.info("Shutting down PCE...");
                     PCEServer.INSTANCE.stop();
@@ -67,7 +90,7 @@ public class Main {
 
         // Loop until we are told to shutdown.
         while (keepRunning) {
-            Thread.sleep(1);
+            Thread.sleep(1000);
         }
     }
 }

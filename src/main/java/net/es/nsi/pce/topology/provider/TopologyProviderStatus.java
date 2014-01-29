@@ -4,6 +4,8 @@
  */
 package net.es.nsi.pce.topology.provider;
 
+import net.es.nsi.pce.managemenet.jaxb.TopologyStatusType;
+
 /**
  *
  * @author hacksaw
@@ -12,7 +14,7 @@ public class TopologyProviderStatus {
     private String id;
     private String href;
     
-    private TopologyStatus status = TopologyStatus.Initializing;
+    private TopologyStatusType status = TopologyStatusType.INITIALIZING;
     private long lastAudit = System.currentTimeMillis();
     private long lastSuccessfulAudit = 0;
     private long lastModified = 0;
@@ -49,14 +51,14 @@ public class TopologyProviderStatus {
     /**
      * @return the status
      */
-    public TopologyStatus getStatus() {
+    public TopologyStatusType getStatus() {
         return status;
     }
 
     /**
      * @param status the status to set
      */
-    public void setStatus(TopologyStatus status) {
+    public void setStatus(TopologyStatusType status) {
         this.status = status;
     }
 

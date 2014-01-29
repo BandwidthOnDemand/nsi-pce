@@ -431,11 +431,11 @@ public abstract class NmlTopologyReader implements TopologyReader {
                     // Log an error if we have more than one connectedTo
                     // relationship but continue.
                     if (count == 0) {
-                        topologyLogger.error(PceErrors.STP_NO_REMOTE_REFERNCE, portGroup.getId());
+                        topologyLogger.errorAudit(PceErrors.STP_NO_REMOTE_REFERNCE, portGroup.getId());
                         
                     }
                     else if (count > 1) {
-                        topologyLogger.error(PceErrors.STP_MULTIPLE_REMOTE_REFERNCES, portGroup.getId(), Integer.toString(count));
+                        topologyLogger.errorAudit(PceErrors.STP_MULTIPLE_REMOTE_REFERNCES, portGroup.getId(), Integer.toString(count));
                     }
 
                     // Store this port information in our scratch pad.
@@ -472,10 +472,10 @@ public abstract class NmlTopologyReader implements TopologyReader {
                     // Log an error if we have more than one connectedTo
                     // relationship but continue.
                     if (count == 0) {
-                        topologyLogger.error(PceErrors.STP_NO_REMOTE_REFERNCE, port.getId());
+                        topologyLogger.errorAudit(PceErrors.STP_NO_REMOTE_REFERNCE, port.getId());
                     }
                     else if (count > 1) {
-                        topologyLogger.error(PceErrors.STP_MULTIPLE_REMOTE_REFERNCES, port.getId(), Integer.toString(count));
+                        topologyLogger.errorAudit(PceErrors.STP_MULTIPLE_REMOTE_REFERNCES, port.getId(), Integer.toString(count));
                     }
 
                     // Store this port information in our scratch pad.
@@ -529,7 +529,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
                                     outbound = tmp;
                                 }
                                 else {
-                                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_INVALID_MEMEBER_VALUE, port.getId(), "has invalid undirectional port group reference (" + pg.getId() + ") orientation type (" + tmp.getOrientation().toString() + ").");
+                                    topologyLogger.errorAudit(PceErrors.BIDIRECTIONAL_STP_INVALID_MEMEBER_VALUE, port.getId(), "has invalid undirectional port group reference (" + pg.getId() + ") orientation type (" + tmp.getOrientation().toString() + ").");
                                 }
                             }
                         }
@@ -546,7 +546,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
                                     outbound = tmp;
                                 }
                                 else {
-                                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_INVALID_MEMEBER_VALUE, port.getId(), "has invalid undirectional port group reference (" + p.getId() + ") orientation type (" + tmp.getOrientation().toString() + ").");
+                                    topologyLogger.errorAudit(PceErrors.BIDIRECTIONAL_STP_INVALID_MEMEBER_VALUE, port.getId(), "has invalid undirectional port group reference (" + p.getId() + ") orientation type (" + tmp.getOrientation().toString() + ").");
 
                                 }
                             }                        
@@ -555,11 +555,11 @@ public abstract class NmlTopologyReader implements TopologyReader {
                 }
 
                 if (inbound == null) {
-                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_MISSING_INBOUND_STP, port.getId());
+                    topologyLogger.errorAudit(PceErrors.BIDIRECTIONAL_STP_MISSING_INBOUND_STP, port.getId());
                     continue; 
                 }
                 else if (outbound == null) {
-                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_MISSING_OUTBOUND_STP, port.getId());
+                    topologyLogger.errorAudit(PceErrors.BIDIRECTIONAL_STP_MISSING_OUTBOUND_STP, port.getId());
                     continue;
                 }
 
@@ -583,7 +583,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
                         }
 
                         if (!found) {
-                            topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_LABEL_RANGE_MISMATCH, port.getId(), inLabel.getLabeltype() + "=" + inLabel.getValue());
+                            topologyLogger.errorAudit(PceErrors.BIDIRECTIONAL_STP_LABEL_RANGE_MISMATCH, port.getId(), inLabel.getLabeltype() + "=" + inLabel.getValue());
                             consistent = false;
                             break;
                         }
@@ -594,11 +594,11 @@ public abstract class NmlTopologyReader implements TopologyReader {
                     }
                 }
                 else if (inLabels == null){
-                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_LABEL_RANGE_MISMATCH, port.getId(), "no inbound STP labels");                            
+                    topologyLogger.errorAudit(PceErrors.BIDIRECTIONAL_STP_LABEL_RANGE_MISMATCH, port.getId(), "no inbound STP labels");                            
                     continue;
                 }
                 else if (outLabels == null) {
-                    topologyLogger.error(PceErrors.BIDIRECTIONAL_STP_LABEL_RANGE_MISMATCH, port.getId(), "no outbound STP labels");                            
+                    topologyLogger.errorAudit(PceErrors.BIDIRECTIONAL_STP_LABEL_RANGE_MISMATCH, port.getId(), "no outbound STP labels");                            
                     continue;                    
                 }
 

@@ -1,6 +1,7 @@
 package net.es.nsi.pce.topology.provider;
 
 import java.util.Collection;
+import net.es.nsi.pce.managemenet.jaxb.TopologyStatusType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
 /**
@@ -78,7 +79,7 @@ public interface TopologyProvider {
      * 
      * @return The current status of the topology provider.
      */
-    public TopologyStatus getSummaryStatus();
+    public TopologyStatusType getSummaryStatus();
     
     public TopologyProviderStatus getManifestStatus();
     

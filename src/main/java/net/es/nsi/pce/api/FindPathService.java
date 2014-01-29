@@ -146,7 +146,7 @@ public class FindPathService {
         // with our serviceType.
         for (Object obj : request.getAny()) {
            if (obj instanceof javax.xml.bind.JAXBElement) {
-                JAXBElement jaxb = (JAXBElement) obj;
+                JAXBElement<?> jaxb = (JAXBElement<?>) obj;
                 
                 // We need to pull out those service elements associated with
                 // the specified serviceType.

@@ -13,7 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.managemenet.jaxb.LogType;
-import net.es.nsi.pce.managemenet.jaxb.LogsType;
+import net.es.nsi.pce.managemenet.jaxb.LogListType;
 import net.es.nsi.pce.managemenet.jaxb.StatusType;
 import net.es.nsi.pce.topology.jaxb.CollectionType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
@@ -49,7 +49,7 @@ public class TopologyClient {
         System.out.println("Status result " + response.getStatus());
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             StatusType status = response.readEntity(StatusType.class);
-            System.out.println("Summary status " + status.getStatus().getLabel());
+            System.out.println("Summary status " + status.getStatus().value());
             System.out.println("Last audit " + status.getLastAudit());
             System.out.println("Last modified " + status.getLastModified());
         }
@@ -58,7 +58,7 @@ public class TopologyClient {
         response = webTarget.path("logs").request(MediaType.APPLICATION_JSON).get();       
         System.out.println("Logs result " + response.getStatus());
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            LogsType logs = response.readEntity(LogsType.class);
+            LogListType logs = response.readEntity(LogListType.class);
             for (LogType log : logs.getLog()) {
                 System.out.println("Retreiving: " + log.getId());
                 

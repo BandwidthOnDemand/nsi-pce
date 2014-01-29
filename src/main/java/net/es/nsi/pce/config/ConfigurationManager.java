@@ -86,15 +86,19 @@ public enum ConfigurationManager {
             log.info("...NSA security config loaded.");
 
             // Load topology database.
-            log.info("Loading topology...");
+            log.info("Loading topology config...");
             setTopologyProvider((TopologyProvider) context.getBean("topologyProvider"));
-            tp.loadTopology();
             log.info("...Topology loaded.");
-
+            
+            // TODO: This need to change to a local cache load.
+            log.info("Loading network topology...");
+            getTopologyProvider().loadTopology();
+            log.info("...network topology loaded.");
+            
             // Start the task scheduler.
             log.info("Starting task scheduler...");
-            log.info("--- Adding topology audit " + getTopologyProvider().getAuditInterval());
-            PCEScheduler.getInstance().add("periodicTopologyAudit", "TopologyAudit", TopologyAudit.class, getTopologyProvider().getAuditInterval());
+            log.info("--- Adding topology audit for " + getTopologyProvider().getAuditInterval());
+            PCEScheduler.getInstance().add(TopologyAudit.JOBNAME, TopologyAudit.JOBGROUP, TopologyAudit.class, getTopologyProvider().getAuditInterval());
             PCEScheduler.getInstance().start();
             log.info("...Task scheduler started.");
 
