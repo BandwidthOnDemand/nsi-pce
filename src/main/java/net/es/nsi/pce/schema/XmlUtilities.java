@@ -91,7 +91,7 @@ public class XmlUtilities {
                 // Marshal the object.
                 Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
                 jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-                jaxbContext.createMarshaller().marshal(jaxbElement, writer);
+                jaxbMarshaller.marshal(jaxbElement, writer);
             } catch (Exception e) {             
                 // Something went wrong so get out of here.
                 logger.error("XmlUtilities.jaxbToString: Error marshalling object " +
