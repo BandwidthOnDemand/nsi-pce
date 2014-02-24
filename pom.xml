@@ -237,6 +237,21 @@
                     </configuration>
                   </execution>
                   <execution>
+                    <id>discovery</id>
+                    <goals>
+                        <goal>xjc</goal>
+                    </goals>
+                    <configuration>
+                        <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
+                        <bindingDirectory>${basedir}/src/main/xsd</bindingDirectory>
+                        <bindingFiles>discovery.xjb</bindingFiles>
+                        <schemaFiles>ogf_nsi_discovery_nsa_v1_0.xsd</schemaFiles>
+                        <packageName>net.es.nsi.pce.discovery.jaxb</packageName>
+                        <staleFile>${project.build.directory}/jaxb2/.discoveryXjcStaleFlag</staleFile>
+                        <clearOutputDir>false</clearOutputDir>
+                    </configuration>
+                  </execution>
+                  <execution>
                     <id>management</id>
                     <goals>
                         <goal>xjc</goal>
