@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import net.es.nsi.pce.api.jaxb.AuthMethodType;
 
 public class DbClientAuthProvider implements AuthProvider {
     private String nsaDbUrl;

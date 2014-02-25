@@ -5,13 +5,11 @@ import net.es.nsi.pce.config.nsa.ServiceInfo;
 import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
 import net.es.nsi.pce.config.nsa.auth.AuthCredential;
 import net.es.nsi.pce.config.nsa.auth.AuthProvider;
+import net.es.nsi.pce.config.nsa.auth.AuthMethodType;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.springframework.context.ApplicationContext;
-
-import java.util.Map;
-import net.es.nsi.pce.api.jaxb.AuthMethodType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
@@ -21,6 +19,9 @@ import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+
 
 /**
  * The Authentication and Authorization Path Computation module.  At the moment

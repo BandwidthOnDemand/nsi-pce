@@ -1,18 +1,14 @@
 package net.es.nsi.pce.pf;
 
 import java.util.List;
-import java.util.Map;
 import org.springframework.context.ApplicationContext;
 import net.es.nsi.pce.config.SpringContext;
 import net.es.nsi.pce.config.nsa.ServiceInfo;
 import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
-import net.es.nsi.pce.config.nsa.auth.AuthCredential;
-import net.es.nsi.pce.config.nsa.auth.AuthProvider;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
-import net.es.nsi.pce.api.jaxb.AuthObjectType;
 import net.es.nsi.pce.api.jaxb.EthernetBaseType;
 import net.es.nsi.pce.api.jaxb.EthernetVlanType;
 import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
@@ -34,7 +30,6 @@ public class PathfinderCore {
 
     private ApplicationContext context = null;
     private ServiceInfoProvider sip = null;
-    private AuthProvider ap = null;
     private TopologyProvider topologyProvider = null;
     
     /**
@@ -48,7 +43,6 @@ public class PathfinderCore {
         SpringContext sc  = SpringContext.getInstance();
         context = sc.getContext();
         sip = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
-        ap = (AuthProvider) context.getBean("authProvider");
         topologyProvider = (TopologyProvider) context.getBean("topologyProvider");       
     }
     
@@ -146,25 +140,6 @@ public class PathfinderCore {
             ServiceInfo si = sip.byNetworkId(networkId);
             pathObj.setNsa(si.getNsaId());
             pathObj.setCsProviderURL(si.getProviderUrl());
-
-            // Get the Auth mechanism and credentials for this NSA.
-            AuthObjectType ao = new AuthObjectType();
-            Map<AuthCredential, String> credentials = ap.getCredentials(si.getNsaId());
-            ao.setMethod(ap.getMethod(si.getNsaId()));
-
-            if (credentials.containsKey(AuthCredential.TOKEN)) {
-                ao.setToken(credentials.get(AuthCredential.TOKEN));
-            }
-            if (credentials.containsKey(AuthCredential.USERNAME)) {
-                ao.setUsername(credentials.get(AuthCredential.USERNAME));
-            }
-
-            if (credentials.containsKey(AuthCredential.PASSWORD)) {
-                ao.setPassword(credentials.get(AuthCredential.PASSWORD));
-            }
-
-            pathObj.setCredentials(ao);
-
             po.add(pathObj);
         }
 

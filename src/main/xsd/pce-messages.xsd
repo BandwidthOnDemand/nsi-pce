@@ -84,7 +84,7 @@
             <xsd:element name="startTime" type="xsd:dateTime" minOccurs="0"/>
             <xsd:element name="endTime" type="xsd:dateTime" minOccurs="0"/>
             <xsd:element name="serviceType" type="xsd:string"/>
-            <xsd:element name="constraints" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="constraints" type="tns:ConstraintListType" minOccurs="0" />
             <xsd:any namespace="##other"  processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>
@@ -172,8 +172,6 @@
                 
                 csProviderURL - Connection services provider endpoint for the target NSA.
                 
-                credentials - Authorization information for the target NSA.
-                
                 serviceType - The type of service for this resolved path segment.
                 
                 any - The service specific schema for this resolved path segment.
@@ -182,53 +180,11 @@
         <xsd:sequence>
             <xsd:element name="nsa" type="xsd:anyURI"/>
             <xsd:element name="csProviderURL" type="xsd:anyURI"/>
-            <xsd:element name="credentials" type="tns:AuthObjectType"/>
             <xsd:element name="serviceType" type="xsd:string"/>
             <xsd:any namespace="##other"  processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>
 
-    <xsd:complexType name="AuthObjectType">
-        <xsd:annotation>
-            <xsd:documentation xml:lang="en">
-                Authentication/authorization information associated with an
-                NSA-to-NSA interface.
-                
-                Elements:
-                
-                method - The method of authenitcation to use when communicating
-                with the NSA.
-                
-                username - The username for HTTP BASIC authentication mechanism.
-                
-                password - The password for HTTP BASIC authentication mechanism.
-                
-                token - The token for OAuth2 authentication/authorization.
-                
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:sequence>
-            <xsd:element name="method" type="tns:AuthMethodType"/>
-            <xsd:element name="username" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="password" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="token" type="xsd:string" minOccurs="0"/>
-        </xsd:sequence>
-    </xsd:complexType>
-    
-    <xsd:simpleType name="AuthMethodType">
-        <xsd:annotation>
-            <xsd:documentation xml:lang="en">
-                The authentication/autorization mechanism to use for NSA-to-NSA
-                comminications.
-            </xsd:documentation>
-        </xsd:annotation>
-        <xsd:restriction base="xsd:string">
-            <xsd:enumeration value="NONE"/>
-            <xsd:enumeration value="BASIC"/>
-            <xsd:enumeration value="OAUTH2"/>
-        </xsd:restriction>
-    </xsd:simpleType>
-    
     <xsd:simpleType name="FindPathAlgorithmType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
@@ -255,4 +211,45 @@
         </xsd:restriction>
     </xsd:simpleType>
     
+    <xsd:complexType name="ConstraintListType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                Type definition for a list of incusion and exclusion contrains.
+                
+                Elements:
+                
+                include - A list of zero or more constraints that must be
+                included in the resulting path.
+                
+                exclude - A list of zero or more constraints that must be
+                excluded from the resulting path.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="include" type="tns:ConstraintType" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="exclude" type="tns:ConstraintType" minOccurs="0" maxOccurs="unbounded" />
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="ConstraintType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                Type definition for path constraints within the network.  This type
+                is left underspecified so that new values can be defined as additional
+                constraints are needed.
+                
+                Attributes:
+                
+                type - Identifies the type of constraint modeled by the supplied
+                value.
+                
+                value - The optional string value associated with the type.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleContent>
+            <xsd:extension  base="xsd:string">
+                <xsd:attribute  name="type"  type="xsd:anyURI"  use="required"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
 </xsd:schema>

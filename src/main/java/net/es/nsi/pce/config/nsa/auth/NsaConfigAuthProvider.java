@@ -6,7 +6,6 @@ import net.es.nsi.pce.config.nsa.NsaConfig;
 
 import java.util.HashMap;
 import java.util.Map;
-import net.es.nsi.pce.api.jaxb.AuthMethodType;
 
 public class NsaConfigAuthProvider implements AuthProvider {
 
