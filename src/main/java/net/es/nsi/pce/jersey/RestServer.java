@@ -13,6 +13,7 @@ import net.es.nsi.pce.api.ManagementService;
 import net.es.nsi.pce.api.TopologyService;
 import net.es.nsi.pce.api.jaxb.FindPathErrorType;
 import net.es.nsi.pce.api.jaxb.ObjectFactory;
+import net.es.nsi.pce.pf.api.NsiError;
 import org.glassfish.jersey.moxy.json.MoxyJsonFeature;
 import org.glassfish.jersey.moxy.xml.MoxyXmlFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -33,11 +34,9 @@ public class RestServer {
                 .registerInstances(new JsonMoxyConfigurationContextResolver());
     }
     
-    public static Response getBadRequestError(String element) {
+    public static Response getBadRequestError(String resource, String details) {
         ObjectFactory factory = new ObjectFactory();
-        
-        FindPathErrorType error = factory.createFindPathErrorType();
-        error.setMessage("Invalid " + element + " element");
+        FindPathErrorType error = NsiError.getFindPathError(NsiError.MISSING_PARAMETER, resource, details);
         return Response.status(Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build(); 
     }
 }

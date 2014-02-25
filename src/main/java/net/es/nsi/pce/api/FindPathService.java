@@ -29,6 +29,7 @@ import net.es.nsi.pce.jersey.RestServer;
 import net.es.nsi.pce.jersey.Utilities;
 import net.es.nsi.pce.pf.Algorithms;
 import net.es.nsi.pce.pf.PathfinderCore;
+import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.services.Service;
 import org.glassfish.jersey.client.ClientConfig;
@@ -79,7 +80,7 @@ public class FindPathService {
         // Verify we have a request body.
         if (request == null) {
             log.error("findPath: empty request received.");
-            return RestServer.getBadRequestError("findPathRequest");
+            return RestServer.getBadRequestError("findPathRequest", "request is empty");
         }
         
         // Log the incoming request.
@@ -91,7 +92,7 @@ public class FindPathService {
         String correlationId = request.getCorrelationId();
         if (correlationId == null || correlationId.isEmpty()) {
             log.error("findPath: invalid correlationId element received.");
-            return RestServer.getBadRequestError("correlationId");
+            return RestServer.getBadRequestError("findPathRequest", "correlationId");
         }
         
         // ReplyTo is needed to send back a path response.
@@ -99,7 +100,7 @@ public class FindPathService {
         if (replyTo == null ||
                 replyTo.getUrl() == null || replyTo.getUrl().isEmpty()) {
             log.error("findPath: invalid replyTo element received.");
-            return RestServer.getBadRequestError("replyTo");            
+            return RestServer.getBadRequestError("findPathRequest", "replyTo");            
         }
         
         String mediaType = replyTo.getMediaType();
@@ -110,7 +111,7 @@ public class FindPathService {
         }
         if (!Utilities.validMediaType(mediaType)) {
             log.error("findPath: Unsupported mediaType element received.");
-            return RestServer.getBadRequestError("mediaType");
+            return RestServer.getBadRequestError("findPathRequest", "mediaType");
         }
 
         // We need to have a valid algorithm to start processing.
@@ -120,7 +121,7 @@ public class FindPathService {
         }
         else if (!Algorithms.contains(algorithm)) {
             log.error("findPath: Unsupported algorithm element received.");
-            return RestServer.getBadRequestError("algorithm");
+            return RestServer.getBadRequestError("findPathRequest", "algorithm");
         }
         
         // Deterine if the specified serviceType is supported.
@@ -128,7 +129,7 @@ public class FindPathService {
         List<Service> services = Service.getServiceByType(serviceType);
         if (services.isEmpty()) {
             log.error("findPath: Unsupported serviceType element received.");
-            return RestServer.getBadRequestError("serviceType");         
+            return RestServer.getBadRequestError("findPathRequest", "serviceType");         
         }
         
         // TODO: Place the Path Finding and FindPathResponse building code
@@ -164,7 +165,7 @@ public class FindPathService {
                         catch (Exception ex) {
                             log.error("findPath: findPath EVTS failed", ex);
                             resp.setStatus(FindPathStatusType.FAILED);
-                            resp.setMessage(ex.getMessage());
+                            resp.setFindPathError(NsiError.getFindPathError(ex.getMessage()));
                         }
                     }
                     else if (inService.equals(Service.ETS)) {
@@ -174,7 +175,7 @@ public class FindPathService {
                         }
                         catch (Exception ex) {
                             resp.setStatus(FindPathStatusType.FAILED);
-                            resp.setMessage(ex.getMessage());
+                            resp.setFindPathError(NsiError.getFindPathError(ex.getMessage()));
                         }
                     }
                     else if (inService.equals(Service.P2PS)) {
@@ -184,13 +185,13 @@ public class FindPathService {
                         }
                         catch (Exception ex) {
                             resp.setStatus(FindPathStatusType.FAILED);
-                            resp.setMessage(ex.getMessage());
+                            resp.setFindPathError(NsiError.getFindPathError(ex.getMessage()));
                         }
                     }
                 }
                 else {
                     log.error("Found element " + jaxb.getName().toString() + " that is not part of service definition " + request.getServiceType());
-                    return RestServer.getBadRequestError(jaxb.getName().toString());                  
+                    return RestServer.getBadRequestError("findPathRequest", jaxb.getName().toString() + " not in " + request.getServiceType());                  
                 }
             }
         }

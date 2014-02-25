@@ -5,6 +5,7 @@ import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import net.es.nsi.pce.api.jaxb.DirectionalityType;
+import net.es.nsi.pce.pf.api.NsiError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.es.nsi.pce.pf.api.PCEData;
@@ -49,7 +50,7 @@ public class DijkstraPCE implements PCEModule {
 
         // Malformed request.
         if (pe == null) {
-            throw new IllegalArgumentException("00101:MISSING_PARAMETER:No path endpoints found in request.");
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, "TopoPathEndpoints", "No path endpoints found in request"));
         }
 
         // Verify both networks in request are known in our topology.
@@ -59,10 +60,10 @@ public class DijkstraPCE implements PCEModule {
         NetworkType dstNetwork = nsiTopology.getNetworkById(pe.getDstNetwork());
 
         if (srcNetwork == null) {
-            throw new IllegalArgumentException("00405:UNKNOWN_NETWORK:" + pe.getSrcNetwork());
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNKNOWN_NETWORK, "sourceNetwork", pe.getSrcNetwork()));
         }
         else if (dstNetwork == null) {
-            throw new IllegalArgumentException("00405:UNKNOWN_NETWORK:" + pe.getDstNetwork());
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNKNOWN_NETWORK, "dstNetwork", pe.getDstNetwork()));
         }
         
         // TODO: Need to make this a generic label switching path finder!
@@ -78,31 +79,31 @@ public class DijkstraPCE implements PCEModule {
         // TODO: If we decide to allow blind routing to a network then remove
         // these tests for a null STP.
         if (srcStp == null) {
-            throw new IllegalArgumentException("00702:STP_RESOLUTION_ERROR:" + srcStpId);
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, "srcStpId", srcStpId));
         }
         else if (dstStp == null) {
-            throw new IllegalArgumentException("00702:STP_RESOLUTION_ERROR:" + dstStpId);
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, "dstStpId", dstStpId));
         }
         
         // Verify the specified STP are of the correct type for the request.
         if (directionalityConstraint.getValue() == DirectionalityType.UNIDIRECTIONAL) {
              if (srcStp.getType() != StpDirectionalityType.INBOUND &&
                      srcStp.getType() != StpDirectionalityType.OUTBOUND) {
-                throw new IllegalArgumentException("00707:BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST:" + srcStpId);
+                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, "srcStpId", srcStpId));
             }
             
             if (dstStp.getType() != StpDirectionalityType.INBOUND &&
                      dstStp.getType() != StpDirectionalityType.OUTBOUND) {
-                throw new IllegalArgumentException("00707:BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST:" + dstStpId);
+                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, "dstStpId", dstStpId));
             }           
         }
         else {
             if (srcStp.getType() != StpDirectionalityType.BIDIRECTIONAL) {
-                throw new IllegalArgumentException("00706:UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST:" + srcStpId);
+                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, "srcStpId", srcStpId));
             }
             
             if (dstStp.getType() != StpDirectionalityType.BIDIRECTIONAL) {
-                throw new IllegalArgumentException("00706:UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST:" + dstStpId);
+                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, "dstStpId", dstStpId));
             }
         }
         
@@ -152,16 +153,18 @@ public class DijkstraPCE implements PCEModule {
             ServiceDomainType sourceServiceDomain = nsiTopology.getServiceDomain(srcStp.getServiceDomain().getId());
             ServiceDomainType destinationServiceDomain = nsiTopology.getServiceDomain(dstStp.getServiceDomain().getId());
             path = alg.getPath(sourceServiceDomain, destinationServiceDomain);
-        } catch (Exception ex) {
-            log.error("00403:NO_PATH_FOUND:Path computation failed", ex);
-            throw ex;
+        } catch (IllegalArgumentException ex) {
+            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "DijkstraPCE", ex.getMessage());
+            log.error(error, ex);
+            throw new IllegalArgumentException(error);
         }
 
         log.debug("Path computation completed with " + path.size() + " SDP returned.");
         
         // Check to see if there is a valid path.
         if (path.isEmpty()) {
-            throw new Exception("00403:NO_PATH_FOUND:No path found using provided criteria.");
+            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "DijkstraPCE", "No path found using provided criteria");
+            throw new Exception(error);
         }
         
         // Now we pull the individual edge segments out of the result and
