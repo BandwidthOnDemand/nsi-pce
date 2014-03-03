@@ -23,7 +23,7 @@ import java.util.Set;
  */
 public class PCEData {
     private Path path = new Path();
-    private Set<Constraint> constraints = new HashSet<Constraint>();
+    private Set<Constraint> constraints = new HashSet<>();
     private NsiTopology topology = new NsiTopology();
 
     public Path getPath() {

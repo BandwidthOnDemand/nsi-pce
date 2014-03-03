@@ -616,6 +616,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
                 nmlPort.setInboundPort(inbound);
                 nmlPort.setOutboundPort(outbound);
                 biPortMap.put(nmlPort.getId(), nmlPort);
+                log.debug("Created bdirectional port " + nmlPort.getId());
             }
         }
         

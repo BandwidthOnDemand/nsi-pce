@@ -19,11 +19,11 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeFactory;
 import net.es.nsi.pce.api.jaxb.ObjectFactory;
 import net.es.nsi.pce.api.jaxb.DirectionalityType;
-import net.es.nsi.pce.api.jaxb.EthernetVlanType;
 import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
 import net.es.nsi.pce.api.jaxb.FindPathRequestType;
 import net.es.nsi.pce.api.jaxb.FindPathResponseType;
 import net.es.nsi.pce.api.jaxb.FindPathStatusType;
+import net.es.nsi.pce.api.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.api.jaxb.ReplyToType;
 import net.es.nsi.pce.jersey.RestClient;
 
@@ -50,56 +50,36 @@ public class FindPathEvtsFailedTest extends JerseyTest {
     
     // First test has mismatched vlans.
     private final static StpTestData test1 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:kddilabs.jp:2013:bi-ps");
-          this.getStpA().setNetworkId("urn:ogf:network:kddilabs.jp:2013:topology");
-          this.setVlanA(1782);
-          this.getStpZ().setLocalId("urn:ogf:network:uvalight.net:2013:ps");
-          this.getStpZ().setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
-          this.setVlanZ(1781);
+        { this.setStpA("urn:ogf:network:kddilabs.jp:2013:bi-ps?vlan=1782");
+          this.setStpZ("urn:ogf:network:uvalight.net:2013:ps?vlan=1781");
         }
     };
 
     // Second test has unreachable ports.
     private final static StpTestData test2 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:geant.net:2013:bi-ps");
-          this.getStpA().setNetworkId("urn:ogf:network:geant.net:2013:topology");
-          this.setVlanA(1780);
-          this.getStpZ().setLocalId("urn:ogf:network:es.net:2013:ps:sunn:1");
-          this.getStpZ().setNetworkId("urn:ogf:network:es.net:2013");
-          this.setVlanZ(1780);
+        { this.setStpA("urn:ogf:network:czechlight.cesnet.cz:2013:pinger?vlan=1799");
+          this.setStpZ("urn:ogf:network:es.net:2013:ps:sunn:1?vlan=1799");
         }
     };
 
     // Third test has matching vlans but out of range for port.
     private final static StpTestData test3 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:aist.go.jp:2013:bi-ps");
-          this.getStpA().setNetworkId("urn:ogf:network:aist.go.jp:2013:topology");
-          this.setVlanA(4000);
-          this.getStpZ().setLocalId("urn:ogf:network:pionier.net.pl:2013:bi-ps");
-          this.getStpZ().setNetworkId("urn:ogf:network:pionier.net.pl:2013:topology");
-          this.setVlanZ(4000);
+        { this.setStpA("urn:ogf:network:aist.go.jp:2013:bi-ps?vlan=4000");
+          this.setStpZ("urn:ogf:network:pionier.net.pl:2013:bi-ps?vlan=4000");
         }
     };
 
     // Fourth test requests a unidirectional STP.
     private final static StpTestData test4 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1");
-          this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
-          this.setVlanA(1779);
-          this.getStpZ().setLocalId("urn:ogf:network:manlan.internet2.edu:2013:netherlight:in");
-          this.getStpZ().setNetworkId("urn:ogf:network:manlan.internet2.edu:2013:");
-          this.setVlanZ(1779);
+        { this.setStpA("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1?vlan=1779");
+          this.setStpZ("urn:ogf:network:manlan.internet2.edu:2013:netherlight:in?vlan=1779");
         }
     };
 
     // Fifth test request a path with unknown STP.
     private final static StpTestData test5 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:aist.go.jp:2013:bi-ps");
-          this.getStpA().setNetworkId("urn:ogf:network:aist.go.jp:2013:topology");
-          this.setVlanA(1780);
-          this.getStpZ().setLocalId("urn:ogf:network:pionier.net.pl:2013:bi-ps-999");
-          this.getStpZ().setNetworkId("urn:ogf:network:pionier.net.pl:2013:topology");
-          this.setVlanZ(1780);
+        { this.setStpA("urn:ogf:network:aist.go.jp:2013:bi-ps?vlan=1780");
+          this.setStpZ("urn:ogf:network:pionier.net.pl:2013:bi-ps-999?vlan=1780");
         }
     };
     
@@ -193,21 +173,19 @@ public class FindPathEvtsFailedTest extends JerseyTest {
         
         req.setServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
 
-        // We want an EVTS service for this test.
-        EthernetVlanType evts = new EthernetVlanType();
-        evts.setCapacity(100L);
-        evts.setDirectionality(DirectionalityType.BIDIRECTIONAL);
-        evts.setSymmetricPath(Boolean.TRUE);
+        // We want an P2PS service element for this test.
+        P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();
+        p2ps.setCapacity(100L);
+        p2ps.setDirectionality(DirectionalityType.BIDIRECTIONAL);
+        p2ps.setSymmetricPath(Boolean.TRUE);
         
         // Format the source STP.
-        evts.setSourceSTP(test.getStpA());
-        evts.setSourceVLAN(test.getVlanA());
+        p2ps.setSourceSTP(test.getStpA());
         
         // Format the destination STP.
-        evts.setDestSTP(test.getStpZ());
-        evts.setDestVLAN(test.getVlanZ());
+        p2ps.setDestSTP(test.getStpZ());
 
-        req.getAny().add(factory.createEvts(evts));
+        req.getAny().add(factory.createP2Ps(p2ps));
 
         JAXBElement<FindPathRequestType> jaxbRequest = factory.createFindPathRequest(req);
 

@@ -1,6 +1,8 @@
 package net.es.nsi.pce.api;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -15,8 +17,6 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
-import net.es.nsi.pce.api.jaxb.EthernetVlanType;
-import net.es.nsi.pce.api.jaxb.EthernetBaseType;
 import net.es.nsi.pce.api.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
 import net.es.nsi.pce.api.jaxb.FindPathRequestType;
@@ -24,13 +24,18 @@ import net.es.nsi.pce.api.jaxb.FindPathResponseType;
 import net.es.nsi.pce.api.jaxb.FindPathStatusType;
 import net.es.nsi.pce.api.jaxb.ObjectFactory;
 import net.es.nsi.pce.api.jaxb.ReplyToType;
+import net.es.nsi.pce.api.jaxb.ResolvedPathType;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.jersey.RestServer;
 import net.es.nsi.pce.jersey.Utilities;
 import net.es.nsi.pce.pf.Algorithms;
 import net.es.nsi.pce.pf.PathfinderCore;
 import net.es.nsi.pce.pf.api.NsiError;
+import net.es.nsi.pce.pf.api.PCEConstraints;
+import net.es.nsi.pce.pf.api.cons.AttrConstraint;
+import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.schema.XmlUtilities;
+import net.es.nsi.pce.services.Point2Point;
 import net.es.nsi.pce.services.Service;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
@@ -85,7 +90,7 @@ public class FindPathService {
         
         // Log the incoming request.
         if (log.isDebugEnabled()) {
-            log.debug("findPath: " + XmlUtilities.jaxbToString(FindPathRequestType.class, request));
+            log.debug("findPath: \n" + XmlUtilities.jaxbToString(FindPathRequestType.class, request));
         }
         
         // We need a correlationId to send back a response.        
@@ -117,7 +122,7 @@ public class FindPathService {
         // We need to have a valid algorithm to start processing.
         FindPathAlgorithmType algorithm = request.getAlgorithm();
         if (algorithm == null) {
-            algorithm = FindPathAlgorithmType.CHAIN;     
+            algorithm = FindPathAlgorithmType.TREE;     
         }
         else if (!Algorithms.contains(algorithm)) {
             log.error("findPath: Unsupported algorithm element received.");
@@ -132,6 +137,7 @@ public class FindPathService {
             return RestServer.getBadRequestError("findPathRequest", "serviceType");         
         }
         
+        // 
         // TODO: Place the Path Finding and FindPathResponse building code
         // in a separate model and route via Scala.
         
@@ -144,7 +150,9 @@ public class FindPathService {
         PathfinderCore pathfinderCore = new PathfinderCore();
         
         // Inspect each element stored as an ANY to see if it is associated
-        // with our serviceType.
+        // with our serviceType.  At the moment we are invoking these in
+        // sequence and not sending all elements pf the serviceType into the
+        // PCE at the same time.
         for (Object obj : request.getAny()) {
            if (obj instanceof javax.xml.bind.JAXBElement) {
                 JAXBElement<?> jaxb = (JAXBElement<?>) obj;
@@ -152,41 +160,39 @@ public class FindPathService {
                 // We need to pull out those service elements associated with
                 // the specified serviceType.
                 Service inService = Service.getService(jaxb.getName().toString());
-                
+
                 // Is this service element in the list of service elements
                 // associated with the serviceType?
                 if (services.contains(inService)) {
                     // Invoke the service specific path finder.
-                    if (inService.equals(Service.EVTS)) {
-                        EthernetVlanType evts = (EthernetVlanType) jaxb.getValue();
-                        try {
-                            pathfinderCore.findPath(serviceType, evts, algorithm, resp.getPath());
-                        }
-                        catch (Exception ex) {
-                            log.error("findPath: findPath EVTS failed", ex);
-                            resp.setStatus(FindPathStatusType.FAILED);
-                            resp.setFindPathError(NsiError.getFindPathError(ex.getMessage()));
-                        }
-                    }
-                    else if (inService.equals(Service.ETS)) {
-                        EthernetBaseType ets = (EthernetBaseType) jaxb.getValue();
-                        try {
-                            pathfinderCore.findPath(serviceType, ets, algorithm, resp.getPath());
-                        }
-                        catch (Exception ex) {
-                            resp.setStatus(FindPathStatusType.FAILED);
-                            resp.setFindPathError(NsiError.getFindPathError(ex.getMessage()));
-                        }
-                    }
-                    else if (inService.equals(Service.P2PS)) {
+                    if (inService.equals(Service.P2PS) && jaxb.getValue() instanceof P2PServiceBaseType) {
                         P2PServiceBaseType p2ps = (P2PServiceBaseType) jaxb.getValue();
+                        Point2Point p2p = new Point2Point();
+                        
+                        // Convert the findPath API to constraints.
+                        Set<Constraint> contraints = new HashSet<>();
+                        contraints.addAll(PCEConstraints.getConstraints(request.getStartTime(), request.getEndTime(), serviceType, request.getConstraints()));
+                        
+                        // Now the service specific constraints.
+                        Set<Constraint> addConstraints = p2p.addConstraints(p2ps);
+                        contraints.addAll(addConstraints);
+                        net.es.nsi.pce.pf.api.Path path;
                         try {
-                            pathfinderCore.findPath(serviceType, p2ps, algorithm, resp.getPath());
+                            path = pathfinderCore.findPath(algorithm, contraints);
                         }
                         catch (Exception ex) {
+                            log.error("findPath: findPath P2PS failed", ex);
                             resp.setStatus(FindPathStatusType.FAILED);
                             resp.setFindPathError(NsiError.getFindPathError(ex.getMessage()));
+                            break;
                         }
+
+                        // TODO: In the future this path may be composed of
+                        // segments of different serviceType.  When this
+                        // occurs we must provess each one in their own
+                        // service specific path resolver.
+                        List<ResolvedPathType> resolved = p2p.resolvePath(serviceType, path);
+                        resp.getPath().addAll(resolved);                        
                     }
                 }
                 else {

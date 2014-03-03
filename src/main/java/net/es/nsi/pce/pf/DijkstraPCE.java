@@ -11,17 +11,16 @@ import org.slf4j.LoggerFactory;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.StpPair;
-import net.es.nsi.pce.pf.api.cons.Constraint;
-import net.es.nsi.pce.pf.api.cons.DirectionalityConstraint;
-import net.es.nsi.pce.pf.api.cons.TopoPathEndpoints;
+import net.es.nsi.pce.pf.api.cons.Constraints;
+import net.es.nsi.pce.pf.api.cons.BooleanAttrConstraint;
+import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
+import net.es.nsi.pce.services.Point2Point;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
-import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
-import net.es.nsi.pce.topology.model.NsiStpFactory;
 
 /**
  * Main path computation class using Dijkstra's shortest path on an NSI
@@ -32,30 +31,65 @@ import net.es.nsi.pce.topology.model.NsiStpFactory;
 public class DijkstraPCE implements PCEModule {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    /**
+     * This path computation module supports pathfinding for the P2PS service
+     * specification restricted to bidirectional symmetricPath services with
+     * two stpId specified in the request.
+     * 
+     * This module does not currently use the following parameters:
+     *    - startTime
+     *    - endTime
+     *    - capacity
+     *    - ero
+     * 
+     * @param pceData
+     * @return
+     * @throws Exception 
+     */
     @Override
     public PCEData apply(PCEData pceData) throws Exception {
         
-        // Get path endpoints from constraints.
-        DirectionalityConstraint directionalityConstraint = new DirectionalityConstraint();
-        directionalityConstraint.setValue(DirectionalityType.UNIDIRECTIONAL);
-        TopoPathEndpoints pe = null;
-        for (Constraint c : pceData.getConstraints()) {
-            if (c instanceof TopoPathEndpoints) {
-                pe = (TopoPathEndpoints) c;
-            }
-            else if (c instanceof DirectionalityConstraint) {
-                directionalityConstraint = (DirectionalityConstraint) c;
-            }
+        // Parse out the constraints this PCE module supports.
+        Constraints constraints = new Constraints(pceData.getConstraints());
+        
+        // Determine directionality of service request, default to bidirectional if not present.
+        DirectionalityType directionality = DirectionalityType.BIDIRECTIONAL;
+        StringAttrConstraint directionalityConstraint = constraints.getStringAttrConstraint(Point2Point.DIRECTIONALITY);
+        if (directionalityConstraint != null) {
+            directionality = DirectionalityType.valueOf(directionalityConstraint.getValue());
         }
 
-        // Malformed request.
-        if (pe == null) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, "TopoPathEndpoints", "No path endpoints found in request"));
+        // Determine path symmetry.
+        boolean symmetricPath = true;
+        BooleanAttrConstraint symmetricPathConstraint = constraints.getBooleanAttrConstraint(Point2Point.SYMMETRICPATH);
+        if (directionalityConstraint != null) {
+            directionality = DirectionalityType.valueOf(directionalityConstraint.getValue());
         }
+        
+        // Get source stpId.
+        StringAttrConstraint sourceStp = constraints.getStringAttrConstraint(Point2Point.SOURCESTP);
+        if (sourceStp == null) {
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2Point.NAMESPACE, Point2Point.SOURCESTP));
+        }        
+        String srcStpId = sourceStp.getValue();
+        
+        // Get destination stpId.
+        StringAttrConstraint destStp = constraints.getStringAttrConstraint(Point2Point.DESTSTP);
+        if (destStp == null) {
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2Point.NAMESPACE, Point2Point.DESTSTP));
+        }        
+        String dstStpId = destStp.getValue();
 
-        // Verify both networks in request are known in our topology.
+        // TODO: Need to handle underspecified STPid.
+        
+        // Get the topology model used for routing.
         NsiTopology nsiTopology = pceData.getTopology();
         
+        // Once we decide on the format of the STP URN so that we can extract
+        // the networkId we will not verify the network and just look up the
+        // stpId directly.
+
+        /*
         NetworkType srcNetwork = nsiTopology.getNetworkById(pe.getSrcNetwork());
         NetworkType dstNetwork = nsiTopology.getNetworkById(pe.getDstNetwork());
 
@@ -65,12 +99,7 @@ public class DijkstraPCE implements PCEModule {
         else if (dstNetwork == null) {
             throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNKNOWN_NETWORK, "dstNetwork", pe.getDstNetwork()));
         }
-        
-        // TODO: Need to make this a generic label switching path finder!
-        
-        // Build the STP identifiers using local Id and vlan Ids.
-        String srcStpId = NsiStpFactory.createStpId(pe.getSrcLocal(), pe.getSrcLabel());
-        String dstStpId = NsiStpFactory.createStpId(pe.getDstLocal(), pe.getDstLabel());
+        */
         
         // Look up the STP within our model matching the request.
         StpType srcStp = nsiTopology.getStp(srcStpId);
@@ -79,36 +108,38 @@ public class DijkstraPCE implements PCEModule {
         // TODO: If we decide to allow blind routing to a network then remove
         // these tests for a null STP.
         if (srcStp == null) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, "srcStpId", srcStpId));
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2Point.SOURCESTP, srcStpId));
         }
         else if (dstStp == null) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, "dstStpId", dstStpId));
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2Point.DESTSTP, dstStpId));
         }
         
         // Verify the specified STP are of the correct type for the request.
-        if (directionalityConstraint.getValue() == DirectionalityType.UNIDIRECTIONAL) {
+        if (directionality == DirectionalityType.UNIDIRECTIONAL) {
              if (srcStp.getType() != StpDirectionalityType.INBOUND &&
                      srcStp.getType() != StpDirectionalityType.OUTBOUND) {
-                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, "srcStpId", srcStpId));
+                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, Point2Point.SOURCESTP, srcStpId));
             }
             
             if (dstStp.getType() != StpDirectionalityType.INBOUND &&
                      dstStp.getType() != StpDirectionalityType.OUTBOUND) {
-                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, "dstStpId", dstStpId));
+                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, Point2Point.DESTSTP, dstStpId));
             }           
         }
         else {
             if (srcStp.getType() != StpDirectionalityType.BIDIRECTIONAL) {
-                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, "srcStpId", srcStpId));
+                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, Point2Point.SOURCESTP, srcStpId));
             }
             
             if (dstStp.getType() != StpDirectionalityType.BIDIRECTIONAL) {
-                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, "dstStpId", dstStpId));
+                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, Point2Point.DESTSTP, dstStpId));
             }
         }
         
         // We can save time by handling the special case of A and Z STP in same
         // network.
+        String srcNetwork = srcStp.getNetworkId();
+        String dstNetwork = dstStp.getNetworkId();
         if (srcNetwork.equals(dstNetwork)) {
             StpPair pathPair = new StpPair();
             pathPair.setA(srcStp);

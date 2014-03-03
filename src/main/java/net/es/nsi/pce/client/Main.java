@@ -18,15 +18,19 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeFactory;
 import net.es.nsi.pce.api.jaxb.DirectionalityType;
-import net.es.nsi.pce.api.jaxb.EthernetVlanType;
 import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
+import net.es.nsi.pce.api.jaxb.FindPathErrorType;
 import net.es.nsi.pce.api.jaxb.FindPathRequestType;
 import net.es.nsi.pce.api.jaxb.FindPathResponseType;
+import net.es.nsi.pce.api.jaxb.FindPathStatusType;
 import net.es.nsi.pce.api.jaxb.ObjectFactory;
+import net.es.nsi.pce.api.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.api.jaxb.ReplyToType;
-import net.es.nsi.pce.api.jaxb.StpType;
 import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.jersey.RestClient;
+import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.api.jaxb.TypeValueType;
+import net.es.nsi.pce.services.Point2Point;
 import org.glassfish.jersey.client.ClientConfig;
 
 /**
@@ -78,27 +82,21 @@ public class Main {
         req.setServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
 
         // We want an EVTS service for this test.
-        EthernetVlanType evts = new EthernetVlanType();
-        evts.setCapacity(100L);
-        evts.setDirectionality(DirectionalityType.BIDIRECTIONAL);
-        evts.setSymmetricPath(Boolean.TRUE);
-        evts.setMtu(9000);
+        P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();
+        p2ps.setCapacity(100L);
+        p2ps.setDirectionality(DirectionalityType.BIDIRECTIONAL);
+        p2ps.setSymmetricPath(Boolean.TRUE);
         
-        // Format the source STP.
-        StpType srcStp = new StpType();
-        srcStp.setLocalId("urn:ogf:network:uvalight.net:2013:ps");
-        srcStp.setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
-        evts.setSourceSTP(srcStp);
-        evts.setSourceVLAN(1784);
+        // Add the STP identifiers.
+        p2ps.setSourceSTP("urn:ogf:network:uvalight.net:2013:ps?vlan=1784");
+        p2ps.setDestSTP("urn:ogf:network:jgn-x.jp:2013:bi-ps?vlan=1784");
         
-        // Format the destination STP.
-        StpType destStp = new StpType();
-        destStp.setLocalId("urn:ogf:network:jgn-x.jp:2013:bi-ps");
-        destStp.setNetworkId("urn:ogf:network:jgn-x.jp:2013:topology");
-        evts.setDestSTP(destStp);
-        evts.setDestVLAN(1784);
-
-        req.getAny().add(factory.createEvts(evts));
+        // Add MTU as an additional parameter.
+        TypeValueType mtu = factory.createTypeValueType();
+        mtu.setType(Point2Point.MTU);
+        mtu.setValue("9000");
+        p2ps.getParameter().add(mtu);
+        req.getAny().add(factory.createP2Ps(p2ps));
 
         JAXBElement<FindPathRequestType> jaxbRequest = factory.createFindPathRequest(req);
 
@@ -115,6 +113,10 @@ public class Main {
         
         if (findPathResponse != null) {
             System.out.println("FindPath Result: " + findPathResponse.getStatus().value());
+            if (findPathResponse.getStatus() == FindPathStatusType.FAILED) {
+                FindPathErrorType error = findPathResponse.getFindPathError();
+                System.out.println(error.getCode() + ", " + error.getLabel() + ", " + error.getResource() + ", " + error.getDescription());
+            }
         }
         else {
             System.err.println("Failed to get result");

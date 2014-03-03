@@ -41,6 +41,7 @@ public class XmlUtilities {
                 return null;
             }
             
+            @SuppressWarnings("unchecked")
             JAXBElement<?> jaxbElement = new JAXBElement(new QName("uri", "local"), xmlClass, xmlObject);
             
             return jaxbToString(xmlClass, jaxbElement);

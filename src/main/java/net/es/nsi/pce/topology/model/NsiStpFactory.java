@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * @author hacksaw
  */
 public class NsiStpFactory {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private final static Logger log = LoggerFactory.getLogger(NsiStpFactory.class);
     
     private final static String NML_LABEL_VLAN = "http://schemas.ogf.org/nml/2012/10/ethernet#vlan";
 
@@ -136,6 +136,7 @@ public class NsiStpFactory {
                 StpType stp = createStpType(port, label, nsiTopology);
 
                 // Build the STP Identifier using label if present.
+                log.debug("Creating STP " + stp.getId());
                 stpList.add(stp);
             }
         }

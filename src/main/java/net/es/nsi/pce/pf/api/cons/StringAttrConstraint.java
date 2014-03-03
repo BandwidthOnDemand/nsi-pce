@@ -6,7 +6,7 @@ package net.es.nsi.pce.pf.api.cons;
  * 
  * @author hacksaw
  */
-public abstract class StringAttrConstraint extends AttrConstraint {
+public class StringAttrConstraint extends AttrConstraint {
     private String value;
 
     public String getValue() {

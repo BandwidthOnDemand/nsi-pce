@@ -11,9 +11,7 @@ import java.util.List;
  * @author hacksaw
  */
 public enum Service {
-    P2PS("{http://schemas.ogf.org/nsi/2013/07/services/point2point}p2ps"),
-    ETS("{http://schemas.ogf.org/nsi/2013/07/services/point2point}ets"),
-    EVTS("{http://schemas.ogf.org/nsi/2013/07/services/point2point}evts"),
+    P2PS("{http://schemas.ogf.org/nsi/2013/12/services/point2point}p2ps"),
     UNSUPPORTED("unsupported");
     
     // The QNAME associated with this enum instance.
@@ -25,7 +23,7 @@ public enum Service {
     // Lists of service elements associated with the EVTS AGOLE service.
     private final static List<Service> EVTS_AGOLE_LIST = new ArrayList<Service>() {
         private static final long serialVersionUID = 1L;
-        { add(EVTS); }
+        { add(P2PS); }
     };
     
     // Master list of supported services and mappings to elements.

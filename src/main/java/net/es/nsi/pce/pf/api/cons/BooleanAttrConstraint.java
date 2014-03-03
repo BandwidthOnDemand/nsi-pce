@@ -6,14 +6,14 @@ package net.es.nsi.pce.pf.api.cons;
  * 
  * @author hacksaw
  */
-public class NumAttrConstraint extends AttrConstraint {
-    private long value;
+public class BooleanAttrConstraint extends AttrConstraint {
+    private boolean value;
 
-    public Long getValue() {
+    public boolean getValue() {
         return value;
     }
 
-    public void setValue(Long value) {
+    public void setValue(boolean value) {
         this.value = value;
     }
 }

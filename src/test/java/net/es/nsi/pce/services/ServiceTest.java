@@ -3,6 +3,7 @@ package net.es.nsi.pce.services;
 import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 
 /**
@@ -16,8 +17,10 @@ public class ServiceTest {
         // Get service by serviceType string - SUCCESS.
         List<Service> serviceList = Service.getServiceByType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
         
+        assertNotNull(serviceList);
+        
         for (Service service : serviceList) {
-            assertEquals(Service.EVTS, service);
+            assertEquals(Service.P2PS, service);
         }
         
         // Get service by serviceType string - FAILED.
@@ -25,19 +28,11 @@ public class ServiceTest {
         assertNull(serviceList);
         
         // Get service by QNAME string - SUCCESS.
-        Service service = Service.getService("{http://schemas.ogf.org/nsi/2013/07/services/point2point}p2ps");
-        assertEquals("{http://schemas.ogf.org/nsi/2013/07/services/point2point}p2ps", service.toString());
-        
-        // Get service by QNAME string - SUCCESS.
-        service = Service.getService("{http://schemas.ogf.org/nsi/2013/07/services/point2point}evts");
-        assertEquals("{http://schemas.ogf.org/nsi/2013/07/services/point2point}evts", service.toString());
-        
-        // Get service by QNAME string - SUCCESS.
-        service = Service.getService("{http://schemas.ogf.org/nsi/2013/07/services/point2point}ets");
-        assertEquals("{http://schemas.ogf.org/nsi/2013/07/services/point2point}ets", service.toString());
+        Service service = Service.getService("{http://schemas.ogf.org/nsi/2013/12/services/point2point}p2ps");
+        assertEquals("{http://schemas.ogf.org/nsi/2013/12/services/point2point}p2ps", service.toString());
         
         // Get service by QNAME string - FAILED.
-        service = Service.getService("{http://schemas.ogf.org/nsi/2013/07/services/point2point}poop");
+        service = Service.getService("{http://schemas.ogf.org/nsi/2013/12/services/point2point}poop");
         assertEquals(Service.UNSUPPORTED, service);
     }
 }

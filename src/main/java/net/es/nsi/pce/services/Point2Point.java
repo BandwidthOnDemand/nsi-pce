@@ -5,137 +5,174 @@
 package net.es.nsi.pce.services;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import net.es.nsi.pce.api.jaxb.DirectionalityType;
-import net.es.nsi.pce.api.jaxb.EthernetBaseType;
-import net.es.nsi.pce.api.jaxb.EthernetVlanType;
 import net.es.nsi.pce.api.jaxb.ObjectFactory;
 import net.es.nsi.pce.api.jaxb.P2PServiceBaseType;
-import net.es.nsi.pce.pf.api.cons.BurstSizeConstraint;
-import net.es.nsi.pce.pf.api.cons.CapacityConstraint;
+import net.es.nsi.pce.api.jaxb.ResolvedPathType;
+import net.es.nsi.pce.pf.api.NsiError;
+import net.es.nsi.pce.pf.api.cons.BooleanAttrConstraint;
+import net.es.nsi.pce.pf.api.cons.NumAttrConstraint;
+import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
+import net.es.nsi.pce.api.jaxb.TypeValueType;
+import net.es.nsi.pce.config.SpringContext;
+import net.es.nsi.pce.config.nsa.ServiceInfo;
+import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
+import net.es.nsi.pce.pf.api.Path;
+import net.es.nsi.pce.pf.api.StpPair;
+import net.es.nsi.pce.pf.api.cons.AttrConstraint;
 import net.es.nsi.pce.pf.api.cons.Constraint;
-import net.es.nsi.pce.pf.api.cons.DirectionalityConstraint;
-import net.es.nsi.pce.pf.api.cons.MtuConstraint;
-import net.es.nsi.pce.pf.api.cons.SymmetricPathConstraint;
-import net.es.nsi.pce.pf.api.cons.TopoPathEndpoints;
-import net.es.nsi.pce.topology.jaxb.NmlLabelType;
+import net.es.nsi.pce.pf.api.cons.Constraints;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 /**
  *
  * @author hacksaw
  */
 public class Point2Point {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+    
+    public static final String NAMESPACE = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps";
 
-    public static final String SYMMETRICPATH = "symmetricPath";
-
-    public static final String BURSTSIZE = "burstsize";
-    public static final String MTU = "mtu";
+    // These are fixed element definitions within the P2P schema.
+    public static final String CAPACITY = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps/capacity";
+    public static final String DIRECTIONALITY = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps/directionality";
+    public static final String SYMMETRICPATH = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps/symmetricPath";
+    public static final String SOURCESTP = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps/sourceSTP";
+    public static final String DESTSTP = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps/destSTP";
+    public static final String ERO = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps/ero";
+    
+    // Parameters relating to the EVTS service.
+    public static final String BURSTSIZE = "http://schemas.ogf.org/nml/2012/10/ethernet#burstsize";
+    public static final String MTU = "http://schemas.ogf.org/nml/2012/10/ethernet#mtu";
     public static final String VLAN = "http://schemas.ogf.org/nml/2012/10/ethernet#vlan";
-    
-    public static P2PServiceBaseType createType(Class<?> classType) throws ClassNotFoundException {
-        ObjectFactory factory = new ObjectFactory();
-        if (classType == P2PServiceBaseType.class) {
-            return factory.createP2PServiceBaseType();
-        }
-        else if (classType == EthernetBaseType.class) {
-            return factory.createEthernetBaseType();
-        }       
-        else if (classType == EthernetVlanType.class) {
-            return factory.createEthernetVlanType();
-        }
-        else {
-            throw new ClassNotFoundException("Specified class " + classType.getCanonicalName() + " not part of P2PService definition.");
-        }
-    }
-    
-    public static Set<Constraint> getConstraints(P2PServiceBaseType service) {
-        Set<Constraint> constraints = new HashSet<>();
-        
+
+    private ApplicationContext context = null;
+    private ServiceInfoProvider sip = null;
+    private ObjectFactory factory = new ObjectFactory();
+    private Constraints constraints = new Constraints();
+
+    public Set<Constraint> addConstraints(P2PServiceBaseType service) {
         // Add requested capacity.
-        CapacityConstraint capacity = new CapacityConstraint();
+        NumAttrConstraint capacity = new NumAttrConstraint();
+        capacity.setAttrName(CAPACITY);
         capacity.setValue(service.getCapacity());
-        constraints.add(capacity);
-                
+        constraints.add((AttrConstraint) capacity);
+         
         // Add directionality.
-        DirectionalityConstraint directionality = new DirectionalityConstraint();
-        directionality.setValue(DirectionalityType.BIDIRECTIONAL);
+        StringAttrConstraint directionality = new StringAttrConstraint();
+        directionality.setAttrName(DIRECTIONALITY);
+        directionality.setValue(DirectionalityType.BIDIRECTIONAL.name());
         if (service.getDirectionality() != null) {
-            directionality.setValue(service.getDirectionality());
+            directionality.setValue(service.getDirectionality().name());
         }
         constraints.add(directionality);
-        
+      
         // Add symmetric path if service is bidirectional.
-        if (service.getDirectionality() != null &&
-                service.getDirectionality() == DirectionalityType.BIDIRECTIONAL) {
-            SymmetricPathConstraint symmetricPath = new SymmetricPathConstraint();
-            symmetricPath.setSymmetricPath(false);
+        if (service.getDirectionality() != null && service.getDirectionality() == DirectionalityType.BIDIRECTIONAL) {
+            BooleanAttrConstraint symmetricPath = new BooleanAttrConstraint();
+            symmetricPath.setAttrName(SYMMETRICPATH);
+            symmetricPath.setValue(false);
             if (service.isSymmetricPath() != null) {
-                symmetricPath.setSymmetricPath(service.isSymmetricPath());
+                symmetricPath.setValue(service.isSymmetricPath());
             }
             constraints.add(symmetricPath);
         }
-
+          
+        // Add the source STP.
+        if (service.getSourceSTP() != null && !service.getSourceSTP().isEmpty()) {
+            StringAttrConstraint srcStp = new StringAttrConstraint();
+            srcStp.setAttrName(SOURCESTP);
+            srcStp.setValue(service.getSourceSTP());
+            constraints.add(srcStp);
+        }
+        else {
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, "p2ps", SOURCESTP));
+        }
+          
+        // Add the destination STP.
+        if (service.getDestSTP() != null && !service.getDestSTP().isEmpty()) {
+            StringAttrConstraint dstStp = new StringAttrConstraint();
+            dstStp.setAttrName(DESTSTP);
+            dstStp.setValue(service.getDestSTP());
+            constraints.add(dstStp);
+        }
+        else {
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, "p2ps", DESTSTP));
+        }
+  
         // TODO: Still need to add these....
-        service.getEro();
+        //service.getEro();
         
-        if (service instanceof EthernetBaseType) {
-            EthernetBaseType ets = (EthernetBaseType) service;
-            
-            // Add requested burstsize.
-            if (ets.getBurstsize() != null) {
-                BurstSizeConstraint burstsize = new BurstSizeConstraint();
-                burstsize.setValue(ets.getBurstsize());
-                constraints.add(burstsize);
-            }
-
-            // Add requested mtu.
-            if (ets.getMtu() != null) {
-                MtuConstraint mtu = new MtuConstraint();
-                mtu.setValue(new Long(ets.getMtu()));
-                constraints.add(mtu);
-            }
+        // Now add all the generic parameters as string attributes.
+        for (TypeValueType parameter : service.getParameter()) {
+            StringAttrConstraint generic = new StringAttrConstraint();
+            generic.setAttrName(parameter.getType());
+            generic.setValue(parameter.getValue());
+            constraints.add(generic);
         }
-        
-        // Add the source and destination STP to constraints.
-        TopoPathEndpoints pe = new TopoPathEndpoints();
-        
-        pe.setSrcLocal(service.getSourceSTP().getLocalId());
-        pe.setSrcNetwork(service.getSourceSTP().getNetworkId());
-        pe.setDstLocal(service.getDestSTP().getLocalId());
-        pe.setDstNetwork(service.getDestSTP().getNetworkId());
-        
-        if (service instanceof EthernetVlanType) {
-            EthernetVlanType evts = (EthernetVlanType) service;
-            NmlLabelType srcLabel = new NmlLabelType();
-            srcLabel.setLabeltype(VLAN);
-            srcLabel.setValue(Integer.toString(evts.getSourceVLAN()));
-            pe.setSrcLabel(srcLabel);
-            
-            NmlLabelType dstLabel = new NmlLabelType();
-            dstLabel.setLabeltype(VLAN);
-            dstLabel.setValue(Integer.toString(evts.getDestVLAN()));
-            pe.setDstLabel(dstLabel);
-        }
-        
-        constraints.add(pe);
-        
-        return constraints;
+     
+        return constraints.get();
     }
     
-    /**
-     * Find and return the VLAN label from within the Label list.
-     * 
-     * @param labels List of labels associated with an STP.
-     * @return VLAN value if found, null otherwise.
-     */
-    public static Integer getVlanLabel(ArrayList<NmlLabelType> labels) {
-        for (NmlLabelType label : labels) {
-            if (label.getLabeltype().equalsIgnoreCase(VLAN)) {
-                return Integer.valueOf(label.getValue());
-            }
-        }
+    public List<ResolvedPathType> resolvePath(String serviceType, Path path) {
+        List<ResolvedPathType> resolvedPath = new ArrayList<>();
+
+        // TODO: These are copied directly from the request criteria for
+        // but will need to be specific per segment in the future.
+        NumAttrConstraint capacity = constraints.removeNumAttrConstraint(CAPACITY);
+        StringAttrConstraint directionality = constraints.removeStringAttrConstraint(DIRECTIONALITY);
+        BooleanAttrConstraint symmetric = constraints.removeBooleanAttrConstraint(SYMMETRICPATH);
+        constraints.removeStringAttrConstraint(SOURCESTP);
+        constraints.removeStringAttrConstraint(DESTSTP);
+        List<TypeValueType> attrConstraints = constraints.removeStringAttrConstraints();
         
-        return null;
+        // For each pair of STP we need to build a resolved path.
+        for (StpPair stpPair: path.getStpPairs() ) {
+            // Build our path finding results into an P2PS service.
+            P2PServiceBaseType p2psResult = factory.createP2PServiceBaseType();
+            p2psResult.setSourceSTP(stpPair.getA().getId());
+            p2psResult.setDestSTP(stpPair.getZ().getId());
+            
+            // Get the managing network of this STP pair.
+            String networkId = stpPair.getA().getNetworkId();
+
+            if (capacity != null) {
+                p2psResult.setCapacity(capacity.getValue());
+            }
+            
+            if (directionality != null) {
+                p2psResult.setDirectionality(DirectionalityType.valueOf(directionality.getValue()));
+            }
+
+            if (symmetric != null) {
+                p2psResult.setSymmetricPath(symmetric.getValue());
+            }
+            
+            p2psResult.getParameter().addAll(attrConstraints);
+            
+            // Set the corresponding serviceType and add out EVTS results.
+            ResolvedPathType pathObj = new ResolvedPathType();
+            pathObj.setServiceType(serviceType);
+            pathObj.getAny().add(factory.createP2Ps(p2psResult));
+            
+            /* Look up the managing NSA for this path segment.  TODO: This
+             * should use control plane topology to determine the next NSA to
+             * pass the request just in case we cannot talk to the managing NSA
+             * directly.
+             */
+            SpringContext sc  = SpringContext.getInstance();
+            context = sc.getContext();
+            sip = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
+            ServiceInfo si = sip.byNetworkId(networkId);
+            pathObj.setNsa(si.getNsaId());
+            pathObj.setCsProviderURL(si.getProviderUrl());
+            resolvedPath.add(pathObj);
+        }
+
+        return resolvedPath;
     }
 }

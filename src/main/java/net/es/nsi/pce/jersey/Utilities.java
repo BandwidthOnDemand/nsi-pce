@@ -21,7 +21,7 @@ public class Utilities {
     public static Map<String, String> getNameSpace() {
         Map<String, String> namespacePrefixMapper = new HashMap<>(4);
         namespacePrefixMapper.put("http://schemas.es.net/nsi/2013/08/pce/messages", "m");
-        namespacePrefixMapper.put("http://schemas.ogf.org/nsi/2013/07/services/point2point", "p");
+        namespacePrefixMapper.put("http://schemas.ogf.org/nsi/2013/12/services/point2point", "p");
         namespacePrefixMapper.put("http://schemas.es.net/nsi/2013/07/topology/types", "t");
         namespacePrefixMapper.put("http://schemas.ogf.org/nsi/2013/12/services/definition", "s");
         namespacePrefixMapper.put("http://schemas.es.net/nsi/2013/07/management/types", "o");

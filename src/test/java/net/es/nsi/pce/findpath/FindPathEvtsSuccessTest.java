@@ -19,11 +19,11 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeFactory;
 import net.es.nsi.pce.api.jaxb.ObjectFactory;
 import net.es.nsi.pce.api.jaxb.DirectionalityType;
-import net.es.nsi.pce.api.jaxb.EthernetVlanType;
 import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
 import net.es.nsi.pce.api.jaxb.FindPathRequestType;
 import net.es.nsi.pce.api.jaxb.FindPathResponseType;
 import net.es.nsi.pce.api.jaxb.FindPathStatusType;
+import net.es.nsi.pce.api.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.api.jaxb.ReplyToType;
 import net.es.nsi.pce.jersey.RestClient;
 
@@ -49,64 +49,40 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
     private final static ObjectFactory factory = new ObjectFactory();
     
     private final static StpTestData test1 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:kddilabs.jp:2013:bi-ps");
-          this.getStpA().setNetworkId("urn:ogf:network:kddilabs.jp:2013:topology");
-          this.setVlanA(1782);
-          this.getStpZ().setLocalId("urn:ogf:network:uvalight.net:2013:ps");
-          this.getStpZ().setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
-          this.setVlanZ(1782);
+        { this.setStpA("urn:ogf:network:kddilabs.jp:2013:bi-ps?vlan=1782");
+          this.setStpZ("urn:ogf:network:uvalight.net:2013:ps?vlan=1782");
         }
     };
 
     private final static StpTestData test2 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:uvalight.net:2013:ps");
-          this.getStpA().setNetworkId("urn:ogf:network:uvalight.net:2013:topology");
-          this.setVlanA(1780);
-          this.getStpZ().setLocalId("urn:ogf:network:es.net:2013:ps:sunn:1");
-          this.getStpZ().setNetworkId("urn:ogf:network:es.net:2013");
-          this.setVlanZ(1780);
+        { this.setStpA("urn:ogf:network:uvalight.net:2013:ps?vlan=1780");
+          this.setStpZ("urn:ogf:network:es.net:2013:ps:sunn:1?vlan=1780");
         }
     };
 
     private final static StpTestData test3 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:aist.go.jp:2013:bi-ps");
-          this.getStpA().setNetworkId("urn:ogf:network:aist.go.jp:2013:topology");
-          this.setVlanA(1780);
-          this.getStpZ().setLocalId("urn:ogf:network:pionier.net.pl:2013:bi-ps");
-          this.getStpZ().setNetworkId("urn:ogf:network:pionier.net.pl:2013:topology");
-          this.setVlanZ(1780);
+        { this.setStpA("urn:ogf:network:aist.go.jp:2013:bi-ps?vlan=1780");
+          this.setStpZ("urn:ogf:network:pionier.net.pl:2013:bi-ps?vlan=1780");
         }
     };
 
     private final static StpTestData test4 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:241");
-          this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
-          this.setVlanA(1799);
-          this.getStpZ().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:232");
-          this.getStpZ().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
-          this.setVlanZ(1799);
+        { this.setStpA("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:241?vlan=1799");
+          this.setStpZ("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:232?vlan=1799");
         }
     };
     
     // Fifth test request two STP on either end of an SDP.
     private final static StpTestData test5 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1");
-          this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
-          this.setVlanA(1779);
-          this.getStpZ().setLocalId("urn:ogf:network:manlan.internet2.edu:2013:netherlight");
-          this.getStpZ().setNetworkId("urn:ogf:network:manlan.internet2.edu:2013:");
-          this.setVlanZ(1779);
+        { this.setStpA("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1?vlan=1799");
+          this.setStpZ("urn:ogf:network:manlan.internet2.edu:2013:netherlight?vlan=1799");
         }
     };
     
     // Netherlight endpoints.
     private final static StpTestData test6 = new StpTestData() {
-        { this.getStpA().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:282");
-          this.getStpA().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
-          this.setVlanA(1784);
-          this.getStpZ().setLocalId("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1");
-          this.getStpZ().setNetworkId("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed");
-          this.setVlanZ(1784);
+        { this.setStpA("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:282?vlan=1784");
+          this.setStpZ("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1?vlan=1784");
         }
     };
     
@@ -200,21 +176,19 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
         
         req.setServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
 
-        // We want an EVTS service for this test.
-        EthernetVlanType evts = new EthernetVlanType();
-        evts.setCapacity(100L);
-        evts.setDirectionality(DirectionalityType.BIDIRECTIONAL);
-        evts.setSymmetricPath(Boolean.TRUE);
+        // We want an P2PS service element for this test.
+        P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();
+        p2ps.setCapacity(100L);
+        p2ps.setDirectionality(DirectionalityType.BIDIRECTIONAL);
+        p2ps.setSymmetricPath(Boolean.TRUE);
         
         // Format the source STP.
-        evts.setSourceSTP(test.getStpA());
-        evts.setSourceVLAN(test.getVlanA());
+        p2ps.setSourceSTP(test.getStpA());
         
         // Format the destination STP.
-        evts.setDestSTP(test.getStpZ());
-        evts.setDestVLAN(test.getVlanZ());
+        p2ps.setDestSTP(test.getStpZ());
 
-        req.getAny().add(factory.createEvts(evts));
+        req.getAny().add(factory.createP2Ps(p2ps));
 
         JAXBElement<FindPathRequestType> jaxbRequest = factory.createFindPathRequest(req);
 
