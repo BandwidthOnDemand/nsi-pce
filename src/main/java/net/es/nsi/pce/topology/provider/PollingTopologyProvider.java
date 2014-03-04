@@ -54,7 +54,7 @@ public class PollingTopologyProvider implements TopologyProvider {
     private long lastAudit = 0;
     
     // Default serviceType provided by topology.
-    private String defaultServiceType = "http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE";
+    private String defaultServiceType = "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE";
 
     // Our topology manifest.
     private TopologyManifest topologyManifest;

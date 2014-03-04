@@ -50,6 +50,8 @@ public class FindPathParameterTest extends JerseyTest {
     
     private final static ObjectFactory factory = new ObjectFactory();
     
+    private final static String SERVICETYPE = "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE";
+    
     @Override
     protected Application configure() {
         enable(TestProperties.LOG_TRAFFIC);
@@ -258,7 +260,7 @@ public class FindPathParameterTest extends JerseyTest {
         endTime.add(Calendar.MINUTE, 12);
         req.setEndTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(endTime));
         
-        req.setServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
+        req.setServiceType(SERVICETYPE);
 
         // We want an P2PS service element for this test.
         P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();
@@ -294,7 +296,7 @@ public class FindPathParameterTest extends JerseyTest {
         endTime.add(Calendar.MINUTE, 12);
         req.setEndTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(endTime));
         
-        req.setServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
+        req.setServiceType(SERVICETYPE);
 
         // We want an P2PS service element for this test.
         P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();

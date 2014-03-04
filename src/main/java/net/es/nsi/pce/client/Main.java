@@ -28,7 +28,6 @@ import net.es.nsi.pce.api.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.api.jaxb.ReplyToType;
 import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.jersey.RestClient;
-import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.api.jaxb.TypeValueType;
 import net.es.nsi.pce.services.Point2Point;
 import org.glassfish.jersey.client.ClientConfig;
@@ -79,7 +78,7 @@ public class Main {
         endTime.add(Calendar.MINUTE, 12);
         req.setEndTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(endTime));
         
-        req.setServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
+        req.setServiceType("http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE");
 
         // We want an EVTS service for this test.
         P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();

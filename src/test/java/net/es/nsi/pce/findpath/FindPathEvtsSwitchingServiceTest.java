@@ -148,7 +148,7 @@ public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
         endTime.add(Calendar.MINUTE, 12);
         req.setEndTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(endTime));
         
-        req.setServiceType("http://services.ogf.org/nsi/2013/07/descriptions/EVTS.A-GOLE");
+        req.setServiceType("http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE");
 
         // We want an P2PS service element for this test.
         P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();
