@@ -6,7 +6,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import net.es.nsi.pce.api.jaxb.FindPathResponseType;
+import net.es.nsi.pce.path.jaxb.FindPathResponseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

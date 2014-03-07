@@ -4,8 +4,6 @@
  */
 package net.es.nsi.pce.topology.provider;
 
-import net.es.nsi.pce.config.topo.nml.TopologyManifest;
-
 /**
  *
  * @author hacksaw

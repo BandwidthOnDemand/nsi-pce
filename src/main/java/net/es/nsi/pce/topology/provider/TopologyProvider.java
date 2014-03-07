@@ -1,7 +1,7 @@
 package net.es.nsi.pce.topology.provider;
 
 import java.util.Collection;
-import net.es.nsi.pce.managemenet.jaxb.TopologyStatusType;
+import net.es.nsi.pce.management.jaxb.TopologyStatusType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
 /**

@@ -2,20 +2,20 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.es.nsi.pce.services;
+package net.es.nsi.pce.path.services;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import net.es.nsi.pce.api.jaxb.DirectionalityType;
-import net.es.nsi.pce.api.jaxb.ObjectFactory;
-import net.es.nsi.pce.api.jaxb.P2PServiceBaseType;
-import net.es.nsi.pce.api.jaxb.ResolvedPathType;
+import net.es.nsi.pce.path.jaxb.DirectionalityType;
+import net.es.nsi.pce.path.jaxb.ObjectFactory;
+import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
+import net.es.nsi.pce.path.jaxb.ResolvedPathType;
+import net.es.nsi.pce.path.jaxb.TypeValueType;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.pf.api.cons.BooleanAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.NumAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
-import net.es.nsi.pce.api.jaxb.TypeValueType;
 import net.es.nsi.pce.config.SpringContext;
 import net.es.nsi.pce.config.nsa.ServiceInfo;
 import net.es.nsi.pce.config.nsa.ServiceInfoProvider;

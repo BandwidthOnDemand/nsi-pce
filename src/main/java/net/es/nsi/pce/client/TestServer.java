@@ -2,7 +2,7 @@ package net.es.nsi.pce.client;
 
 import net.es.nsi.pce.jersey.JsonMoxyConfigurationContextResolver;
 import java.net.URI;
-import net.es.nsi.pce.api.jaxb.FindPathResponseType;
+import net.es.nsi.pce.path.jaxb.FindPathResponseType;
 import net.es.nsi.pce.config.http.HttpConfig;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;

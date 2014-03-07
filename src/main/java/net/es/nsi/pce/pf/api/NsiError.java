@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.api.jaxb.FindPathErrorType;
-import net.es.nsi.pce.api.jaxb.ObjectFactory;
-import net.es.nsi.pce.schema.PceApiParser;
+import net.es.nsi.pce.path.jaxb.FindPathErrorType;
+import net.es.nsi.pce.path.jaxb.ObjectFactory;
+import net.es.nsi.pce.schema.PathApiParser;
 
 /**
  * Defines the error values for the PCE logging system.
@@ -81,20 +81,20 @@ public enum NsiError {
     
     public static FindPathErrorType getFindPathError(String xml) throws JAXBException {
         @SuppressWarnings("unchecked")
-        JAXBElement<FindPathErrorType> errorElement = (JAXBElement<FindPathErrorType>) PceApiParser.getInstance().stringToJaxb(xml);
+        JAXBElement<FindPathErrorType> errorElement = (JAXBElement<FindPathErrorType>) PathApiParser.getInstance().stringToJaxb(xml);
         return errorElement.getValue();
     }
     
     public static String getFindPathErrorString(NsiError error, String resource, String info) {
         FindPathErrorType fp = getFindPathError(error, resource, info);
         JAXBElement<FindPathErrorType> errorElement = factory.createFindPathError(fp);
-        String xml = PceApiParser.getInstance().jaxbToString(errorElement);
+        String xml = PathApiParser.getInstance().jaxbToString(errorElement);
         return xml;
     }
     
     public static String getFindPathErrorString(FindPathErrorType fp) {
         JAXBElement<FindPathErrorType> errorElement = factory.createFindPathError(fp);
-        String xml = PceApiParser.getInstance().jaxbToString(errorElement);
+        String xml = PathApiParser.getInstance().jaxbToString(errorElement);
         return xml;
     }
             

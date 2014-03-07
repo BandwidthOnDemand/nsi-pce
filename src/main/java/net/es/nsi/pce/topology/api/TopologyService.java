@@ -1,4 +1,4 @@
-package net.es.nsi.pce.api;
+package net.es.nsi.pce.topology.api;
 
 import java.util.Collection;
 import java.util.Date;

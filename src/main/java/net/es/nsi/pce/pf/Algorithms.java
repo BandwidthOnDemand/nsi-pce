@@ -4,7 +4,7 @@
  */
 package net.es.nsi.pce.pf;
 
-import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
+import net.es.nsi.pce.path.jaxb.FindPathAlgorithmType;
 
 /**
  *

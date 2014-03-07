@@ -64,6 +64,7 @@ public class TopologyConfigurationParser {
      * @throws JAXBException If the XML contained in the file is not valid.
      * @throws FileNotFoundException If the specified file was not found.
      */
+    @SuppressWarnings({"unchecked", "unchecked"})
     public ConfigurationType parse(String file) throws JAXBException, FileNotFoundException {
         // Make sure we initialized properly.
         if (jaxbContext == null) {
@@ -73,10 +74,16 @@ public class TopologyConfigurationParser {
         // Parse the specified file.
         JAXBElement<ConfigurationType> configurationElement;
         try {
-            configurationElement = (JAXBElement<ConfigurationType>) jaxbContext.createUnmarshaller().unmarshal(new BufferedInputStream(new FileInputStream(file)));
+            Object result = jaxbContext.createUnmarshaller().unmarshal(new BufferedInputStream(new FileInputStream(file)));
+            if (result instanceof JAXBElement<?> && ((JAXBElement<?>) result).getValue() instanceof ConfigurationType) {
+                configurationElement = (JAXBElement<ConfigurationType>) result;
+            }
+            else {
+                throw new IllegalArgumentException("Expected ConfigurationType from " + file);
+            }
         }
         catch (JAXBException | FileNotFoundException ex) {
-            log.error("parseTopologyConfiguration: unmarshall error fron file " + file, ex);
+            log.error("parseTopologyConfiguration: unmarshall error from file " + file, ex);
             throw ex;
         }
         // Return the NSAType object.

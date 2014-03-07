@@ -1,10 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.topology.provider;
 
-import net.es.nsi.pce.logs.PceErrors;
+import net.es.nsi.pce.management.logs.PceErrors;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,8 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConstants;
-import net.es.nsi.pce.config.topo.nml.Orientation;
-import net.es.nsi.pce.config.topo.nml.Relationships;
+import net.es.nsi.pce.topology.model.Orientation;
+import net.es.nsi.pce.topology.model.Relationships;
 import net.es.nsi.pce.jersey.Utilities;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NmlBidirectionalPortType;
@@ -44,7 +40,7 @@ import net.es.nsi.pce.topology.model.NsiServiceFactory;
 import net.es.nsi.pce.topology.model.NsiServiceDomainFactory;
 import net.es.nsi.pce.topology.model.NsiStpFactory;
 import net.es.nsi.pce.topology.model.NsiTopology;
-import net.es.nsi.pce.logs.PceLogger;
+import net.es.nsi.pce.management.logs.PceLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

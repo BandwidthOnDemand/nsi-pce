@@ -4,15 +4,13 @@
  */
 package net.es.nsi.pce.topology.provider;
 
-import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import net.es.nsi.pce.config.topo.nml.Orientation;
+import net.es.nsi.pce.topology.model.Orientation;
 import net.es.nsi.pce.topology.jaxb.NmlLabelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

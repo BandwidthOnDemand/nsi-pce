@@ -1,4 +1,4 @@
-package net.es.nsi.pce.logs;
+package net.es.nsi.pce.management.logs;
 
 import java.util.HashMap;
 import java.util.Map;

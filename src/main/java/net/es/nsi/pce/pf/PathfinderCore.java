@@ -6,7 +6,7 @@ import net.es.nsi.pce.config.SpringContext;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
-import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
+import net.es.nsi.pce.path.jaxb.FindPathAlgorithmType;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.cons.Constraint;

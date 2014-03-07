@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
-import net.es.nsi.pce.managemenet.jaxb.TimerStatusType;
+import net.es.nsi.pce.management.jaxb.TimerStatusType;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;

@@ -1,6 +1,6 @@
 package net.es.nsi.pce.topology.provider;
 
-import net.es.nsi.pce.logs.PceErrors;
+import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.schema.NmlParser;
 import java.util.Date;
 import javax.ws.rs.NotFoundException;
@@ -11,7 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.topology.jaxb.NmlNSAType;
-import net.es.nsi.pce.logs.PceLogger;
+import net.es.nsi.pce.management.logs.PceLogger;
 import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;

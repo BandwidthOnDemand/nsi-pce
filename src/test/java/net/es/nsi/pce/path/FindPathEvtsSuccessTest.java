@@ -1,4 +1,4 @@
-package net.es.nsi.pce.findpath;
+package net.es.nsi.pce.path;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,14 +17,14 @@ import javax.ws.rs.core.Response;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeFactory;
-import net.es.nsi.pce.api.jaxb.ObjectFactory;
-import net.es.nsi.pce.api.jaxb.DirectionalityType;
-import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
-import net.es.nsi.pce.api.jaxb.FindPathRequestType;
-import net.es.nsi.pce.api.jaxb.FindPathResponseType;
-import net.es.nsi.pce.api.jaxb.FindPathStatusType;
-import net.es.nsi.pce.api.jaxb.P2PServiceBaseType;
-import net.es.nsi.pce.api.jaxb.ReplyToType;
+import net.es.nsi.pce.path.jaxb.ObjectFactory;
+import net.es.nsi.pce.path.jaxb.DirectionalityType;
+import net.es.nsi.pce.path.jaxb.FindPathAlgorithmType;
+import net.es.nsi.pce.path.jaxb.FindPathRequestType;
+import net.es.nsi.pce.path.jaxb.FindPathResponseType;
+import net.es.nsi.pce.path.jaxb.FindPathStatusType;
+import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
+import net.es.nsi.pce.path.jaxb.ReplyToType;
 import net.es.nsi.pce.jersey.RestClient;
 
 import net.es.nsi.pce.config.ConfigurationManager;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 
-public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
+public class FindPathEvtsSuccessTest extends JerseyTest {
 
     private final static HttpConfig testServer = new HttpConfig() {
         { setUrl("http://localhost:9801/"); setPackageName("net.es.nsi.pce.client"); }
@@ -48,18 +48,41 @@ public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
     
     private final static ObjectFactory factory = new ObjectFactory();
     
-    // First test has mismatched vlans and will require a SwitchingService with
-    // labelSwapping == true.
     private final static StpTestData test1 = new StpTestData() {
         { this.setStpA("urn:ogf:network:kddilabs.jp:2013:bi-ps?vlan=1782");
-          this.setStpZ("urn:ogf:network:uvalight.net:2013:ps?vlan=1781");
+          this.setStpZ("urn:ogf:network:uvalight.net:2013:ps?vlan=1782");
         }
     };
 
-    // Second test requests a unidirectional STP -- Not yet supported!
     private final static StpTestData test2 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1?vlan=1779");
-          this.setStpZ("urn:ogf:network:manlan.internet2.edu:2013:netherlight:in?vlan=1779");
+        { this.setStpA("urn:ogf:network:uvalight.net:2013:ps?vlan=1780");
+          this.setStpZ("urn:ogf:network:es.net:2013:ps:sunn:1?vlan=1780");
+        }
+    };
+
+    private final static StpTestData test3 = new StpTestData() {
+        { this.setStpA("urn:ogf:network:aist.go.jp:2013:bi-ps?vlan=1780");
+          this.setStpZ("urn:ogf:network:pionier.net.pl:2013:bi-ps?vlan=1780");
+        }
+    };
+
+    private final static StpTestData test4 = new StpTestData() {
+        { this.setStpA("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:241?vlan=1799");
+          this.setStpZ("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:232?vlan=1799");
+        }
+    };
+    
+    // Fifth test request two STP on either end of an SDP.
+    private final static StpTestData test5 = new StpTestData() {
+        { this.setStpA("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1?vlan=1799");
+          this.setStpZ("urn:ogf:network:manlan.internet2.edu:2013:netherlight?vlan=1799");
+        }
+    };
+    
+    // Netherlight endpoints.
+    private final static StpTestData test6 = new StpTestData() {
+        { this.setStpA("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:282?vlan=1784");
+          this.setStpZ("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1?vlan=1784");
         }
     };
     
@@ -67,7 +90,11 @@ public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
         private static final long serialVersionUID = 1L;
         {
             this.add(test1);
-            //this.add(test2);
+            this.add(test2);
+            this.add(test3);
+            this.add(test4);
+            this.add(test5);
+            this.add(test6);
         }
     };
 
@@ -81,13 +108,12 @@ public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
         
         // Configure test instance of PCE server.
         try {
-            ConfigurationManager.INSTANCE.initialize("src/test/resources/config-SwitchingService/");
+            ConfigurationManager.INSTANCE.initialize("src/test/resources/config/");
         } catch (Exception ex) {
             System.err.println("configure(): Could not initialize test environment." + ex.toString());
             fail("configure(): Could not initialize test environment.");
         }
-        Application app = new Application();
-        app.getProperties();
+        
         return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceConfig().getPackageName());
     }
 
@@ -100,32 +126,32 @@ public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
     @Test
     public void testXmlFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testPCE(MediaType.APPLICATION_XML, test);
+            testSuccessfulPath(MediaType.APPLICATION_XML, test);
         }
     }
     
     @Test
     public void testJsonFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testPCE(MediaType.APPLICATION_JSON, test);
+            testSuccessfulPath(MediaType.APPLICATION_JSON, test);
         }
     }
     
     @Test
     public void testVersionedXmlFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testPCE("application/vnd.net.es.pce.v1+xml", test);
+            testSuccessfulPath("application/vnd.net.es.pce.v1+xml", test);
         }
     }
 
     @Test
     public void testVersionedJsonFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testPCE("application/vnd.net.es.pce.v1+json", test);
+            testSuccessfulPath("application/vnd.net.es.pce.v1+json", test);
         }
     }
         
-    public void testPCE(String mediaType, StpTestData test) throws Exception {
+    public void testSuccessfulPath(String mediaType, StpTestData test) throws Exception {
         final WebTarget webTarget = target().path("paths/find");
         
         // Fill in our valid path request.
@@ -142,7 +168,7 @@ public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
         GregorianCalendar startTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         startTime.add(Calendar.MINUTE, 2);
         req.setStartTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(startTime));
- 
+
         // Reservation end time is 12 minutes from now.
         GregorianCalendar endTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         endTime.add(Calendar.MINUTE, 12);
@@ -182,6 +208,6 @@ public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
         
         assertNotNull(findPathResponse);
         
-        assertEquals(FindPathStatusType.FAILED, findPathResponse.getStatus());        
+        assertEquals(FindPathStatusType.SUCCESS, findPathResponse.getStatus());
     }
 }

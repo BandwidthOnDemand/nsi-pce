@@ -1,5 +1,6 @@
 package net.es.nsi.pce.services;
 
+import net.es.nsi.pce.path.services.Service;
 import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.es.nsi.pce.logs;
+package net.es.nsi.pce.management.logs;
 
 import java.util.AbstractQueue;
 import java.util.Collection;
@@ -13,9 +13,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.jersey.Utilities;
-import net.es.nsi.pce.managemenet.jaxb.LogEnumType;
-import net.es.nsi.pce.managemenet.jaxb.LogType;
-import net.es.nsi.pce.managemenet.jaxb.ObjectFactory;
+import net.es.nsi.pce.management.jaxb.LogEnumType;
+import net.es.nsi.pce.management.jaxb.LogType;
+import net.es.nsi.pce.management.jaxb.ObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

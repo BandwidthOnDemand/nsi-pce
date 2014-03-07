@@ -1,4 +1,4 @@
-package net.es.nsi.pce.findpath;
+package net.es.nsi.pce.path;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,14 +17,14 @@ import javax.ws.rs.core.Response;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeFactory;
-import net.es.nsi.pce.api.jaxb.ObjectFactory;
-import net.es.nsi.pce.api.jaxb.DirectionalityType;
-import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
-import net.es.nsi.pce.api.jaxb.FindPathRequestType;
-import net.es.nsi.pce.api.jaxb.FindPathResponseType;
-import net.es.nsi.pce.api.jaxb.FindPathStatusType;
-import net.es.nsi.pce.api.jaxb.P2PServiceBaseType;
-import net.es.nsi.pce.api.jaxb.ReplyToType;
+import net.es.nsi.pce.path.jaxb.ObjectFactory;
+import net.es.nsi.pce.path.jaxb.DirectionalityType;
+import net.es.nsi.pce.path.jaxb.FindPathAlgorithmType;
+import net.es.nsi.pce.path.jaxb.FindPathRequestType;
+import net.es.nsi.pce.path.jaxb.FindPathResponseType;
+import net.es.nsi.pce.path.jaxb.FindPathStatusType;
+import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
+import net.es.nsi.pce.path.jaxb.ReplyToType;
 import net.es.nsi.pce.jersey.RestClient;
 
 import net.es.nsi.pce.config.ConfigurationManager;
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 
-public class FindPathEvtsFailedTest extends JerseyTest {
+public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
 
     private final static HttpConfig testServer = new HttpConfig() {
         { setUrl("http://localhost:9801/"); setPackageName("net.es.nsi.pce.client"); }
@@ -48,38 +48,18 @@ public class FindPathEvtsFailedTest extends JerseyTest {
     
     private final static ObjectFactory factory = new ObjectFactory();
     
-    // First test has mismatched vlans.
+    // First test has mismatched vlans and will require a SwitchingService with
+    // labelSwapping == true.
     private final static StpTestData test1 = new StpTestData() {
         { this.setStpA("urn:ogf:network:kddilabs.jp:2013:bi-ps?vlan=1782");
           this.setStpZ("urn:ogf:network:uvalight.net:2013:ps?vlan=1781");
         }
     };
 
-    // Second test has unreachable ports.
+    // Second test requests a unidirectional STP -- Not yet supported!
     private final static StpTestData test2 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:czechlight.cesnet.cz:2013:pinger?vlan=1799");
-          this.setStpZ("urn:ogf:network:es.net:2013:ps:sunn:1?vlan=1799");
-        }
-    };
-
-    // Third test has matching vlans but out of range for port.
-    private final static StpTestData test3 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:aist.go.jp:2013:bi-ps?vlan=4000");
-          this.setStpZ("urn:ogf:network:pionier.net.pl:2013:bi-ps?vlan=4000");
-        }
-    };
-
-    // Fourth test requests a unidirectional STP.
-    private final static StpTestData test4 = new StpTestData() {
         { this.setStpA("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1?vlan=1779");
           this.setStpZ("urn:ogf:network:manlan.internet2.edu:2013:netherlight:in?vlan=1779");
-        }
-    };
-
-    // Fifth test request a path with unknown STP.
-    private final static StpTestData test5 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:aist.go.jp:2013:bi-ps?vlan=1780");
-          this.setStpZ("urn:ogf:network:pionier.net.pl:2013:bi-ps-999?vlan=1780");
         }
     };
     
@@ -87,10 +67,7 @@ public class FindPathEvtsFailedTest extends JerseyTest {
         private static final long serialVersionUID = 1L;
         {
             this.add(test1);
-            this.add(test2);
-            this.add(test3);
-            this.add(test4);
-            this.add(test5);
+            //this.add(test2);
         }
     };
 
@@ -104,7 +81,7 @@ public class FindPathEvtsFailedTest extends JerseyTest {
         
         // Configure test instance of PCE server.
         try {
-            ConfigurationManager.INSTANCE.initialize("src/test/resources/config/");
+            ConfigurationManager.INSTANCE.initialize("src/test/resources/config-SwitchingService/");
         } catch (Exception ex) {
             System.err.println("configure(): Could not initialize test environment." + ex.toString());
             fail("configure(): Could not initialize test environment.");
@@ -204,8 +181,7 @@ public class FindPathEvtsFailedTest extends JerseyTest {
         }
         
         assertNotNull(findPathResponse);
-        assertEquals(FindPathStatusType.FAILED, findPathResponse.getStatus());
-        assertNotNull(findPathResponse.getFindPathError());
-        System.out.println(findPathResponse.getFindPathError().getCode() + ":" + findPathResponse.getFindPathError().getLabel());
+        
+        assertEquals(FindPathStatusType.FAILED, findPathResponse.getStatus());        
     }
 }

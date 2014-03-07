@@ -1,7 +1,7 @@
 package net.es.nsi.pce.topology.provider;
 
-import net.es.nsi.pce.logs.PceLogs;
-import net.es.nsi.pce.logs.PceErrors;
+import net.es.nsi.pce.management.logs.PceLogs;
+import net.es.nsi.pce.management.logs.PceErrors;
 import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.Map;
@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.config.topo.nml.TopologyManifest;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.config.jaxb.ConfigurationType;
 import net.es.nsi.pce.schema.TopologyConfigurationParser;
@@ -18,8 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.model.NsiSdpFactory;
-import net.es.nsi.pce.logs.PceLogger;
-import net.es.nsi.pce.managemenet.jaxb.TopologyStatusType;
+import net.es.nsi.pce.management.logs.PceLogger;
+import net.es.nsi.pce.management.jaxb.TopologyStatusType;
 
 
 /**

@@ -10,7 +10,7 @@ import net.es.nsi.pce.client.TestServer;
 import net.es.nsi.pce.config.ConfigurationManager;
 import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.topology.provider.GitHubManifestReader;
-import net.es.nsi.pce.config.topo.nml.TopologyManifest;
+import net.es.nsi.pce.topology.provider.TopologyManifest;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.jersey.RestServer;
 import org.glassfish.grizzly.http.server.HttpServer;

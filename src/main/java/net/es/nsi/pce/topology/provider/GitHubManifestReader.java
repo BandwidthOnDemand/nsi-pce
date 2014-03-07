@@ -1,6 +1,6 @@
 package net.es.nsi.pce.topology.provider;
 
-import net.es.nsi.pce.logs.PceErrors;
+import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.schema.NmlParser;
 import java.util.Date;
 import java.util.List;
@@ -14,11 +14,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
-import net.es.nsi.pce.config.topo.nml.TopologyManifest;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.topology.jaxb.NmlNetworkObject;
 import net.es.nsi.pce.topology.jaxb.NmlTopologyType;
-import net.es.nsi.pce.logs.PceLogger;
+import net.es.nsi.pce.management.logs.PceLogger;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

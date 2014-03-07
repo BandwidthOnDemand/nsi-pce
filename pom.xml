@@ -217,8 +217,8 @@
                     <configuration>
                         <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
                         <schemaFiles>pce-messages.xsd, ogf_nsi_services_p2p_v2_0.xsd, ogf_nsi_services_types_v2_0.xsd</schemaFiles>
-                        <packageName>net.es.nsi.pce.api.jaxb</packageName>
-                        <staleFile>${project.build.directory}/jaxb2/.pceXjcStaleFlag</staleFile>
+                        <packageName>net.es.nsi.pce.path.jaxb</packageName>
+                        <staleFile>${project.build.directory}/jaxb2/.pathXjcStaleFlag</staleFile>
                     </configuration>
                   </execution>
                   <execution>
@@ -259,7 +259,7 @@
                     <configuration>
                         <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
                         <schemaFiles>pce-management.xsd</schemaFiles>
-                        <packageName>net.es.nsi.pce.managemenet.jaxb</packageName>
+                        <packageName>net.es.nsi.pce.management.jaxb</packageName>
                         <staleFile>${project.build.directory}/jaxb2/.mgntXjcStaleFlag</staleFile>
                         <clearOutputDir>false</clearOutputDir>
                     </configuration>

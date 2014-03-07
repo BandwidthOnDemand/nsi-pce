@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author hacksaw
  */
-public class PceApiParser {
+public class PathApiParser {
     // Get a logger just in case we encounter a problem.
-    private static final Logger log = LoggerFactory.getLogger(PceApiParser.class);
+    private static final Logger log = LoggerFactory.getLogger(PathApiParser.class);
     
     // The JAXB context we load pre-loading in this singleton.
     private static JAXBContext jaxbContextAPI = null;
@@ -28,10 +28,10 @@ public class PceApiParser {
      * Private constructor loads the JAXB context once and prevents
      * instantiation from other classes.
      */
-    private PceApiParser() {
+    private PathApiParser() {
         try {
             // Load a JAXB context for the NML NSAType parser.
-            jaxbContextAPI = JAXBContext.newInstance("net.es.nsi.pce.api.jaxb", net.es.nsi.pce.api.jaxb.ObjectFactory.class.getClassLoader());
+            jaxbContextAPI = JAXBContext.newInstance("net.es.nsi.pce.path.jaxb", net.es.nsi.pce.path.jaxb.ObjectFactory.class.getClassLoader());
         }
         catch (JAXBException jaxb) {
             log.error("NmlParser: Failed to load JAXB instance", jaxb);
@@ -43,7 +43,7 @@ public class PceApiParser {
      * creation.
      */
     private static class PceApiParserHolder {
-        public static final PceApiParser INSTANCE = new PceApiParser();
+        public static final PathApiParser INSTANCE = new PathApiParser();
     }
 
     /**
@@ -51,7 +51,7 @@ public class PceApiParser {
      * 
      * @return An NmlParser object of the NSAType.
      */
-    public static PceApiParser getInstance() {
+    public static PathApiParser getInstance() {
             return PceApiParserHolder.INSTANCE;
     }
     

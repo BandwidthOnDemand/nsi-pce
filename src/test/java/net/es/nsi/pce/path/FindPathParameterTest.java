@@ -1,4 +1,4 @@
-package net.es.nsi.pce.findpath;
+package net.es.nsi.pce.path;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -16,13 +16,13 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import net.es.nsi.pce.api.jaxb.ObjectFactory;
-import net.es.nsi.pce.api.jaxb.DirectionalityType;
-import net.es.nsi.pce.api.jaxb.FindPathAlgorithmType;
-import net.es.nsi.pce.api.jaxb.FindPathRequestType;
-import net.es.nsi.pce.api.jaxb.P2PServiceBaseType;
-import net.es.nsi.pce.api.jaxb.ReplyToType;
-import net.es.nsi.pce.api.jaxb.TypeValueType;
+import net.es.nsi.pce.path.jaxb.ObjectFactory;
+import net.es.nsi.pce.path.jaxb.DirectionalityType;
+import net.es.nsi.pce.path.jaxb.FindPathAlgorithmType;
+import net.es.nsi.pce.path.jaxb.FindPathRequestType;
+import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
+import net.es.nsi.pce.path.jaxb.ReplyToType;
+import net.es.nsi.pce.path.jaxb.TypeValueType;
 import net.es.nsi.pce.jersey.RestClient;
 
 import net.es.nsi.pce.config.ConfigurationManager;

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.es.nsi.pce.findpath;
+package net.es.nsi.pce.path;
 
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Application;

@@ -4,7 +4,7 @@
  */
 package net.es.nsi.pce.topology.model;
 
-import net.es.nsi.pce.logs.PceLogger;
+import net.es.nsi.pce.management.logs.PceLogger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.GregorianCalendar;
@@ -23,7 +23,7 @@ import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
 import net.es.nsi.pce.topology.jaxb.NsiResourceType;
-import net.es.nsi.pce.logs.PceErrors;
+import net.es.nsi.pce.management.logs.PceErrors;
 import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
