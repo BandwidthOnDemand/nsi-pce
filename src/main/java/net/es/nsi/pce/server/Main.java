@@ -3,13 +3,13 @@ package net.es.nsi.pce.server;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.slf4j.LoggerFactory;
 
 import net.es.nsi.pce.config.ConfigurationManager;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.ParseException;
 
 /**
  * This is the main execution thread for the PAth Computation Engine.  The

@@ -25,7 +25,7 @@
     <!-- Topology providers are configured through the config parameter and initialize methods. -->
     <bean id="topologyProvider" class="net.es.nsi.pce.topology.provider.PollingTopologyProvider" init-method="initialize" scope="singleton">
         <property name="configuration" value="${topologyProviderConfigPath}"/>
-	<property name="topologyManifestReader" ref="topologyManifestReader"/>
+        <property name="topologyManifestReader" ref="topologyManifestReader"/>
         <property name="topologyReaderFactory" ref="topologyReaderFactory"/>
     </bean>
 
