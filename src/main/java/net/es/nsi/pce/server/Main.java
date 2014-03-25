@@ -1,11 +1,15 @@
 package net.es.nsi.pce.server;
 
-import net.es.nsi.pce.config.ConfigurationManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.Option;
 import org.slf4j.LoggerFactory;
+
+import net.es.nsi.pce.config.ConfigurationManager;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.ParseException;
 
 /**
  * This is the main execution thread for the PAth Computation Engine.  The
@@ -18,7 +22,8 @@ import org.slf4j.LoggerFactory;
 public class Main {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
     
-    private static final String defaultPath = "config/";
+    private static final String CONFIG_DEFAULT_PATH = "config/";
+    public static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
 
     // Keep running PCE while true.
     private static boolean keepRunning = true;
@@ -55,20 +60,34 @@ public class Main {
         Options options = new Options();
 
         // Configuration directory option.
-        options.addOption("c", true, "configuration directory");
+        Option topologyOption = new Option(TOPOLOGY_CONFIG_FILE_ARGNAME, true, "Path to your topology configuration file");
+        topologyOption.setRequired(true);
+        options.addOption(topologyOption);
+
+        options.addOption("c", true, "Where you keep your other configfiles (defaults to ./config)");
         
         // Parse the command line options.
         CommandLineParser parser = new GnuParser();
-        CommandLine cmd = parser.parse(options, args);
-        
-        // Look for our options.
-        String path = cmd.getOptionValue("c");
-        if(path == null) {
-            path = defaultPath;
+
+        CommandLine cmd = null;
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            System.err.println("You did not provide the correct arguments, see usage below.");
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("java -jar pce.jar -topologyConfigFile [file] -c [configDir]", options );
+            System.exit(1);
         }
-        
+
+        // Look for our options.
+        String configPath = cmd.getOptionValue("c");
+        if(configPath == null) {
+            configPath = CONFIG_DEFAULT_PATH;
+        }
+
+        System.setProperty("topologyProviderConfigPath", cmd.getOptionValue(TOPOLOGY_CONFIG_FILE_ARGNAME));
         // Load PCE configuration from disk.
-        ConfigurationManager.INSTANCE.initialize(path);
+        ConfigurationManager.INSTANCE.initialize(configPath);
 
         // Start the main HTTP container.
         log.info("Path Computation Engine starting...");
@@ -92,7 +111,5 @@ public class Main {
         while (keepRunning) {
             Thread.sleep(1000);
         }
-        
-        ConfigurationManager.INSTANCE.shutdown();
     }
 }

@@ -297,6 +297,7 @@
                         <configuration>
                             <mainClass>net.es.nsi.pce.server.Main</mainClass>
                             <classifier>onejar</classifier>
+                            <filename>pce.jar</filename>
                         </configuration>
                         <goals>
                             <goal>one-jar</goal>
