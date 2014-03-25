@@ -31,6 +31,8 @@ import net.es.nsi.pce.discovery.jaxb.DocumentListType;
 import net.es.nsi.pce.discovery.jaxb.DocumentType;
 import net.es.nsi.pce.discovery.jaxb.FilterCriteriaType;
 import net.es.nsi.pce.discovery.jaxb.FilterType;
+import net.es.nsi.pce.discovery.jaxb.NotificationListType;
+import net.es.nsi.pce.discovery.jaxb.NotificationType;
 import net.es.nsi.pce.discovery.jaxb.NsaType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
@@ -331,6 +333,47 @@ public class DiscoveryTest extends JerseyTest {
         response = root.path(result.getHref()).request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         
-        Thread.sleep(20000);
+        // Now we wait for the initial notifications to arrive.
+        int count = 0;
+        NotificationListType notifications = TestServer.INSTANCE.peekDiscoveryNotification();
+        while(notifications == null && count < 30) {
+            count++;
+            Thread.sleep(1000);
+            notifications = TestServer.INSTANCE.peekDiscoveryNotification();
+        }
+        
+        assertNotNull(notifications);
+        notifications = TestServer.INSTANCE.pollDiscoveryNotification();
+        while (notifications != null) {
+            System.out.println("Notification: providerId=" + notifications.getProviderId() + ", subscriptionId=" + notifications.getId() );
+            for (NotificationType notification : notifications.getNotification()) {
+                System.out.println("Notification: event=" + notification.getEvent() + ", documentId=" + notification.getDocument().getId());
+            }
+            notifications = TestServer.INSTANCE.pollDiscoveryNotification();
+        }
+        
+        // Now send a document update.
+        fUpdateDocuments();
+                
+        Thread.sleep(5000);
+        
+        // Now we wait for the update notifications to arrive.
+        count = 0;
+        notifications = TestServer.INSTANCE.peekDiscoveryNotification();
+        while(notifications == null && count < 30) {
+            count++;
+            Thread.sleep(1000);
+            notifications = TestServer.INSTANCE.peekDiscoveryNotification();
+        }
+        
+        assertNotNull(notifications);
+        notifications = TestServer.INSTANCE.pollDiscoveryNotification();
+        while (notifications != null) {
+            System.out.println("Notification: providerId=" + notifications.getProviderId() + ", subscriptionId=" + notifications.getId() );
+            for (NotificationType notification : notifications.getNotification()) {
+                System.out.println("Notification: event=" + notification.getEvent() + ", documentId=" + notification.getDocument().getId());
+            }
+            notifications = TestServer.INSTANCE.pollDiscoveryNotification();
+        }
     }
 }

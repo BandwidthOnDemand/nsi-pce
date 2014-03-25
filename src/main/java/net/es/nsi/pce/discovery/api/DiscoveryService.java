@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 @Path("/discovery")
 public class DiscoveryService {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    ObjectFactory factory = new ObjectFactory();
+    private final ObjectFactory factory = new ObjectFactory();
 
     @GET
     @Path("/ping")
@@ -61,11 +61,89 @@ public class DiscoveryService {
     
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
-    public Response getAll(@HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
+    public Response getAll(
+            @DefaultValue("false") @QueryParam("summary") boolean summary,
+            @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
+        
+        log.debug("getAll: " + ifModifiedSince);
+        
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
         
+        Date lastDiscovered = null;
+        if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
+            lastDiscovered = DateUtils.parseDate(ifModifiedSince);
+        }
+        
+        // Get all the applicable documents.
+        Collection<Document> documents = discoveryProvider.getDocuments(null, null, null, lastDiscovered);
+        
+        Date discovered = new Date(0); 
+        DocumentListType documentResults = factory.createDocumentListType();
+        if (documents.size() > 0) {
+            // Only the document meta data is required and not the document
+            // contents.
+            for (Document document : documents) {
+                if (discovered.before(document.getLastDiscovered())) {
+                    discovered = document.getLastDiscovered();
+                }
+                
+                if (summary) {
+                    documentResults.getDocument().add(document.getDocumentSummary());
+                }
+                else {
+                    documentResults.getDocument().add(document.getDocument());
+                }
+            }                
+        }
+
+        // Get the local documents.  There may be duplicates with the full
+        // document list.
+        Collection<Document> local = discoveryProvider.getLocalDocuments(null, null, lastDiscovered);
+        
+        DocumentListType localResults = factory.createDocumentListType();
+        if (local.size() > 0) {
+            // Only the document meta data is required and not the document
+            // contents.
+            for (Document document : local) {
+                if (discovered.before(document.getLastDiscovered())) {
+                    discovered = document.getLastDiscovered();
+                }
+                
+                if (summary) {
+                    localResults.getDocument().add(document.getDocumentSummary());
+                }
+                else {
+                    localResults.getDocument().add(document.getDocument());
+                }
+            }                
+        }
+
+        Collection<Subscription> subscriptions = discoveryProvider.getSubscriptions(null, lastDiscovered);
+
+        SubscriptionListType subscriptionsResults = factory.createSubscriptionListType();
+        if (subscriptions.size() > 0) {
+            // Only the document meta data is required and not the document
+            // contents.
+            for (Subscription subscription : subscriptions) {
+                if (discovered.before(subscription.getLastModified())) {
+                    discovered = subscription.getLastModified();
+                }
+                
+                subscriptionsResults.getSubscription().add(subscription.getSubscription());
+            }                
+        }
+        
+        if (documentResults.getDocument().isEmpty() &&
+                localResults.getDocument().isEmpty() &&
+                subscriptionsResults.getSubscription().isEmpty()) {
+            return Response.notModified().build();
+        }
+        
         CollectionType all = factory.createCollectionType();
-        String date = DateUtils.formatDate(new Date(), DateUtils.PATTERN_RFC1123);
+        all.setDocuments(documentResults);
+        all.setLocal(localResults);
+        all.setSubscriptions(subscriptionsResults);
+        String date = DateUtils.formatDate(discovered, DateUtils.PATTERN_RFC1123);
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<CollectionType>>(factory.createCollection(all)){}).build();
     }
 
@@ -152,8 +230,6 @@ public class DiscoveryService {
         Date discovered = new Date(0); 
         DocumentListType results = factory.createDocumentListType();
         if (documents.size() > 0) {
-            // Only the document meta data is required and not the document
-            // contents.
             for (Document document : documents) {
                 if (discovered.before(document.getLastDiscovered())) {
                     discovered = document.getLastDiscovered();
@@ -211,8 +287,6 @@ public class DiscoveryService {
         Date discovered = new Date(0); 
         DocumentListType results = factory.createDocumentListType();
         if (documents.size() > 0) {
-            // Only the document meta data is required and not the document
-            // contents.
             for (Document document : documents) {
                 if (discovered.before(document.getLastDiscovered())) {
                     discovered = document.getLastDiscovered();

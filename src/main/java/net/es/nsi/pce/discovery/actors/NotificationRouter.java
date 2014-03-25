@@ -79,11 +79,14 @@ public class NotificationRouter extends UntypedActor {
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
         Collection<Subscription> subscriptions = discoveryProvider.getSubscriptions(de);
         
+        log.debug("routeDocumentEvent: event=" + de.getEvent() + ", documentId=" + de.getDocument().getId());
+        
         // We need to sent the list of matching documents to the callback
         // related to this subscription.  Only send if there is no pending
         // subscription event.
         for (Subscription subscription : subscriptions) {
-            if (subscription.getAction() != null) {
+            log.debug("routeDocumentEvent: subscription=" + subscription.getId() + ", endpoint=" + subscription.getSubscription().getHref());
+            if (subscription.getAction() == null) {
                 Notification notification = new Notification();
                 notification.setEvent(de.getEvent());
                 notification.setSubscription(subscription);

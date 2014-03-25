@@ -28,6 +28,7 @@ public class DiscoveryNotificationCallback {
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
     public Response notification(NotificationListType notify) {
         System.out.println("notification: " + notify.getId() + ", " + notify.getHref() + ", " + notify.getProviderId());
+        TestServer.INSTANCE.pushDiscoveryNotification(notify);
         return Response.accepted().build();
     }
 }
