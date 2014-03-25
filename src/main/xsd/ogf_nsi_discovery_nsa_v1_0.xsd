@@ -46,10 +46,9 @@ mailing list group mailing list (nsi-wg@ogf.org).
 <xsd:schema targetNamespace="http://schemas.ogf.org/nsi/2014/02/discovery/nsa"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:xcard="urn:ietf:params:xml:ns:vcard-4.0"
-    xmlns:kml="http://www.opengis.net/kml/2.2"
     xmlns:tns="http://schemas.ogf.org/nsi/2014/02/discovery/nsa"
     version="1.0">
-    
+    <!--xmlns:kml="http://www.opengis.net/kml/2.2"-->
     <xsd:annotation>
         <xsd:appinfo>ogf_nsi_discovery_nsa_v1_0.xsd 2014-02-16</xsd:appinfo>
         <xsd:documentation xml:lang="en">
@@ -86,7 +85,6 @@ mailing list group mailing list (nsi-wg@ogf.org).
     
     <!-- Import additional standard name spaces. -->
     <xsd:import namespace="urn:ietf:params:xml:ns:vcard-4.0" schemaLocation="xCard.xsd"/>
-    <xsd:import namespace="http://www.opengis.net/kml/2.2" schemaLocation="ogckml22.xsd"/>
     
     <!-- ******************************************************************
          *                     XML element types                          *
@@ -167,7 +165,7 @@ mailing list group mailing list (nsi-wg@ogf.org).
             <xsd:element name="softwareVersion" type="xsd:string" minOccurs="0" />
             <xsd:element name="startTime"       type="xsd:dateTime" minOccurs="0" />
             <xsd:element name="adminContact"    type="xcard:VcardsType" minOccurs="0" />
-            <xsd:element ref="kml:kml"          minOccurs="0" />
+            <xsd:element name="location"        type="tns:LocationType"  minOccurs="0" />
             <xsd:element name="networkId"       type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded" />
             <xsd:element name="interface"       type="tns:InterfaceType" minOccurs="0" maxOccurs="unbounded" />
             <xsd:element name="feature"         type="tns:FeatureType" minOccurs="0" maxOccurs="unbounded" />
@@ -180,6 +178,43 @@ mailing list group mailing list (nsi-wg@ogf.org).
         <xsd:anyAttribute namespace="##other" processContents="lax" />
     </xsd:complexType>
 
+    <xsd:complexType name="LocationType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                This is a type definition modeling the location of an NSA.  A
+                Location is a reference to a geographical location or area for
+                the NSA.
+                
+                Elements:
+                
+                name  - A human readable string naming this location.
+                
+                longitude - The longitude of the NSA in WGS84 coordinate system
+                (in decimal degrees).
+                
+                latitude - The latitude of the NSA in WGS84 coordinate system (in
+                decimal degrees).
+                
+                altitude  - The altitude of the NSA in WGS84 coordinate system (in
+                decimal meters).
+                
+                unlocode - The UN/LOCODE location identifier for the NSA
+                location.
+                
+                address - The address of the NSA location specified using the
+                vCard address format.
+            </xsd:documentation>
+        </xsd:annotation>        
+        <xsd:all>
+            <xsd:element name="name"       type="xsd:string"        minOccurs="0" />
+            <xsd:element name="longitude"  type="xsd:float"         minOccurs="0" />
+            <xsd:element name="latitude"   type="xsd:float"         minOccurs="0" />
+            <xsd:element name="altitude"   type="xsd:float"         minOccurs="0" />
+            <xsd:element name="unlocode"   type="xsd:string"        minOccurs="0" />
+            <xsd:element name="address"    type="xcard:adrPropType" minOccurs="0" />
+        </xsd:all>
+    </xsd:complexType>
+    
     <xsd:complexType name="InterfaceType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">

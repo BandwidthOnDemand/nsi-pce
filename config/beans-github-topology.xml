@@ -17,6 +17,11 @@
         <property name="filename" value="config/http.json"/>
     </bean>
 
+    <!-- Discovery providers are configured through the config parameter and initialize methods. -->
+    <bean id="topologyProvider" class="net.es.nsi.pce.discovery.provider.NsiDiscoveryServiceProvider" init-method="initialize" scope="singleton">
+        <property name="configuration" value="config/discovery-configuration.xml"/>
+    </bean>
+
     <!-- Topology providers are configured through the config parameter and initialize methods. -->
     <bean id="topologyProvider" class="net.es.nsi.pce.topology.provider.PollingTopologyProvider" init-method="initialize" scope="singleton">
         <property name="configuration" value="config/topology-github.xml"/>

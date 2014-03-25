@@ -55,7 +55,7 @@ public class TopologyService {
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
         
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // Check to see if there was any change in consolidated topology before
@@ -119,7 +119,7 @@ public class TopologyService {
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
         
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // We are stuffing the results into a collection object.
@@ -211,7 +211,7 @@ public class TopologyService {
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter stpId must be provided.").build());
         }
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // Try to locate the requested STP.
@@ -248,7 +248,7 @@ public class TopologyService {
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
         
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // We are stuffing the results into a collection object.
@@ -327,7 +327,7 @@ public class TopologyService {
         }
         
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // Try to locate the requested Network.
@@ -382,7 +382,7 @@ public class TopologyService {
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
         
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // We are stuffing the results into a collection object.
@@ -432,7 +432,7 @@ public class TopologyService {
         }
         
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // Try to locate the requested Network.
@@ -469,7 +469,7 @@ public class TopologyService {
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
         
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // We are stuffing the results into a collection object.
@@ -558,7 +558,7 @@ public class TopologyService {
         }
         
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // Try to locate the requested Network.
@@ -613,7 +613,7 @@ public class TopologyService {
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
         
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // We are stuffing the results into a collection object.
@@ -703,7 +703,7 @@ public class TopologyService {
         }
         
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // Try to locate the requested serviceAdaptation.
@@ -758,7 +758,7 @@ public class TopologyService {
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
         
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // We are stuffing the results into a collection object.
@@ -848,7 +848,7 @@ public class TopologyService {
         }
         
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // Try to locate the requested Network.
@@ -905,7 +905,7 @@ public class TopologyService {
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
         
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // We are stuffing the results into a collection object.
@@ -1022,7 +1022,7 @@ public class TopologyService {
         }
         
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         
         // Try to locate the requested Network.
@@ -1064,7 +1064,7 @@ public class TopologyService {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
     public Response ping() throws Exception {
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
         return Response.ok().header("Last-Modified", date).build();

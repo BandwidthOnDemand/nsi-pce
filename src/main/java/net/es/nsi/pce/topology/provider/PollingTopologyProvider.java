@@ -10,8 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.topology.model.NsiTopology;
-import net.es.nsi.pce.config.jaxb.ConfigurationType;
-import net.es.nsi.pce.schema.TopologyConfigurationParser;
+import net.es.nsi.pce.config.jaxb.TopologyConfigurationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -19,6 +18,7 @@ import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.model.NsiSdpFactory;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.management.jaxb.TopologyStatusType;
+import net.es.nsi.pce.schema.TopologyConfigurationParser;
 
 
 /**
@@ -148,7 +148,7 @@ public class PollingTopologyProvider implements TopologyProvider {
     }
     
     private void loadTopologyConfiguration() throws JAXBException, FileNotFoundException {
-        ConfigurationType config;
+        TopologyConfigurationType config;
         
         try {
             config = TopologyConfigurationParser.getInstance().parse(configuration);

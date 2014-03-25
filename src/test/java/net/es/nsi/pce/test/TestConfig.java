@@ -21,10 +21,6 @@ public class TestConfig {
         
     private TopologyProvider provider;
 
-    /**
-     * Private constructor loads the JAXB context once and prevents
-     * instantiation from other classes.
-     */
     private TestConfig() {
         // Load and watch the log4j configuration file for changes.
         DOMConfigurator.configureAndWatch(log4jConfig, 45 * 1000);
@@ -35,19 +31,10 @@ public class TestConfig {
         provider = (TopologyProvider) context.getBean("topologyProvider");
     }
 
-    /**
-     * An internal static class that invokes our private constructor on object
-     * creation.
-     */
     private static class TestConfigHolder {
         public static final TestConfig INSTANCE = new TestConfig();
     }
 
-    /**
-     * Returns an instance of this singleton class.
-     * 
-     * @return An NmlParser object of the NSAType.
-     */
     public static TestConfig getInstance() {
             return TestConfigHolder.INSTANCE;
     }

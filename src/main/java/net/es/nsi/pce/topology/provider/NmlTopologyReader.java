@@ -12,7 +12,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConstants;
 import net.es.nsi.pce.topology.model.Orientation;
 import net.es.nsi.pce.topology.model.Relationships;
-import net.es.nsi.pce.jersey.Utilities;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NmlBidirectionalPortType;
 import net.es.nsi.pce.topology.jaxb.NmlLabelGroupType;
@@ -41,6 +40,7 @@ import net.es.nsi.pce.topology.model.NsiServiceDomainFactory;
 import net.es.nsi.pce.topology.model.NsiStpFactory;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.management.logs.PceLogger;
+import net.es.nsi.pce.schema.XmlUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -201,7 +201,7 @@ public abstract class NmlTopologyReader implements TopologyReader {
         // Set discovered time to our last discovered value for the NML
         // document.  We may have seen this already, but we can't really
         // distinguish given only the complete NML document is versioned.
-        nsiNsa.setDiscovered(Utilities.longToXMLGregorianCalendar(getLastDiscovered()));
+        nsiNsa.setDiscovered(XmlUtilities.longToXMLGregorianCalendar(getLastDiscovered()));
         
         // Add it to the NSI topology.
         newNsiTopology.addNsa(nsiNsa);

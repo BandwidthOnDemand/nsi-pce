@@ -59,6 +59,10 @@ public class NmlParser {
             return NmlParserHolder.INSTANCE;
     }
     
+    public void init() {
+        log.debug("NmlParser: initializing...");
+    }
+    
     /**
      * Parse an NML NSA object from the specified file.
      * 

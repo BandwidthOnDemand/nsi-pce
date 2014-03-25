@@ -4,10 +4,10 @@ import java.io.File;
 import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.config.http.HttpConfigProvider;
 import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
+import net.es.nsi.pce.discovery.provider.DiscoveryProvider;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.sched.PCEScheduler;
 import net.es.nsi.pce.sched.TopologyAudit;
-import net.es.nsi.pce.server.Main;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -46,7 +46,8 @@ public enum ConfigurationManager {
     private static HttpConfigProvider htProv;
     private static HttpConfig pceConfig;    
     private static ServiceInfoProvider sip;
-    private static TopologyProvider tp;
+    private static TopologyProvider topologyProvider;
+    private static DiscoveryProvider discoveryProvider;
     
     private static boolean initialized = false;
     
@@ -66,7 +67,7 @@ public enum ConfigurationManager {
             // Load and watch the log4j configuration file for changes.
             DOMConfigurator.configureAndWatch(log4jConfig, 45 * 1000);
 
-            final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
+            final org.slf4j.Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
 
             // Initialize the Spring context to load our dependencies.
             SpringContext sc = SpringContext.getInstance();
@@ -84,11 +85,16 @@ public enum ConfigurationManager {
             log.info("Loading NSA security config...");
             setServiceInfoProvider((ServiceInfoProvider) context.getBean("serviceInfoProvider"));
             log.info("...NSA security config loaded.");
+            
+            // Load discovery provider.
+            log.info("Loading discovery provider...");
+            setDiscoveryProvider((DiscoveryProvider) context.getBean("discoveryProvider"));
+            log.info("...Discovery provider loaded.");
 
             // Load topology database.
-            log.info("Loading topology config...");
+            log.info("Loading topology provider...");
             setTopologyProvider((TopologyProvider) context.getBean("topologyProvider"));
-            log.info("...Topology loaded.");
+            log.info("...Topology provider loaded.");
             
             // TODO: This need to change to a local cache load.
             log.info("Loading network topology...");
@@ -106,25 +112,25 @@ public enum ConfigurationManager {
             log.info("Loaded configuration from: " + configPath);
         }
     }
-    
+
     /**
      * @return the htProv
      */
-    public static HttpConfigProvider getHttpProv() {
+    public HttpConfigProvider getHttpProv() {
         return htProv;
     }
 
     /**
      * @param aHtProv the htProv to set
      */
-    public static void setHttpProv(HttpConfigProvider aHtProv) {
+    public void setHttpProv(HttpConfigProvider aHtProv) {
         htProv = aHtProv;
     }
 
     /**
      * @param aPceConfig the pceConfig to set
      */
-    public static void setPceConfig(HttpConfig aPceConfig) {
+    public void setPceConfig(HttpConfig aPceConfig) {
         pceConfig = aPceConfig;
     }
     
@@ -139,28 +145,47 @@ public enum ConfigurationManager {
     /**
      * @return the sip
      */
-    public static ServiceInfoProvider getServiceInfoProvider() {
+    public ServiceInfoProvider getServiceInfoProvider() {
         return sip;
     }
 
     /**
      * @param aSip the sip to set
      */
-    public static void setServiceInfoProvider(ServiceInfoProvider aSip) {
+    public void setServiceInfoProvider(ServiceInfoProvider aSip) {
         sip = aSip;
     }
 
     /**
-     * @return the tp
+     * @return the topology provider
      */
-    public static TopologyProvider getTopologyProvider() {
-        return tp;
+    public TopologyProvider getTopologyProvider() {
+        return topologyProvider;
     }
 
     /**
-     * @param aTp the tp to set
+     * @param aTp the topology provider to set
      */
-    public static void setTopologyProvider(TopologyProvider aTp) {
-        tp = aTp;
+    public void setTopologyProvider(TopologyProvider aTp) {
+        topologyProvider = aTp;
+    }
+    
+
+    /**
+     * @return the discoveryProvider
+     */
+    public DiscoveryProvider getDiscoveryProvider() {
+        return discoveryProvider;
+    }
+
+    /**
+     * @param aDiscoveryProvider the discoveryProvider to set
+     */
+    public void setDiscoveryProvider(DiscoveryProvider aDiscoveryProvider) {
+        discoveryProvider = aDiscoveryProvider;
+    }
+    
+    public void shutdown() {
+        discoveryProvider.shutdown();
     }
 }

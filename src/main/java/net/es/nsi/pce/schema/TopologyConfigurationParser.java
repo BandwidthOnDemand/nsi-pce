@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.config.jaxb.ConfigurationType;
+import net.es.nsi.pce.config.jaxb.TopologyConfigurationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,31 +55,34 @@ public class TopologyConfigurationParser {
             return ConfigParserHolder.INSTANCE;
     }
     
+    public void init() {
+        log.debug("TopologyConfigurationParser: initializing...");
+    }
     
     /**
      * Parse an topology configuration file from the specified file.
      * 
      * @param file File containing the XML formated topology configuration.
-     * @return A JAXB compiled ConfigurationType object.
+     * @return A JAXB compiled TopologyConfigurationType object.
      * @throws JAXBException If the XML contained in the file is not valid.
      * @throws FileNotFoundException If the specified file was not found.
      */
     @SuppressWarnings({"unchecked", "unchecked"})
-    public ConfigurationType parse(String file) throws JAXBException, FileNotFoundException {
+    public TopologyConfigurationType parse(String file) throws JAXBException, FileNotFoundException {
         // Make sure we initialized properly.
         if (jaxbContext == null) {
             throw new JAXBException("parseTopologyConfiguration: Failed to load JAXB instance");
         }
         
         // Parse the specified file.
-        JAXBElement<ConfigurationType> configurationElement;
+        JAXBElement<TopologyConfigurationType> configurationElement;
         try {
             Object result = jaxbContext.createUnmarshaller().unmarshal(new BufferedInputStream(new FileInputStream(file)));
-            if (result instanceof JAXBElement<?> && ((JAXBElement<?>) result).getValue() instanceof ConfigurationType) {
-                configurationElement = (JAXBElement<ConfigurationType>) result;
+            if (result instanceof JAXBElement<?> && ((JAXBElement<?>) result).getValue() instanceof TopologyConfigurationType) {
+                configurationElement = (JAXBElement<TopologyConfigurationType>) result;
             }
             else {
-                throw new IllegalArgumentException("Expected ConfigurationType from " + file);
+                throw new IllegalArgumentException("Expected TopologyConfigurationType from " + file);
             }
         }
         catch (JAXBException | FileNotFoundException ex) {

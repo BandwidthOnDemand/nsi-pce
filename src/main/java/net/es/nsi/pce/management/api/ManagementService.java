@@ -22,7 +22,6 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.config.ConfigurationManager;
-import net.es.nsi.pce.jersey.Utilities;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.management.logs.PceLogs;
@@ -38,6 +37,7 @@ import net.es.nsi.pce.management.jaxb.TimerStatusType;
 import net.es.nsi.pce.management.jaxb.TimerType;
 import net.es.nsi.pce.sched.PCEScheduler;
 import net.es.nsi.pce.sched.SchedulerItem;
+import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.topology.provider.TopologyProviderStatus;
 import org.apache.http.client.utils.DateUtils;
@@ -67,7 +67,7 @@ public class ManagementService {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
     public Response getTopologyAuditStatus() throws Exception {
         // Get a reference to topology provider and get the NSI Topology model.
-        TopologyProvider topologyProvider = ConfigurationManager.getTopologyProvider();
+        TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         
         // Get the overall topology provider status.
         TopologyStatusType providerStatus = topologyProvider.getSummaryStatus();
@@ -76,8 +76,8 @@ public class ManagementService {
         StatusType status = managementFactory.createStatusType();
         status.setStatus(providerStatus);
         status.setAuditInterval(topologyProvider.getAuditInterval());
-        status.setLastAudit(Utilities.longToXMLGregorianCalendar(topologyProvider.getLastAudit()));
-        status.setLastModified(Utilities.longToXMLGregorianCalendar(topologyProvider.getLastModified()));
+        status.setLastAudit(XmlUtilities.longToXMLGregorianCalendar(topologyProvider.getLastAudit()));
+        status.setLastModified(XmlUtilities.longToXMLGregorianCalendar(topologyProvider.getLastModified()));
         
         // Populate the manifest status if available.
         TopologyProviderStatus manifestStatus = topologyProvider.getManifestStatus();
@@ -89,10 +89,10 @@ public class ManagementService {
             TopologyStatusType manStat = manifestStatus.getStatus();
             manifest.setStatus(manStat);
             
-            manifest.setLastAudit(Utilities.longToXMLGregorianCalendar(manifestStatus.getLastAudit()));
-            manifest.setLastSuccessfulAudit(Utilities.longToXMLGregorianCalendar(manifestStatus.getLastSuccessfulAudit()));
-            manifest.setLastModified(Utilities.longToXMLGregorianCalendar(manifestStatus.getLastModified()));
-            manifest.setLastDiscovered(Utilities.longToXMLGregorianCalendar(manifestStatus.getLastDiscovered()));
+            manifest.setLastAudit(XmlUtilities.longToXMLGregorianCalendar(manifestStatus.getLastAudit()));
+            manifest.setLastSuccessfulAudit(XmlUtilities.longToXMLGregorianCalendar(manifestStatus.getLastSuccessfulAudit()));
+            manifest.setLastModified(XmlUtilities.longToXMLGregorianCalendar(manifestStatus.getLastModified()));
+            manifest.setLastDiscovered(XmlUtilities.longToXMLGregorianCalendar(manifestStatus.getLastDiscovered()));
             
             status.setManifest(manifest);
         }
@@ -107,10 +107,10 @@ public class ManagementService {
             TopologyStatusType stat = ps.getStatus();
             provider.setStatus(stat);
             
-            provider.setLastAudit(Utilities.longToXMLGregorianCalendar(ps.getLastAudit()));
-            provider.setLastSuccessfulAudit(Utilities.longToXMLGregorianCalendar(ps.getLastSuccessfulAudit()));
-            provider.setLastModified(Utilities.longToXMLGregorianCalendar(ps.getLastModified()));
-            provider.setLastDiscovered(Utilities.longToXMLGregorianCalendar(ps.getLastDiscovered()));
+            provider.setLastAudit(XmlUtilities.longToXMLGregorianCalendar(ps.getLastAudit()));
+            provider.setLastSuccessfulAudit(XmlUtilities.longToXMLGregorianCalendar(ps.getLastSuccessfulAudit()));
+            provider.setLastModified(XmlUtilities.longToXMLGregorianCalendar(ps.getLastModified()));
+            provider.setLastDiscovered(XmlUtilities.longToXMLGregorianCalendar(ps.getLastDiscovered()));
             
             status.getProvider().add(provider);      
         }
@@ -143,7 +143,7 @@ public class ManagementService {
             
             Date nextRun = PCEScheduler.getInstance().getNextRun(item.getId());
             if (nextRun != null) {
-                timer.setNextExecution(Utilities.longToXMLGregorianCalendar(nextRun.getTime()));
+                timer.setNextExecution(XmlUtilities.longToXMLGregorianCalendar(nextRun.getTime()));
             }
             
             timerList.getTimer().add(timer);
@@ -180,7 +180,7 @@ public class ManagementService {
 
         Date nextRun = PCEScheduler.getInstance().getNextRun(item.getId());
         if (nextRun != null) {
-            timer.setNextExecution(Utilities.longToXMLGregorianCalendar(nextRun.getTime()));
+            timer.setNextExecution(XmlUtilities.longToXMLGregorianCalendar(nextRun.getTime()));
         }
 
         return Response.ok().entity(new GenericEntity<JAXBElement<TimerType>>(managementFactory.createTimer(timer)) {}).build();

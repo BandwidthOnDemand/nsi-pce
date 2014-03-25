@@ -54,7 +54,11 @@ public class PathApiParser {
     public static PathApiParser getInstance() {
             return PceApiParserHolder.INSTANCE;
     }
-    
+
+    public void init() {
+        log.debug("PathApiParser: initializing...");
+    }
+
     /**
      * Parse an PCE Error object from the specified string.
      * 
@@ -94,27 +98,27 @@ public class PathApiParser {
     
     public String jaxbToString(JAXBElement<?> jaxbElement) {
 
-            // Make sure we are given the correct input.
-            if (jaxbElement == null) {
-                return null;
-            }
+        // Make sure we are given the correct input.
+        if (jaxbElement == null) {
+            return null;
+        }
 
-            // We will write the XML encoding into a string.
-            StringWriter writer = new StringWriter();
+        // We will write the XML encoding into a string.
+        StringWriter writer = new StringWriter();
 
-            try {
-                // Marshal the object.
-                Marshaller jaxbMarshaller = jaxbContextAPI.createMarshaller();
-                jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-                jaxbMarshaller.marshal(jaxbElement, writer);
-            } catch (Exception e) {             
-                // Something went wrong so get out of here.
-                log.error("NsiParser.jaxbToString: Error marshalling object " +
-                    jaxbElement.getClass() + ": " + e.getMessage());
-                return null;
-            }
+        try {
+            // Marshal the object.
+            Marshaller jaxbMarshaller = jaxbContextAPI.createMarshaller();
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            jaxbMarshaller.marshal(jaxbElement, writer);
+        } catch (Exception e) {             
+            // Something went wrong so get out of here.
+            log.error("NsiParser.jaxbToString: Error marshalling object " +
+                jaxbElement.getClass() + ": " + e.getMessage());
+            return null;
+        }
 
-            // Return the XML string.
-            return writer.toString();
+        // Return the XML string.
+        return writer.toString();
 	}
 }

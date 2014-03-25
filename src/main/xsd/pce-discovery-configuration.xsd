@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:tns="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration">
+    
+    <xsd:element name="discovery" type="tns:DiscoveryConfigurationType" />
+    
+    <xsd:complexType name="DiscoveryConfigurationType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="nsaId" type="xsd:anyURI"/>
+            <xsd:element name="documents" type="xsd:string"/>
+            <xsd:element name="cache" type="xsd:string"/>
+            <xsd:element name="auditInterval" type="xsd:long"/>
+            <xsd:element name="expiryInterval" type="xsd:long"/>
+            <xsd:element name="actorPool" type="xsd:int"/>
+            <xsd:element name="baseURL" type="xsd:anyURI"/>
+            <xsd:element name="discoveryURL" type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:schema>

@@ -12,10 +12,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
-import net.es.nsi.pce.jersey.Utilities;
 import net.es.nsi.pce.management.jaxb.LogEnumType;
 import net.es.nsi.pce.management.jaxb.LogType;
 import net.es.nsi.pce.management.jaxb.ObjectFactory;
+import net.es.nsi.pce.schema.XmlUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,7 @@ public class PceLogger {
      */
     private PceLogger() {
         try {
-            auditTimeStamp = Utilities.longToXMLGregorianCalendar(System.currentTimeMillis());
+            auditTimeStamp = XmlUtilities.longToXMLGregorianCalendar(System.currentTimeMillis());
         }
         catch (DatatypeConfigurationException ex) {
             // Ignore for now.
@@ -105,7 +105,7 @@ public class PceLogger {
     
     public void setAuditTimeStamp() {
         try {
-            auditTimeStamp = Utilities.longToXMLGregorianCalendar(System.currentTimeMillis());
+            auditTimeStamp = XmlUtilities.longToXMLGregorianCalendar(System.currentTimeMillis());
         }
         catch (DatatypeConfigurationException ex) {
             // Ignore for now.
@@ -122,7 +122,7 @@ public class PceLogger {
         }
         else {
             try {
-                auditTimeStamp = Utilities.longToXMLGregorianCalendar(time);
+                auditTimeStamp = XmlUtilities.longToXMLGregorianCalendar(time);
             }
             catch (DatatypeConfigurationException ex) {
                 // Ignore for now.
@@ -143,7 +143,7 @@ public class PceLogger {
         entry.setHref(NSI_ROOT_LOGS + entry.getId());
         
         try {
-            entry.setDate(Utilities.longToXMLGregorianCalendar(time));
+            entry.setDate(XmlUtilities.longToXMLGregorianCalendar(time));
         } catch (DatatypeConfigurationException ex) {
             // Ignore for now.
         }

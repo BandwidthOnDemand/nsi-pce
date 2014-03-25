@@ -92,5 +92,7 @@ public class Main {
         while (keepRunning) {
             Thread.sleep(1000);
         }
+        
+        ConfigurationManager.INSTANCE.shutdown();
     }
 }

@@ -55,6 +55,14 @@ public enum PceErrors {
     MANAGEMENT_RESOURCE_NOT_FOUND(5001, "MANAGEMENT_RESOURCE_NOT_FOUND", "The requested resource was not found."),
     MANAGEMENT_BAD_REQUEST(5002, "MANAGEMENT_BAD_REQUEST", "The request was invalid (%s)."),
     MANAGEMENT_TIMER_MODIFICATION(5003, "MANAGEMENT_TIMER_MODIFICATION", "The requested timer could not be modified (%s)."),
+
+    // Error relating to topology configuration.
+    DISCOVERY_CONFIGURATION(6000, "DISCOVERY_CONFIGURATION", "Discovery configuration error."),
+    DISCOVERY_CONFIGURATION_INVALID(6001, "DISCOVERY_CONFIGURATION_INVALID", "The discovery configuration file contains invalid values."),
+    DISCOVERY_CONFIGURATION_INVALID_FILENAME(6002, "DISCOVERY_CONFIGURATION_INVALID_FILENAME", "Discovery configuration file not found (%s)."),
+    DISCOVERY_CONFIGURATION_INVALID_XML(6003, "DISCOVERY_CONFIGURATION_INVALID_XML", "Discovery configuration file contains invalid XML (%s)."),
+    DISCOVERY_CONFIGURATION_INVALID_PARAMETER(6004, "DISCOVERY_CONFIGURATION_INVALID_PARAMETER", "Value missing or invalid (%s)"),
+    DISCOVERY_CONFIGURATION_CANNOT_CREATE_DIRECTORY(6005, "DISCOVERY_CONFIGURATION_CANNOT_CREATE_DIRECTORY", "Cannot create directory (%s)"),
     
     // Mark the end.
     END(9000, "", "");

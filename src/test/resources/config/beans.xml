@@ -17,6 +17,11 @@
         <property name="filename" value="src/test/resources/config/http.json"/>
     </bean>
 
+    <!-- Discovery providers are configured through the config parameter and initialize methods. -->
+    <bean id="discoveryProvider" class="net.es.nsi.pce.discovery.provider.NsiDiscoveryServiceProvider" init-method="initialize" scope="singleton">
+        <property name="configuration" value="src/test/resources/config/discovery-configuration.xml"/>
+    </bean>
+
     <!-- Configuration for local directory reader topology provider. -->
     <bean id="topologyProvider" class="net.es.nsi.pce.topology.provider.PollingTopologyProvider" init-method="initialize" scope="singleton">
         <property name="configuration" value="src/test/resources/config/topology-filesystem.xml"/>

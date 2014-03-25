@@ -2,6 +2,7 @@ package net.es.nsi.pce.schema;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.GregorianCalendar;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -9,6 +10,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 import org.slf4j.Logger;
@@ -83,5 +87,22 @@ public class XmlUtilities {
         StringReader reader = new StringReader(xml);
         JAXBElement<?> element = (JAXBElement<?>) unmarshaller.unmarshal(reader);
         return element;
+    }
+
+    public static XMLGregorianCalendar longToXMLGregorianCalendar(long time) throws DatatypeConfigurationException {
+        if (time <= 0) {
+            return null;
+        }
+        
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeInMillis(time);
+        XMLGregorianCalendar newXMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+        return newXMLGregorianCalendar;
+    }
+    
+    public static XMLGregorianCalendar xmlGregorianCalendar() throws DatatypeConfigurationException {
+        GregorianCalendar cal = new GregorianCalendar();
+        XMLGregorianCalendar newXMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+        return newXMLGregorianCalendar;
     }
 }
