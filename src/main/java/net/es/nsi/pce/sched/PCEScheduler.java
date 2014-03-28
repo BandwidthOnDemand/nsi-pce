@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
@@ -49,7 +50,12 @@ public class PCEScheduler {
      */
     private PCEScheduler() {
         try {
-            SchedulerFactory schedFact = new StdSchedulerFactory();
+            Properties props = new Properties();
+            props.setProperty(StdSchedulerFactory.PROP_SCHED_SKIP_UPDATE_CHECK, "true");
+            props.setProperty("org.quartz.jobStore.class", "org.quartz.simpl.RAMJobStore");
+            props.setProperty("org.quartz.threadPool.class", "org.quartz.simpl.SimpleThreadPool");
+            props.setProperty("org.quartz.threadPool.threadCount", "10");
+            SchedulerFactory schedFact = new StdSchedulerFactory(props);
             this.scheduler = schedFact.getScheduler();
         } catch (SchedulerException ex) {
             log.error("PCEScheduler: failed to create", ex);

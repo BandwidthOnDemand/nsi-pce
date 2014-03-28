@@ -39,6 +39,7 @@ public class NotificationRouter extends UntypedActor {
 
     @Override
     public void preStart() {
+        log.debug("NotificationRouter: preStart.");
         List<Routee> routees = new ArrayList<>();
         for (int i = 0; i < actors; i++) {
             ActorRef r = getContext().actorOf(Props.create(NotificationActor.class));

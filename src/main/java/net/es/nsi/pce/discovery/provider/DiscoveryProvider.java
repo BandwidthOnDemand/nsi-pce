@@ -1,9 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.discovery.provider;
 
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Date;
 import javax.persistence.EntityExistsException;
@@ -62,6 +59,8 @@ public interface DiscoveryProvider {
     public void processNotification(NotificationType notification);
     
     public String getNsaId();
+    public String getNotificationURL() throws MalformedURLException;
+    public String getMediaType();
     
     public Collection<Document> getDocuments(FilterType filter);
     public Collection<Subscription> getSubscriptions(DocumentEvent event);

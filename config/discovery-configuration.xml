@@ -4,9 +4,9 @@
     <nsaId>urn:ogf:network:netherlight.net:2013:nsa:bod</nsaId>
     <documents>config/documents</documents>
     <cache>config/cache</cache>
-    <auditInterval>1200000</auditInterval>
-    <expiryInterval>86400000</expiryInterval>
+    <auditInterval>600</auditInterval>
+    <expiryInterval>86400</expiryInterval>
     <actorPool>20</actorPool>
     <baseURL>http://localhost:8400/</baseURL>
-    <discoveryURL>http://localhost:8400/discovery</discoveryURL>
+    <!-- <discoveryURL>http://localhost:8400/discovery</discoveryURL> -->
 </tns:discovery>

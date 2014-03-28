@@ -13,15 +13,12 @@ import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.discovery.jaxb.DiscoveryConfigurationType;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author hacksaw
  */
 public class ConfigurationReader {
-    private final Logger log = LoggerFactory.getLogger(getClass());
     private final PceLogger pceLogger = PceLogger.getLogger();
     
     public static final long MAX_AUDIT_INTERVAL = 86400000L; // 24 hours
@@ -36,28 +33,55 @@ public class ConfigurationReader {
     public static final int ACTORPOOL_DEFAULT_SIZE = 20;
     public static final int ACTORPOOL_MIN_SIZE = 5;
     
+    private String configuration = null;
+    private long lastModified = 0;
     private String nsaId;
+    private String baseURL;
     private String documents;
     private String cache;
     private long auditInterval = DEFAULT_AUDIT_INTERVAL;
     private long expiryInterval = DEFAULT_EXPIRE_INTERVAL;
     private int actorPool = ACTORPOOL_DEFAULT_SIZE;
-    
-    private String myBaseURL;
     private Set<String> discoveryURL = new CopyOnWriteArraySet<>();
     
-    public void load(String configuration) throws JAXBException, FileNotFoundException {
+    public ConfigurationReader(String configuration) {
+        this.configuration = configuration;
+    }
+    
+    public synchronized void load() throws IllegalArgumentException, JAXBException, FileNotFoundException, NullPointerException {
+        // Make sure the condifuration file is set.
+        if (configuration == null || configuration.isEmpty()) {
+            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "configurationFile", configuration);
+            throw new IllegalArgumentException();
+        }
+        
+        File file = null;
+        try {
+            file = new File(configuration);
+        }
+        catch (NullPointerException ex) {
+            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "configurationFile", configuration);
+            throw ex;
+        }
+        
+        long lastMod = file.lastModified();
+        
+        // If file was not modified since out last load then return.
+        if (lastMod <= lastModified) {
+            return;
+        }
+
         DiscoveryConfigurationType config;
         
         try {
             config = DiscoveryParser.getInstance().parse(configuration);
         }
         catch (FileNotFoundException nf) {
-            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "configurationFile", configuration);
+            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "configurationFile", getConfiguration());
             throw nf;
         }
         catch (JAXBException jaxb) {
-            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_XML, "configurationFile", configuration);
+            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_XML, "configurationFile", getConfiguration());
             throw jaxb;
         }
         
@@ -67,7 +91,14 @@ public class ConfigurationReader {
         }
         
         setNsaId(config.getNsaId());
+
+        if (config.getBaseURL() == null || config.getBaseURL().isEmpty()) {
+            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_PARAMETER, "baseURL", config.getBaseURL());
+            throw new FileNotFoundException("Invalid baseURL: " + config.getBaseURL());
+        }
         
+        setBaseURL(config.getBaseURL());
+
         if (config.getDocuments() == null || config.getDocuments().isEmpty()) {
             pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_PARAMETER, "documents", config.getDocuments());
             throw new FileNotFoundException("Invalid document source directroy: " + config.getDocuments());
@@ -125,6 +156,8 @@ public class ConfigurationReader {
         for (String url : config.getDiscoveryURL()) {
             discoveryURL.add(url);
         }
+        
+        lastModified = lastMod;
     }
 
     /**
@@ -223,5 +256,33 @@ public class ConfigurationReader {
      */
     public void setCache(String cache) {
         this.cache = cache;
+    }
+
+    /**
+     * @return the configuration
+     */
+    public String getConfiguration() {
+        return configuration;
+    }
+
+    /**
+     * @param configuration the configuration to set
+     */
+    public void setConfiguration(String configuration) {
+        this.configuration = configuration;
+    }
+
+    /**
+     * @return the baseURL
+     */
+    public String getBaseURL() {
+        return baseURL;
+    }
+
+    /**
+     * @param baseURL the baseURL to set
+     */
+    public void setBaseURL(String baseURL) {
+        this.baseURL = baseURL;
     }
 }

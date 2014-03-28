@@ -2,10 +2,10 @@
 <tns:discovery xmlns:tns="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <nsaId>urn:ogf:network:netherlight.net:2013:nsa:bod</nsaId>
-    <documents>src/test/resources/documents</documents>
-    <cache>src/test/resources/cache</cache>
-    <auditInterval>1200000</auditInterval>
-    <expiryInterval>86400000</expiryInterval>
+    <documents>config/documents</documents>
+    <cache>config/cache</cache>
+    <auditInterval>600</auditInterval>
+    <expiryInterval>86400</expiryInterval>
     <actorPool>20</actorPool>
     <baseURL>http://localhost:8400/</baseURL>
     <discoveryURL>http://localhost:8400/discovery</discoveryURL>

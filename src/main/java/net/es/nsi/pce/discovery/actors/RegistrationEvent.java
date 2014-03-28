@@ -5,20 +5,19 @@
 package net.es.nsi.pce.discovery.actors;
 
 import java.io.Serializable;
-import net.es.nsi.pce.discovery.provider.Subscription;
 
 /**
  *
  * @author hacksaw
  */
-public class SubscriptionEvent implements Serializable {
+public class RegistrationEvent implements Serializable {
     private static final long serialVersionUID = 1L;
-
-    public enum Event { New, Update, Delete };
+    
+    public enum Event { Audit, Register, Update, Delete };
 
     private Event event;
-    private Subscription subscription;
-
+    private RemoteSubscription subscription;
+    
     /**
      * @return the event
      */
@@ -32,18 +31,18 @@ public class SubscriptionEvent implements Serializable {
     public void setEvent(Event event) {
         this.event = event;
     }
-
+    
     /**
      * @return the subscription
      */
-    public Subscription getSubscription() {
+    public RemoteSubscription getSubscription() {
         return subscription;
     }
 
     /**
      * @param subscription the subscription to set
      */
-    public void setSubscription(Subscription subscription) {
+    public void setSubscription(RemoteSubscription subscription) {
         this.subscription = subscription;
     }
 }

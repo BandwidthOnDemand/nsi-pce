@@ -4,15 +4,19 @@
  */
 package net.es.nsi.pce.discovery.provider;
 
+import net.es.nsi.pce.discovery.actors.RemoteSubscription;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Cancellable;
 import akka.actor.Props;
 import java.io.FileNotFoundException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import javax.persistence.EntityExistsException;
@@ -21,6 +25,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConstants;
 import net.es.nsi.pce.discovery.actors.DocumentEvent;
 import net.es.nsi.pce.discovery.actors.NotificationRouter;
+import net.es.nsi.pce.discovery.actors.RegistrationRouter;
 import net.es.nsi.pce.discovery.actors.SubscriptionEvent;
 import net.es.nsi.pce.discovery.api.DiscoveryError;
 import net.es.nsi.pce.discovery.jaxb.DocumentEventType;
@@ -39,44 +44,49 @@ import scala.concurrent.duration.Duration;
  * @author hacksaw
  */
 public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
+    private static final String NOTIFICATIONS_URL = "/discovery/notifications";
+    private static final String MEDIATYPE = "application/vnd.ogf.nsi.discovery.v1+xml";
+    
     private final Logger log = LoggerFactory.getLogger(getClass());
     
-    ObjectFactory factory = new ObjectFactory();
+    private ObjectFactory factory = new ObjectFactory();
     
     // Location of configuration file.
     private String configuration;
     
-    ActorSystem actorSystem;
-    ActorRef notificationRouter;
+    private ActorSystem actorSystem;
+    private ActorRef notificationRouter;
+    private ActorRef registrationRouter;
     
     // Configuration reader.
-    ConfigurationReader configReader = new ConfigurationReader();
+    private ConfigurationReader configReader;
     
     // In-memory document cache indexed by nsa/type/id.
     private Map<String, Document> documents = new ConcurrentHashMap<>();
     
     // In-memory subscription cache indexed by subscriptionId.
     private Map<String, Subscription> subscriptions = new ConcurrentHashMap<>();
+    
+    // In-memory subscription cache indexed by subscriptionId.
+    private Map<String, RemoteSubscription> remoteSubscriptions = new ConcurrentHashMap<>();
  
     public NsiDiscoveryServiceProvider() { }
     
-    public NsiDiscoveryServiceProvider(String configFile) {
-        this.configuration = configFile;
+    public NsiDiscoveryServiceProvider(String configuration) {
+        this.configuration = configuration;
     }
 
     /**
-     * For this provider we read the topology source from an XML configuration
-     * file.
      * 
      * @param source Path to the XML configuration file.
      */
     @Override
     public void setConfiguration(String configuration) {
+        configReader = new ConfigurationReader(configuration);
         this.configuration = configuration;
     }
 
     /**
-     * Get the source file of the topology configuration.
      * 
      * @return The path to the XML configuration file. 
      */
@@ -86,26 +96,40 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
     }   
 
     @Override
-    public void initialize() throws JAXBException, FileNotFoundException {
-        
+    public void initialize() throws IllegalArgumentException, JAXBException, FileNotFoundException {
         log.info("NsiDiscoveryServiceProvider: initializing with configuration " + configuration);
-        configReader.load(configuration);
+        getConfigReader().load();
         log.info("NsiDiscoveryServiceProvider: initialized.");
 
         // Initialize the AKKA actor system for the PCE and subsystems.
-        log.info("Initializing PCE actor framework...");
-        actorSystem = ActorSystem.create("NSI-DISCOVERY");
-        notificationRouter = actorSystem.actorOf(Props.create(NotificationRouter.class, configReader.getActorPool()), "discovery-notification-router");
-        log.info("... PCE actor framework initialized.");
-    }
-    
-    private void load() throws JAXBException, FileNotFoundException {
-
+        log.info("NsiDiscoveryServiceProvider: Initializing actor framework...");
+        setActorSystem(ActorSystem.create("NSI-DISCOVERY"));
+        log.info("NsiDiscoveryServiceProvider: ... Actor framework initialized.");
+        
+        log.info("NsiDiscoveryServiceProvider: Initializing notification router.");
+        notificationRouter = getActorSystem().actorOf(Props.create(NotificationRouter.class, getConfigReader().getActorPool()), "discovery-notification-router");
+        log.info("NsiDiscoveryServiceProvider:... Notification router initialized.");
+        
+        log.info("NsiDiscoveryServiceProvider: Initializing peer registration actor...");
+        setRegistrationRouter(getActorSystem().actorOf(Props.create(RegistrationRouter.class, this), "discovery-peer-registration"));        
+        log.info("NsiDiscoveryServiceProvider:... Peer registration actor initialized.");
     }
     
     @Override
     public String getNsaId() {
-        return configReader.getNsaId();
+        return getConfigReader().getNsaId();
+    }
+    
+    @Override
+    public String getNotificationURL() throws MalformedURLException {
+        URL url = new URL(getConfigReader().getBaseURL());
+        url = new URL(url, NOTIFICATIONS_URL);
+        return url.toString();
+    }
+    
+    @Override
+    public String getMediaType() {
+        return MEDIATYPE;
     }
  
     @Override
@@ -122,7 +146,7 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
         SubscriptionEvent se = new SubscriptionEvent();
         se.setEvent(SubscriptionEvent.Event.New);
         se.setSubscription(subscription);
-        Cancellable scheduleOnce = actorSystem.scheduler().scheduleOnce(Duration.create(10, TimeUnit.SECONDS), notificationRouter, se, actorSystem.dispatcher(), null);
+        Cancellable scheduleOnce = getActorSystem().scheduler().scheduleOnce(Duration.create(10, TimeUnit.SECONDS), notificationRouter, se, getActorSystem().dispatcher(), null);
         subscription.setAction(scheduleOnce);
         
         return subscription;
@@ -243,6 +267,7 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
         return output;
     }
     
+    @Override
     public void processNotification(NotificationType notification) {
         log.debug("processNotification: event=" + notification.getEvent() + ", discovered=" + notification.getDiscovered());
         
@@ -475,17 +500,17 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
     
     @Override
     public Collection<Document> getLocalDocuments(String type, String id, Date lastDiscovered) throws IllegalArgumentException {
-        return getDocumentsByNsa(configReader.getNsaId(), type, id, lastDiscovered);
+        return getDocumentsByNsa(getConfigReader().getNsaId(), type, id, lastDiscovered);
     }
     
     @Override
     public Collection<Document> getLocalDocumentsByType(String type, String id, Date lastDiscovered) throws IllegalArgumentException {
-        return getDocumentsByNsaAndType(configReader.getNsaId(), type, id, lastDiscovered);
+        return getDocumentsByNsaAndType(getConfigReader().getNsaId(), type, id, lastDiscovered);
     }
     
     @Override
     public Document getLocalDocument(String type, String id, Date lastDiscovered) throws IllegalArgumentException, NotFoundException {
-        return getDocument(configReader.getNsaId(), type, id, lastDiscovered);
+        return getDocument(getConfigReader().getNsaId(), type, id, lastDiscovered);
     }
     
     public Collection<Document> getDocumentsByDate(Date lastDiscovered, Collection<Document> input) {
@@ -546,6 +571,68 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
 
     @Override
     public void shutdown() {
-        actorSystem.shutdown();
+        getActorSystem().shutdown();
+    }
+
+    /**
+     * @return the configReader
+     */
+    public ConfigurationReader getConfigReader() {
+        return configReader;
+    }
+
+    /**
+     * @param configReader the configReader to set
+     */
+    public void setConfigReader(ConfigurationReader configReader) {
+        this.configReader = configReader;
+    }
+
+    /**
+     * @return the actorSystem
+     */
+    public ActorSystem getActorSystem() {
+        return actorSystem;
+    }
+
+    /**
+     * @param actorSystem the actorSystem to set
+     */
+    public void setActorSystem(ActorSystem actorSystem) {
+        this.actorSystem = actorSystem;
+    }
+    
+    public RemoteSubscription getRemoteSubscription(String url) {
+        return remoteSubscriptions.get(url);
+    }
+    
+    public RemoteSubscription addRemoteSubscription(RemoteSubscription subscription) {
+        return remoteSubscriptions.put(subscription.getDdsURL(), subscription);
+    }
+    
+    public RemoteSubscription removeRemoteSubscription(String url) {
+        return remoteSubscriptions.remove(url);
+    }
+    
+    public Collection<RemoteSubscription> remoteSubscriptionValues() {
+        return remoteSubscriptions.values();
+    }
+    
+    public Set<String> remoteSubscriptionKeys() {
+        return remoteSubscriptions.keySet();
+    }
+
+    /**
+     * @return the registrationRouter
+     */
+    public ActorRef getRegistrationRouter() {
+        return registrationRouter;
+    }
+
+    /**
+     * @param registrationRouter the registrationRouter to set
+     */
+    public void setRegistrationRouter(ActorRef registrationRouter) {
+        this.registrationRouter = registrationRouter;
     }
 }
