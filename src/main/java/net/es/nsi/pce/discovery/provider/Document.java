@@ -26,6 +26,7 @@ public class Document implements Serializable {
     private static ObjectFactory factory = new ObjectFactory();
     
     private String id;
+    private String filename;
     private DocumentType document;
     private Date lastDiscovered = new Date();
     
@@ -64,6 +65,10 @@ public class Document implements Serializable {
             throw new IllegalArgumentException(error);            
         }
         return sb.toString();
+    }
+    
+    public static String documentId(DocumentType document) throws IllegalArgumentException {
+        return documentId(document.getNsa(), document.getType(), document.getId());
     }
 
     /**
@@ -120,5 +125,19 @@ public class Document implements Serializable {
      */
     public void setLastDiscovered(Date lastModified) {
         this.lastDiscovered = lastModified;
+    }
+
+    /**
+     * @return the filename
+     */
+    public String getFilename() {
+        return filename;
+    }
+
+    /**
+     * @param filename the filename to set
+     */
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 }

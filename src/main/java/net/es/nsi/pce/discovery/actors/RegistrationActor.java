@@ -20,7 +20,7 @@ import net.es.nsi.pce.discovery.jaxb.FilterType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionType;
-import net.es.nsi.pce.discovery.provider.NsiDiscoveryServiceProvider;
+import net.es.nsi.pce.discovery.provider.DdsProvider;
 import net.es.nsi.pce.jersey.RestClient;
 import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ClientConfig;
@@ -35,10 +35,10 @@ public class RegistrationActor extends UntypedActor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ObjectFactory factory = new ObjectFactory();
-    private NsiDiscoveryServiceProvider provider;
+    private DdsProvider provider;
     private Client client;
     
-    public RegistrationActor(NsiDiscoveryServiceProvider provider) {
+    public RegistrationActor(DdsProvider provider) {
         this.provider = provider;
     }
 

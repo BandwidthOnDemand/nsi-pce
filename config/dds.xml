@@ -5,7 +5,7 @@
     <documents>config/documents</documents>
     <cache>config/cache</cache>
     <auditInterval>600</auditInterval>
-    <expiryInterval>86400</expiryInterval>
+    <expiryInterval>600</expiryInterval>
     <actorPool>20</actorPool>
     <baseURL>http://localhost:8400/</baseURL>
     <discoveryURL>http://localhost:8400/discovery</discoveryURL>

@@ -3,9 +3,9 @@
     xmlns:tns="http://schemas.ogf.org/nsi/2014/02/discovery/types"
     id="urn:ogf:network:netherlight.net:2013:nsa:bod"
     version="2014-04-04T18:13:51.0Z"
-    expires="2014-05-04T18:13:51.0Z">
+    expires="2016-05-04T18:13:51.0Z">
     <nsa>urn:ogf:network:netherlight.net:2013:nsa:bod</nsa>
-    <type>application/vnd.ogf.nsi.discovery.v1+xml</type>
+    <type>application/vnd.ogf.nsi.discovery.v1+xml </type>
     <content>
         <tns:nsa xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:xcard="urn:ietf:params:xml:ns:vcard-4.0"

@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package net.es.nsi.pce.discovery.provider;
 
 import java.io.File;
@@ -21,46 +18,56 @@ import net.es.nsi.pce.management.logs.PceLogger;
 public class ConfigurationReader {
     private final PceLogger pceLogger = PceLogger.getLogger();
     
-    public static final long MAX_AUDIT_INTERVAL = 86400000L; // 24 hours
-    public static final long DEFAULT_AUDIT_INTERVAL = 1200000L; // 20 minutes
-    public static final long MIN_AUDIT_INTERVAL = 300000L; // 5 mins
+    public static final long MAX_AUDIT_INTERVAL = 86400L; // 24 hours in seconds
+    public static final long DEFAULT_AUDIT_INTERVAL = 1200L; // 20 minutes in seconds
+    public static final long MIN_AUDIT_INTERVAL = 300L; // 5 mins in seconds
     
-    public static final long MAX_EXPIRE_INTERVAL = 2592000000L; // 30 days
-    public static final long DEFAULT_EXPIRE_INTERVAL = 86400000L; // 24 hours
-    public static final long MIN_EXPIRE_INTERVAL = 3600000L; // 1 hour
+    public static final long EXPIRE_INTERVAL_MAX = 2592000L; // 30 days in seconds
+    public static final long EXPIRE_INTERVAL_DEFAULT = 86400L; // 24 hours in seconds
+    public static final long EXPIRE_INTERVAL_MIN = 600L; // 10 minutes in seconds
     
     public static final int ACTORPOOL_MAX_SIZE = 100;
     public static final int ACTORPOOL_DEFAULT_SIZE = 20;
     public static final int ACTORPOOL_MIN_SIZE = 5;
     
-    private String configuration = null;
+    private String filename = null;
     private long lastModified = 0;
     private String nsaId;
     private String baseURL;
     private String documents;
     private String cache;
     private long auditInterval = DEFAULT_AUDIT_INTERVAL;
-    private long expiryInterval = DEFAULT_EXPIRE_INTERVAL;
+    private long expiryInterval = EXPIRE_INTERVAL_DEFAULT;
     private int actorPool = ACTORPOOL_DEFAULT_SIZE;
     private Set<String> discoveryURL = new CopyOnWriteArraySet<>();
-    
-    public ConfigurationReader(String configuration) {
-        this.configuration = configuration;
+
+    /**
+     * @return the filename
+     */
+    public String getFilename() {
+        return filename;
+    }
+
+    /**
+     * @param filename the filename to set
+     */
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
     
     public synchronized void load() throws IllegalArgumentException, JAXBException, FileNotFoundException, NullPointerException {
         // Make sure the condifuration file is set.
-        if (configuration == null || configuration.isEmpty()) {
-            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "configurationFile", configuration);
+        if (getFilename() == null || getFilename().isEmpty()) {
+            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "configurationFile", getFilename());
             throw new IllegalArgumentException();
         }
         
         File file = null;
         try {
-            file = new File(configuration);
+            file = new File(getFilename());
         }
         catch (NullPointerException ex) {
-            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "configurationFile", configuration);
+            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "configurationFile", getFilename());
             throw ex;
         }
         
@@ -74,14 +81,14 @@ public class ConfigurationReader {
         DiscoveryConfigurationType config;
         
         try {
-            config = DiscoveryParser.getInstance().parse(configuration);
+            config = DiscoveryParser.getInstance().parse(getFilename());
         }
         catch (FileNotFoundException nf) {
-            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "configurationFile", getConfiguration());
+            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "configurationFile", getFilename());
             throw nf;
         }
         catch (JAXBException jaxb) {
-            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_XML, "configurationFile", getConfiguration());
+            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_XML, "configurationFile", getFilename());
             throw jaxb;
         }
         
@@ -134,9 +141,9 @@ public class ConfigurationReader {
 
         setAuditInterval(config.getAuditInterval());
 
-        if (config.getExpiryInterval() < MIN_EXPIRE_INTERVAL || config.getExpiryInterval() > MAX_EXPIRE_INTERVAL) {
+        if (config.getExpiryInterval() < EXPIRE_INTERVAL_MIN || config.getExpiryInterval() > EXPIRE_INTERVAL_MAX) {
             pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_PARAMETER, "expiryInterval", Long.toString(config.getExpiryInterval()));
-            setExpiryInterval(DEFAULT_EXPIRE_INTERVAL);
+            setExpiryInterval(EXPIRE_INTERVAL_DEFAULT);
         }
 
         setExpiryInterval(config.getExpiryInterval());
@@ -256,20 +263,6 @@ public class ConfigurationReader {
      */
     public void setCache(String cache) {
         this.cache = cache;
-    }
-
-    /**
-     * @return the configuration
-     */
-    public String getConfiguration() {
-        return configuration;
-    }
-
-    /**
-     * @param configuration the configuration to set
-     */
-    public void setConfiguration(String configuration) {
-        this.configuration = configuration;
     }
 
     /**

@@ -3,7 +3,7 @@
         xmlns:tns="http://schemas.ogf.org/nsi/2014/02/discovery/types"
     id="urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed"
     version="2014-04-04T18:13:51.0Z"
-    expires="2014-05-04T18:13:51.0Z">
+    expires="2016-05-04T18:13:51.0Z">
     <nsa>urn:ogf:network:netherlight.net:2013:nsa:bod</nsa>
     <type>application/vnd.ogf.nsi.topology.v2+xml</type>
     <content>

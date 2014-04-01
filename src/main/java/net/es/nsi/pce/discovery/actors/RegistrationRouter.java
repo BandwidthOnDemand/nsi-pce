@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.discovery.provider.NsiDiscoveryServiceProvider;
+import net.es.nsi.pce.discovery.provider.DdsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
@@ -31,11 +31,11 @@ import scala.concurrent.duration.Duration;
 public class RegistrationRouter extends UntypedActor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private NsiDiscoveryServiceProvider provider;
+    private DdsProvider provider;
     private Router router;
     private Cancellable schedule;
 
-    public RegistrationRouter(NsiDiscoveryServiceProvider provider) {
+    public RegistrationRouter(DdsProvider provider) {
         this.provider = provider;
     }
 
@@ -88,7 +88,7 @@ public class RegistrationRouter extends UntypedActor {
         catch (IllegalArgumentException | JAXBException | FileNotFoundException ex) {
             // We are basically screwed until the file is fixed so log it
             // and schedule a retry 10 minutes from now.
-            log.error("RegistrationRouter.onReceive: Cannot refresh configuration file " + provider.getConfigReader().getConfiguration(), ex);
+            log.error("RegistrationRouter.onReceive: Cannot refresh configuration file " + provider.getConfigReader().getFilename(), ex);
             return;
         }
         

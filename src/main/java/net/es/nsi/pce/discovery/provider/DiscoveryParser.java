@@ -1,8 +1,11 @@
 package net.es.nsi.pce.discovery.provider;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import javax.xml.bind.JAXBContext;
@@ -11,6 +14,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import net.es.nsi.pce.discovery.jaxb.DiscoveryConfigurationType;
 import net.es.nsi.pce.discovery.jaxb.DocumentType;
+import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +28,7 @@ import org.slf4j.LoggerFactory;
 public class DiscoveryParser {
     // Get a logger just in case we encounter a problem.
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private final ObjectFactory factory = new ObjectFactory();
     
     // The JAXB context we load pre-loading in this singleton.
     private static JAXBContext jaxbContext = null;
@@ -98,10 +103,10 @@ public class DiscoveryParser {
     }
     
     @SuppressWarnings("unchecked")
-    public DocumentType loadDocument(String file) throws JAXBException, FileNotFoundException {
+    public DocumentType readDocument(String file) throws JAXBException, FileNotFoundException {
         // Make sure we initialized properly.
         if (jaxbContext == null) {
-            throw new JAXBException("parseTopologyConfiguration: Failed to load JAXB instance");
+            throw new JAXBException("readDocument: Failed to load JAXB instance");
         }
         
         // Parse the specified file.
@@ -121,6 +126,30 @@ public class DiscoveryParser {
         }
         // Return the NSAType object.
         return document.getValue();
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void writeDocument(String file, DocumentType document) throws JAXBException, IOException {
+        // Make sure we initialized properly.
+        if (jaxbContext == null) {
+            throw new JAXBException("writeDocument: Failed to load JAXB instance");
+        }
+        
+        // Parse the specified file.
+        JAXBElement<DocumentType> element = factory.createDocument(document);
+
+        File fd = new File(file);
+        try (FileOutputStream fs = new FileOutputStream(file)) {
+            if (!fd.exists()) {
+                fd.createNewFile();
+            }
+
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            jaxbMarshaller.marshal(element, fs);
+
+            fs.flush();
+        }
     }
     
     public Object stringToJaxb(String xml) throws JAXBException {

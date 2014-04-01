@@ -112,10 +112,13 @@ public class DiscoveryTest extends JerseyTest {
             if (listOfFiles[i].isFile()) {
                 file = listOfFiles[i].getAbsolutePath();
                 if (file.endsWith(".xml") || file.endsWith(".xml")) {
-                    DocumentType document = DiscoveryParser.getInstance().loadDocument(file);
+                    DocumentType document = DiscoveryParser.getInstance().readDocument(file);
                     JAXBElement<DocumentType> jaxbRequest = factory.createDocument(document);
                     Response response = discovery.path("documents").request(MediaType.APPLICATION_XML).post(Entity.entity(new GenericEntity<JAXBElement<DocumentType>>(jaxbRequest) {}, MediaType.APPLICATION_XML));
-                    assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());                    
+                    if (Response.Status.CREATED.getStatusCode() != response.getStatus() &&
+                            Response.Status.CONFLICT.getStatusCode() != response.getStatus()) {
+                        fail();
+                    }
                 }
             }
         }
@@ -263,7 +266,7 @@ public class DiscoveryTest extends JerseyTest {
             if (listOfFiles[i].isFile()) {
                 file = listOfFiles[i].getAbsolutePath();
                 if (file.endsWith(".xml") || file.endsWith(".xml")) {
-                    DocumentType document = DiscoveryParser.getInstance().loadDocument(file);
+                    DocumentType document = DiscoveryParser.getInstance().readDocument(file);
                     XMLGregorianCalendar currentTime = XmlUtilities.xmlGregorianCalendar();
                     XMLGregorianCalendar future = XmlUtilities.longToXMLGregorianCalendar(System.currentTimeMillis() + 360000);
                     document.setExpires(future);

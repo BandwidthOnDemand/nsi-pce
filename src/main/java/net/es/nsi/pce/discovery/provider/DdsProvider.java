@@ -23,7 +23,9 @@ import javax.persistence.EntityExistsException;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.discovery.actors.DocumentEvent;
+import net.es.nsi.pce.discovery.actors.LocalDocumentActor;
 import net.es.nsi.pce.discovery.actors.NotificationRouter;
 import net.es.nsi.pce.discovery.actors.RegistrationRouter;
 import net.es.nsi.pce.discovery.actors.SubscriptionEvent;
@@ -32,9 +34,9 @@ import net.es.nsi.pce.discovery.jaxb.DocumentEventType;
 import net.es.nsi.pce.discovery.jaxb.DocumentType;
 import net.es.nsi.pce.discovery.jaxb.FilterType;
 import net.es.nsi.pce.discovery.jaxb.NotificationType;
-import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionType;
+import net.es.nsi.pce.schema.XmlUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
@@ -43,26 +45,23 @@ import scala.concurrent.duration.Duration;
  *
  * @author hacksaw
  */
-public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
+public class DdsProvider implements DiscoveryProvider {
     private static final String NOTIFICATIONS_URL = "/discovery/notifications";
     private static final String MEDIATYPE = "application/vnd.ogf.nsi.discovery.v1+xml";
     
     private final Logger log = LoggerFactory.getLogger(getClass());
     
-    private ObjectFactory factory = new ObjectFactory();
-    
-    // Location of configuration file.
-    private String configuration;
-    
     private ActorSystem actorSystem;
     private ActorRef notificationRouter;
     private ActorRef registrationRouter;
+    private ActorRef localDocumentActor;
+    private ActorRef cacheActor;
     
     // Configuration reader.
     private ConfigurationReader configReader;
     
-    // In-memory document cache indexed by nsa/type/id.
-    private Map<String, Document> documents = new ConcurrentHashMap<>();
+    // In-memory document cache.
+    private DocumentCache documentCache;
     
     // In-memory subscription cache indexed by subscriptionId.
     private Map<String, Subscription> subscriptions = new ConcurrentHashMap<>();
@@ -70,49 +69,35 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
     // In-memory subscription cache indexed by subscriptionId.
     private Map<String, RemoteSubscription> remoteSubscriptions = new ConcurrentHashMap<>();
  
-    public NsiDiscoveryServiceProvider() { }
-    
-    public NsiDiscoveryServiceProvider(String configuration) {
-        this.configuration = configuration;
-    }
-
-    /**
-     * 
-     * @param source Path to the XML configuration file.
-     */
-    @Override
-    public void setConfiguration(String configuration) {
-        configReader = new ConfigurationReader(configuration);
-        this.configuration = configuration;
-    }
-
-    /**
-     * 
-     * @return The path to the XML configuration file. 
-     */
-    @Override
-    public String getConfiguration() {
-        return configuration;
-    }   
+    public DdsProvider(ConfigurationReader configuration, DocumentCache documentCache) {
+        this.configReader = configuration;
+        this.documentCache = documentCache;
+    }  
 
     @Override
     public void initialize() throws IllegalArgumentException, JAXBException, FileNotFoundException {
-        log.info("NsiDiscoveryServiceProvider: initializing with configuration " + configuration);
-        getConfigReader().load();
-        log.info("NsiDiscoveryServiceProvider: initialized.");
-
         // Initialize the AKKA actor system for the PCE and subsystems.
-        log.info("NsiDiscoveryServiceProvider: Initializing actor framework...");
+        log.info("DdsProvider: Initializing actor framework...");
         setActorSystem(ActorSystem.create("NSI-DISCOVERY"));
-        log.info("NsiDiscoveryServiceProvider: ... Actor framework initialized.");
+        log.info("DdsProvider: ... Actor framework initialized.");
         
-        log.info("NsiDiscoveryServiceProvider: Initializing notification router.");
+        // Initialize the subscription notification actors.
+        log.info("DdsProvider: Initializing notification router.");
         notificationRouter = getActorSystem().actorOf(Props.create(NotificationRouter.class, getConfigReader().getActorPool()), "discovery-notification-router");
-        log.info("NsiDiscoveryServiceProvider:... Notification router initialized.");
+        log.info("DdsProvider:... Notification router initialized.");
         
-        log.info("NsiDiscoveryServiceProvider: Initializing peer registration actor...");
+        // Load our local documents.
+        log.info("DdsProvider: Initializing local document repository.");
+        localDocumentActor = getActorSystem().actorOf(Props.create(LocalDocumentActor.class, this), "discovery-document-watcher");
+        log.info("DdsProvider:... Local document repository initialized.");
+
+        // Initialize document expiry actor.
+        
+        
+        // Initialize the remote registration actors.
+        log.info("DdsProvider: Initializing peer registration actor...");
         setRegistrationRouter(getActorSystem().actorOf(Props.create(RegistrationRouter.class, this), "discovery-peer-registration"));        
-        log.info("NsiDiscoveryServiceProvider:... Peer registration actor initialized.");
+        log.info("DdsProvider:... Peer registration actor initialized.");
     }
     
     @Override
@@ -280,7 +265,7 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
         
         String documentId = Document.documentId(document.getNsa(), document.getType(), document.getId());
         
-        Document entry = documents.get(documentId);
+        Document entry = documentCache.get(documentId);
         if (entry == null) {
             // This must be the first time we have seen the document so add it
             // into our cache.
@@ -305,14 +290,15 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
         Document document = new Document(request);
         
         // See if we already have a document under this id.
-        Document get = documents.get(document.getId());
+        Document get = documentCache.get(document.getId());
         if (get != null) {
             String error = DiscoveryError.getErrorString(DiscoveryError.DOCUMENT_EXISTS, "document", document.getId());
             throw new EntityExistsException(error);            
         }
 
+        // This is a new document so add it into the document space.
         try {
-            documents.put(document.getId(), document);
+            documentCache.put(document.getId(), document);
         }
         catch (Exception ex) {
             log.error("addDocument: failed to add document to document store", ex);
@@ -336,7 +322,7 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
         log.debug("updateDocument: documentId=" + documentId);
         
         // See if we have a document under this id.
-        Document document = documents.get(documentId);
+        Document document = documentCache.get(documentId);
         if (document == null) {
             String error = DiscoveryError.getErrorString(DiscoveryError.DOCUMENT_DOES_NOT_EXIST, "document", documentId);
             throw new NotFoundException(error);            
@@ -381,13 +367,18 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
     }
     
     @Override
+    public Document updateDocument(DocumentType request) throws IllegalArgumentException, NotFoundException {
+        return updateDocument(request.getNsa(), request.getType(), request.getId(), request);
+    }
+
+    @Override
     public Collection<Document> getDocuments(String nsa, String type, String id, Date lastDiscovered) {
         // We need to search for matching documents using the supplied criteria.
         // We will do this linearly now, but we will need multiple indicies later
         // to make this faster (perhaps a database).
         
         // Seed the results.
-        Collection<Document> results = documents.values();
+        Collection<Document> results = documentCache.values();
         
         // This may be the most often used so filter by this first.
         if (lastDiscovered != null) {
@@ -412,7 +403,7 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
     @Override
     public Collection<Document> getDocumentsByNsa(String nsa, String type, String id, Date lastDiscovered) throws IllegalArgumentException {
         // Seed the results.
-        Collection<Document> results = documents.values();
+        Collection<Document> results = documentCache.values();
 
         // This is the primary search value.  Make sure it is present.
         if (nsa != null && !nsa.isEmpty()) {
@@ -442,7 +433,7 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
     @Override
     public Collection<Document> getDocumentsByNsaAndType(String nsa, String type, String id, Date lastDiscovered) throws IllegalArgumentException {
         // Seed the results.
-        Collection<Document> results = documents.values();
+        Collection<Document> results = documentCache.values();
 
         log.debug("getDocumentsByNsaAndType: " + results.size());
         
@@ -459,21 +450,15 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
         
         results = getDocumentsByNsa(nsa, results);
         results = getDocumentsByType(type, results);
-        
-        log.debug("getDocumentsByNsaAndType: " + results.size());
                 
         if (id != null && !id.isEmpty()) {
             results = getDocumentsById(id, results);
         }
-        
-        log.debug("getDocumentsByNsaAndType: " + results.size());
 
         // The rest are additional filters.
         if (lastDiscovered != null) {
             results = getDocumentsByDate(lastDiscovered, results);
         }
-        
-        log.debug("getDocumentsByNsaAndType: " + results.size());
 
         return results;
     }
@@ -481,7 +466,7 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
     @Override
     public Document getDocument(String nsa, String type, String id, Date lastDiscovered) throws IllegalArgumentException, NotFoundException {
         String documentId = Document.documentId(nsa, type, id);
-        Document document = documents.get(documentId);
+        Document document = documentCache.get(documentId);
         
         if (document == null) {
             String error = DiscoveryError.getErrorString(DiscoveryError.DOCUMENT_DOES_NOT_EXIST, "document", "nsa=" + nsa + ", type=" + type + ", id=" + id);
@@ -496,6 +481,12 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
         }
         
         return document;
+    }
+    
+    @Override
+    public Document getDocument(DocumentType document) throws IllegalArgumentException, NotFoundException {
+        String documentId = Document.documentId(document);
+        return documentCache.get(documentId);
     }
     
     @Override
@@ -560,7 +551,7 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
     @Override
     public Collection<Document> getDocuments(FilterType filter) {
         // TODO: Match everything for demo.  Need to fix later.
-        return documents.values();
+        return documentCache.values();
     }
     
     @Override
@@ -634,5 +625,72 @@ public class NsiDiscoveryServiceProvider implements DiscoveryProvider {
      */
     public void setRegistrationRouter(ActorRef registrationRouter) {
         this.registrationRouter = registrationRouter;
+    }
+
+    @Override
+    public void loadDocuments(String path) {
+        Collection<String> xmlFilenames = XmlUtilities.getXmlFilenames(path);
+        for (String filename : xmlFilenames) {
+            DocumentType document;
+            try {
+                document = DiscoveryParser.getInstance().readDocument(filename);
+                if (document == null) {
+                    log.error("loadDocuments: Loaded empty document from " + filename);
+                    continue;
+                }
+            }
+            catch (JAXBException | FileNotFoundException ex) {
+                log.error("loadDocuments: Failed to load file " + filename, ex);
+                continue;
+            }
+
+            // We need to determine if this document is still valid
+            // before proceding.
+            XMLGregorianCalendar expires = document.getExpires();
+            if (expires != null) {
+                Date expiresTime = expires.toGregorianCalendar().getTime();
+
+                // We take the current time and add the expiry buffer.
+                Date now = new Date();
+                now.setTime(now.getTime() + this.getConfigReader().getExpiryInterval() * 1000);
+                if (expiresTime.before(now)) {
+                    // This document is old and no longer valid.
+                    log.error("loadDocuments: Loaded document has expired " + filename + ", expires=" + expires.toGregorianCalendar().getTime().toString());
+                    continue;
+                }
+            }
+
+            // See if we have seen this document before.
+            Document existingDocument = this.getDocument(document);
+            if (existingDocument == null) {
+                // We have not seen this document so add it.
+                try {
+                    this.addDocument(document);
+                }
+                catch (IllegalArgumentException| EntityExistsException ex) {
+                    log.error("loadDocuments: Could not add document " + filename, ex);
+                    continue;                                
+                }
+
+                log.debug("loadDocuments: added document " + filename);
+            }
+            else {
+                // We need to check if this is a new version of the document.
+                XMLGregorianCalendar existingVersion = existingDocument.getDocument().getVersion();
+                if (existingVersion != null &&
+                        existingVersion.compare(document.getVersion()) == DatatypeConstants.LESSER) {
+                    // The existing version is older so add the new one.
+                    try {
+                        this.updateDocument(document);
+                    }
+                    catch (IllegalArgumentException | NotFoundException ex) {
+                        log.error("loadDocuments: Could not update document " + filename, ex);
+                        continue;                                
+                    }                                
+                }
+
+                log.debug("loadDocuments: updated document " + filename);
+            }
+        }
     }
 }

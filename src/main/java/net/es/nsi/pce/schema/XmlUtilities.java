@@ -1,7 +1,11 @@
 package net.es.nsi.pce.schema;
 
+import java.io.File;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 import javax.xml.bind.JAXBContext;
@@ -15,8 +19,6 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This {@link XmlUtilities} is a utility class providing tools for the
@@ -25,8 +27,6 @@ import org.slf4j.LoggerFactory;
  * @author hacksaw
  */
 public class XmlUtilities {
-
-    private static final Logger logger = LoggerFactory.getLogger(XmlUtilities.class);
         
 	/**
 	 * Utility method to marshal a JAXB annotated java object to an XML
@@ -71,8 +71,6 @@ public class XmlUtilities {
                 jaxbMarshaller.marshal(jaxbElement, writer);
             } catch (Exception e) {             
                 // Something went wrong so get out of here.
-                logger.error("XmlUtilities.jaxbToString: Error marshalling object " +
-                    xmlClass.getName() + ": " + e.toString());
                 return null;
             }
 
@@ -104,5 +102,30 @@ public class XmlUtilities {
         GregorianCalendar cal = new GregorianCalendar();
         XMLGregorianCalendar newXMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
         return newXMLGregorianCalendar;
+    }
+    
+    public static Date xmlGregorianCalendarToDate(XMLGregorianCalendar cal) throws DatatypeConfigurationException {
+        GregorianCalendar gregorianCalendar = cal.toGregorianCalendar();
+        return gregorianCalendar.getTime();
+    }
+    
+    public static Collection<String> getXmlFilenames(String path) throws NullPointerException {
+        Collection<String> results = new ArrayList<>(); 
+        File folder = new File(path);
+      
+        // We will grab all XML files from the target directory. 
+        File[] listOfFiles = folder.listFiles(); 
+
+        String file;
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                file = listOfFiles[i].getAbsolutePath();
+                if (file.endsWith(".xml") || file.endsWith(".xml")) {
+                    results.add(file);
+                }
+            }
+        }
+      
+        return results;
     }
 }
