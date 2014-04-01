@@ -27,16 +27,16 @@ import java.util.Map;
  * The Authentication and Authorization Path Computation module.  At the moment
  * this module looks up NSA credentials relating to the networks involved in
  * the path result.
- * 
+ *
  * @author hacksaw
  */
 public class AuthPCE implements PCEModule {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    
+
     @Override
-    public PCEData apply(PCEData pceData) throws Exception {
+    public PCEData apply(PCEData pceData) {
         log.debug("AuthPCE.apply: Starting ...");
-        
+
         // Get the Spring context and the required providers.
         SpringContext sc  = SpringContext.getInstance();
         ApplicationContext context = sc.getContext();
@@ -46,10 +46,10 @@ public class AuthPCE implements PCEModule {
         // Get the current topology which we will filter into our new topology.
         NsiTopology topology = pceData.getTopology();
         NsiTopology newTopology = new NsiTopology();
-        
+
         // Check to see if we have credentials for communicating directly with
         // the target network.
-        
+
         // TODO: When we support control plane peering topology this pruning
         // will not be required.
         for (String nsaId : topology.getNsaIds()) {
@@ -74,10 +74,10 @@ public class AuthPCE implements PCEModule {
                 else {
                     log.debug("AuthPCE.apply: Adding nsaId = " + nsaId);
                     newTopology.addNsa(topology.getNsa(nsaId));
-                }             
-            }           
+                }
+            }
         }
-        
+
         // Now we need to copy the associated networks to the new topology.
         for (NsaType nsa : newTopology.getNsas()) {
             for (ResourceRefType networkRef : nsa.getNetwork()) {
@@ -85,7 +85,7 @@ public class AuthPCE implements PCEModule {
                 if (network != null) {
                     //log.debug("AuthPCE.apply: Adding Network " + network.getId());
                     newTopology.addNetwork(network);
-                    
+
                     // Now the STPs associated with this network.
                     for (ResourceRefType stpRef : network.getStp()) {
                         StpType stp = topology.getStp(stpRef.getId());
@@ -94,7 +94,7 @@ public class AuthPCE implements PCEModule {
                             newTopology.addStp(stp);
                         }
                     }
-                    
+
                     // The Service Domains.
                     for (ResourceRefType tsRef : network.getServiceDomain()) {
                         ServiceDomainType ts = topology.getServiceDomain(tsRef.getId());
@@ -103,7 +103,7 @@ public class AuthPCE implements PCEModule {
                             newTopology.addServiceDomain(ts);
                         }
                     }
-                    
+
                     // The services.
                     for (ResourceRefType serviceRef : network.getService()) {
                         ServiceType service = topology.getService(serviceRef.getId());
@@ -111,11 +111,11 @@ public class AuthPCE implements PCEModule {
                             //log.debug("AuthPCE.apply: Adding Service " + service.getId());
                             newTopology.addService(service);
                         }
-                    }                    
+                    }
                 }
-            }            
+            }
         }
-        
+
         // Now we prune bidirectional SDP from the list that have had their
         // networks removed.
         for (SdpType sdp : topology.getSdps()) {
@@ -124,12 +124,12 @@ public class AuthPCE implements PCEModule {
                 newTopology.addSdp(sdp);
             }
         }
-        
+
         PCEData result = pceData;
         result.setTopology(newTopology);
-        
+
         log.debug("AuthPCE.apply: ... Finished.");
-        
+
         return result;
     }
 }

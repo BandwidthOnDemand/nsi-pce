@@ -25,7 +25,7 @@ import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 /**
  * Main path computation class using Dijkstra's shortest path on an NSI
  * topology model.
- * 
+ *
  * @author hacksaw
  */
 public class DijkstraPCE implements PCEModule {
@@ -35,23 +35,19 @@ public class DijkstraPCE implements PCEModule {
      * This path computation module supports pathfinding for the P2PS service
      * specification restricted to bidirectional symmetricPath services with
      * two stpId specified in the request.
-     * 
+     *
      * This module does not currently use the following parameters:
      *    - startTime
      *    - endTime
      *    - capacity
      *    - ero
-     * 
-     * @param pceData
-     * @return
-     * @throws Exception 
      */
     @Override
-    public PCEData apply(PCEData pceData) throws Exception {
-        
+    public PCEData apply(PCEData pceData) {
+
         // Parse out the constraints this PCE module supports.
         Constraints constraints = new Constraints(pceData.getConstraints());
-        
+
         // Determine directionality of service request, default to bidirectional if not present.
         DirectionalityType directionality = DirectionalityType.BIDIRECTIONAL;
         StringAttrConstraint directionalityConstraint = constraints.getStringAttrConstraint(Point2Point.DIRECTIONALITY);
@@ -65,26 +61,26 @@ public class DijkstraPCE implements PCEModule {
         if (directionalityConstraint != null) {
             directionality = DirectionalityType.valueOf(directionalityConstraint.getValue());
         }
-        
+
         // Get source stpId.
         StringAttrConstraint sourceStp = constraints.getStringAttrConstraint(Point2Point.SOURCESTP);
         if (sourceStp == null) {
             throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2Point.NAMESPACE, Point2Point.SOURCESTP));
-        }        
+        }
         String srcStpId = sourceStp.getValue();
-        
+
         // Get destination stpId.
         StringAttrConstraint destStp = constraints.getStringAttrConstraint(Point2Point.DESTSTP);
         if (destStp == null) {
             throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2Point.NAMESPACE, Point2Point.DESTSTP));
-        }        
+        }
         String dstStpId = destStp.getValue();
 
         // TODO: Need to handle underspecified STPid.
-        
+
         // Get the topology model used for routing.
         NsiTopology nsiTopology = pceData.getTopology();
-        
+
         // Once we decide on the format of the STP URN so that we can extract
         // the networkId we will not verify the network and just look up the
         // stpId directly.
@@ -100,7 +96,7 @@ public class DijkstraPCE implements PCEModule {
             throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNKNOWN_NETWORK, "dstNetwork", pe.getDstNetwork()));
         }
         */
-        
+
         // Look up the STP within our model matching the request.
         StpType srcStp = nsiTopology.getStp(srcStpId);
         StpType dstStp = nsiTopology.getStp(dstStpId);
@@ -113,29 +109,29 @@ public class DijkstraPCE implements PCEModule {
         else if (dstStp == null) {
             throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2Point.DESTSTP, dstStpId));
         }
-        
+
         // Verify the specified STP are of the correct type for the request.
         if (directionality == DirectionalityType.UNIDIRECTIONAL) {
              if (srcStp.getType() != StpDirectionalityType.INBOUND &&
                      srcStp.getType() != StpDirectionalityType.OUTBOUND) {
                 throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, Point2Point.SOURCESTP, srcStpId));
             }
-            
+
             if (dstStp.getType() != StpDirectionalityType.INBOUND &&
                      dstStp.getType() != StpDirectionalityType.OUTBOUND) {
                 throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, Point2Point.DESTSTP, dstStpId));
-            }           
+            }
         }
         else {
             if (srcStp.getType() != StpDirectionalityType.BIDIRECTIONAL) {
                 throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, Point2Point.SOURCESTP, srcStpId));
             }
-            
+
             if (dstStp.getType() != StpDirectionalityType.BIDIRECTIONAL) {
                 throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, Point2Point.DESTSTP, dstStpId));
             }
         }
-        
+
         // We can save time by handling the special case of A and Z STP in same
         // network.
         String srcNetwork = srcStp.getNetworkId();
@@ -150,7 +146,7 @@ public class DijkstraPCE implements PCEModule {
 
         // Graph<V, E> where V is the type of the vertices and E is the type of the edges.
         Graph<ServiceDomainType, SdpType> graph = new SparseMultigraph<>();
-        
+
         // Add ServiceDomains as verticies.
         for (ServiceDomainType serviceDomain : nsiTopology.getServiceDomains()) {
             log.debug("Adding Vertex: " + serviceDomain.getId());
@@ -161,12 +157,12 @@ public class DijkstraPCE implements PCEModule {
         for (SdpType sdp : nsiTopology.getSdps()) {
             if (sdp.getType() == SdpDirectionalityType.BIDIRECTIONAL) {
                 ServiceDomainType aServiceDomain = nsiTopology.getServiceDomain(sdp.getDemarcationA().getServiceDomain().getId());
-                ServiceDomainType bServiceDomain = nsiTopology.getServiceDomain(sdp.getDemarcationZ().getServiceDomain().getId());                
+                ServiceDomainType bServiceDomain = nsiTopology.getServiceDomain(sdp.getDemarcationZ().getServiceDomain().getId());
 
-                graph.addEdge(sdp, aServiceDomain, bServiceDomain);                    
+                graph.addEdge(sdp, aServiceDomain, bServiceDomain);
             }
         }
- 
+
         // Verify that the source and destination STP are still in our topology.
         // TODO: When can this occur?
         //if (!graph.containsVertex(nsiTopology.getNetworkById(srcStp.getNetworkId()))) {
@@ -176,11 +172,11 @@ public class DijkstraPCE implements PCEModule {
         //}
 
         DijkstraShortestPath<ServiceDomainType, SdpType> alg = new DijkstraShortestPath<>(graph);
-        
+
         List<SdpType> path;
         try {
             //path = alg.getPath(nsiTopology.getNetworkById(srcStp.getNetworkId()), nsiTopology.getNetworkById(dstStp.getNetworkId()));
-            
+
             ServiceDomainType sourceServiceDomain = nsiTopology.getServiceDomain(srcStp.getServiceDomain().getId());
             ServiceDomainType destinationServiceDomain = nsiTopology.getServiceDomain(dstStp.getServiceDomain().getId());
             path = alg.getPath(sourceServiceDomain, destinationServiceDomain);
@@ -191,13 +187,13 @@ public class DijkstraPCE implements PCEModule {
         }
 
         log.debug("Path computation completed with " + path.size() + " SDP returned.");
-        
+
         // Check to see if there is a valid path.
         if (path.isEmpty()) {
             String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "DijkstraPCE", "No path found using provided criteria");
-            throw new Exception(error);
+            throw new RuntimeException(error);
         }
-        
+
         // Now we pull the individual edge segments out of the result and
         // determine the component STPs.
         int i = 0;
@@ -208,7 +204,7 @@ public class DijkstraPCE implements PCEModule {
             StpPair nextPathPair = new StpPair();
             StpType stpA = nsiTopology.getStp(edge.getDemarcationA().getStp().getId());
             StpType stpZ = nsiTopology.getStp(edge.getDemarcationZ().getStp().getId());
-                    
+
             if (pathPair.getA().getNetworkId().equalsIgnoreCase(stpA.getNetworkId())) {
                 pathPair.setZ(stpA);
                 nextPathPair.setA(stpZ);
