@@ -277,7 +277,7 @@
                         <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
                         <bindingDirectory>${basedir}/src/main/xsd</bindingDirectory>
                         <bindingFiles>discovery.xjb</bindingFiles>
-                        <schemaFiles>pce-discovery-configuration.xsd, ogf_nsi_discovery_protocol_v1_0.xsd, ogf_nsi_discovery_nsa_v1_0.xsd</schemaFiles>
+                        <schemaFiles>pce-discovery-configuration.xsd, ogf_nsi_discovery_protocol_v1_0.xsd, ogf_nsi_discovery_nsa_v1_0.xsd, gnsbod.xsd</schemaFiles>
                         <packageName>net.es.nsi.pce.discovery.jaxb</packageName>
                         <staleFile>${project.build.directory}/jaxb2/.discoveryXjcStaleFlag</staleFile>
                         <clearOutputDir>false</clearOutputDir>
