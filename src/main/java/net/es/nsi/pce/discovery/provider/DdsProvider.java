@@ -25,6 +25,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.discovery.actors.DocumentEvent;
+import net.es.nsi.pce.discovery.actors.DocumentExpiryActor;
 import net.es.nsi.pce.discovery.actors.LocalDocumentActor;
 import net.es.nsi.pce.discovery.actors.NotificationRouter;
 import net.es.nsi.pce.discovery.actors.RegistrationRouter;
@@ -86,13 +87,17 @@ public class DdsProvider implements DiscoveryProvider {
         notificationRouter = getActorSystem().actorOf(Props.create(NotificationRouter.class, getConfigReader().getActorPool()), "discovery-notification-router");
         log.info("DdsProvider:... Notification router initialized.");
         
-        // Load our local documents.
-        log.info("DdsProvider: Initializing local document repository.");
-        localDocumentActor = getActorSystem().actorOf(Props.create(LocalDocumentActor.class, this), "discovery-document-watcher");
-        log.info("DdsProvider:... Local document repository initialized.");
+        // Load our local documents only if a local directory is configured.
+        if (configReader.getDocuments() != null && !configReader.getDocuments().isEmpty()) {
+            log.info("DdsProvider: Initializing local document repository.");
+            localDocumentActor = getActorSystem().actorOf(Props.create(LocalDocumentActor.class, this), "discovery-document-watcher");
+            log.info("DdsProvider:... Local document repository initialized.");
+        }
 
         // Initialize document expiry actor.
-        
+        log.info("DdsProvider: Initializing document expiry actor.");
+        localDocumentActor = getActorSystem().actorOf(Props.create(DocumentExpiryActor.class, this), "discovery-expiry-watcher");
+        log.info("DdsProvider:... Document expiry actor initialized.");        
         
         // Initialize the remote registration actors.
         log.info("DdsProvider: Initializing peer registration actor...");
@@ -692,5 +697,10 @@ public class DdsProvider implements DiscoveryProvider {
                 log.debug("loadDocuments: updated document " + filename);
             }
         }
+    }
+
+    @Override
+    public void expireDocuments() {
+        documentCache.expire();
     }
 }

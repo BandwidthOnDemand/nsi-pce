@@ -34,8 +34,24 @@ public class DocumentCache {
     // In-memory document cache indexed by nsa/type/id.
     private Map<String, Document> documents = new ConcurrentHashMap<>();
     
-    public DocumentCache(ConfigurationReader configReader) {
+    private boolean useCache = false;
+    private String path;
+    
+    public DocumentCache(ConfigurationReader configReader) throws FileNotFoundException {
         this.configReader = configReader;
+        
+        if (configReader.getCache() != null && !configReader.getCache().isEmpty()) {
+            File dir = new File(configReader.getCache());
+            path = dir.getAbsolutePath();
+            log.debug("load: cache directory configured " + path);
+            if (!dir.exists()) {
+                if (!dir.mkdir()) {
+                    throw new FileNotFoundException("Cannot create directory: " + path);                
+                }  
+            }
+        
+            useCache = true;
+        }
     }
     
     public Document get(String id) {
@@ -47,12 +63,13 @@ public class DocumentCache {
         Document result = documents.put(id, doc);
         
         // We need to write this new document to disk.
-        String filename = Paths.get(System.getProperty("user.dir"), configReader.getCache(), UUID.randomUUID().toString() + ".xml").toString();
-        doc.setFilename(filename);
-        log.debug("put: adding new file " + filename);
-        
-        DiscoveryParser.getInstance().writeDocument(filename, doc.getDocument());
-        
+        if (useCache) {
+            String filename = Paths.get(path, UUID.randomUUID().toString() + ".xml").toString();
+            doc.setFilename(filename);
+            log.debug("put: adding new file " + filename);
+
+            DiscoveryParser.getInstance().writeDocument(filename, doc.getDocument());
+        }
         return result;
     }
     
@@ -61,15 +78,17 @@ public class DocumentCache {
         Document result = documents.put(id, doc);
         
         // We need to write this new document to disk.
-        log.debug("update: updating " + doc.getFilename());
-        DiscoveryParser.getInstance().writeDocument(doc.getFilename(), doc.getDocument());
+        if (useCache) {
+            log.debug("update: updating " + doc.getFilename());
+            DiscoveryParser.getInstance().writeDocument(doc.getFilename(), doc.getDocument());
+        }
         
         return result;
     }
     
-    public Document remove(String id) throws JAXBException, IOException {
+    public Document remove(String id) {
         Document doc = documents.remove(id);
-        if (doc != null) {
+        if (doc != null && useCache) {
             log.debug("remove: removing " + doc.getFilename());
             File file = new File(doc.getFilename());
             if(!file.delete()) {
@@ -86,7 +105,13 @@ public class DocumentCache {
 
     public void load() {
         log.debug("load: entering");
-        Collection<String> xmlFilenames = XmlUtilities.getXmlFilenames(configReader.getCache());
+        
+        if (!useCache) {
+            log.debug("load: cache directory not configured so exiting.");
+            return;
+        }
+
+        Collection<String> xmlFilenames = XmlUtilities.getXmlFilenames(path);
 
         for (String filename : xmlFilenames) {
             log.debug("load: filename " + filename);
@@ -151,5 +176,26 @@ public class DocumentCache {
         }
         
         log.debug("load: exiting");
+    }
+    
+    public void expire() {
+        for (Document document : documents.values()) {
+            // We need to determine if this document is still valid
+            // before proceding.
+            DocumentType doc = document.getDocument();
+            XMLGregorianCalendar expires = doc.getExpires();
+            if (expires != null) {
+                Date expiresTime = expires.toGregorianCalendar().getTime();
+
+                // We take the current time and add the expiry buffer.
+                Date now = new Date();
+                now.setTime(now.getTime() + configReader.getExpiryInterval() * 1000);
+                if (expiresTime.before(now)) {
+                    // This document is old and no longer valid.
+                    log.debug("expire: document has expired " + document.getId() + ", expires=" + expires.toGregorianCalendar().getTime().toString());
+                    this.remove(document.getId());
+                }
+            }
+        }
     }
 }

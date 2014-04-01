@@ -32,10 +32,10 @@ public class ConfigurationReader {
     
     private String filename = null;
     private long lastModified = 0;
-    private String nsaId;
-    private String baseURL;
-    private String documents;
-    private String cache;
+    private String nsaId = null;
+    private String baseURL = null;
+    private String documents = null;
+    private String cache = null;
     private long auditInterval = DEFAULT_AUDIT_INTERVAL;
     private long expiryInterval = EXPIRE_INTERVAL_DEFAULT;
     private int actorPool = ACTORPOOL_DEFAULT_SIZE;
@@ -122,14 +122,6 @@ public class ConfigurationReader {
         if (config.getCache() == null || config.getCache().isEmpty()) {
             pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_PARAMETER, "cache", config.getCache());
             throw new FileNotFoundException("Invalid cache location directory: " + config.getCache());
-        }
-        
-        dir = new File(config.getCache());
-        if (!dir.exists()) {
-            if (!dir.mkdir()) {
-                pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_CANNOT_CREATE_DIRECTORY, "cache", config.getCache());
-                throw new FileNotFoundException("Cannot create directory: " + config.getCache());                
-            }  
         }
         
         setCache(config.getCache());

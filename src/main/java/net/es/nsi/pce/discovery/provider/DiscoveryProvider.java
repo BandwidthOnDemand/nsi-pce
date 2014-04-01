@@ -49,4 +49,5 @@ public interface DiscoveryProvider {
     public Collection<Subscription> getSubscriptions(DocumentEvent event);
     
     public void loadDocuments(String path);
+    public void expireDocuments();
 }
