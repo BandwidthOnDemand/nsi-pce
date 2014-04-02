@@ -25,6 +25,22 @@ import net.es.nsi.pce.pf.api.cons.Constraints;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.topology.jaxb.StpType;
 
+/**
+ * This PCE module calculates the path based on reachability information.
+ *
+ * The paths (data plane) always follows the control plane connections.
+ *
+ * If one of the source or destination STP is in the network the aggregator manages then
+ * the request is split up. The remaining path is send to a peer.
+ *
+ * Otherwise the request needs to be forwarded. The target nsa is determined by the
+ * reachability information. The request is sent to the nsa that can reach the source or
+ * destination topology at the lowest cost.
+ *
+ * Note: The target nsa is determined in the {@link Point2Point#resolvePath(String, Path)} by the network id on the StpType in the StpPair.
+ * Because we are forwarding to a nsa we need to get a network id managed by that nsa. So the StpType contains a id (stpId) that doesn't match the networkId.
+ * The networkId is queried from the {@link ServiceInfoProvider} by nsa id.
+ */
 public class ReachabilityPCE implements PCEModule {
 
     private ServiceInfoProvider serviceInfoProvider;
