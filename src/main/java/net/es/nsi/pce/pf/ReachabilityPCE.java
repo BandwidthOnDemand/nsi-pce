@@ -2,7 +2,6 @@ package net.es.nsi.pce.pf;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -92,7 +91,8 @@ public class ReachabilityPCE implements PCEModule {
 
         if (sourceCost.isPresent()) {
             if (destCost.isPresent()) {
-                return sourceCost.get().getCost() < destCost.get().getCost() ? sourceCost : destCost;
+                // TODO when costs are equal always return source expect when source is in connection trace
+                return sourceCost.get().getCost() <= destCost.get().getCost() ? sourceCost : destCost;
             } else {
                 return sourceCost;
             }

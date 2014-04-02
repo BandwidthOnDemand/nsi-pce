@@ -117,6 +117,32 @@ public class ReachabilityPCETest {
     }
 
     @Test
+    public void should_find_forward_path_with_equal_cost() {
+        String sourceNetworkId = "urn:ogf:network:surfnet.nl:1990:topology";
+        String destNetworkId = "urn:ogf:network:es.net:2013:topology";
+
+        String sourceStp = sourceNetworkId + ":start";
+        String destStp = destNetworkId + ":end";
+
+        String peerNsaIdOne = "urn:ogf:network:foo:2013:nsa";
+        String peerNsaIdTwo = "urn:ogf:network:bar:2013:nsa";
+        String peerNetworkIdOne = "urn:ogf:network:foo:2013:topology";
+        String peerNetworkIdTwo = "urn:ogf:network:bar:2013:topology";
+
+        PCEData pceData = new PCEData();
+        Map<String, Integer> costsOne = ImmutableMap.of(sourceNetworkId, 5);
+        Map<String, Integer> costsTwo = ImmutableMap.of(destNetworkId, 5);
+        pceData.setReachabilityTable(ImmutableMap.of(peerNsaIdOne, costsOne, peerNsaIdTwo, costsTwo));
+
+        when(serviceInfoProviderMock.byNsaId(peerNsaIdOne)).thenReturn(createServiceInfo(peerNsaIdOne, peerNetworkIdOne));
+        when(serviceInfoProviderMock.byNsaId(peerNsaIdTwo)).thenReturn(createServiceInfo(peerNsaIdTwo, peerNetworkIdTwo));
+
+        Optional<Path> path = subject.findForwardPath(sourceStp, destStp, pceData);
+
+        assertThat(path.get().getStpPairs().iterator().next().getA().getNetworkId(), is(peerNetworkIdOne));
+    }
+
+    @Test
     public void should_find_cost_for_topology_id_when_having_one_peer() {
         String peerNsaId = "urn:ogf:network:nordu.net:2013:nsa";
         String peerNetworkId = "urn:ogf:network:nordu.net:2013:topology";
