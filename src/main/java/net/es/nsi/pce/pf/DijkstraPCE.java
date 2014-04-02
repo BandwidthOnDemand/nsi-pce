@@ -1,13 +1,17 @@
 package net.es.nsi.pce.pf;
 
+import java.util.ArrayList;
 import java.util.List;
+
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import net.es.nsi.pce.path.jaxb.DirectionalityType;
 import net.es.nsi.pce.pf.api.NsiError;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.StpPair;
@@ -132,15 +136,12 @@ public class DijkstraPCE implements PCEModule {
             }
         }
 
-        // We can save time by handling the special case of A and Z STP in same
-        // network.
+        // We can save time by handling the special case of A and Z STP in same network.
         String srcNetwork = srcStp.getNetworkId();
         String dstNetwork = dstStp.getNetworkId();
         if (srcNetwork.equals(dstNetwork)) {
-            StpPair pathPair = new StpPair();
-            pathPair.setA(srcStp);
-            pathPair.setZ(dstStp);
-            pceData.getPath().getStpPairs().add(pathPair);
+            StpPair pathPair = new StpPair(srcStp, dstStp);
+            pceData.getPath().addStpPair(pathPair);
             return pceData;
         }
 
@@ -194,37 +195,40 @@ public class DijkstraPCE implements PCEModule {
             throw new RuntimeException(error);
         }
 
-        // Now we pull the individual edge segments out of the result and
-        // determine the component STPs.
-        int i = 0;
-        StpPair pathPair = new StpPair();
-        pathPair.setA(srcStp);
+        List<StpPair> segments = pullIndividualSegmentsOut(srcStp, dstStp, path, nsiTopology);
+        for (int i = 0; i < segments.size(); i++) {
+            StpPair pair = segments.get(i);
+            pceData.getPath().getStpPairs().add(i, pair);
+            log.debug("Pair: " + pair.getA().getId() + " -- " + pair.getZ().getId());
+        }
+
+        return pceData;
+    }
+
+    protected List<StpPair> pullIndividualSegmentsOut(StpType srcStp, StpType dstStp, List<SdpType> path, NsiTopology nsiTopology) {
+        List<StpPair> segments = new ArrayList<>();
+
+        StpType start = srcStp;
         for (SdpType edge: path) {
             log.debug("--- Edge: " + edge.getId());
-            StpPair nextPathPair = new StpPair();
             StpType stpA = nsiTopology.getStp(edge.getDemarcationA().getStp().getId());
             StpType stpZ = nsiTopology.getStp(edge.getDemarcationZ().getStp().getId());
 
-            if (pathPair.getA().getNetworkId().equalsIgnoreCase(stpA.getNetworkId())) {
-                pathPair.setZ(stpA);
-                nextPathPair.setA(stpZ);
+            StpPair pathPair;
+            if (start.getNetworkId().equalsIgnoreCase(stpA.getNetworkId())) {
+                pathPair = new StpPair(start, stpA);
+                start = stpZ;
             }
             else {
-                pathPair.setZ(stpZ);
-                nextPathPair.setA(stpA);
+                pathPair = new StpPair(start, stpZ);
+                start = stpA;
             }
-
-            pceData.getPath().getStpPairs().add(i, pathPair);
-            pathPair = nextPathPair;
-            i++;
+            segments.add(pathPair);
         }
-        pathPair.setZ(dstStp);
-        pceData.getPath().getStpPairs().add(i, pathPair);
 
-        for (StpPair pair : pceData.getPath().getStpPairs()) {
-            log.debug("Pair: " + pair.getA().getId() + " -- " + pair.getZ().getId());
-        }
-        return pceData;
+        segments.add(new StpPair(start, dstStp));
+
+        return segments;
     }
 
 }

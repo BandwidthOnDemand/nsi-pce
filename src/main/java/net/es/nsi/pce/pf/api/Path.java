@@ -9,4 +9,8 @@ public class Path {
     public List<StpPair> getStpPairs() {
         return stpPairs;
     }
+
+    public void addStpPair(StpPair pair) {
+        this.stpPairs.add(pair);
+    }
 }
