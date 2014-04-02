@@ -3,6 +3,7 @@ package net.es.nsi.pce.pf.api;
 import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +27,7 @@ public class PCEData {
     private Path path = new Path();
     private Set<Constraint> constraints = new HashSet<>();
     private NsiTopology topology = new NsiTopology();
-    private Map<String, Map<String, Long>> reachabilityTable;
+    private Map<String, Map<String, Integer>> reachabilityTable;
 
     public Path getPath() {
         return path;
@@ -48,11 +49,20 @@ public class PCEData {
         this.topology = topology;
     }
 
-    public Map<String, Map<String, Long>> getReachabilityTable() {
+    public Map<String, Map<String, Integer>> getReachabilityTable() {
         return reachabilityTable;
     }
 
-    public void setReachabilityTable(Map<String, Map<String, Long>> reachabilityTable) {
+    public void setReachabilityTable(Map<String, Map<String, Integer>> reachabilityTable) {
         this.reachabilityTable = reachabilityTable;
+    }
+
+    public Set<String> getLocalManagedNetworkIds() {
+        // FIXME this needs to return the topology ids that are managed by this aggregator
+        return Collections.emptySet();
+    }
+
+    public boolean addConstraint(Constraint constraint) {
+        return constraints.add(constraint);
     }
 }
