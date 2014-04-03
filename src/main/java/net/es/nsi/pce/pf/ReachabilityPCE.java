@@ -26,7 +26,11 @@ import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.Constraints;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
+import net.es.nsi.pce.topology.jaxb.DemarcationType;
+import net.es.nsi.pce.topology.jaxb.ResourceRefType;
+import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.topology.model.NsiTopology;
 
 /**
  * This PCE module calculates the path based on reachability information.
@@ -80,10 +84,10 @@ public class ReachabilityPCE implements PCEModule {
             if (isInMyNetwork(destStp, pceData)) {
                 return onlyLocalPath(sourceStp, destStp);
             } else {
-                return findSplitPath();
+                return findSplitPath(sourceStp, destStp, pceData.getTopology(), pceData.getReachabilityTable());
             }
         } else if (isInMyNetwork(destStp, pceData)) {
-            return findSplitPath();
+            return findSplitPath(destStp, sourceStp, pceData.getTopology(), pceData.getReachabilityTable());
         } else {
             return findForwardPath(sourceStp, destStp, pceData.getReachabilityTable());
         }
@@ -92,7 +96,7 @@ public class ReachabilityPCE implements PCEModule {
     private Stp findSourceStp(Constraints constraints) {
         String sourceStp = getSourceStpOrFail(constraints);
         try {
-            return new Stp(sourceStp);
+            return Stp.fromStpId(sourceStp);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2Point.NAMESPACE, Point2Point.SOURCESTP));
         }
@@ -101,7 +105,7 @@ public class ReachabilityPCE implements PCEModule {
     private Stp findDestinationStp(Constraints constraints) {
         String destStp = getDestinationStpOrFail(constraints);
         try {
-            return new Stp(destStp);
+            return Stp.fromStpId(destStp);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2Point.NAMESPACE, Point2Point.DESTSTP));
         }
@@ -113,11 +117,47 @@ public class ReachabilityPCE implements PCEModule {
         return Optional.of(new Path(new StpPair(sourceStp.toStpType(), destStp.toStpType())));
     }
 
-    protected Optional<Path> findSplitPath() {
+    @VisibleForTesting
+    protected Optional<Path> findSplitPath(Stp localStp, Stp remoteStp, NsiTopology topology, Map<String, Map<String, Integer>> reachabilityTable) {
+        // TODO Is this needed???
+//        if (topology.getStp(localStp.getId()) == null) {
+//            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2Point.SOURCESTP, localStp.getId()));
+//        }
+
+        Optional<Reachability> remoteReachability = findPeerWithLowestCostToReachNetwork(remoteStp.getNetworkId(), reachabilityTable);
+        Optional<SdpType> connectingSdp = remoteReachability.isPresent() ?
+            findConnectingSdp(localStp.getNetworkId(), remoteReachability.get().getNetworkId(), topology) : Optional.<SdpType>absent();
+
+        if (!connectingSdp.isPresent()) {
+            throw new IllegalStateException("Could not find path..");
+        }
+
+        Stp localIntermediateStp = findStpFromSdp(connectingSdp.get(), localStp.getNetworkId());
+        Stp remoteIntermediateStp = findStpFromSdp(connectingSdp.get(), remoteReachability.get().getNetworkId());
+
+        StpPair localStpPair = new StpPair(localStp.toStpType(), localIntermediateStp.toStpType());
+        StpPair remoteSptPair = new StpPair(remoteIntermediateStp.toStpType(), remoteStp.toStpType());
+
+        return Optional.of(new Path(localStpPair, remoteSptPair));
+    }
+
+    private Stp findStpFromSdp(SdpType sdp, String networkId) {
+        return sdp.getDemarcationA().getNetwork().getId().equals(networkId) ? Stp.fromDemarcation(sdp.getDemarcationA()) : Stp.fromDemarcation(sdp.getDemarcationZ());
+    }
+
+    private Optional<SdpType> findConnectingSdp(String networkIdA, String networkIdZ, NsiTopology topology) {
+        for (SdpType sdp : topology.getSdps()) {
+            if (sdp.getDemarcationA().getNetwork().getId().equals(networkIdA) && sdp.getDemarcationZ().getNetwork().getId().equals(networkIdZ)) {
+                return Optional.of(sdp);
+            } else if (sdp.getDemarcationA().getNetwork().getId().equals(networkIdZ) && sdp.getDemarcationZ().getNetwork().getId().equals(networkIdA)) {
+                return Optional.of(sdp);
+            }
+        }
+
         return Optional.absent();
     }
 
-    //TODO loop detection
+    // TODO loop detection
     @VisibleForTesting
     protected Optional<Path> findForwardPath(final Stp sourceStp, final Stp destStp, Map<String, Map<String, Integer>> reachabilityTable) {
         final Optional<Reachability> forwardNsa = findCheapestForwardNsa(sourceStp, destStp, reachabilityTable);
@@ -134,8 +174,8 @@ public class ReachabilityPCE implements PCEModule {
     }
 
     private Optional<Reachability> findCheapestForwardNsa(Stp sourceStp, Stp destStp, Map<String, Map<String, Integer>> reachabilityTable) {
-        Optional<Reachability> sourceCost = determineCost(sourceStp.getNetworkId(), reachabilityTable);
-        Optional<Reachability> destCost = determineCost(destStp.getNetworkId(), reachabilityTable);
+        Optional<Reachability> sourceCost = findPeerWithLowestCostToReachNetwork(sourceStp.getNetworkId(), reachabilityTable);
+        Optional<Reachability> destCost = findPeerWithLowestCostToReachNetwork(destStp.getNetworkId(), reachabilityTable);
 
         if (sourceCost.isPresent()) {
             if (destCost.isPresent()) {
@@ -154,7 +194,7 @@ public class ReachabilityPCE implements PCEModule {
     }
 
     @VisibleForTesting
-    protected Optional<Reachability> determineCost(String networkId, Map<String, Map<String, Integer>> reachabilityTable) {
+    protected Optional<Reachability> findPeerWithLowestCostToReachNetwork(String networkId, Map<String, Map<String, Integer>> reachabilityTable) {
         Optional<Reachability> reachability = Optional.absent();
 
         for (Entry<String, Map<String, Integer>> nsaCosts : REACHABILITY_TABLE_ORDERING.sortedCopy(reachabilityTable.entrySet())) {
@@ -227,16 +267,30 @@ public class ReachabilityPCE implements PCEModule {
         private final String id;
         private final String networkId;
 
-        public Stp(String id) {
+        public static Stp fromDemarcation(DemarcationType demarcation) {
+            checkNotNull(demarcation);
+            return fromStpId(demarcation.getStp().getId());
+        }
+
+        public static Stp fromResourceRef(ResourceRefType resourceRef) {
+            checkNotNull(resourceRef);
+            return fromStpId(resourceRef.getId());
+        }
+
+        public static Stp fromStpId(String id) {
             checkNotNull(id);
 
-            Optional<String> networkIdOption = extractNetworkId(id);
-            if (!networkIdOption.isPresent()) {
+            Optional<String> networkId = extractNetworkId(id);
+            if (!networkId.isPresent()) {
                 throw new IllegalArgumentException(String.format("Could not extract network id from '%s'", id));
             }
 
+            return new Stp(id, networkId.get());
+        }
+
+        private Stp(String id, String networkId) {
             this.id = id;
-            this.networkId = networkIdOption.get();
+            this.networkId = networkId;
         }
 
         protected static Optional<String> extractNetworkId(String stpId) {
