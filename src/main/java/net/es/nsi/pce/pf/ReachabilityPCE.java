@@ -6,8 +6,11 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
@@ -43,7 +46,14 @@ import net.es.nsi.pce.topology.jaxb.StpType;
  */
 public class ReachabilityPCE implements PCEModule {
 
-    private ServiceInfoProvider serviceInfoProvider;
+    private final static Ordering<Entry<String, Map<String, Integer>>> REACHABILITY_TABLE_ORDERING = Ordering.from(new Comparator<Entry<String, Map<String, Integer>>>() {
+        @Override
+        public int compare(Entry<String, Map<String, Integer>> o1, Entry<String, Map<String, Integer>> o2) {
+            return o1.getKey().compareTo(o2.getKey());
+        }
+    });
+
+    private final ServiceInfoProvider serviceInfoProvider;
 
     public ReachabilityPCE(ServiceInfoProvider serviceInfoProvider) {
         this.serviceInfoProvider = serviceInfoProvider;
@@ -60,50 +70,72 @@ public class ReachabilityPCE implements PCEModule {
         return pceData;
     }
 
+    @VisibleForTesting
     protected Optional<Path> findPath(PCEData pceData) {
-        Constraints constraints = new Constraints(pceData.getConstraints());
+        Constraints constraints = pceData.getAttrConstraints();
+        Stp sourceStp = findSourceStp(constraints);
+        Stp destStp = findDestinationStp(constraints);
 
-        String sourceStp = getSourceStpOrFail(constraints);
-        String destStp = getDestinationStpOrFail(constraints);
-
-        String sourceNetworkId = extractNetworkIdOrFail(sourceStp, Point2Point.SOURCESTP);
-        String destNetworkId = extractNetworkIdOrFail(destStp, Point2Point.DESTSTP);
-
-        if (isMyNetwork(sourceNetworkId, pceData) || isMyNetwork(destNetworkId, pceData)) {
-           // TODO ...
-           return Optional.absent();
+        if (isInMyNetwork(sourceStp, pceData)) {
+            if (isInMyNetwork(destStp, pceData)) {
+                return onlyLocalPath(sourceStp, destStp);
+            } else {
+                return findSplitPath();
+            }
+        } else if (isInMyNetwork(destStp, pceData)) {
+            return findSplitPath();
         } else {
-            return findForwardPath(sourceStp, destStp, pceData);
+            return findForwardPath(sourceStp, destStp, pceData.getReachabilityTable());
         }
     }
 
-    //TODO loop detection
-    protected Optional<Path> findForwardPath(String sourceStp, String destStp, PCEData pceData) {
-        String sourceNetworkId = extractNetworkIdOrFail(sourceStp, Point2Point.SOURCESTP);
-        String destNetworkId = extractNetworkIdOrFail(destStp, Point2Point.DESTSTP);
-
-        Optional<Reachability> forwardNsa = findCheapestForwardNsa(sourceNetworkId, destNetworkId, pceData);
-
-        if (forwardNsa.isPresent()) {
-            StpType a = new StpType();
-            a.setId(sourceStp);
-            a.setNetworkId(forwardNsa.get().getNetworkId());
-            StpType z = new StpType();
-            z.setId(destStp);
-            z.setNetworkId(forwardNsa.get().getNetworkId());
-
-            Path path = new Path();
-            path.addStpPair(new StpPair(a, z));
-
-            return Optional.of(path);
+    private Stp findSourceStp(Constraints constraints) {
+        String sourceStp = getSourceStpOrFail(constraints);
+        try {
+            return new Stp(sourceStp);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2Point.NAMESPACE, Point2Point.SOURCESTP));
         }
+    }
 
+    private Stp findDestinationStp(Constraints constraints) {
+        String destStp = getDestinationStpOrFail(constraints);
+        try {
+            return new Stp(destStp);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2Point.NAMESPACE, Point2Point.DESTSTP));
+        }
+    }
+
+    private Optional<Path> onlyLocalPath(Stp sourceStp, Stp destStp) {
+        Preconditions.checkArgument(sourceStp.getNetworkId().equals(destStp.getNetworkId()));
+
+        return Optional.of(new Path(new StpPair(sourceStp.toStpType(), destStp.toStpType())));
+    }
+
+    protected Optional<Path> findSplitPath() {
         return Optional.absent();
     }
 
-    private Optional<Reachability> findCheapestForwardNsa(String sourceNetworkId, String destNetworkId, PCEData pceData) {
-        Optional<Reachability> sourceCost = determineCost(sourceNetworkId, pceData.getReachabilityTable());
-        Optional<Reachability> destCost = determineCost(destNetworkId, pceData.getReachabilityTable());
+    //TODO loop detection
+    @VisibleForTesting
+    protected Optional<Path> findForwardPath(final Stp sourceStp, final Stp destStp, Map<String, Map<String, Integer>> reachabilityTable) {
+        final Optional<Reachability> forwardNsa = findCheapestForwardNsa(sourceStp, destStp, reachabilityTable);
+
+        return forwardNsa.transform(new Function<Reachability, Path>() {
+            @Override
+            public Path apply(Reachability reachability) {
+                StpType a = createStpType(sourceStp.getId(), forwardNsa.get().getNetworkId());
+                StpType z = createStpType(destStp.getId(), forwardNsa.get().getNetworkId());
+
+                return new Path(new StpPair(a, z));
+            }
+        });
+    }
+
+    private Optional<Reachability> findCheapestForwardNsa(Stp sourceStp, Stp destStp, Map<String, Map<String, Integer>> reachabilityTable) {
+        Optional<Reachability> sourceCost = determineCost(sourceStp.getNetworkId(), reachabilityTable);
+        Optional<Reachability> destCost = determineCost(destStp.getNetworkId(), reachabilityTable);
 
         if (sourceCost.isPresent()) {
             if (destCost.isPresent()) {
@@ -117,17 +149,11 @@ public class ReachabilityPCE implements PCEModule {
         }
     }
 
-    private boolean isMyNetwork(String networkId, PCEData pceData) {
-        return pceData.getLocalManagedNetworkIds().contains(networkId);
+    private boolean isInMyNetwork(Stp stp, PCEData pceData) {
+        return pceData.getLocalManagedNetworkIds().contains(stp.getNetworkId());
     }
 
-    private final static Ordering<Entry<String, Map<String, Integer>>> REACHABILITY_TABLE_ORDERING = Ordering.from(new Comparator<Entry<String, Map<String, Integer>>>() {
-        @Override
-        public int compare(Entry<String, Map<String, Integer>> o1, Entry<String, Map<String, Integer>> o2) {
-            return o1.getKey().compareTo(o2.getKey());
-        }
-    });
-
+    @VisibleForTesting
     protected Optional<Reachability> determineCost(String networkId, Map<String, Map<String, Integer>> reachabilityTable) {
         Optional<Reachability> reachability = Optional.absent();
 
@@ -170,21 +196,12 @@ public class ReachabilityPCE implements PCEModule {
         return Optional.fromNullable(Strings.emptyToNull(constraint.getValue()));
     }
 
-    private String extractNetworkIdOrFail(String stpId, String attributeName) {
-        Optional<String> topologyId = extractNetworkId(stpId);
-        if (topologyId.isPresent()) {
-            return topologyId.get();
-        }
+    private static StpType createStpType(String stp, String networkId) {
+        StpType stpType = new StpType();
+        stpType.setId(stp);
+        stpType.setNetworkId(networkId);
 
-        throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2Point.NAMESPACE, attributeName));
-    }
-
-    protected Optional<String> extractNetworkId(String stpId) {
-        checkNotNull(stpId);
-
-        Iterable<String> parts = Iterables.limit(Splitter.on(":").split(stpId), 6);
-
-        return Iterables.size(parts) == 6 ? Optional.of(Joiner.on(":").join(parts)) : Optional.<String>absent();
+        return stpType;
     }
 
     public static class Reachability {
@@ -200,6 +217,42 @@ public class ReachabilityPCE implements PCEModule {
         }
         public String getNetworkId() {
             return networkId;
+        }
+    }
+
+    public static class Stp {
+        private static final Splitter STP_SPLITTER = Splitter.on(":");
+        private static final Joiner STP_JOINER = Joiner.on(":");
+
+        private final String id;
+        private final String networkId;
+
+        public Stp(String id) {
+            checkNotNull(id);
+
+            Optional<String> networkIdOption = extractNetworkId(id);
+            if (!networkIdOption.isPresent()) {
+                throw new IllegalArgumentException(String.format("Could not extract network id from '%s'", id));
+            }
+
+            this.id = id;
+            this.networkId = networkIdOption.get();
+        }
+
+        protected static Optional<String> extractNetworkId(String stpId) {
+            Iterable<String> parts = Iterables.limit(STP_SPLITTER.split(stpId), 6);
+            return Iterables.size(parts) == 6 ? Optional.of(STP_JOINER.join(parts)) : Optional.<String>absent();
+        }
+
+        public String getId() {
+            return id;
+        }
+        public String getNetworkId() {
+            return networkId;
+        }
+
+        public StpType toStpType() {
+            return ReachabilityPCE.createStpType(id, networkId);
         }
     }
 

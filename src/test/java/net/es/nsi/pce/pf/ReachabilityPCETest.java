@@ -15,6 +15,7 @@ import net.es.nsi.pce.config.nsa.ServiceInfo;
 import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
 import net.es.nsi.pce.path.services.Point2Point;
 import net.es.nsi.pce.pf.ReachabilityPCE.Reachability;
+import net.es.nsi.pce.pf.ReachabilityPCE.Stp;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.StpPair;
@@ -59,26 +60,22 @@ public class ReachabilityPCETest {
         String peerNsaId = "urn:ogf:network:foo:2013:nsa";
         String peerNetworkId = "urn:ogf:network:foo:2013:toplogy";
 
-        StringAttrConstraint source = new StringAttrConstraint();
-        source.setValue(sourceStp);
-        source.setAttrName(Point2Point.SOURCESTP);
-        StringAttrConstraint destination = new StringAttrConstraint();
-        destination.setValue(destStp);
-        destination.setAttrName(Point2Point.DESTSTP);
+        StringAttrConstraint source = createStringConstraint(Point2Point.SOURCESTP, sourceStp);
+        StringAttrConstraint destination = createStringConstraint(Point2Point.DESTSTP, destStp);
 
-        PCEData pceData = new PCEData();
-        pceData.addConstraint(source);
-        pceData.addConstraint(destination);
         Map<String, Integer> costs = ImmutableMap.of("urn:ogf:network:surfnet.nl:1990:topology", 5, "urn:ogf:network:es.net:2013:topology", 10);
-        pceData.setReachabilityTable(ImmutableMap.of(peerNsaId, costs));
+        ImmutableMap<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaId, costs);
+
+        PCEData pceData = new PCEData(source, destination);
+        pceData.setReachabilityTable(reachabilityTable);
 
         when(serviceInfoProviderMock.byNsaId(peerNsaId)).thenReturn(createServiceInfo(peerNsaId, peerNetworkId));
 
-        PCEData result = subject.apply(pceData);
+        Optional<Path> path = subject.findPath(pceData);
 
-        assertNotNull(result.getPath());
+        assertTrue(path.isPresent());
 
-        StpPair stpPair = result.getPath().getStpPairs().iterator().next();
+        StpPair stpPair = path.get().getStpPairs().iterator().next();
 
         assertThat(stpPair.getA().getId(), is(sourceStp));
         assertThat(stpPair.getA().getNetworkId(), is(peerNetworkId));
@@ -90,19 +87,18 @@ public class ReachabilityPCETest {
     public void should_find_forward_path() {
         String surfnetNetworkId = "urn:ogf:network:surfnet.nl:1990:topology";
 
-        String sourceStp = surfnetNetworkId + ":start";
-        String destStp = "urn:ogf:network:es.net:2013:topology:end";
+        Stp sourceStp = new ReachabilityPCE.Stp(surfnetNetworkId + ":start");
+        Stp destStp = new ReachabilityPCE.Stp("urn:ogf:network:es.net:2013:topology:end");
 
         String peerNsaId = "urn:ogf:network:foo:2013:nsa";
         String peerNetworkId = "urn:ogf:network:foo:2013:topology";
 
-        PCEData pceData = new PCEData();
         Map<String, Integer> costs = ImmutableMap.of(surfnetNetworkId, 5, "urn:ogf:network:es.net:2013:topology", 10);
-        pceData.setReachabilityTable(ImmutableMap.of(peerNsaId, costs));
+        Map<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaId, costs);
 
         when(serviceInfoProviderMock.byNsaId(peerNsaId)).thenReturn(createServiceInfo(peerNsaId, peerNetworkId));
 
-        Optional<Path> path = subject.findForwardPath(sourceStp, destStp, pceData);
+        Optional<Path> path = subject.findForwardPath(sourceStp, destStp, reachabilityTable);
 
         assertTrue(path.isPresent());
 
@@ -110,9 +106,9 @@ public class ReachabilityPCETest {
         assertThat(stpPairs.size(), is(1));
 
         StpPair stpPair = stpPairs.get(0);
-        assertEquals(sourceStp, stpPair.getA().getId());
+        assertEquals(sourceStp.getId(), stpPair.getA().getId());
         assertEquals(peerNetworkId, stpPair.getA().getNetworkId());
-        assertEquals(destStp, stpPair.getZ().getId());
+        assertEquals(destStp.getId(), stpPair.getZ().getId());
         assertEquals(peerNetworkId, stpPair.getA().getNetworkId());
     }
 
@@ -121,23 +117,22 @@ public class ReachabilityPCETest {
         String sourceNetworkId = "urn:ogf:network:surfnet.nl:1990:topology";
         String destNetworkId = "urn:ogf:network:es.net:2013:topology";
 
-        String sourceStp = sourceNetworkId + ":start";
-        String destStp = destNetworkId + ":end";
+        Stp sourceStp = new ReachabilityPCE.Stp(sourceNetworkId + ":start");
+        Stp destStp = new ReachabilityPCE.Stp(destNetworkId + ":end");
 
         String peerNsaIdOne = "urn:ogf:network:foo:2013:nsa";
         String peerNsaIdTwo = "urn:ogf:network:bar:2013:nsa";
         String peerNetworkIdOne = "urn:ogf:network:foo:2013:topology";
         String peerNetworkIdTwo = "urn:ogf:network:bar:2013:topology";
 
-        PCEData pceData = new PCEData();
         Map<String, Integer> costsOne = ImmutableMap.of(sourceNetworkId, 5);
         Map<String, Integer> costsTwo = ImmutableMap.of(destNetworkId, 5);
-        pceData.setReachabilityTable(ImmutableMap.of(peerNsaIdOne, costsOne, peerNsaIdTwo, costsTwo));
+        ImmutableMap<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaIdOne, costsOne, peerNsaIdTwo, costsTwo);
 
         when(serviceInfoProviderMock.byNsaId(peerNsaIdOne)).thenReturn(createServiceInfo(peerNsaIdOne, peerNetworkIdOne));
         when(serviceInfoProviderMock.byNsaId(peerNsaIdTwo)).thenReturn(createServiceInfo(peerNsaIdTwo, peerNetworkIdTwo));
 
-        Optional<Path> path = subject.findForwardPath(sourceStp, destStp, pceData);
+        Optional<Path> path = subject.findForwardPath(sourceStp, destStp, reachabilityTable);
 
         assertThat(path.get().getStpPairs().iterator().next().getA().getNetworkId(), is(peerNetworkIdOne));
     }
@@ -225,7 +220,7 @@ public class ReachabilityPCETest {
             "urn:ogf:network:surfnet.nl:1990:topology");
 
         for (String stpId : stpIds) {
-            Optional<String> topologyId = subject.extractNetworkId(stpId);
+            Optional<String> topologyId = ReachabilityPCE.Stp.extractNetworkId(stpId);
 
             assertTrue(topologyId.isPresent());
             assertEquals("urn:ogf:network:surfnet.nl:1990:topology", topologyId.get());
@@ -234,14 +229,21 @@ public class ReachabilityPCETest {
 
     @Test
     public void should_not_find_topology_id_in_empty_string() {
-        Optional<String> topologyId = subject.extractNetworkId("");
+        Optional<String> topologyId = ReachabilityPCE.Stp.extractNetworkId("");
 
         assertFalse(topologyId.isPresent());
     }
 
     @Test(expected = NullPointerException.class)
     public void should_throw_nullpointer_when_stp_id_is_null() {
-        subject.extractNetworkId(null);
+        ReachabilityPCE.Stp.extractNetworkId(null);
+    }
+
+    private StringAttrConstraint createStringConstraint(String name, String value) {
+        StringAttrConstraint source = new StringAttrConstraint();
+        source.setAttrName(name);
+        source.setValue(value);
+        return source;
     }
 
     private ServiceInfo createServiceInfo(String nsaId, String networkId) {

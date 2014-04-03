@@ -1,8 +1,10 @@
 package net.es.nsi.pce.pf.api;
 
 import net.es.nsi.pce.pf.api.cons.Constraint;
+import net.es.nsi.pce.pf.api.cons.Constraints;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,6 +31,13 @@ public class PCEData {
     private NsiTopology topology = new NsiTopology();
     private Map<String, Map<String, Integer>> reachabilityTable;
 
+    public PCEData() {
+    }
+
+    public PCEData(Constraint... constraints) {
+        this.constraints.addAll(Arrays.asList(constraints));
+    }
+
     public Path getPath() {
         return path;
     }
@@ -39,6 +48,10 @@ public class PCEData {
 
     public Set<Constraint> getConstraints() {
         return constraints;
+    }
+
+    public Constraints getAttrConstraints() {
+        return new Constraints(constraints);
     }
 
     public NsiTopology getTopology() {
