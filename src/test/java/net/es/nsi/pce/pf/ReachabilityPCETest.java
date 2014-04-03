@@ -78,13 +78,7 @@ public class ReachabilityPCETest {
         Optional<Path> path = subject.findPath(pceData);
 
         assertTrue(path.isPresent());
-
-        StpPair stpPair = path.get().getStpPairs().iterator().next();
-
-        assertThat(stpPair.getA().getId(), is(sourceStp));
-        assertThat(stpPair.getA().getNetworkId(), is(peerNetworkId));
-
-        assertThat(stpPair.getZ().getId(), is(destStp));
+        assertPair(path.get().getStpPairs().iterator().next(), peerNetworkId, peerNetworkId, sourceStp, destStp);
     }
 
     @Test
@@ -98,7 +92,7 @@ public class ReachabilityPCETest {
         Stp remoteStp = ReachabilityPCE.Stp.fromStpId(esnetNetworkId + ":end");
 
         NsiTopology topology = new NsiTopology();
-        SdpType sdp = createSdpType(surfnetNetworkId, peerNetworkId, "start", "intermediate");
+        SdpType sdp = createSdpType(surfnetNetworkId, peerNetworkId, "surf-intermediate", "peer-intermediate");
         topology.addSdp(sdp);
 
         Map<String, Integer> costs = ImmutableMap.of(esnetNetworkId, 5);
@@ -111,35 +105,8 @@ public class ReachabilityPCETest {
         assertTrue(path.isPresent());
         assertThat(path.get().getStpPairs().size(), is(2));
 
-        StpPair pairA = path.get().getStpPairs().get(0);
-        assertEquals(surfnetNetworkId, pairA.getA().getNetworkId());
-        assertEquals(surfnetNetworkId, pairA.getZ().getNetworkId());
-
-        StpPair pairB = path.get().getStpPairs().get(1);
-        assertEquals(peerNetworkId, pairB.getA().getNetworkId());
-        assertEquals(esnetNetworkId, pairB.getZ().getNetworkId());
-    }
-
-    private SdpType createSdpType(String networkIdA, String networkIdZ, String portA, String portZ) {
-        SdpType sdp = new SdpType();
-        DemarcationType demarcationA = createDemarcationType(networkIdA, portA);
-        DemarcationType demarcationB = createDemarcationType(networkIdZ, portZ);
-        sdp.setDemarcationA(demarcationA);
-        sdp.setDemarcationZ(demarcationB);
-        sdp.setId("sdpId");
-
-        return sdp;
-    }
-
-    private DemarcationType createDemarcationType(String networkId, String portId) {
-        ResourceRefType networkResource = new ResourceRefType();
-        networkResource.setId(networkId);
-        ResourceRefType stpResource = new ResourceRefType();
-        stpResource.setId(networkId + ":" + portId);
-        DemarcationType demarcation = new DemarcationType();
-        demarcation.setNetwork(networkResource);
-        demarcation.setStp(stpResource);
-        return demarcation;
+        assertPair(path.get().getStpPairs().get(0), surfnetNetworkId, surfnetNetworkId, localStp.getId(), surfnetNetworkId + ":surf-intermediate");
+        assertPair(path.get().getStpPairs().get(1), peerNetworkId, esnetNetworkId, peerNetworkId + ":peer-intermediate", remoteStp.getId());
     }
 
     @Test
@@ -164,11 +131,7 @@ public class ReachabilityPCETest {
         List<StpPair> stpPairs = path.get().getStpPairs();
         assertThat(stpPairs.size(), is(1));
 
-        StpPair stpPair = stpPairs.get(0);
-        assertEquals(sourceStp.getId(), stpPair.getA().getId());
-        assertEquals(peerNetworkId, stpPair.getA().getNetworkId());
-        assertEquals(destStp.getId(), stpPair.getZ().getId());
-        assertEquals(peerNetworkId, stpPair.getA().getNetworkId());
+        assertPair(stpPairs.get(0), peerNetworkId, peerNetworkId, sourceStp.getId() , destStp.getId());
     }
 
     @Test
@@ -310,6 +273,35 @@ public class ReachabilityPCETest {
         serviceInfo.setNsaId(nsaId);
         serviceInfo.setNetworkId(networkId);
         return serviceInfo;
+    }
+
+    private void assertPair(StpPair pair, String networkA, String networkZ, String portA, String portZ) {
+        assertEquals(networkA, pair.getA().getNetworkId());
+        assertEquals(networkZ, pair.getZ().getNetworkId());
+        assertEquals(portA, pair.getA().getId());
+        assertEquals(portZ, pair.getZ().getId());
+    }
+
+    private SdpType createSdpType(String networkIdA, String networkIdZ, String portA, String portZ) {
+        SdpType sdp = new SdpType();
+        DemarcationType demarcationA = createDemarcationType(networkIdA, portA);
+        DemarcationType demarcationB = createDemarcationType(networkIdZ, portZ);
+        sdp.setDemarcationA(demarcationA);
+        sdp.setDemarcationZ(demarcationB);
+        sdp.setId("sdpId");
+
+        return sdp;
+    }
+
+    private DemarcationType createDemarcationType(String networkId, String portId) {
+        ResourceRefType networkResource = new ResourceRefType();
+        networkResource.setId(networkId);
+        ResourceRefType stpResource = new ResourceRefType();
+        stpResource.setId(networkId + ":" + portId);
+        DemarcationType demarcation = new DemarcationType();
+        demarcation.setNetwork(networkResource);
+        demarcation.setStp(stpResource);
+        return demarcation;
     }
 
 }
