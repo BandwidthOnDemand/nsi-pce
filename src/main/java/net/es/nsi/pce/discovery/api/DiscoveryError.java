@@ -20,13 +20,16 @@ public enum DiscoveryError {
     UNSUPPORTED_PARAMETER(102, "UNSUPPORTED_PARAMETER", "Parameter provided contains an unsupported value which MUST be processed (%s)."),
     NOT_IMPLEMENTED(103, "NOT_IMPLEMENTED", "Parameter is for a feature that has not been implemented (%s)."),
     VERSION_NOT_SUPPORTED(104, "VERSION_NOT_SUPPORTED", "The service version requested is not supported. (%s)."),
+    INTERNAL_SERVER_ERROR(105, "INTERNAL_SERVER_ERROR", "There was an internal server processing error (%s)."),
     
-    DOCUMENT_EXISTS(105, "DOCUMENT_EXISTS", "There is already a registered document under provided id (%s)."),
-    DOCUMENT_DOES_NOT_EXIST(106, "DOCUMENT_DOES_NOT_EXIST", "The requested document does not exist (%s)."),
-    DOCUMENT_INVALID(107, "DOCUMENT_INVALID", "There was a problem with the document that prevents storage (%s)."),
-    INTERNAL_SERVER_ERROR(108, "INTERNAL_SERVER_ERROR", "There was an internal server processing error (%s)."),
+    DOCUMENT_EXISTS(110, "DOCUMENT_EXISTS", "There is already a registered document under provided id (%s)."),
+    DOCUMENT_DOES_NOT_EXIST(111, "DOCUMENT_DOES_NOT_EXIST", "The requested document does not exist (%s)."),
+    DOCUMENT_INVALID(112, "DOCUMENT_INVALID", "There was a problem with the document that prevents storage (%s)."),
+    DOCUMENT_VERSION(113, "DOCUMENT_VERSION", "The document version was older than the current document (%s)."),
     
-    SUBCRIPTION_DOES_NOT_EXIST(109, "SUBCRIPTION_DOES_NOT_EXIST", "There was an internal server processing error (%s)."),
+
+    
+    SUBCRIPTION_DOES_NOT_EXIST(120, "SUBCRIPTION_DOES_NOT_EXIST", "There was an internal server processing error (%s)."),
     
     // Mark the end.
     END(999, "END", "END");

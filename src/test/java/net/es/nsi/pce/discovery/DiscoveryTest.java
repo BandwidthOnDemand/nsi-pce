@@ -155,7 +155,7 @@ public class DiscoveryTest extends JerseyTest {
         assertNotNull(documents);
         
         for (DocumentType document : documents.getDocument()) {
-            System.out.println("document: " + document.getNsa() + ", " + document.getType() + ", " + document.getId());
+            System.out.println("cDocumentsFull: " + document.getNsa() + ", " + document.getType() + ", " + document.getId() + ", href=" + document.getHref());
             assertFalse(document.getContent().getAny().isEmpty());
             
             response = root.path(document.getHref()).request(MediaType.APPLICATION_XML).get();
@@ -198,7 +198,7 @@ public class DiscoveryTest extends JerseyTest {
         assertNotNull(documents);
 
         for (DocumentType document : documents.getDocument()) {
-            System.out.println("document: " + document.getNsa() + ", " + document.getType() + ", " + document.getId());
+            System.out.println("dDocumentsSummary: " + document.getNsa() + ", " + document.getType() + ", " + document.getId() + ", href=" + document.getHref());
             assertNull(document.getContent());
             
             // Read the direct href and get summary contents.
@@ -281,6 +281,8 @@ public class DiscoveryTest extends JerseyTest {
                             }
                         }
                     }
+                    
+                    
                     JAXBElement<DocumentType> jaxbRequest = factory.createDocument(document);
                     Response response = discovery.path("documents")
                             .path(URLEncoder.encode(document.getNsa().trim(), "UTF-8"))

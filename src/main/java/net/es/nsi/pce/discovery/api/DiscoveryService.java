@@ -37,7 +37,9 @@ import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionType;
 import net.es.nsi.pce.discovery.provider.DiscoveryProvider;
 import net.es.nsi.pce.discovery.provider.Document;
+import net.es.nsi.pce.discovery.provider.InvalidVersionException;
 import net.es.nsi.pce.discovery.provider.Subscription;
+import net.es.nsi.pce.schema.MediaTypes;
 import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,14 +55,14 @@ public class DiscoveryService {
 
     @GET
     @Path("/ping")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response ping() throws Exception {
         log.debug("ping: PING!");
         return Response.ok().build();
     }
     
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response getAll(
             @DefaultValue("false") @QueryParam("summary") boolean summary,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
@@ -149,7 +151,7 @@ public class DiscoveryService {
 
     @GET
     @Path("/documents")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response getDocuments(
             @QueryParam("id") String id,
             @QueryParam("nsa") String nsa,
@@ -199,7 +201,7 @@ public class DiscoveryService {
 
     @GET
     @Path("/documents/{nsa}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response getDocumentsByNsa(
             @PathParam("nsa") String nsa,
             @QueryParam("type") String type,
@@ -256,7 +258,7 @@ public class DiscoveryService {
 
     @GET
     @Path("/documents/{nsa}/{type}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response getDocumentsByNsaAndType(
             @PathParam("nsa") String nsa,
             @PathParam("type") String type,
@@ -313,8 +315,8 @@ public class DiscoveryService {
   
     @POST
     @Path("/documents")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response addDocument(DocumentType request) throws Exception {
         log.debug("addDocument: " + request.getNsa() + ", " + request.getType() + ", " + request.getId());
         
@@ -351,8 +353,8 @@ public class DiscoveryService {
     
     @POST
     @Path("/local")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response addLocalDocument(DocumentType document) throws Exception {
 
         return addDocument(document);
@@ -360,7 +362,7 @@ public class DiscoveryService {
 
     @GET
     @Path("/local")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response getLocalDocuments(
             @QueryParam("id") String id,
             @QueryParam("type") String type,
@@ -418,7 +420,7 @@ public class DiscoveryService {
     
     @GET
     @Path("/local/{type}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response getLocalDocumentsByType(
             @PathParam("type") String type,
             @QueryParam("id") String id,
@@ -476,7 +478,7 @@ public class DiscoveryService {
     
     @GET
     @Path("/local/{type}/{id}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response getLocalDocument(
             @PathParam("type") String type,
             @PathParam("id") String id,
@@ -528,7 +530,7 @@ public class DiscoveryService {
 
     @GET
     @Path("/documents/{nsa}/{type}/{id}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response getDocument(
             @PathParam("nsa") String nsa,
             @PathParam("type") String type,
@@ -581,8 +583,8 @@ public class DiscoveryService {
 
     @PUT
     @Path("/documents/{nsa}/{type}/{id}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response updateDocument(
             @PathParam("nsa") String nsa,
             @PathParam("type") String type,
@@ -598,20 +600,21 @@ public class DiscoveryService {
             document = discoveryProvider.updateDocument(nsa, type, id, request);
         }
         catch (NotFoundException ee) {
-            // 409 document already exists
             log.error("updateDocument: document does not exist", ee);
             ErrorType errorType = DiscoveryError.getErrorType(ee.getMessage());
             return Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
         catch (IllegalArgumentException ia) {
-            // 400 bad request
             log.error("updateDocument: illegal arument", ia);
             ErrorType errorType = DiscoveryError.getErrorType(ia.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
-        }        
+        }
+        catch (InvalidVersionException vr) {
+            log.error("updateDocument: invalid version", vr);
+            ErrorType errorType = DiscoveryError.getErrorType(vr.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();            
+        }
         catch (Exception ex) {
-            // 403 no authorization
-            //500 - Internal server error (Catchall)
             log.error("updateDocument: internal server error", ex);
             ErrorType errorType = DiscoveryError.getErrorType(ex.getMessage());
             return Response.serverError().entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
@@ -624,7 +627,7 @@ public class DiscoveryService {
     
     @GET
     @Path("/subscriptions")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response getSubscriptions(
             @QueryParam("requesterId") String requesterId,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) {
@@ -673,8 +676,8 @@ public class DiscoveryService {
     
     @POST
     @Path("/subscriptions")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response addSubscription(
             @HeaderParam("Accept") String accept,
             SubscriptionRequestType subscriptionRequest) {
@@ -704,7 +707,7 @@ public class DiscoveryService {
     
     @GET
     @Path("/subscriptions/{id}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response getSubscription(
             @PathParam("id") String id,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) {
@@ -749,8 +752,8 @@ public class DiscoveryService {
     
     @PUT
     @Path("/subscriptions/{id}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response editSubscription(
             @HeaderParam("Accept") String accept,
             @PathParam("id") String id,
@@ -783,8 +786,8 @@ public class DiscoveryService {
     
     @DELETE
     @Path("/subscriptions/{id}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response deleteSubscription(@PathParam("id") String id) throws Exception {
         
         log.debug("deleteSubscription: id=" + id);
@@ -813,8 +816,8 @@ public class DiscoveryService {
     
     @POST
     @Path("/notifications")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response notifications(NotificationListType notifications) throws Exception {
         
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();

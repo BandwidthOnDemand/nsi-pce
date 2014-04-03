@@ -10,6 +10,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Cancellable;
 import akka.actor.Props;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
+import net.es.nsi.pce.discovery.actors.ConfigurationActor;
 import net.es.nsi.pce.discovery.actors.DocumentEvent;
 import net.es.nsi.pce.discovery.actors.DocumentExpiryActor;
 import net.es.nsi.pce.discovery.actors.LocalDocumentActor;
@@ -37,6 +39,8 @@ import net.es.nsi.pce.discovery.jaxb.FilterType;
 import net.es.nsi.pce.discovery.jaxb.NotificationType;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionType;
+import net.es.nsi.pce.discovery.gangofthree.Gof3DiscoveryRouter;
+import net.es.nsi.pce.schema.MediaTypes;
 import net.es.nsi.pce.schema.XmlUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +52,6 @@ import scala.concurrent.duration.Duration;
  */
 public class DdsProvider implements DiscoveryProvider {
     private static final String NOTIFICATIONS_URL = "/discovery/notifications";
-    private static final String MEDIATYPE = "application/vnd.ogf.nsi.discovery.v1+xml";
     
     private final Logger log = LoggerFactory.getLogger(getClass());
     
@@ -56,7 +59,9 @@ public class DdsProvider implements DiscoveryProvider {
     private ActorRef notificationRouter;
     private ActorRef registrationRouter;
     private ActorRef localDocumentActor;
+    private ActorRef configurationActor;
     private ActorRef cacheActor;
+    private ActorRef gangOfThreeRouter;
     
     // Configuration reader.
     private ConfigurationReader configReader;
@@ -79,8 +84,13 @@ public class DdsProvider implements DiscoveryProvider {
     public void initialize() throws IllegalArgumentException, JAXBException, FileNotFoundException {
         // Initialize the AKKA actor system for the PCE and subsystems.
         log.info("DdsProvider: Initializing actor framework...");
-        setActorSystem(ActorSystem.create("NSI-DISCOVERY"));
+        actorSystem = ActorSystem.create("NSI-DISCOVERY");
         log.info("DdsProvider: ... Actor framework initialized.");
+        
+        // Initialize the configuration refresh actors.
+        log.info("DdsProvider: Initializing configuration actor.");
+        configurationActor = getActorSystem().actorOf(Props.create(ConfigurationActor.class, this), "discovery-configuration-actor");
+        log.info("DdsProvider:... Configuration actor initialized.");
         
         // Initialize the subscription notification actors.
         log.info("DdsProvider: Initializing notification router.");
@@ -101,8 +111,13 @@ public class DdsProvider implements DiscoveryProvider {
         
         // Initialize the remote registration actors.
         log.info("DdsProvider: Initializing peer registration actor...");
-        setRegistrationRouter(getActorSystem().actorOf(Props.create(RegistrationRouter.class, this), "discovery-peer-registration"));        
+        registrationRouter = getActorSystem().actorOf(Props.create(RegistrationRouter.class, this), "discovery-peer-registration");        
         log.info("DdsProvider:... Peer registration actor initialized.");
+        
+        // Initialize the Gang of Three actors.
+        log.info("DdsProvider: Initializing Gang of Three actors...");
+        gangOfThreeRouter = getActorSystem().actorOf(Props.create(Gof3DiscoveryRouter.class, this), "discovery-Gof3-registration");        
+        log.info("DdsProvider:... Gang of Three actors initialized.");        
     }
     
     @Override
@@ -119,7 +134,7 @@ public class DdsProvider implements DiscoveryProvider {
     
     @Override
     public String getMediaType() {
-        return MEDIATYPE;
+        return MediaTypes.NSI_DDS_V1_XML;
     }
  
     @Override
@@ -258,8 +273,11 @@ public class DdsProvider implements DiscoveryProvider {
     }
     
     @Override
-    public void processNotification(NotificationType notification) {
+    public void processNotification(NotificationType notification) throws IllegalArgumentException, EntityExistsException, NotFoundException {
         log.debug("processNotification: event=" + notification.getEvent() + ", discovered=" + notification.getDiscovered());
+        
+        // TODO: We discard the event type and discovered time, however, the
+        // discovered time could be used for an audit.  Perhaps save it?
         
         // Determine if we have already seen this document event.
         DocumentType document = notification.getDocument();
@@ -268,24 +286,25 @@ public class DdsProvider implements DiscoveryProvider {
             return;
         }
         
-        String documentId = Document.documentId(document.getNsa(), document.getType(), document.getId());
+        String documentId = Document.documentId(document);
         
         Document entry = documentCache.get(documentId);
         if (entry == null) {
             // This must be the first time we have seen the document so add it
             // into our cache.
-            log.debug("processNotification: new document documentId=" + documentId);
+            log.debug("processNotification: new documentId=" + documentId);
             addDocument(document);
         }
-        else if (entry.getDocument().getVersion().compare(document.getVersion()) == DatatypeConstants.LESSER) {
-            // We have seen the document before and this is a new version, so
-            // update our cache.
-            log.debug("processNotification: document update documentId=" + documentId);
-            updateDocument(document.getNsa(), document.getType(), document.getId(), document);
-        }
         else {
-            // Otherwise we discard the notification.
-            log.debug("processNotification: discarding event documentId=" + documentId);
+            // We have seen the document before.
+            log.debug("processNotification: update documentId=" + documentId);
+            try {
+                updateDocument(document);
+            }
+            catch (InvalidVersionException ex) {
+                // This is an old document version so discard.
+                log.debug("processNotification: old document version documentId=" + documentId);
+            }
         }
     }
     
@@ -305,10 +324,10 @@ public class DdsProvider implements DiscoveryProvider {
         try {
             documentCache.put(document.getId(), document);
         }
-        catch (Exception ex) {
+        catch (JAXBException | IOException ex) {
             log.error("addDocument: failed to add document to document store", ex);
             String error = DiscoveryError.getErrorString(DiscoveryError.DOCUMENT_INVALID, "document", document.getId());
-            throw new EntityExistsException(error);             
+            throw new IllegalArgumentException(error);             
         }
         
         // Route a new document event.
@@ -320,7 +339,7 @@ public class DdsProvider implements DiscoveryProvider {
     }
     
     @Override
-    public Document updateDocument(String nsa, String type, String id, DocumentType request) throws IllegalArgumentException, NotFoundException {
+    public Document updateDocument(String nsa, String type, String id, DocumentType request) throws IllegalArgumentException, NotFoundException, InvalidVersionException {
         // Create a document identifier to look up in our documet table.
         String documentId = Document.documentId(nsa, type, id);
         
@@ -358,21 +377,37 @@ public class DdsProvider implements DiscoveryProvider {
             String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "document", "expires");
             throw new IllegalArgumentException(error); 
         }
+        
+        // Make sure this is a new version of the document.
+        if (request.getVersion().compare(document.getDocument().getVersion()) != DatatypeConstants.GREATER) {
+            String error = DiscoveryError.getErrorString(DiscoveryError.DOCUMENT_VERSION, request.getId(), "request=" + request.getVersion().toString() + ", actual=" + document.getDocument().getVersion().toString());
+
+            throw new InvalidVersionException(error, request.getVersion(), document.getDocument().getVersion());             
+        }
    
-        document.setDocument(request);
-        document.setLastDiscovered(new Date());
+        Document newDoc = new Document(request);
+        newDoc.setLastDiscovered(new Date());
+        try {
+            documentCache.update(documentId, newDoc);
+        }
+        catch (JAXBException jaxb) {
+            log.error("updateDocument: Failed to generate document XML, documentId=" + documentId);
+        }
+        catch (IOException io) {
+            log.error("updateDocument: Failed to write document to cache, documentId=" + documentId);
+        }
 
         // Route a update document event.
         DocumentEvent de = new DocumentEvent();
         de.setEvent(DocumentEventType.UPDATED);
-        de.setDocument(document);
+        de.setDocument(newDoc);
         notificationRouter.tell(de, null);
         
         return document;
     }
     
     @Override
-    public Document updateDocument(DocumentType request) throws IllegalArgumentException, NotFoundException {
+    public Document updateDocument(DocumentType request) throws IllegalArgumentException, NotFoundException, InvalidVersionException {
         return updateDocument(request.getNsa(), request.getType(), request.getId(), request);
     }
 
@@ -688,7 +723,7 @@ public class DdsProvider implements DiscoveryProvider {
                     try {
                         this.updateDocument(document);
                     }
-                    catch (IllegalArgumentException | NotFoundException ex) {
+                    catch (IllegalArgumentException | NotFoundException | InvalidVersionException ex) {
                         log.error("loadDocuments: Could not update document " + filename, ex);
                         continue;                                
                     }                                

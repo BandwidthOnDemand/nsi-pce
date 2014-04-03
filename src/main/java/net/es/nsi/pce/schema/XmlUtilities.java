@@ -27,7 +27,8 @@ import javax.xml.namespace.QName;
  * @author hacksaw
  */
 public class XmlUtilities {
-        
+    public final static long ONE_YEAR = 1000*60*60*24*365;
+    
 	/**
 	 * Utility method to marshal a JAXB annotated java object to an XML
          * formatted string.  This class is generic enough to be used for any
@@ -100,8 +101,13 @@ public class XmlUtilities {
     
     public static XMLGregorianCalendar xmlGregorianCalendar() throws DatatypeConfigurationException {
         GregorianCalendar cal = new GregorianCalendar();
-        XMLGregorianCalendar newXMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
-        return newXMLGregorianCalendar;
+        return DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+    }
+    
+    public static XMLGregorianCalendar xmlGregorianCalendar(Date date) throws DatatypeConfigurationException {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(date);
+        return DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
     }
     
     public static Date xmlGregorianCalendarToDate(XMLGregorianCalendar cal) throws DatatypeConfigurationException {

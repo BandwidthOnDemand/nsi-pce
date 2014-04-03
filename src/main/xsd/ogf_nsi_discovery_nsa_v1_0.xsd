@@ -233,8 +233,8 @@ mailing list group mailing list (nsi-wg@ogf.org).
                 second string identifies the same protocol and version, but
                 the JSON representation:
                 
-                type="application/vnd.ogf.nsi.discovery.v1+xml"
-                type="application/vnd.ogf.nsi.discovery.v1+json"
+                type="application/vnd.ogf.nsi.dds.v1+xml"
+                type="application/vnd.ogf.nsi.dds.v1+json"
                 
                 href - This attribute contains the protocol endpoint for the
                 interface identified in this interface reference.  For example, the

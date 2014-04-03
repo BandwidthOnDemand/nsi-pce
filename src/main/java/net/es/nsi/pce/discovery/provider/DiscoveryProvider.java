@@ -28,8 +28,8 @@ public interface DiscoveryProvider {
     public Collection<Subscription> getSubscriptions(String requesterId, Date lastModified) throws IllegalArgumentException;
     
     public Document addDocument(DocumentType document) throws IllegalArgumentException, EntityExistsException;
-    public Document updateDocument(String nsa, String type, String id, DocumentType document) throws IllegalArgumentException, NotFoundException;
-    public Document updateDocument(DocumentType request) throws IllegalArgumentException, NotFoundException;
+    public Document updateDocument(String nsa, String type, String id, DocumentType document) throws IllegalArgumentException, NotFoundException, InvalidVersionException;
+    public Document updateDocument(DocumentType request) throws IllegalArgumentException, NotFoundException, InvalidVersionException;
     public Collection<Document> getDocuments(String nsa, String type, String id, Date lastDiscovered);
     public Collection<Document> getDocumentsByNsa(String nsa, String type, String id, Date lastDiscovered) throws IllegalArgumentException;
     public Collection<Document> getDocumentsByNsaAndType(String nsa, String type, String id, Date lastDiscovered) throws IllegalArgumentException;

@@ -11,6 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.es.nsi.pce.discovery.jaxb.NotificationListType;
+import net.es.nsi.pce.schema.MediaTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +25,8 @@ public class DiscoveryNotificationCallback {
 
     @POST
     @Path("/callback")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.ogf.nsi.discovery.v1+json", "application/vnd.ogf.nsi.discovery.v1+xml" })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
     public Response notification(NotificationListType notify) {
         System.out.println("notification: " + notify.getId() + ", " + notify.getHref() + ", " + notify.getProviderId());
         TestServer.INSTANCE.pushDiscoveryNotification(notify);

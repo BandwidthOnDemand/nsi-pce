@@ -2,7 +2,7 @@
 <tns:document xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
         xmlns:tns="http://schemas.ogf.org/nsi/2014/02/discovery/types"
     id="urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed"
-    version="2014-04-04T18:13:51.0Z"
+    version="2014-04-01T18:13:51.0Z"
     expires="2014-03-04T18:13:51.0Z">
     <nsa>urn:ogf:network:netherlight.net:2013:nsa:bod</nsa>
     <type>application/vnd.ogf.nsi.topology.v2+xml </type>

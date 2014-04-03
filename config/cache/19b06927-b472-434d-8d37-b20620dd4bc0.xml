@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns3:document xmlns:ns2="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns3="http://schemas.ogf.org/nsi/2014/02/discovery/types"
-        xmlns:ns4="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:ns5="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration"
-    id="urn:ogf:network:example.com:2013:network:theworkshop"
-    href="/discovery/documents/urn%3Aogf%3Anetwork%3Aexample.com%3A2013%3Ansa%3Avixen/application%2Fvnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Aexample.com%3A2013%3Anetwork%3Atheworkshop"
-    version="2014-04-01T18:13:51Z" expires="2016-12-04T18:13:51Z">
+<ns3:document xmlns:ns2="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns3="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns4="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns5="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" xmlns:ns6="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" id="urn:ogf:network:example.com:2013:network:theworkshop" href="/discovery/documents/urn%3Aogf%3Anetwork%3Aexample.com%3A2013%3Ansa%3Avixen/application%2Fvnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Aexample.com%3A2013%3Anetwork%3Atheworkshop" version="2014-04-03T13:36:48.694-04:00" expires="2014-04-03T13:42:48.694-04:00">
     <nsa>urn:ogf:network:example.com:2013:nsa:vixen</nsa>
     <type>application/vnd.ogf.nsi.topology.v2+xml</type>
     <content>

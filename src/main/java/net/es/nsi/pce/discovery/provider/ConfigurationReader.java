@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import javax.xml.bind.JAXBException;
+import net.es.nsi.pce.discovery.jaxb.PeerURLType;
 import net.es.nsi.pce.discovery.jaxb.DiscoveryConfigurationType;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
@@ -39,7 +40,7 @@ public class ConfigurationReader {
     private long auditInterval = DEFAULT_AUDIT_INTERVAL;
     private long expiryInterval = EXPIRE_INTERVAL_DEFAULT;
     private int actorPool = ACTORPOOL_DEFAULT_SIZE;
-    private Set<String> discoveryURL = new CopyOnWriteArraySet<>();
+    private Set<PeerURLType> discoveryURL = new CopyOnWriteArraySet<>();
 
     /**
      * @return the filename
@@ -151,8 +152,8 @@ public class ConfigurationReader {
             pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_PARAMETER, "baseURL=" + config.getBaseURL());
             throw new FileNotFoundException("Invalid base URL: " + config.getBaseURL());
         }
-        
-        for (String url : config.getDiscoveryURL()) {
+
+        for (PeerURLType url : config.getPeerURL()) {
             discoveryURL.add(url);
         }
         
@@ -190,15 +191,8 @@ public class ConfigurationReader {
     /**
      * @return the discoveryURL
      */
-    public Set<String> getDiscoveryURL() {
+    public Set<PeerURLType> getDiscoveryURL() {
         return Collections.unmodifiableSet(discoveryURL);
-    }
-
-    /**
-     * @param discoveryURL the discoveryURL to set
-     */
-    public void setDiscoveryURL(Set<String> discoveryURL) {
-        this.discoveryURL = discoveryURL;
     }
 
     /**

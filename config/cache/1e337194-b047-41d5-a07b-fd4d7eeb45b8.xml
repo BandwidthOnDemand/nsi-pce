@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns3:document xmlns:ns2="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns3="http://schemas.ogf.org/nsi/2014/02/discovery/types"
-    xmlns:ns4="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:ns5="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration"
-    id="urn:ogf:network:example.com:2013:nsa:vixen"
-    href="/discovery/documents/urn%3Aogf%3Anetwork%3Aexample.com%3A2013%3Ansa%3Avixen/application%2Fvnd.ogf.nsi.discovery.v1%2Bxml/urn%3Aogf%3Anetwork%3Aexample.com%3A2013%3Ansa%3Avixen"
-    version="2014-04-01T18:13:51Z" expires="2014-05-04T18:13:51Z">
+<ns3:document xmlns:ns2="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns3="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns4="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns5="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" xmlns:ns6="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" id="urn:ogf:network:example.com:2013:nsa:vixen" href="/discovery/documents/urn%3Aogf%3Anetwork%3Aexample.com%3A2013%3Ansa%3Avixen/application%2Fvnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aexample.com%3A2013%3Ansa%3Avixen" version="2014-04-03T13:36:48.801-04:00" expires="2014-04-03T13:42:48.802-04:00">
     <nsa>urn:ogf:network:example.com:2013:nsa:vixen</nsa>
     <type>application/vnd.ogf.nsi.nsa.v1+xml</type>
     <content>
-        <ns4:nsa id="urn:ogf:network:example.com:2013:nsa:vixen" version="2014-01-04T18:13:51Z" expires="2016-12-04T18:13:51Z">
+        <ns6:nsa id="urn:ogf:network:example.com:2013:nsa:vixen" version="2014-01-04T18:13:51Z" expires="2016-12-04T18:13:51Z">
             <name>Example NSA</name>
             <softwareVersion>ExampleNsa-Version-1.0</softwareVersion>
             <startTime>2014-01-01T18:13:51Z</startTime>
@@ -83,6 +79,6 @@
             <peersWith>urn:ogf:network:example.com:2013:nsa:dasher</peersWith>
             <peersWith>urn:ogf:network:example.com:2013:nsa:dancer</peersWith>
             <peersWith>urn:ogf:network:example.com:2013:nsa:prancer</peersWith>
-        </ns4:nsa>
+        </ns6:nsa>
     </content>
 </ns3:document>

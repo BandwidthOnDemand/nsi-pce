@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.discovery.jaxb.DocumentType;
@@ -79,8 +80,13 @@ public class DocumentCache {
         
         // We need to write this new document to disk.
         if (useCache) {
-            log.debug("update: updating " + doc.getFilename());
-            DiscoveryParser.getInstance().writeDocument(doc.getFilename(), doc.getDocument());
+            String filename = doc.getFilename();
+            if (filename == null || filename.isEmpty()) {
+                filename = Paths.get(path, UUID.randomUUID().toString() + ".xml").toString();
+                doc.setFilename(filename);
+            }
+            log.debug("update: updating " + filename);
+            DiscoveryParser.getInstance().writeDocument(filename, doc.getDocument());
         }
         
         return result;
@@ -147,6 +153,19 @@ public class DocumentCache {
                     continue;
                 }
             }
+            else {
+                // No expire value provided so make one.
+                Date date = new Date(System.currentTimeMillis() + XmlUtilities.ONE_YEAR);
+                XMLGregorianCalendar xmlGregorianCalendar;
+                try {
+                    xmlGregorianCalendar = XmlUtilities.xmlGregorianCalendar(date);
+                } catch (DatatypeConfigurationException ex) {
+                    log.error("load: Document does not contain an expires date and creation of one failed id=" + document.getId());
+                    continue;
+                }
+
+                document.setExpires(xmlGregorianCalendar);
+            }
 
             Document entry = new Document(document);
             entry.setFilename(filename);
@@ -158,16 +177,16 @@ public class DocumentCache {
 
             if (result == null) {
                 documents.put(entry.getId(), entry);
-                log.debug("load: added document id=" + entry.getId() + ", filename="+ filename);                
+                log.debug("load: added document id=" + entry.getId() + ", filename=" + filename);                
             }
             else if (entry.getDocument().getVersion().compare(result.getDocument().getVersion()) == DatatypeConstants.GREATER) {
                 log.debug("load: removing cached document id=" + result.getId() + ", filename="+ result.getFilename());
                 documents.remove(result.getId());
                 documents.put(entry.getId(), entry);
-                log.debug("load: added document id=" + entry.getId() + ", filename="+ filename);
+                log.debug("load: added document id=" + entry.getId() + ", filename=" + filename);
             }
             else {
-                log.debug("load: removing cached document id=" + entry.getId() + ", filename="+ filename);
+                log.debug("load: removing cached document id=" + entry.getId() + ", filename=" + filename);
                 File file = new File(filename);
                 if(!file.delete()) {
                     log.error("load: Delete failed for file  " + filename);

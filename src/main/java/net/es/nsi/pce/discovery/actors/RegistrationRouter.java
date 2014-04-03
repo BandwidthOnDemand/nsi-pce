@@ -13,13 +13,13 @@ import akka.routing.ActorRefRoutee;
 import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import javax.xml.bind.JAXBException;
+import net.es.nsi.pce.discovery.jaxb.PeerURLType;
 import net.es.nsi.pce.discovery.provider.DdsProvider;
+import net.es.nsi.pce.schema.MediaTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
@@ -41,7 +41,7 @@ public class RegistrationRouter extends UntypedActor {
 
     @Override
     public void preStart() {
-        log.debug("RegistrationRouter: preStart.");
+        log.debug("preStart: entering.");
         List<Routee> routees = new ArrayList<>();
         for (int i = 0; i < provider.getConfigReader().getActorPool(); i++) {
             ActorRef r = getContext().actorOf(Props.create(RegistrationActor.class, provider));
@@ -53,14 +53,27 @@ public class RegistrationRouter extends UntypedActor {
         RegistrationEvent event = new RegistrationEvent();
         event.setEvent(RegistrationEvent.Event.Register);
         schedule = provider.getActorSystem().scheduler().scheduleOnce(Duration.create(10, TimeUnit.SECONDS), this.getSelf(), event, provider.getActorSystem().dispatcher(), null);
+        log.debug("preStart: exiting.");
     }
 
     @Override
     public void onReceive(Object msg) {
+        log.debug("onReceive: entering.");
         if (msg instanceof RegistrationEvent) {
             RegistrationEvent re = (RegistrationEvent) msg;
             log.debug("RegistrationRouter: event " + re.getEvent());
-            routeRegistrationEvent(re);
+            if (re.getEvent() == RegistrationEvent.Event.Register) {
+                // This is our first time through after initialization.
+                routeRegister();
+            }
+            if (re.getEvent() == RegistrationEvent.Event.Audit) {
+                // A regular audit event.
+                routeAudit();
+            }
+            else if (re.getEvent() == RegistrationEvent.Event.Delete) {
+                // We are shutting down so clean up.
+                routeShutdown();
+            }
         }
         else if (msg instanceof Terminated) {
             log.debug("RegistrationRouter: terminate event.");
@@ -77,62 +90,42 @@ public class RegistrationRouter extends UntypedActor {
         RegistrationEvent event = new RegistrationEvent();
         event.setEvent(RegistrationEvent.Event.Audit);
         schedule = provider.getActorSystem().scheduler().scheduleOnce(Duration.create(provider.getConfigReader().getAuditInterval(), TimeUnit.SECONDS), this.getSelf(), event, provider.getActorSystem().dispatcher(), null);
-    }
-    
-    private void routeRegistrationEvent(RegistrationEvent re) {
-        // Refresh the configuration file just in case we have had a
-        // change since the last audit.
-        try {
-            provider.getConfigReader().load();
-        }
-        catch (IllegalArgumentException | JAXBException | FileNotFoundException ex) {
-            // We are basically screwed until the file is fixed so log it
-            // and schedule a retry 10 minutes from now.
-            log.error("RegistrationRouter.onReceive: Cannot refresh configuration file " + provider.getConfigReader().getFilename(), ex);
-            return;
-        }
-        
-        if (re.getEvent() == RegistrationEvent.Event.Register) {
-            // This is our first time through after initialization.
-            routeRegister();
-        }
-        if (re.getEvent() == RegistrationEvent.Event.Audit) {
-            // A regular audit event.
-            routeAudit();
-        }
-        else if (re.getEvent() == RegistrationEvent.Event.Delete) {
-            // We are shutting down so clean up.
-            routeShutdown();
-        }
+        log.debug("onReceive: exiting.");
     }
     
     private void routeRegister() {
         // Check the list of discovery URL against what we already have.
-        Set<String> discoveryURL = provider.getConfigReader().getDiscoveryURL();
+        Set<PeerURLType> discoveryURL = provider.getConfigReader().getDiscoveryURL();
 
-        for (String url : discoveryURL) {
+        for (PeerURLType url : discoveryURL) {
             // We have not seen this before.
-            RemoteSubscription sub = new RemoteSubscription();
-            sub.setDdsURL(url);
-            RegistrationEvent regEvent = new RegistrationEvent();
-            regEvent.setEvent(RegistrationEvent.Event.Register);
-            regEvent.setSubscription(sub);
-            router.route(regEvent, getSelf());
+            if (url.getType().equalsIgnoreCase(MediaTypes.NSI_DDS_V1_XML)) {
+                RemoteSubscription sub = new RemoteSubscription();
+                sub.setDdsURL(url.getValue());
+                RegistrationEvent regEvent = new RegistrationEvent();
+                regEvent.setEvent(RegistrationEvent.Event.Register);
+                regEvent.setSubscription(sub);
+                router.route(regEvent, getSelf());
+            }
         }
     }
     
     private void routeAudit() {
         // Check the list of discovery URL against what we already have.
-        Set<String> discoveryURL = provider.getConfigReader().getDiscoveryURL();
+        Set<PeerURLType> discoveryURL = provider.getConfigReader().getDiscoveryURL();
         Set<String> subscriptionURL = provider.remoteSubscriptionKeys();
 
-        for (String url : discoveryURL) {
-            // See if we already have seen this URL.
-            RemoteSubscription sub = provider.getRemoteSubscription(url);
+        for (PeerURLType url : discoveryURL) {
+            if (!url.getType().equalsIgnoreCase(MediaTypes.NSI_DDS_V1_XML)) {
+                continue;
+            }
+            
+            // See if we already have seen this URL.            
+            RemoteSubscription sub = provider.getRemoteSubscription(url.getValue());
             if (sub == null) {
                 // We have not seen this before.
                 sub = new RemoteSubscription();
-                sub.setDdsURL(url);
+                sub.setDdsURL(url.getValue());
                 RegistrationEvent regEvent = new RegistrationEvent();
                 regEvent.setEvent(RegistrationEvent.Event.Register);
                 regEvent.setSubscription(sub);
@@ -146,7 +139,7 @@ public class RegistrationRouter extends UntypedActor {
                 router.route(regEvent, getSelf()); 
 
                 // Remove from the existing list as processed.
-                subscriptionURL.remove(url);
+                subscriptionURL.remove(url.getValue());
             }
         }
 
