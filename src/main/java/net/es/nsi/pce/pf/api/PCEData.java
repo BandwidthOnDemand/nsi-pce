@@ -70,11 +70,6 @@ public class PCEData {
         this.reachabilityTable = reachabilityTable;
     }
 
-    public Set<String> getLocalManagedNetworkIds() {
-        // FIXME this needs to return the topology ids that are managed by this aggregator
-        return Collections.emptySet();
-    }
-
     public boolean addConstraint(Constraint constraint) {
         return constraints.add(constraint);
     }

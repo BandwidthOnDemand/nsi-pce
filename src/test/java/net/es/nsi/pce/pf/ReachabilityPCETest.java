@@ -1,12 +1,20 @@
 package net.es.nsi.pce.pf;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.hamcrest.CoreMatchers.*;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
@@ -25,20 +33,21 @@ import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReachabilityPCETest {
 
-    @InjectMocks private ReachabilityPCE subject;
+    private ReachabilityPCE subject;
 
-    @Mock private ServiceInfoProvider serviceInfoProviderMock;
+    private ServiceInfoProvider serviceInfoProviderMock;
+
+    private final static String LOCAL_NETWORK_ID = "urn:ogf:network:local.net:1970:topology";
+
+    @Before
+    public void setUp() throws Exception {
+        serviceInfoProviderMock = mock(ServiceInfoProvider.class);
+        subject = new ReachabilityPCE(serviceInfoProviderMock, LOCAL_NETWORK_ID);
+    }
 
     @Test(expected = IllegalArgumentException.class)
     public void should_throw_exception_when_missing_source_stp() {
@@ -47,8 +56,22 @@ public class ReachabilityPCETest {
     }
 
     @Test
-    @Ignore("todo")
-    public void should_calculate_path_if_both_src_and_dest_is_in_topology() {
+    public void should_calculate_path_if_both_src_and_dest_belong_to_local_network() {
+        String sourceStp = LOCAL_NETWORK_ID + ":start";
+        String destStp = LOCAL_NETWORK_ID + ":end";
+
+        StringAttrConstraint source = createStringConstraint(Point2Point.SOURCESTP, sourceStp);
+        StringAttrConstraint destination = createStringConstraint(Point2Point.DESTSTP, destStp);
+
+        PCEData pceData = new PCEData(source, destination);
+
+        Optional<Path> path = subject.findPath(pceData);
+        verifyZeroInteractions(serviceInfoProviderMock);
+
+        assertTrue(path.isPresent());
+        assertTrue(path.get().getStpPairs().size() == 1);
+        StpPair pair = path.get().getStpPairs().get(0);
+        assertTrue(pair.getA().getNetworkId().equals(pair.getZ().getNetworkId()) && pair.getA().getNetworkId().equals(LOCAL_NETWORK_ID));
     }
 
     @Test
@@ -131,7 +154,7 @@ public class ReachabilityPCETest {
         List<StpPair> stpPairs = path.get().getStpPairs();
         assertThat(stpPairs.size(), is(1));
 
-        assertPair(stpPairs.get(0), peerNetworkId, peerNetworkId, sourceStp.getId() , destStp.getId());
+        assertPair(stpPairs.get(0), peerNetworkId, peerNetworkId, sourceStp.getId(), destStp.getId());
     }
 
     @Test

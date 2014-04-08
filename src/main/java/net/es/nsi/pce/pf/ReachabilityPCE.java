@@ -58,9 +58,11 @@ public class ReachabilityPCE implements PCEModule {
     });
 
     private final ServiceInfoProvider serviceInfoProvider;
+    private final String localNetworkId;
 
-    public ReachabilityPCE(ServiceInfoProvider serviceInfoProvider) {
+    public ReachabilityPCE(ServiceInfoProvider serviceInfoProvider, String localNetworkId) {
         this.serviceInfoProvider = serviceInfoProvider;
+        this.localNetworkId = localNetworkId;
     }
 
     @Override
@@ -80,13 +82,13 @@ public class ReachabilityPCE implements PCEModule {
         Stp sourceStp = findSourceStp(constraints);
         Stp destStp = findDestinationStp(constraints);
 
-        if (isInMyNetwork(sourceStp, pceData)) {
-            if (isInMyNetwork(destStp, pceData)) {
+        if (isInMyNetwork(sourceStp)) {
+            if (isInMyNetwork(destStp)) {
                 return onlyLocalPath(sourceStp, destStp);
             } else {
                 return findSplitPath(sourceStp, destStp, pceData.getTopology(), pceData.getReachabilityTable());
             }
-        } else if (isInMyNetwork(destStp, pceData)) {
+        } else if (isInMyNetwork(destStp)) {
             return findSplitPath(destStp, sourceStp, pceData.getTopology(), pceData.getReachabilityTable());
         } else {
             return findForwardPath(sourceStp, destStp, pceData.getReachabilityTable());
@@ -129,7 +131,7 @@ public class ReachabilityPCE implements PCEModule {
             findConnectingSdp(localStp.getNetworkId(), remoteReachability.get().getNetworkId(), topology) : Optional.<SdpType>absent();
 
         if (!connectingSdp.isPresent()) {
-            throw new IllegalStateException("Could not find path..");
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, Point2Point.NAMESPACE, Point2Point.DESTSTP));
         }
 
         Stp localIntermediateStp = findStpFromSdp(connectingSdp.get(), localStp.getNetworkId());
@@ -179,7 +181,7 @@ public class ReachabilityPCE implements PCEModule {
 
         if (sourceCost.isPresent()) {
             if (destCost.isPresent()) {
-                // TODO when costs are equal always return source expect when source is in connection trace
+                // TODO when costs are equal always return source except when source is in connection trace
                 return sourceCost.get().getCost() <= destCost.get().getCost() ? sourceCost : destCost;
             } else {
                 return sourceCost;
@@ -189,8 +191,8 @@ public class ReachabilityPCE implements PCEModule {
         }
     }
 
-    private boolean isInMyNetwork(Stp stp, PCEData pceData) {
-        return pceData.getLocalManagedNetworkIds().contains(stp.getNetworkId());
+    private boolean isInMyNetwork(Stp stp) {
+        return localNetworkId.equals(stp.getNetworkId());
     }
 
     @VisibleForTesting
