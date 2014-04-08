@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns4:document xmlns:ns2="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns3="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns4="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns5="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns6="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns7="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" xmlns:ns8="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" id="urn:ogf:network:aist.go.jp:2013:nsa" href="/discovery/documents/urn%3Aogf%3Anetwork%3Aaist.go.jp%3A2013%3Ansa/application%2Fvnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aaist.go.jp%3A2013%3Ansa" version="2013-07-26T10:42:44Z" expires="2014-04-24T14:25:24.598-04:00">
+    <nsa>urn:ogf:network:aist.go.jp:2013:nsa</nsa>
+    <type>application/vnd.ogf.nsi.nsa.v1+xml</type>
+    <content>
+        <ns8:nsa id="urn:ogf:network:aist.go.jp:2013:nsa" version="2013-07-26T10:42:44Z">
+            <location>
+                <longitude>140.133</longitude>
+                <latitude>36.06</latitude>
+            </location>
+            <networkId>urn:ogf:network:aist.go.jp:2013:topology</networkId>
+            <interface>
+                <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                <href>http://163.220.30.173:22211/aist_upa/services/ConnectionProvider</href>
+            </interface>
+            <feature type="vnd.ogf.nsi.cs.v2.role.uPA"/>
+            <peersWith>urn:ogf:network:jgn-x.jp:2013:nsa</peersWith>
+        </ns8:nsa>
+    </content>
+</ns4:document>

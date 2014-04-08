@@ -4,8 +4,10 @@
  */
 package net.es.nsi.pce.discovery.actors;
 
+import net.es.nsi.pce.discovery.dao.RemoteSubscriptionCache;
+import net.es.nsi.pce.discovery.messages.RegistrationEvent;
+import net.es.nsi.pce.discovery.messages.RemoteSubscription;
 import akka.actor.ActorRef;
-import akka.actor.Cancellable;
 import akka.actor.Props;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
@@ -15,11 +17,13 @@ import akka.routing.Routee;
 import akka.routing.Router;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import net.es.nsi.pce.discovery.jaxb.PeerURLType;
-import net.es.nsi.pce.discovery.provider.DdsProvider;
-import net.es.nsi.pce.schema.MediaTypes;
+import net.es.nsi.pce.discovery.messages.StartMsg;
+import net.es.nsi.pce.schema.NsiConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
@@ -31,34 +35,47 @@ import scala.concurrent.duration.Duration;
 public class RegistrationRouter extends UntypedActor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private DdsProvider provider;
+    private DdsActorSystem ddsActorSystem;
+    private int poolSize;
+    private long interval;
+    private RemoteSubscriptionCache remoteSubscriptionCache;
     private Router router;
-    private Cancellable schedule;
+    
+    // In-memory subscription cache indexed by subscriptionId.
+    private Map<String, RemoteSubscription> remoteSubscriptions = new ConcurrentHashMap<>();
 
-    public RegistrationRouter(DdsProvider provider) {
-        this.provider = provider;
+    public RegistrationRouter(DdsActorSystem ddsActorSystem, int poolSize, long interval) {
+        this.ddsActorSystem = ddsActorSystem;
+        this.poolSize = poolSize;
+        this.interval = interval;
+        this.remoteSubscriptionCache = RemoteSubscriptionCache.getInstance();
     }
 
     @Override
     public void preStart() {
         log.debug("preStart: entering.");
         List<Routee> routees = new ArrayList<>();
-        for (int i = 0; i < provider.getConfigReader().getActorPool(); i++) {
-            ActorRef r = getContext().actorOf(Props.create(RegistrationActor.class, provider));
+        for (int i = 0; i < poolSize; i++) {
+            ActorRef r = getContext().actorOf(Props.create(RegistrationActor.class, ddsActorSystem));
             getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
         }
         router = new Router(new RoundRobinRoutingLogic(), routees);
-        
-        RegistrationEvent event = new RegistrationEvent();
-        event.setEvent(RegistrationEvent.Event.Register);
-        schedule = provider.getActorSystem().scheduler().scheduleOnce(Duration.create(10, TimeUnit.SECONDS), this.getSelf(), event, provider.getActorSystem().dispatcher(), null);
         log.debug("preStart: exiting.");
     }
 
     @Override
     public void onReceive(Object msg) {
         log.debug("onReceive: entering.");
+        
+        // Check to see if we got the go ahead to start registering.
+        if (msg instanceof StartMsg) {
+            // Create a Register event to start us off.
+            RegistrationEvent event = new RegistrationEvent();
+            event.setEvent(RegistrationEvent.Event.Register);
+            msg = event;
+        }
+
         if (msg instanceof RegistrationEvent) {
             RegistrationEvent re = (RegistrationEvent) msg;
             log.debug("RegistrationRouter: event " + re.getEvent());
@@ -89,17 +106,17 @@ public class RegistrationRouter extends UntypedActor {
 
         RegistrationEvent event = new RegistrationEvent();
         event.setEvent(RegistrationEvent.Event.Audit);
-        schedule = provider.getActorSystem().scheduler().scheduleOnce(Duration.create(provider.getConfigReader().getAuditInterval(), TimeUnit.SECONDS), this.getSelf(), event, provider.getActorSystem().dispatcher(), null);
+        ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), event, ddsActorSystem.getActorSystem().dispatcher(), null);
         log.debug("onReceive: exiting.");
     }
     
     private void routeRegister() {
         // Check the list of discovery URL against what we already have.
-        Set<PeerURLType> discoveryURL = provider.getConfigReader().getDiscoveryURL();
+        Set<PeerURLType> discoveryURL = ddsActorSystem.getConfigReader().getDiscoveryURL();
 
         for (PeerURLType url : discoveryURL) {
             // We have not seen this before.
-            if (url.getType().equalsIgnoreCase(MediaTypes.NSI_DDS_V1_XML)) {
+            if (url.getType().equalsIgnoreCase(NsiConstants.NSI_DDS_V1_XML)) {
                 RemoteSubscription sub = new RemoteSubscription();
                 sub.setDdsURL(url.getValue());
                 RegistrationEvent regEvent = new RegistrationEvent();
@@ -112,16 +129,16 @@ public class RegistrationRouter extends UntypedActor {
     
     private void routeAudit() {
         // Check the list of discovery URL against what we already have.
-        Set<PeerURLType> discoveryURL = provider.getConfigReader().getDiscoveryURL();
-        Set<String> subscriptionURL = provider.remoteSubscriptionKeys();
+        Set<PeerURLType> discoveryURL = ddsActorSystem.getConfigReader().getDiscoveryURL();
+        Set<String> subscriptionURL = remoteSubscriptionCache.keySet();
 
         for (PeerURLType url : discoveryURL) {
-            if (!url.getType().equalsIgnoreCase(MediaTypes.NSI_DDS_V1_XML)) {
+            if (!url.getType().equalsIgnoreCase(NsiConstants.NSI_DDS_V1_XML)) {
                 continue;
             }
             
             // See if we already have seen this URL.            
-            RemoteSubscription sub = provider.getRemoteSubscription(url.getValue());
+            RemoteSubscription sub = remoteSubscriptionCache.get(url.getValue());
             if (sub == null) {
                 // We have not seen this before.
                 sub = new RemoteSubscription();
@@ -146,7 +163,7 @@ public class RegistrationRouter extends UntypedActor {
         // Now we see if there are any URL we missed from the old list and
         // unsubscribe them since we seem to no longer be interested.
         for (String url : subscriptionURL) {
-            RemoteSubscription sub = provider.getRemoteSubscription(url);
+            RemoteSubscription sub = remoteSubscriptionCache.get(url);
             if (sub != null) { // Should always be true unless modified while we are processing.
                 RegistrationEvent regEvent = new RegistrationEvent();
                 regEvent.setEvent(RegistrationEvent.Event.Delete);
@@ -157,8 +174,8 @@ public class RegistrationRouter extends UntypedActor {
     }
     
     private void routeShutdown() {
-        for (String url : provider.remoteSubscriptionKeys()) {
-            RemoteSubscription sub = provider.getRemoteSubscription(url);
+        for (String url : remoteSubscriptionCache.keySet()) {
+            RemoteSubscription sub = remoteSubscriptionCache.get(url);
             if (sub != null) { // Should always be true unless modified while we are processing.
                 RegistrationEvent regEvent = new RegistrationEvent();
                 regEvent.setEvent(RegistrationEvent.Event.Delete);

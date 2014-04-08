@@ -277,7 +277,7 @@
                         <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
                         <bindingDirectory>${basedir}/src/main/xsd</bindingDirectory>
                         <bindingFiles>discovery.xjb</bindingFiles>
-                        <schemaFiles>pce-discovery-configuration.xsd, ogf_nsi_discovery_protocol_v1_0.xsd, ogf_nsi_discovery_nsa_v1_0.xsd, gnsbod.xsd</schemaFiles>
+                        <schemaFiles>pce-discovery-configuration.xsd, ogf_nsi_discovery_protocol_v1_0.xsd, ogf_nsi_discovery_nsa_v1_0.xsd, gnsbod.xsd, ogf_nsi_services_definition_v2_0.xsd, nmlbase.xsd, nsi-ext.xsd</schemaFiles>
                         <packageName>net.es.nsi.pce.discovery.jaxb</packageName>
                         <staleFile>${project.build.directory}/jaxb2/.discoveryXjcStaleFlag</staleFile>
                         <clearOutputDir>false</clearOutputDir>
@@ -322,7 +322,10 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.16</version>
                 <configuration>
-                    <argLine>-Djersey.config.test.container.port=8400</argLine>        
+                    <argLine>-Djersey.config.test.container.port=8400</argLine>
+                    <argLine>-Dcom.sun.xml.bind.v2.runtime.JAXBContextImpl.fastBoot=true</argLine>
+                    <argLine>-Djavax.net.ssl.trustStore=config/nsi-pce-truststore</argLine>
+                    <argLine>-Djavax.net.ssl.trustStorePassword=changeit</argLine>   
                 </configuration>
             </plugin>
             

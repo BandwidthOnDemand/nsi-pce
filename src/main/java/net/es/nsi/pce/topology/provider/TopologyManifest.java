@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TopologyManifest {
     private String id;
     private long version;
-    private Map<String, String> entryList = new ConcurrentHashMap<String, String>();
+    private Map<String, String> entryList = new ConcurrentHashMap<>();
 
     /**
      * @return the id
@@ -57,7 +57,8 @@ public class TopologyManifest {
      * @param entryList the entryList to set
      */
     public void setEntryList(Map<String, String> entryList) {
-        this.entryList = entryList;
+        this.entryList.clear();
+        this.entryList.putAll(entryList);
     }
     
     /**
@@ -73,5 +74,9 @@ public class TopologyManifest {
     
     public void put(String id, String url) {
         entryList.put(id, url);
-    }    
+    }
+    
+    public String get(String id) {
+        return entryList.get(id);
+    }
 }

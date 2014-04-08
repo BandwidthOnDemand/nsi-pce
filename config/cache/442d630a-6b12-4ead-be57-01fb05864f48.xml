@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns3:document xmlns:ns2="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns3="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns4="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns5="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" xmlns:ns6="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" id="urn:ogf:network:surfnet.nl:1990:nsa:bod-acc" href="/discovery/documents/urn%3Aogf%3Anetwork%3Asurfnet.nl%3A1990%3Ansa%3Abod-acc/application%2Fvnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Asurfnet.nl%3A1990%3Ansa%3Abod-acc" version="2014-04-04T02:13:29+02:00" expires="2014-04-20T20:53:58.883-04:00">
+    <nsa>urn:ogf:network:surfnet.nl:1990:nsa:bod-acc</nsa>
+    <type>application/vnd.ogf.nsi.nsa.v1+xml</type>
+    <content>
+        <ns6:nsa id="urn:ogf:network:surfnet.nl:1990:nsa:bod-acc" version="2014-04-04T02:13:29+02:00">
+            <name>SURFnet7 test bed</name>
+            <softwareVersion>1.24.27</softwareVersion>
+            <startTime>2014-04-03T14:39:49+02:00</startTime>
+            <adminContact>
+                <ns2:vcard>
+                    <ns2:uid>
+                        <ns2:uri>https://bod.acc.dlp.surfnet.nl//nsi/v2/provider#adminContact</ns2:uri>
+                    </ns2:uid>
+                    <ns2:prodid>
+                        <ns2:text>surfnet-acc</ns2:text>
+                    </ns2:prodid>
+                    <ns2:rev>
+                        <ns2:timestamp>20140404T021329Z</ns2:timestamp>
+                    </ns2:rev>
+                    <ns2:kind>
+                        <ns2:text>individual</ns2:text>
+                    </ns2:kind>
+                    <ns2:fn>
+                        <ns2:text>Hans Trompert</ns2:text>
+                    </ns2:fn>
+                    <ns2:n>
+                        <ns2:surname>Trompert</ns2:surname>
+                        <ns2:given>Hans</ns2:given>
+                    </ns2:n>
+                </ns2:vcard>
+            </adminContact>
+            <location>
+                <longitude>4.954585</longitude>
+                <latitude>52.3567</latitude>
+            </location>
+            <networkId>urn:ogf:network:surfnet.nl:1990:testbed</networkId>
+            <interface>
+                <type>application/vnd.ogf.nsi.topology.v2+xml</type>
+                <href>https://bod.acc.dlp.surfnet.nl//nsi-topology</href>
+            </interface>
+            <interface>
+                <type>application/vnd.org.ogf.nsi.cs.v2+soap</type>
+                <href>https://bod.acc.dlp.surfnet.nl//nsi/v2/provider</href>
+            </interface>
+            <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+        </ns6:nsa>
+    </content>
+</ns3:document>

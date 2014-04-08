@@ -4,8 +4,12 @@
  */
 package net.es.nsi.pce.discovery.actors;
 
+import net.es.nsi.pce.discovery.dao.RemoteSubscriptionCache;
+import net.es.nsi.pce.discovery.messages.RegistrationEvent;
+import net.es.nsi.pce.discovery.messages.RemoteSubscription;
 import akka.actor.UntypedActor;
 import java.net.MalformedURLException;
+import java.net.URL;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -20,8 +24,8 @@ import net.es.nsi.pce.discovery.jaxb.FilterType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionType;
-import net.es.nsi.pce.discovery.provider.DdsProvider;
 import net.es.nsi.pce.jersey.RestClient;
+import net.es.nsi.pce.schema.NsiConstants;
 import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
@@ -32,14 +36,17 @@ import org.slf4j.LoggerFactory;
  * @author hacksaw
  */
 public class RegistrationActor extends UntypedActor {
-
+    private static final String NOTIFICATIONS_URL = "/discovery/notifications";
+    
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ObjectFactory factory = new ObjectFactory();
-    private DdsProvider provider;
+    private DdsActorSystem ddsActorSystem;
+    private RemoteSubscriptionCache remoteSubscriptionCache;
     private Client client;
     
-    public RegistrationActor(DdsProvider provider) {
-        this.provider = provider;
+    public RegistrationActor(DdsActorSystem ddsActorSystem) {
+        this.ddsActorSystem = ddsActorSystem;
+        this.remoteSubscriptionCache = RemoteSubscriptionCache.getInstance();
     }
 
     @Override
@@ -71,6 +78,12 @@ public class RegistrationActor extends UntypedActor {
         }
     }
     
+    private String getNotificationURL() throws MalformedURLException {
+        URL url = new URL(ddsActorSystem.getConfigReader().getBaseURL());
+        url = new URL(url, NOTIFICATIONS_URL);
+        return url.toString();
+    }
+    
     private void register(RegistrationEvent event) {
         // We will register for all events on all documents.
         FilterCriteriaType criteria = factory.createFilterCriteriaType();
@@ -79,10 +92,10 @@ public class RegistrationActor extends UntypedActor {
         filter.getInclude().add(criteria);
         SubscriptionRequestType request = factory.createSubscriptionRequestType();
         request.setFilter(filter);
-        request.setRequesterId(provider.getNsaId());
+        request.setRequesterId(ddsActorSystem.getConfigReader().getNsaId());
         
         try {
-            request.setCallback(provider.getNotificationURL());
+            request.setCallback(getNotificationURL());
         }
         catch (MalformedURLException mx) {
             log.error("RegistrationActor.register: failed to get my notification callback URL", mx);
@@ -90,11 +103,11 @@ public class RegistrationActor extends UntypedActor {
             return;
         }
 
-        WebTarget webTarget = client.target(event.getSubscription().getDdsURL()).path("/subscriptions");
+        WebTarget webTarget = client.target(event.getSubscription().getDdsURL()).path("subscriptions");
         JAXBElement<SubscriptionRequestType> jaxb = factory.createSubscriptionRequest(request);
         Response response;
         try {
-            response = webTarget.request(provider.getMediaType()).post(Entity.entity(new GenericEntity<JAXBElement<SubscriptionRequestType>>(jaxb) {}, provider.getMediaType()));
+            response = webTarget.request(NsiConstants.NSI_DDS_V1_XML).post(Entity.entity(new GenericEntity<JAXBElement<SubscriptionRequestType>>(jaxb) {}, NsiConstants.NSI_DDS_V1_XML));
         }
         catch (Exception ex) {
             log.error("RegistrationActor.register: endpoint " + event.getSubscription().getDdsURL(), ex);
@@ -117,7 +130,7 @@ public class RegistrationActor extends UntypedActor {
         
         event.getSubscription().setSubscription(subscription);
         event.getSubscription().setLastModified(response.getLastModified());
-        provider.addRemoteSubscription(event.getSubscription());
+        remoteSubscriptionCache.add(event.getSubscription());
     }
     
     private void update(RegistrationEvent event) {
@@ -129,7 +142,7 @@ public class RegistrationActor extends UntypedActor {
         Response response;
         
         try {
-            response = webTarget.request(provider.getMediaType()).header("If-Modified-Since", DateUtils.formatDate(subscription.getLastModified(), DateUtils.PATTERN_RFC1123)).get();
+            response = webTarget.request(NsiConstants.NSI_DDS_V1_XML).header("If-Modified-Since", DateUtils.formatDate(subscription.getLastModified(), DateUtils.PATTERN_RFC1123)).get();
         }
         catch (Exception ex) {
             log.error("RegistrationActor.update: failed to update subscription " + subscription.getSubscription().getHref(), ex);
@@ -150,7 +163,7 @@ public class RegistrationActor extends UntypedActor {
             log.debug("RegistrationActor.update: subscription " + subscription.getSubscription().getHref() + " does not exists and will be recreated.");
             
             // Remove the stored subscription since a new one will be created.
-            provider.removeRemoteSubscription(event.getSubscription().getDdsURL());
+            remoteSubscriptionCache.remove(event.getSubscription().getDdsURL());
             register(event);
         }
         else {
@@ -168,7 +181,7 @@ public class RegistrationActor extends UntypedActor {
         
         Response response;
         try {
-            response = webTarget.request(provider.getMediaType()).delete();
+            response = webTarget.request(NsiConstants.NSI_DDS_V1_XML).delete();
         }
         catch (Exception ex) {
             log.error("RegistrationActor.delete: failed to delete subscription " + event.getSubscription().getDdsURL(), ex);
@@ -191,6 +204,6 @@ public class RegistrationActor extends UntypedActor {
             return;
         }
         
-        provider.removeRemoteSubscription(event.getSubscription().getDdsURL());        
+        remoteSubscriptionCache.remove(event.getSubscription().getDdsURL());        
     }
 }

@@ -4,6 +4,7 @@
  */
 package net.es.nsi.pce.discovery.gangofthree;
 
+import net.es.nsi.pce.discovery.messages.TimerMsg;
 import net.es.nsi.pce.discovery.actors.*;
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -20,8 +21,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import net.es.nsi.pce.discovery.jaxb.PeerURLType;
-import net.es.nsi.pce.discovery.provider.DdsProvider;
-import net.es.nsi.pce.schema.MediaTypes;
+import net.es.nsi.pce.discovery.messages.StartMsg;
+import net.es.nsi.pce.schema.NsiConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
@@ -33,33 +34,42 @@ import scala.concurrent.duration.Duration;
 public class Gof3DiscoveryRouter extends UntypedActor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private DdsProvider provider;
+    private DdsActorSystem ddsActorSystem;
+    private int poolSize;
+    private long interval;
     private Router router;
     private Map<String, Gof3DiscoveryMsg> discovery = new ConcurrentHashMap<>();
 
-    public Gof3DiscoveryRouter(DdsProvider provider) {
-        this.provider = provider;
+    public Gof3DiscoveryRouter(DdsActorSystem ddsActorSystem, int poolSize, long interval) {
+        this.ddsActorSystem = ddsActorSystem;
+        this.poolSize = poolSize;
+        this.interval = interval;
     }
 
     @Override
     public void preStart() {
         log.debug("preStart: entering.");
         List<Routee> routees = new ArrayList<>();
-        for (int i = 0; i < provider.getConfigReader().getActorPool(); i++) {
-            ActorRef r = getContext().actorOf(Props.create(Gof3DiscoveryActor.class, provider));
+        for (int i = 0; i < poolSize; i++) {
+            ActorRef r = getContext().actorOf(Props.create(Gof3DiscoveryActor.class));
             getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
         }
         router = new Router(new RoundRobinRoutingLogic(), routees);
-        
-        TimerMsg message = new TimerMsg();
-        provider.getActorSystem().scheduler().scheduleOnce(Duration.create(100, TimeUnit.MILLISECONDS), this.getSelf(), message, provider.getActorSystem().dispatcher(), null);
         log.debug("preStart: exiting.");
     }
 
     @Override
     public void onReceive(Object msg) {
         log.debug("onReceive: entering.");
+        TimerMsg message = new TimerMsg();
+
+        // Check to see if we got the go ahead to start registering.
+        if (msg instanceof StartMsg) {
+            // Create a Register event to start us off.
+            msg = message;
+        }
+
         if (msg instanceof TimerMsg) {
             log.debug("onReceive: timer event.");
             routeTimerEvent();
@@ -83,18 +93,17 @@ public class Gof3DiscoveryRouter extends UntypedActor {
             unhandled(msg);
         }
 
-        TimerMsg message = new TimerMsg();
-        provider.getActorSystem().scheduler().scheduleOnce(Duration.create(provider.getConfigReader().getAuditInterval(), TimeUnit.SECONDS), this.getSelf(), message, provider.getActorSystem().dispatcher(), null);
+        ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
         log.debug("onReceive: exiting.");
     }
     
     private void routeTimerEvent() {
         log.debug("routeTimerEvent: entering.");
-        Set<PeerURLType> discoveryURL = provider.getConfigReader().getDiscoveryURL();
+        Set<PeerURLType> discoveryURL = ddsActorSystem.getConfigReader().getDiscoveryURL();
         Set<String> notSent = discovery.keySet();
 
         for (PeerURLType url : discoveryURL) {
-            if (!url.getType().equalsIgnoreCase(MediaTypes.NSI_NSA_V1)) {
+            if (!url.getType().equalsIgnoreCase(NsiConstants.NSI_NSA_V1)) {
                 continue;
             }
             

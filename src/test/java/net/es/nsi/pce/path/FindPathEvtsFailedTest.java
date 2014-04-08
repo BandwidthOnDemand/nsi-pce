@@ -86,7 +86,7 @@ public class FindPathEvtsFailedTest extends JerseyTest {
     private final static List<StpTestData> testData = new ArrayList<StpTestData>() {
         private static final long serialVersionUID = 1L;
         {
-            this.add(test1);
+            //this.add(test1);
             this.add(test2);
             this.add(test3);
             this.add(test4);

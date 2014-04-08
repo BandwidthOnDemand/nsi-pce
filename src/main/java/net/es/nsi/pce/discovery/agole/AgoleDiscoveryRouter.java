@@ -18,10 +18,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import javax.ws.rs.NotFoundException;
+import javax.xml.bind.JAXBException;
+import net.es.nsi.pce.discovery.actors.DdsActorSystem;
 import net.es.nsi.pce.discovery.jaxb.PeerURLType;
-import net.es.nsi.pce.discovery.provider.DdsProvider;
-import net.es.nsi.pce.schema.MediaTypes;
-import net.es.nsi.pce.discovery.actors.TimerMsg;
+import net.es.nsi.pce.discovery.messages.StartMsg;
+import net.es.nsi.pce.schema.NsiConstants;
+import net.es.nsi.pce.discovery.messages.TimerMsg;
+import net.es.nsi.pce.management.jaxb.TopologyStatusType;
+import net.es.nsi.pce.management.logs.PceErrors;
+import net.es.nsi.pce.management.logs.PceLogger;
+import net.es.nsi.pce.management.logs.PceLogs;
+import net.es.nsi.pce.topology.provider.GitHubManifestReader;
+import net.es.nsi.pce.topology.provider.TopologyManifest;
+import net.es.nsi.pce.topology.provider.TopologyProviderStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
@@ -33,43 +43,67 @@ import scala.concurrent.duration.Duration;
 public class AgoleDiscoveryRouter extends UntypedActor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private DdsProvider provider;
+    private PceLogger topologyLogger = PceLogger.getLogger();
+    private TopologyProviderStatus manifestStatus = null;
+
+    private DdsActorSystem ddsActorSystem;
+    private long interval;
+    private int poolSize;
     private Router router;
     private Map<String, AgoleDiscoveryMsg> discovery = new ConcurrentHashMap<>();
+    private GitHubManifestReader manifestReader;
+    private TopologyManifest manifest = null;
 
-    public AgoleDiscoveryRouter(DdsProvider provider) {
-        this.provider = provider;
+    public AgoleDiscoveryRouter(DdsActorSystem ddsActorSystem, int poolSize, long interval) {
+        this.ddsActorSystem = ddsActorSystem;
+        this.interval = interval;
+        this.poolSize = poolSize;
     }
 
     @Override
     public void preStart() {
         log.debug("preStart: entering.");
         List<Routee> routees = new ArrayList<>();
-        for (int i = 0; i < provider.getConfigReader().getActorPool(); i++) {
-            ActorRef r = getContext().actorOf(Props.create(AgoleDiscoveryActor.class, provider));
+        for (int i = 0; i < poolSize; i++) {
+            ActorRef r = getContext().actorOf(Props.create(AgoleDiscoveryActor.class));
             getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
         }
         router = new Router(new RoundRobinRoutingLogic(), routees);
-        
-        TimerMsg message = new TimerMsg();
-        provider.getActorSystem().scheduler().scheduleOnce(Duration.create(100, TimeUnit.MILLISECONDS), this.getSelf(), message, provider.getActorSystem().dispatcher(), null);
+        Set<PeerURLType> discoveryURL = ddsActorSystem.getConfigReader().getDiscoveryURL();
+        for (PeerURLType url : discoveryURL) {
+            if (url.getType().equalsIgnoreCase(NsiConstants.NSI_TOPOLOGY_V1)) {
+                manifestReader = new GitHubManifestReader(url.getValue());
+                break;
+            }
+        }
         log.debug("preStart: exiting.");
     }
 
     @Override
     public void onReceive(Object msg) {
         log.debug("onReceive: entering.");
+        
+        TimerMsg message = new TimerMsg();
+
+        // Check to see if we got the go ahead to start registering.
+        if (msg instanceof StartMsg) {
+            // Create a Register event to start us off.
+            msg = message;
+        }
+
         if (msg instanceof TimerMsg) {
             log.debug("onReceive: timer event.");
-            routeTimerEvent();
+            if (readManifest() != null) {
+                routeTimerEvent();
+            }
         }
         else if (msg instanceof AgoleDiscoveryMsg) {
             AgoleDiscoveryMsg incoming = (AgoleDiscoveryMsg) msg;
             
             log.debug("onReceive: discovery update for nsaId=" + incoming.getNsaId());
 
-            discovery.put(incoming.getNsaURL(), incoming);
+            discovery.put(incoming.getTopologyURL(), incoming);
         }
         else if (msg instanceof Terminated) {
             log.debug("onReceive: terminate event.");
@@ -83,33 +117,53 @@ public class AgoleDiscoveryRouter extends UntypedActor {
             unhandled(msg);
         }
 
-        TimerMsg message = new TimerMsg();
-        provider.getActorSystem().scheduler().scheduleOnce(Duration.create(provider.getConfigReader().getAuditInterval(), TimeUnit.SECONDS), this.getSelf(), message, provider.getActorSystem().dispatcher(), null);
+        ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
         log.debug("onReceive: exiting.");
+    }
+    
+    private TopologyManifest readManifest() {
+        log.debug("readManifest: starting manifest audit for " + manifestReader.getTarget());
+        manifestAuditStart();
+        try {
+            TopologyManifest manifestIfModified = manifestReader.getManifestIfModified();
+            if (manifestIfModified != null) {
+                manifest = manifestIfModified;
+            }
+        } catch (NotFoundException nf) {
+            log.error("readManifest: could not find manifest file " + manifestReader.getTarget(), nf);
+            manifestAuditError();
+        } catch (JAXBException jaxb) {
+            log.error("readManifest: could not parse manifest file " + manifestReader.getTarget(), jaxb);
+            manifestAuditError();
+        }
+
+        manifestAuditSuccess();
+        log.debug("readManifest: completed manifest audit for " + manifestReader.getTarget());
+        return manifest;
     }
     
     private void routeTimerEvent() {
         log.debug("routeTimerEvent: entering.");
-        Set<PeerURLType> discoveryURL = provider.getConfigReader().getDiscoveryURL();
+        Map<String, String> entryList = manifest.getEntryList();
         Set<String> notSent = discovery.keySet();
 
-        for (PeerURLType url : discoveryURL) {
-            if (!url.getType().equalsIgnoreCase(MediaTypes.NSI_NSA_V1)) {
-                continue;
-            }
+        for (Map.Entry<String, String> entry : manifest.getEntryList().entrySet()) {
+            String id = entry.getKey();
+            String url =  entry.getValue();
+
+            log.debug("routeTimerEvent: id=" + id + ", url=" + url);
             
-            log.debug("routeTimerEvent: url=" + url.getValue());
-            
-            AgoleDiscoveryMsg msg = discovery.get(url.getValue());
+            AgoleDiscoveryMsg msg = discovery.get(url);
             if (msg == null) {
                 msg = new AgoleDiscoveryMsg();
-                msg.setNsaURL(url.getValue());
+                msg.setTopologyURL(url);
+                msg.setId(id);
             }
 
             router.route(msg, getSelf());
-            notSent.remove(msg.getNsaURL());
+            notSent.remove(url);
         }
-        
+
         // Clean up the entries no longer in the configuration.
         for (String url : notSent) {
             log.debug("routeTimerEvent: entry no longer needed, url=" + url);
@@ -117,5 +171,36 @@ public class AgoleDiscoveryRouter extends UntypedActor {
         }
 
         log.debug("routeTimerEvent: exiting.");
+    }
+    
+    private void manifestAuditStart() {
+        topologyLogger.logAudit(PceLogs.AUDIT_MANIFEST_START, manifestReader.getId(), manifestReader.getTarget());
+        
+        if (manifestStatus == null) {
+            manifestStatus = new TopologyProviderStatus();
+            
+            if (manifestReader != null) {
+                manifestStatus.setId(manifestReader.getId());
+                manifestStatus.setHref(manifestReader.getTarget());
+            }
+        }
+        else {
+            manifestStatus.setStatus(TopologyStatusType.AUDITING);
+            manifestStatus.setLastAudit(System.currentTimeMillis());
+        }
+    }
+    
+    private void manifestAuditError() {
+        topologyLogger.errorAudit(PceErrors.AUDIT_MANIFEST, manifestReader.getId(), manifestReader.getTarget());
+        manifestStatus.setStatus(TopologyStatusType.ERROR);
+    }
+    
+    private void manifestAuditSuccess() {
+        topologyLogger.logAudit(PceLogs.AUDIT_MANIFEST_SUCCESSFUL, manifestReader.getId(), manifestReader.getTarget());
+        manifestStatus.setId(manifestReader.getId());
+        manifestStatus.setHref(manifestReader.getTarget());
+        manifestStatus.setStatus(TopologyStatusType.COMPLETED);
+        manifestStatus.setLastSuccessfulAudit(manifestStatus.getLastAudit());
+        manifestStatus.setLastModified(manifestReader.getLastModified());
     }
 }

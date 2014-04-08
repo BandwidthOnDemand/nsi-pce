@@ -8,6 +8,8 @@ import net.es.nsi.pce.discovery.provider.DiscoveryProvider;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.sched.PCEScheduler;
 import net.es.nsi.pce.sched.TopologyAudit;
+import static net.es.nsi.pce.server.Main.PCE_SERVER_CONFIG_NAME;
+import net.es.nsi.pce.server.PCEServer;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -43,9 +45,11 @@ import org.springframework.context.ApplicationContext;
 public enum ConfigurationManager {
     INSTANCE;
 
-    private static HttpConfigProvider htProv;
-    private static HttpConfig pceConfig;    
-    private static ServiceInfoProvider sip;
+    public static final String PCE_SERVER_CONFIG_NAME = "pce";
+    
+    private static HttpConfigProvider httpConfigProvider;
+    private static PCEServer pceServer;
+    private static ServiceInfoProvider serviceInfoProvider;
     private static TopologyProvider topologyProvider;
     private static DiscoveryProvider discoveryProvider;
     
@@ -72,29 +76,15 @@ public enum ConfigurationManager {
             // Initialize the Spring context to load our dependencies.
             SpringContext sc = SpringContext.getInstance();
             ApplicationContext context = sc.initContext(beanConfig);
-
-            // Load the HTTP provider configuration bean.
-            setHttpProv((HttpConfigProvider) context.getBean("httpConfigProvider"));
-
-            // Load and start the Path Computation Engine HTTP server.
-            log.info("Loading PCE HTTP config...");
-            setPceConfig(getHttpProv().getConfig("pce"));
-            log.info("...PCE HTTP config loaded.");
-
-            // Load the NSA addressing and security information.
-            log.info("Loading NSA security config...");
-            setServiceInfoProvider((ServiceInfoProvider) context.getBean("serviceInfoProvider"));
-            log.info("...NSA security config loaded.");
             
-            // Load discovery provider.
-            log.info("Loading discovery provider...");
-            setDiscoveryProvider((DiscoveryProvider) context.getBean("discoveryProvider"));
-            log.info("...Discovery provider loaded.");
-
-            // Load topology database.
-            log.info("Loading topology provider...");
-            setTopologyProvider((TopologyProvider) context.getBean("topologyProvider"));
-            log.info("...Topology provider loaded.");
+            // Get references to the spring controlled beans.
+            httpConfigProvider = (HttpConfigProvider) context.getBean("httpConfigProvider");
+            pceServer = (PCEServer) context.getBean("pceServer");
+            pceServer.start(PCE_SERVER_CONFIG_NAME);
+            
+            serviceInfoProvider = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
+            discoveryProvider = (DiscoveryProvider) context.getBean("discoveryProvider");
+            topologyProvider = (TopologyProvider) context.getBean("topologyProvider");
             
             // TODO: This need to change to a local cache load.
             log.info("Loading network topology...");
@@ -112,48 +102,41 @@ public enum ConfigurationManager {
             log.info("Loaded configuration from: " + configPath);
         }
     }
-
-    /**
-     * @return the htProv
-     */
-    public HttpConfigProvider getHttpProv() {
-        return htProv;
-    }
-
-    /**
-     * @param aHtProv the htProv to set
-     */
-    public void setHttpProv(HttpConfigProvider aHtProv) {
-        htProv = aHtProv;
-    }
-
-    /**
-     * @param aPceConfig the pceConfig to set
-     */
-    public void setPceConfig(HttpConfig aPceConfig) {
-        pceConfig = aPceConfig;
-    }
     
     public HttpConfig getPceConfig() {
-        if (pceConfig == null) {
+        if (httpConfigProvider == null) {
             throw new IllegalStateException();
         }
-        
-        return pceConfig;
+        return httpConfigProvider.getConfig(PCE_SERVER_CONFIG_NAME);
+    }
+    
+
+    /**
+     * @return the pceServer
+     */
+    public static PCEServer getPceServer() {
+        return pceServer;
+    }
+
+    /**
+     * @param aPceServer the pceServer to set
+     */
+    public static void setPceServer(PCEServer aPceServer) {
+        pceServer = aPceServer;
     }
 
     /**
      * @return the sip
      */
     public ServiceInfoProvider getServiceInfoProvider() {
-        return sip;
+        return serviceInfoProvider;
     }
 
     /**
      * @param aSip the sip to set
      */
     public void setServiceInfoProvider(ServiceInfoProvider aSip) {
-        sip = aSip;
+        serviceInfoProvider = aSip;
     }
 
     /**

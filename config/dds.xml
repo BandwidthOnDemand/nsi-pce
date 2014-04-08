@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tns:discovery xmlns:tns="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <nsaId>urn:ogf:network:netherlight.net:2013:nsa:bod</nsaId>
+    <nsaId>urn:ogf:network:netherlight.net:2013:nsa:aggregator</nsaId>
     <documents>config/documents</documents>
     <cache>config/cache</cache>
     <auditInterval>600</auditInterval>
@@ -12,4 +12,5 @@
     <peerURL type="application/vnd.ogf.nsi.nsa.v1+xml">https://bod.acc.dlp.surfnet.nl/nsa-discovery</peerURL>
     <peerURL type="application/vnd.ogf.nsi.nsa.v1+xml">https://nsi-dev.nordu.net:9443/NSI/discovery.xml</peerURL>
     <peerURL type="application/vnd.ogf.nsi.nsa.v1+xml">http://62.217.124.244:8080/nsi_discovery_geant.xml</peerURL>
+    <peerURL type="application/vnd.ogf.nsi.topology.v1+xml">https://raw.github.com/jeroenh/AutoGOLE-Topologies/master/master.xml</peerURL>
 </tns:discovery>

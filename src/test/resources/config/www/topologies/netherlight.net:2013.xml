@@ -261,7 +261,48 @@
                 </Relation>
             </PortGroup>
         </Relation>
-
-
+        
+        <!-- We define a hasService relationship to hold our definitions of
+             NSI Service Domains and Adaptations. -->
+        <Relation type="http://schemas.ogf.org/nml/2013/05/base#hasService">
+            <SwitchingService id="urn:ogf:network:netherlight.net:2013:ServiceDomain:a-gole:testbed:A-GOLE-EVTS"
+                encoding="http://schemas.ogf.org/nml/2013/05/ethernet"
+                labelSwapping = "true"
+                labelType="http://schemas.ogf.org/nml/2013/05/ethernet#vlan">
+                
+                <Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:232:in"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:241:in"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:282:in"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:526:in"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:2514:in"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1:in"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:nordu.net:1:in"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:starlight:1:in"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:uva:1:in"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:geant:1:in"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:czechlight:1:in"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:pionier:1:in"/>
+                </Relation>
+                
+                <Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:232:out"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:241:out"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:282:out"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:526:out"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:2514:out"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1:out"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:nordu.net:1:out"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:starlight:1:out"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:uva:1:out"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:geant:1:out"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:czechlight:1:out"/>
+                    <PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:pionier:1:out"/>
+                </Relation>
+                
+                <!-- NSI CS Services supported by this Service Domain. -->
+                <sd:serviceDefinition id="urn:ogf:network:netherlight.net:2013:ServiceDefinition:EVTS.A-GOLE" />
+            </SwitchingService>
+        </Relation>
     </Topology>
 </ns2:NSA>

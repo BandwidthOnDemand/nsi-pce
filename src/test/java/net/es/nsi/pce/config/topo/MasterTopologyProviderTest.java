@@ -5,20 +5,11 @@
 package net.es.nsi.pce.config.topo;
 
 import java.net.URI;
-import javax.ws.rs.core.Application;
-import net.es.nsi.pce.client.TestServer;
-import net.es.nsi.pce.config.ConfigurationManager;
-import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.topology.provider.GitHubManifestReader;
 import net.es.nsi.pce.topology.provider.TopologyManifest;
-import net.es.nsi.pce.jersey.RestClient;
-import net.es.nsi.pce.jersey.RestServer;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
-import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Test;

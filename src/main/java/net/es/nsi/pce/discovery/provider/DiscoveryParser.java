@@ -14,6 +14,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import net.es.nsi.pce.discovery.jaxb.DiscoveryConfigurationType;
 import net.es.nsi.pce.discovery.jaxb.DocumentType;
+import net.es.nsi.pce.discovery.jaxb.NmlNSAType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -192,4 +193,28 @@ public class DiscoveryParser {
         // Return the XML string.
         return writer.toString();
 	}
+    
+    /**
+     * Parse an NML NSA object from the specified string.
+     * 
+     * @param xml String containing the XML formated NSA object.
+     * @return A JAXB compiled NSAType object.
+     * @throws JAXBException If the XML contained in the string is not valid.
+     * @throws JAXBException If the XML is not well formed.
+     */
+    public NmlNSAType parseNsaFromString(String xml) throws JAXBException {
+        // Make sure we initialized properly.
+        if (jaxbContext == null) {
+            throw new JAXBException("parseNsaFromString: Failed to load JAXB NSA instance");
+        }
+        
+        // Parse the specified XML string.
+        StringReader reader = new StringReader(xml);
+        
+        @SuppressWarnings("unchecked")
+        JAXBElement<NmlNSAType> nsaElement = (JAXBElement<NmlNSAType>) jaxbContext.createUnmarshaller().unmarshal(reader);
+        
+        // Return the NSAType object.
+        return nsaElement.getValue();
+    }
 }

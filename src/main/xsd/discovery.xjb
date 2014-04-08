@@ -4,32 +4,36 @@
   xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" 
   jxb:extensionBindingPrefixes="xjc">
 
-    <!--
-    <jxb:bindings schemaLocation="ogckml22.xsd" node="/xs:schema">
+    <jxb:bindings schemaLocation="ogf_nsi_services_definition_v2_0.xsd" node="/xs:schema">
         <jxb:schemaBindings>
             <jxb:nameXmlTransform>
-            	<jxb:typeName prefix="Kml"/>
-            	<jxb:anonymousTypeName prefix="Kml"/>
-                <jxb:elementName prefix="Kml"/>
+            	<jxb:typeName prefix="Sd"/>
+            	<jxb:anonymousTypeName prefix="Sd"/>
             </jxb:nameXmlTransform>
         </jxb:schemaBindings>
-        <jxb:bindings node=".//xs:element[@name='name']">
-                <jxb:factoryMethod name="KlmName"/>
-        </jxb:bindings>
-        <jxb:bindings node=".//xs:element[@name='text']">
-            <jxb:factoryMethod name="KlmText"/>
-        </jxb:bindings>
-        <jxb:bindings node=".//xs:element[@name='scale']">
-            <jxb:factoryMethod name="KlmScaleValue"/>
-        </jxb:bindings>
-        <jxb:bindings node=".//xs:element[@name='snippet']">
-            <jxb:factoryMethod name="KlmSnippetString"/>
-        </jxb:bindings>
-        <jxb:bindings node=".//xs:element[@name='Document']">
-            <jxb:factoryMethod name="KlmDocument"/>
+    </jxb:bindings>
+    
+    <jxb:bindings schemaLocation="nmlbase.xsd" node="/xs:schema">
+        <jxb:schemaBindings>
+            <jxb:nameXmlTransform>
+            	<jxb:typeName prefix="Nml"/>
+            	<jxb:anonymousTypeName prefix="Nml"/>
+            </jxb:nameXmlTransform>
+        </jxb:schemaBindings>
+    </jxb:bindings>
+    
+    <jxb:bindings schemaLocation="nsi-ext.xsd" node="/xs:schema">
+        <jxb:schemaBindings>
+            <jxb:nameXmlTransform>
+                <jxb:typeName prefix="Nml"/>
+                <jxb:anonymousTypeName prefix="Nml"/>
+            </jxb:nameXmlTransform>
+        </jxb:schemaBindings>
+        <jxb:bindings node=".//xs:element[@name='Service']">
+                <jxb:factoryMethod name="NsaService"/>
         </jxb:bindings>
     </jxb:bindings>
--->
+
     <jxb:bindings schemaLocation="xCard.xsd" node="/xs:schema">
         <jxb:schemaBindings>
             <jxb:nameXmlTransform>
@@ -38,32 +42,8 @@
                 <jxb:elementName prefix="Xcard" />
             </jxb:nameXmlTransform>
         </jxb:schemaBindings>
-    </jxb:bindings>
-<!--
-    <jxb:bindings schemaLocation="atom-author-link.xsd" node="/xs:schema">
-        <jxb:schemaBindings>
-            <jxb:nameXmlTransform>
-                <jxb:typeName prefix="Atom"/>
-                <jxb:anonymousTypeName prefix="Atom"/>
-                <jxb:elementName prefix="Atom" />
-            </jxb:nameXmlTransform>
-        </jxb:schemaBindings>
-        <jxb:bindings node=".//xs:element[@name='name']">
-            <jxb:factoryMethod name="AtomName"/>
-        </jxb:bindings>
-        <jxb:bindings node=".//xs:element[@name='uri']">
-            <jxb:factoryMethod name="AtomUri"/>
+        <jxb:bindings node=".//xs:element[@name='label']">
+                <jxb:factoryMethod name="xLabel"/>
         </jxb:bindings>
     </jxb:bindings>
-    
-    <jxb:bindings schemaLocation="xAL.xsd" node="/xs:schema">
-        <jxb:schemaBindings>
-            <jxb:nameXmlTransform>
-                <jxb:typeName prefix="Xal"/>
-                <jxb:anonymousTypeName prefix="Xal"/>
-                <jxb:elementName prefix="Xal" />
-            </jxb:nameXmlTransform>
-        </jxb:schemaBindings>
-    </jxb:bindings>
--->
 </jxb:bindings>

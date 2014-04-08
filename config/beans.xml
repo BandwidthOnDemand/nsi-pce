@@ -17,18 +17,30 @@
         <property name="filename" value="config/http.json"/>
     </bean>
     
-    <bean id="discoveryConfiguration" class="net.es.nsi.pce.discovery.provider.ConfigurationReader" init-method="load" scope="singleton">
+    <bean id="pceServer" class="net.es.nsi.pce.server.PCEServer" scope="singleton">
+        <constructor-arg index="0" ref="httpConfigProvider"/>
+    </bean>
+    
+    <bean id="configurationReader" class="net.es.nsi.pce.discovery.dao.ConfigurationReader" init-method="load" scope="singleton">
         <property name="filename" value="config/dds.xml"/>
     </bean>
     
-    <bean id="discoveryCache" class="net.es.nsi.pce.discovery.provider.DocumentCache" init-method="load" scope="singleton">
-        <constructor-arg index="0" ref="discoveryConfiguration"/>
+    <bean id="documentCache" class="net.es.nsi.pce.discovery.dao.DocumentCache" init-method="load" scope="singleton">
+        <constructor-arg index="0" ref="configurationReader"/>
+    </bean>
+    
+    <bean id="remoteSubscriptionCache" class="net.es.nsi.pce.discovery.dao.RemoteSubscriptionCache" scope="singleton" />
+    
+    <bean id="ddsActorSystem" class="net.es.nsi.pce.discovery.actors.DdsActorSystem" init-method="init" scope="singleton" depends-on="remoteSubscriptionCache">
+        <constructor-arg index="0" ref="configurationReader"/>
+        <constructor-arg index="1" ref="documentCache"/>
+        <constructor-arg index="2" ref="ddsActorSystem"/>
     </bean>
 
     <!-- Discovery providers are configured through the config parameter and initialize methods. -->
-    <bean id="discoveryProvider" class="net.es.nsi.pce.discovery.provider.DdsProvider" init-method="initialize" scope="singleton">
-        <constructor-arg index="0" ref="discoveryConfiguration"/>
-        <constructor-arg index="1" ref="discoveryCache"/>
+    <bean id="discoveryProvider" class="net.es.nsi.pce.discovery.provider.DdsProvider" init-method="initialize" scope="singleton" depends-on="pceServer">
+        <constructor-arg index="0" ref="configurationReader"/>
+        <constructor-arg index="1" ref="documentCache"/>
     </bean>
 
     <!-- Topology providers are configured through the config parameter and initialize methods. -->

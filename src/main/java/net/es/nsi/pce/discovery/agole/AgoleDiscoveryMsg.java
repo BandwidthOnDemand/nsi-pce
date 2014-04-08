@@ -13,24 +13,23 @@ import java.io.Serializable;
 public class AgoleDiscoveryMsg implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String nsaURL;
+    private String id;
     private String topologyURL;
-    private long nsaLastModifiedTime = 0;
     private long topologyLastModifiedTime = 0;
     private String nsaId;
 
     /**
-     * @return the nsaURL
+     * @return the id
      */
-    public String getNsaURL() {
-        return nsaURL;
+    public String getId() {
+        return id;
     }
 
     /**
-     * @param nsaURL the nsaURL to set
+     * @param id the nsaId to set
      */
-    public void setNsaURL(String nsaURL) {
-        this.nsaURL = nsaURL;
+    public void setId(String id) {
+        this.id = id;
     }
 
     /**
@@ -45,20 +44,6 @@ public class AgoleDiscoveryMsg implements Serializable {
      */
     public void setTopologyURL(String topologyURL) {
         this.topologyURL = topologyURL;
-    }
-
-    /**
-     * @return the nsaLastModifiedTime
-     */
-    public long getNsaLastModifiedTime() {
-        return nsaLastModifiedTime;
-    }
-
-    /**
-     * @param nsaLastModifiedTime the nsaLastModifiedTime to set
-     */
-    public void setNsaLastModifiedTime(long nsaLastModifiedTime) {
-        this.nsaLastModifiedTime = nsaLastModifiedTime;
     }
 
     /**

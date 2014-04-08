@@ -24,6 +24,7 @@ public class Main {
     
     private static final String CONFIG_DEFAULT_PATH = "config/";
     public static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
+    public static final String PCE_SERVER_CONFIG_NAME = "pce";
 
     // Keep running PCE while true.
     private static boolean keepRunning = true;
@@ -89,18 +90,13 @@ public class Main {
         // Load PCE configuration from disk.
         ConfigurationManager.INSTANCE.initialize(configPath);
 
-        // Start the main HTTP container.
-        log.info("Path Computation Engine starting...");
-        PCEServer.INSTANCE.start(ConfigurationManager.INSTANCE.getPceConfig());
-        log.info("PCE initialized and running.");
-
         // Listen for a shutdown event so we can clean up.
         Runtime.getRuntime().addShutdownHook(
             new Thread() {
                 @Override
                 public void run() {
                     log.info("Shutting down PCE...");
-                    PCEServer.INSTANCE.stop();
+                    PCEServer.getInstance().stop();
                     log.info("...Shutdown complete.");
                     Main.setKeepRunning(false);
                 }

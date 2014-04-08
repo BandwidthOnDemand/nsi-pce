@@ -81,7 +81,7 @@ public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
         
         // Configure test instance of PCE server.
         try {
-            ConfigurationManager.INSTANCE.initialize("src/test/resources/config-SwitchingService/");
+            ConfigurationManager.INSTANCE.initialize("src/test/resources/config/");
         } catch (Exception ex) {
             System.err.println("configure(): Could not initialize test environment." + ex.toString());
             fail("configure(): Could not initialize test environment.");
@@ -182,6 +182,6 @@ public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
         
         assertNotNull(findPathResponse);
         
-        assertEquals(FindPathStatusType.FAILED, findPathResponse.getStatus());        
+        assertEquals(FindPathStatusType.SUCCESS, findPathResponse.getStatus());        
     }
 }

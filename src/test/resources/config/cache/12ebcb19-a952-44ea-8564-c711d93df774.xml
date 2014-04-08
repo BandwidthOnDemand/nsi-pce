@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns5:document xmlns:ns2="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns3="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns4="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns5="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns7="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns8="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" xmlns:ns9="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" id="urn:ogf:network:surfnet.nl:1990:testbed" href="/discovery/documents/urn%3Aogf%3Anetwork%3Asurfnet.nl%3A1990%3Ansa%3Abod-acc/application%2Fvnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Asurfnet.nl%3A1990%3Atestbed" version="2014-04-08T02:59:12+02:00" expires="2014-04-24T21:39:41.924-04:00">
+    <nsa>urn:ogf:network:surfnet.nl:1990:nsa:bod-acc</nsa>
+    <type>application/vnd.ogf.nsi.topology.v2+xml</type>
+    <content>
+        <ns3:Topology id="urn:ogf:network:surfnet.nl:1990:testbed" version="2014-04-08T02:59:12+02:00">
+            <ns3:name>SURFnet7 test bed</ns3:name>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:290">
+                <ns3:name>1</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:290-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:290-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:343">
+                <ns3:name>Poort two</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:343-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:343-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:346">
+                <ns3:name>Poort Two</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:346-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:346-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:349">
+                <ns3:name>Poort One</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:349-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:349-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:575">
+                <ns3:name>5T anritsu 2.1 VLAN 888</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:575-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:575-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:578">
+                <ns3:name>5T anritsu 2.1 VLAN 999</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:578-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:578-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:746">
+                <ns3:name>Asd001A_3930-09T to anrtisu 4.2 VLAN 888</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:746-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:746-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:771">
+                <ns3:name>3T 1/30 VLAN 888</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:771-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:771-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:1251">
+                <ns3:name>6T 2.2 SSP</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1251-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1251-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:1254">
+                <ns3:name>8T 5 SSP</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1254-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1254-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:1355">
+                <ns3:name>6T 1.3 SSP</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1355-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1355-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:1358">
+                <ns3:name>6T 1.4 MSP</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1358-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1358-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:2224">
+                <ns3:name>poort bij SURFnet naar storage (cluster 2)</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:2224-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:2224-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:2671">
+                <ns3:name>6T 1.4</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:2671-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:2671-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:testbed:geant:1">
+                <ns3:name>00:03:18:bc:76:00@1-2-1-31-1</ns3:name>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:geant:1-out"/>
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:geant:1-in"/>
+            </ns3:BidirectionalPort>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:290-out"/>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:290-in"/>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:343-out">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">100</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:343-in">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">100</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:346-out">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">400</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:346-in">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">400</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:349-out">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">500</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:349-in">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">500</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:575-out">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">888</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:575-in">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">888</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:578-out">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">999</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:578-in">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">999</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:746-out">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">888</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:746-in">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">888</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:771-out">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">888</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:771-in">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">888</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1251-out"/>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1251-in"/>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1254-out"/>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1254-in"/>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1355-out"/>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1355-in"/>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1358-out">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">14</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:1358-in">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">14</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:2224-out">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">345</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:2224-in">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">345</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:2671-out">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:2671-in">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1</ns3:LabelGroup>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:geant:1-out">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4000</ns3:LabelGroup>
+                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                        <ns3:PortGroup id="urn:ogf:network:geant.net:2013:topology:bi-geant-surfnet-in"/>
+                    </ns3:Relation>
+                </ns3:PortGroup>
+            </ns3:Relation>
+            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:geant:1-in">
+                    <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4000</ns3:LabelGroup>
+                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                        <ns3:PortGroup id="urn:ogf:network:geant.net:2013:topology:bi-geant-surfnet-out"/>
+                    </ns3:Relation>
+                </ns3:PortGroup>
+            </ns3:Relation>
+        </ns3:Topology>
+    </content>
+</ns5:document>

@@ -36,7 +36,7 @@ public class LogsTest extends JerseyTest {
     protected Application configure() {
         // Configure test instance of PCE server.
         try {
-            ConfigurationManager.INSTANCE.initialize("src/test/resources/config-SwitchingService/");
+            ConfigurationManager.INSTANCE.initialize("src/test/resources/config/");
         } catch (Exception ex) {
             System.err.println("configure(): Could not initialize test environment." + ex.toString());
             fail("configure(): Could not initialize test environment.");

@@ -37,6 +37,7 @@ import net.es.nsi.pce.discovery.jaxb.NsaType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionType;
+import net.es.nsi.pce.discovery.dao.ConfigurationReader;
 import net.es.nsi.pce.discovery.provider.DiscoveryParser;
 import net.es.nsi.pce.schema.XmlUtilities;
 import org.glassfish.jersey.client.ChunkedInput;
@@ -54,7 +55,7 @@ public class DiscoveryTest extends JerseyTest {
         }
     };
     
-    private final static String CONFIG_DIR = "src/test/resources/config-SwitchingService/";
+    private final static String CONFIG_DIR = "src/test/resources/config/";
     private final static String DOCUMENT_DIR = "src/test/resources/documents/";
     private final static String callbackURL = testServer.getUrl() + "discovery/callback";
     private final static ObjectFactory factory = new ObjectFactory();
@@ -94,6 +95,7 @@ public class DiscoveryTest extends JerseyTest {
      */
     @Test
     public void aLoadDocuments() throws Exception {
+        System.out.println("************************** Running aLoadDocuments test ********************************");
         File folder = null;
         try {
             folder = new File(DOCUMENT_DIR);
@@ -141,6 +143,7 @@ public class DiscoveryTest extends JerseyTest {
      */
     @Test
     public void cDocumentsFull() throws Exception {
+        System.out.println("************************** Running cDocumentsFull test ********************************");
         // Get a list of all documents with full contents.
         Response response = discovery.path("documents").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -191,6 +194,7 @@ public class DiscoveryTest extends JerseyTest {
      */
     @Test
     public void dDocumentsSummary() throws Exception {
+        System.out.println("************************** Running dDocumentsSummary test ********************************");
         // Get a list of all documents with summary contents.
         Response response = discovery.path("documents").queryParam("summary", "true").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -212,6 +216,7 @@ public class DiscoveryTest extends JerseyTest {
 
     @Test
     public void eDocumentNotFound() throws Exception {
+        System.out.println("************************** Running eDocumentNotFound test ********************************");
         // We want a NOT_FOUND for a nonexistent document.
         Response response = root.path("documents").path("noDocument").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());            
@@ -219,6 +224,7 @@ public class DiscoveryTest extends JerseyTest {
     
     @Test
     public void fLocalDocuments() throws Exception {
+        System.out.println("************************** Running fLocalDocuments test ********************************");
         // Get a list of all documents with full contents.
         Response response = discovery.path("local").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -233,7 +239,7 @@ public class DiscoveryTest extends JerseyTest {
         assertNotNull(documents);
         
         for (DocumentType document : documents.getDocument()) {
-            assertEquals(document.getNsa(), ConfigurationManager.INSTANCE.getDiscoveryProvider().getNsaId());
+            assertEquals(document.getNsa(), ConfigurationReader.getInstance().getNsaId());
             
             response = discovery.path("local").path(URLEncoder.encode(document.getType(), "UTF-8")).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -248,6 +254,7 @@ public class DiscoveryTest extends JerseyTest {
 
     @Test
     public void fUpdateDocuments() throws Exception {
+        System.out.println("************************** Running fUpdateDocuments test ********************************");
         File folder = null;
         try {
             folder = new File(DOCUMENT_DIR);
@@ -282,6 +289,7 @@ public class DiscoveryTest extends JerseyTest {
                         }
                     }
                     
+                    System.out.println("fUpdateDocuments: updating document " + document.getId());
                     
                     JAXBElement<DocumentType> jaxbRequest = factory.createDocument(document);
                     Response response = discovery.path("documents")
@@ -294,10 +302,12 @@ public class DiscoveryTest extends JerseyTest {
                 }
             }
         }
+        System.out.println("************************** Done fUpdateDocuments test ********************************");
     }
 
     @Test
     public void gAddNotification() throws Exception {
+        System.out.println("************************** Running gAddNotification test ********************************");
         // Register for ALL document event types.
         SubscriptionRequestType subscription = factory.createSubscriptionRequestType();
         subscription.setRequesterId("urn:ogf:network:es.net:2013:nsa");
@@ -321,6 +331,7 @@ public class DiscoveryTest extends JerseyTest {
     
     @Test
     public void hNotification() throws Exception {
+        System.out.println("************************** Running hNotification test ********************************");
         // Register for ALL document event types.
         SubscriptionRequestType subscription = factory.createSubscriptionRequestType();
         subscription.setRequesterId("urn:ogf:network:es.net:2013:nsa");
@@ -359,8 +370,6 @@ public class DiscoveryTest extends JerseyTest {
         
         // Now send a document update.
         fUpdateDocuments();
-                
-        Thread.sleep(5000);
         
         // Now we wait for the update notifications to arrive.
         count = 0;

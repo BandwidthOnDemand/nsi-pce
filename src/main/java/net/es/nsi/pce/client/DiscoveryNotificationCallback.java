@@ -11,7 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.es.nsi.pce.discovery.jaxb.NotificationListType;
-import net.es.nsi.pce.schema.MediaTypes;
+import net.es.nsi.pce.schema.NsiConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,10 +25,10 @@ public class DiscoveryNotificationCallback {
 
     @POST
     @Path("/callback")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaTypes.NSI_DDS_V1_JSON, MediaTypes.NSI_DDS_V1_XML })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
     public Response notification(NotificationListType notify) {
-        System.out.println("notification: " + notify.getId() + ", " + notify.getHref() + ", " + notify.getProviderId());
+        System.out.println("notification: id=" + notify.getId() + ", href=" + notify.getHref() + ", providerId=" + notify.getProviderId());
         TestServer.INSTANCE.pushDiscoveryNotification(notify);
         return Response.accepted().build();
     }

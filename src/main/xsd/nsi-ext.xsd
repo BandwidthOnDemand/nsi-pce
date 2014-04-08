@@ -43,7 +43,7 @@
     <xs:complexContent>
       <xs:extension  base="nml:NetworkObject">
         <xs:sequence>
-          <xs:element  ref="nsi:Interface" minOccurs="0"  maxOccurs="unbounded"/>
+          <xs:element  ref="nsi:Service"   minOccurs="0"  maxOccurs="unbounded"/>
           <xs:element  ref="nsi:Relation"  minOccurs="0"  maxOccurs="unbounded"/>
           <xs:element  ref="nml:Topology"  minOccurs="0"  maxOccurs="unbounded"  />
           <xs:element name="extension" type="nsi:ExtensionType" minOccurs="0" />
@@ -61,7 +61,7 @@
   <xs:element name="NSA"  type="nsi:NSAType"/>
   
   
-  <xs:complexType name="InterfaceRelationType">
+  <xs:complexType name="ServiceRelationType">
     <xs:choice>
       <xs:element  ref="nsi:NSA"  minOccurs="1"  maxOccurs="unbounded"/>
     </xs:choice>
@@ -84,19 +84,19 @@
   </xs:group>
   
   
-  <xs:complexType name="InterfaceType">
+  <xs:complexType name="ServiceType">
     <xs:complexContent>
       <xs:extension  base="nml:NetworkObject">
         <xs:sequence>
           <xs:group  ref="nsi:BaseInterfaceContent"/>
-          <xs:element  name="Relation"  type="nsi:InterfaceRelationType"  minOccurs="0"  maxOccurs="unbounded"/>
+          <xs:element  name="Relation"  type="nsi:ServiceRelationType"  minOccurs="0"  maxOccurs="unbounded"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
   
   
-  <xs:element name="Interface"  type="nsi:InterfaceType"/>
+  <xs:element name="Service"  type="nsi:ServiceType"/>
   
   
 </xs:schema>

@@ -20,6 +20,9 @@
                 <jxb:anonymousTypeName prefix="Nml"/>
             </jxb:nameXmlTransform>
         </jxb:schemaBindings>
+        <jxb:bindings node=".//xs:element[@name='Service']">
+                <jxb:factoryMethod name="NsaService"/>
+        </jxb:bindings>
     </jxb:bindings>
 
 </jxb:bindings>

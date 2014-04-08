@@ -205,7 +205,7 @@ public class GitHubManifestReader implements TopologyManifestReader {
      * @throws Exception If an error occurs when reading remote topology.
      */
     @Override
-    public synchronized void loadManifest() throws Exception {
+    public synchronized void loadManifest() throws NotFoundException, JAXBException {
         
         TopologyManifest newManifest = this.readManifest();
         if (newManifest != null && manifest == null) {
@@ -232,7 +232,7 @@ public class GitHubManifestReader implements TopologyManifestReader {
      * @throws Exception If an error occurs when reading remote topology.
      */
     @Override
-    public TopologyManifest getManifest() throws Exception {
+    public TopologyManifest getManifest() throws NotFoundException, JAXBException {
         if (manifest == null) {
             loadManifest();
         }
@@ -248,7 +248,7 @@ public class GitHubManifestReader implements TopologyManifestReader {
      * @throws Exception 
      */
     @Override
-    public TopologyManifest getManifestIfModified() throws Exception {
+    public TopologyManifest getManifestIfModified() throws NotFoundException, JAXBException {
         TopologyManifest oldMasterTopology = manifest;
         loadManifest();
         TopologyManifest newMasterTopology = manifest;

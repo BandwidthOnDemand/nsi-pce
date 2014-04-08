@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns4:document xmlns:ns2="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns3="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns4="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns5="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns6="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns7="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" xmlns:ns8="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" id="urn:ogf:network:southernlight.net:2013:nsa" href="/discovery/documents/urn%3Aogf%3Anetwork%3Asouthernlight.net%3A2013%3Ansa/application%2Fvnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Asouthernlight.net%3A2013%3Ansa" version="2014-02-24T19:26:33.607795" expires="2014-04-24T14:25:24.347-04:00">
+    <nsa>urn:ogf:network:southernlight.net:2013:nsa</nsa>
+    <type>application/vnd.ogf.nsi.nsa.v1+xml</type>
+    <content>
+        <ns8:nsa id="urn:ogf:network:southernlight.net:2013:nsa" version="2014-02-24T19:26:33.607795">
+            <networkId>urn:ogf:network:southernlight.net:2013:topology</networkId>
+            <interface>
+                <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                <href>http://agole.ansp.br:9080/NSI/services/CS2</href>
+            </interface>
+            <feature type="vnd.ogf.nsi.cs.v2.role.uPA"/>
+        </ns8:nsa>
+    </content>
+</ns4:document>

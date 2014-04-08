@@ -4,34 +4,24 @@
  */
 package net.es.nsi.pce.discovery.provider;
 
-import net.es.nsi.pce.discovery.actors.RemoteSubscription;
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
+import net.es.nsi.pce.discovery.dao.DocumentCache;
+import net.es.nsi.pce.discovery.dao.ConfigurationReader;
 import akka.actor.Cancellable;
-import akka.actor.Props;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import javax.persistence.EntityExistsException;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
-import net.es.nsi.pce.discovery.actors.ConfigurationActor;
-import net.es.nsi.pce.discovery.actors.DocumentEvent;
-import net.es.nsi.pce.discovery.actors.DocumentExpiryActor;
-import net.es.nsi.pce.discovery.actors.LocalDocumentActor;
-import net.es.nsi.pce.discovery.actors.NotificationRouter;
-import net.es.nsi.pce.discovery.actors.RegistrationRouter;
-import net.es.nsi.pce.discovery.actors.SubscriptionEvent;
+import net.es.nsi.pce.discovery.actors.DdsActorSystem;
+import net.es.nsi.pce.discovery.messages.DocumentEvent;
+import net.es.nsi.pce.discovery.messages.SubscriptionEvent;
 import net.es.nsi.pce.discovery.api.DiscoveryError;
 import net.es.nsi.pce.discovery.jaxb.DocumentEventType;
 import net.es.nsi.pce.discovery.jaxb.DocumentType;
@@ -39,102 +29,47 @@ import net.es.nsi.pce.discovery.jaxb.FilterType;
 import net.es.nsi.pce.discovery.jaxb.NotificationType;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionType;
-import net.es.nsi.pce.discovery.gangofthree.Gof3DiscoveryRouter;
-import net.es.nsi.pce.schema.MediaTypes;
 import net.es.nsi.pce.schema.XmlUtilities;
+import net.es.nsi.pce.spring.SpringApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.concurrent.duration.Duration;
 
 /**
  *
  * @author hacksaw
  */
 public class DdsProvider implements DiscoveryProvider {
-    private static final String NOTIFICATIONS_URL = "/discovery/notifications";
     
     private final Logger log = LoggerFactory.getLogger(getClass());
-    
-    private ActorSystem actorSystem;
-    private ActorRef notificationRouter;
-    private ActorRef registrationRouter;
-    private ActorRef localDocumentActor;
-    private ActorRef configurationActor;
-    private ActorRef cacheActor;
-    private ActorRef gangOfThreeRouter;
-    
+
     // Configuration reader.
     private ConfigurationReader configReader;
     
     // In-memory document cache.
     private DocumentCache documentCache;
     
-    // In-memory subscription cache indexed by subscriptionId.
-    private Map<String, Subscription> subscriptions = new ConcurrentHashMap<>();
+    // The actor system used to send notifications.
+    private DdsActorSystem ddsActorSystem;
     
     // In-memory subscription cache indexed by subscriptionId.
-    private Map<String, RemoteSubscription> remoteSubscriptions = new ConcurrentHashMap<>();
+    private Map<String, Subscription> subscriptions = new ConcurrentHashMap<>();
  
-    public DdsProvider(ConfigurationReader configuration, DocumentCache documentCache) {
+    public DdsProvider(ConfigurationReader configuration, DocumentCache documentCache, DdsActorSystem ddsActorSystem) {
         this.configReader = configuration;
         this.documentCache = documentCache;
-    }  
+        this.ddsActorSystem = ddsActorSystem;
+    }
+    
+    public static DiscoveryProvider getInstance() {
+        DdsProvider ddsProvider = SpringApplicationContext.getBean("discoveryProvider", DdsProvider.class);
+        return ddsProvider;
+    }
 
     @Override
     public void initialize() throws IllegalArgumentException, JAXBException, FileNotFoundException {
-        // Initialize the AKKA actor system for the PCE and subsystems.
-        log.info("DdsProvider: Initializing actor framework...");
-        actorSystem = ActorSystem.create("NSI-DISCOVERY");
-        log.info("DdsProvider: ... Actor framework initialized.");
-        
-        // Initialize the configuration refresh actors.
-        log.info("DdsProvider: Initializing configuration actor.");
-        configurationActor = getActorSystem().actorOf(Props.create(ConfigurationActor.class, this), "discovery-configuration-actor");
-        log.info("DdsProvider:... Configuration actor initialized.");
-        
-        // Initialize the subscription notification actors.
-        log.info("DdsProvider: Initializing notification router.");
-        notificationRouter = getActorSystem().actorOf(Props.create(NotificationRouter.class, getConfigReader().getActorPool()), "discovery-notification-router");
-        log.info("DdsProvider:... Notification router initialized.");
-        
-        // Load our local documents only if a local directory is configured.
-        if (configReader.getDocuments() != null && !configReader.getDocuments().isEmpty()) {
-            log.info("DdsProvider: Initializing local document repository.");
-            localDocumentActor = getActorSystem().actorOf(Props.create(LocalDocumentActor.class, this), "discovery-document-watcher");
-            log.info("DdsProvider:... Local document repository initialized.");
-        }
-
-        // Initialize document expiry actor.
-        log.info("DdsProvider: Initializing document expiry actor.");
-        localDocumentActor = getActorSystem().actorOf(Props.create(DocumentExpiryActor.class, this), "discovery-expiry-watcher");
-        log.info("DdsProvider:... Document expiry actor initialized.");        
-        
-        // Initialize the remote registration actors.
-        log.info("DdsProvider: Initializing peer registration actor...");
-        registrationRouter = getActorSystem().actorOf(Props.create(RegistrationRouter.class, this), "discovery-peer-registration");        
-        log.info("DdsProvider:... Peer registration actor initialized.");
-        
-        // Initialize the Gang of Three actors.
-        log.info("DdsProvider: Initializing Gang of Three actors...");
-        gangOfThreeRouter = getActorSystem().actorOf(Props.create(Gof3DiscoveryRouter.class, this), "discovery-Gof3-registration");        
-        log.info("DdsProvider:... Gang of Three actors initialized.");        
-    }
-    
-    @Override
-    public String getNsaId() {
-        return getConfigReader().getNsaId();
-    }
-    
-    @Override
-    public String getNotificationURL() throws MalformedURLException {
-        URL url = new URL(getConfigReader().getBaseURL());
-        url = new URL(url, NOTIFICATIONS_URL);
-        return url.toString();
-    }
-    
-    @Override
-    public String getMediaType() {
-        return MediaTypes.NSI_DDS_V1_XML;
+        log.info("DdsProvider: Initializing...");
+        ddsActorSystem.start();
+        log.info("DdsProvider: Initializing complete.");
     }
  
     @Override
@@ -151,7 +86,7 @@ public class DdsProvider implements DiscoveryProvider {
         SubscriptionEvent se = new SubscriptionEvent();
         se.setEvent(SubscriptionEvent.Event.New);
         se.setSubscription(subscription);
-        Cancellable scheduleOnce = getActorSystem().scheduler().scheduleOnce(Duration.create(10, TimeUnit.SECONDS), notificationRouter, se, getActorSystem().dispatcher(), null);
+        Cancellable scheduleOnce = ddsActorSystem.scheduleNotification(se, 5);
         subscription.setAction(scheduleOnce);
         
         return subscription;
@@ -204,7 +139,7 @@ public class DdsProvider implements DiscoveryProvider {
         SubscriptionEvent se = new SubscriptionEvent();
         se.setEvent(SubscriptionEvent.Event.Update);
         se.setSubscription(subscription);
-        notificationRouter.tell(se, null);
+        ddsActorSystem.sendNotification(se);
         
         return subscription;
     }
@@ -319,6 +254,32 @@ public class DdsProvider implements DiscoveryProvider {
             String error = DiscoveryError.getErrorString(DiscoveryError.DOCUMENT_EXISTS, "document", document.getId());
             throw new EntityExistsException(error);            
         }
+        
+        // Validate basic fields.
+        if (request.getNsa() == null || request.getNsa().isEmpty()) {
+            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, document.getId(), "nsa");
+            throw new IllegalArgumentException(error); 
+        }
+
+        if (request.getType() == null || request.getType().isEmpty()) {
+            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, document.getId(), "type");
+            throw new IllegalArgumentException(error); 
+        }
+
+        if (request.getId() == null || request.getId().isEmpty()) {
+            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, document.getId(), "id");
+            throw new IllegalArgumentException(error); 
+        }
+
+        if (request.getVersion() == null || !request.getVersion().isValid()) {
+            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, document.getId(), "version");
+            throw new IllegalArgumentException(error); 
+        }
+
+        if (request.getExpires() == null || !request.getExpires().isValid()) {
+            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, document.getId(), "expires");
+            throw new IllegalArgumentException(error); 
+        }
 
         // This is a new document so add it into the document space.
         try {
@@ -334,7 +295,7 @@ public class DdsProvider implements DiscoveryProvider {
         DocumentEvent de = new DocumentEvent();
         de.setEvent(DocumentEventType.NEW);
         de.setDocument(document);
-        notificationRouter.tell(de, null);
+        ddsActorSystem.sendNotification(de);
         return document;
     }
     
@@ -351,30 +312,32 @@ public class DdsProvider implements DiscoveryProvider {
             String error = DiscoveryError.getErrorString(DiscoveryError.DOCUMENT_DOES_NOT_EXIST, "document", documentId);
             throw new NotFoundException(error);            
         }
+        
+        log.debug("updateDocument: found documentId=" + documentId);
 
         // Validate basic fields.
         if (request.getNsa() == null || request.getNsa().isEmpty() || !request.getNsa().equalsIgnoreCase(document.getDocument().getNsa())) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "document", "nsa");
+            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, documentId, "nsa");
             throw new IllegalArgumentException(error); 
         }
 
         if (request.getType() == null || request.getType().isEmpty() || !request.getType().equalsIgnoreCase(document.getDocument().getType())) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "document", "type");
+            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, documentId, "type");
             throw new IllegalArgumentException(error); 
         }
 
         if (request.getId() == null || request.getId().isEmpty() || !request.getId().equalsIgnoreCase(document.getDocument().getId())) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "document", "id");
+            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, documentId, "id");
             throw new IllegalArgumentException(error); 
         }
 
         if (request.getVersion() == null || !request.getVersion().isValid()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "document", "version");
+            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, documentId, "version");
             throw new IllegalArgumentException(error); 
         }
 
         if (request.getExpires() == null || !request.getExpires().isValid()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "document", "expires");
+            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, documentId, "expires");
             throw new IllegalArgumentException(error); 
         }
         
@@ -384,6 +347,8 @@ public class DdsProvider implements DiscoveryProvider {
 
             throw new InvalidVersionException(error, request.getVersion(), document.getDocument().getVersion());             
         }
+        
+        log.debug("updateDocument: received update is good=" + documentId);
    
         Document newDoc = new Document(request);
         newDoc.setLastDiscovered(new Date());
@@ -401,7 +366,7 @@ public class DdsProvider implements DiscoveryProvider {
         DocumentEvent de = new DocumentEvent();
         de.setEvent(DocumentEventType.UPDATED);
         de.setDocument(newDoc);
-        notificationRouter.tell(de, null);
+        ddsActorSystem.sendNotification(de);
         
         return document;
     }
@@ -602,7 +567,7 @@ public class DdsProvider implements DiscoveryProvider {
 
     @Override
     public void shutdown() {
-        getActorSystem().shutdown();
+        ddsActorSystem.shutdown();
     }
 
     /**
@@ -617,54 +582,6 @@ public class DdsProvider implements DiscoveryProvider {
      */
     public void setConfigReader(ConfigurationReader configReader) {
         this.configReader = configReader;
-    }
-
-    /**
-     * @return the actorSystem
-     */
-    public ActorSystem getActorSystem() {
-        return actorSystem;
-    }
-
-    /**
-     * @param actorSystem the actorSystem to set
-     */
-    public void setActorSystem(ActorSystem actorSystem) {
-        this.actorSystem = actorSystem;
-    }
-    
-    public RemoteSubscription getRemoteSubscription(String url) {
-        return remoteSubscriptions.get(url);
-    }
-    
-    public RemoteSubscription addRemoteSubscription(RemoteSubscription subscription) {
-        return remoteSubscriptions.put(subscription.getDdsURL(), subscription);
-    }
-    
-    public RemoteSubscription removeRemoteSubscription(String url) {
-        return remoteSubscriptions.remove(url);
-    }
-    
-    public Collection<RemoteSubscription> remoteSubscriptionValues() {
-        return remoteSubscriptions.values();
-    }
-    
-    public Set<String> remoteSubscriptionKeys() {
-        return remoteSubscriptions.keySet();
-    }
-
-    /**
-     * @return the registrationRouter
-     */
-    public ActorRef getRegistrationRouter() {
-        return registrationRouter;
-    }
-
-    /**
-     * @param registrationRouter the registrationRouter to set
-     */
-    public void setRegistrationRouter(ActorRef registrationRouter) {
-        this.registrationRouter = registrationRouter;
     }
 
     @Override
@@ -732,10 +649,5 @@ public class DdsProvider implements DiscoveryProvider {
                 log.debug("loadDocuments: updated document " + filename);
             }
         }
-    }
-
-    @Override
-    public void expireDocuments() {
-        documentCache.expire();
     }
 }

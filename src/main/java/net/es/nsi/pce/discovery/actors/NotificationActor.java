@@ -4,6 +4,7 @@
  */
 package net.es.nsi.pce.discovery.actors;
 
+import net.es.nsi.pce.discovery.messages.Notification;
 import akka.actor.UntypedActor;
 import java.util.Date;
 import javax.ws.rs.client.Client;
@@ -34,8 +35,13 @@ public class NotificationActor extends UntypedActor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ObjectFactory factory = new ObjectFactory();
+    private DdsActorSystem ddsActorSystem;
     private Client client;
     
+    public NotificationActor(DdsActorSystem ddsActorSystem) {
+        this.ddsActorSystem = ddsActorSystem;
+    }
+
     @Override
     public void preStart() {
         log.debug("NotificationActor: preStart");
@@ -50,8 +56,6 @@ public class NotificationActor extends UntypedActor {
         if (msg instanceof Notification) {
             Notification notification = (Notification) msg;
             log.debug("NotificationActor: notificationId=" + notification.getSubscription().getId());
-            
-            DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
             
             NotificationListType list = factory.createNotificationListType();
 
@@ -77,7 +81,7 @@ public class NotificationActor extends UntypedActor {
             
             list.setId(notification.getSubscription().getId());
             list.setHref(notification.getSubscription().getSubscription().getHref());
-            list.setProviderId(discoveryProvider.getNsaId());
+            list.setProviderId(ddsActorSystem.getConfigReader().getNsaId());
             try {
                 XMLGregorianCalendar discovered = XmlUtilities.longToXMLGregorianCalendar(lastDiscovered.getTime());
                 list.setDiscovered(discovered);
@@ -95,6 +99,8 @@ public class NotificationActor extends UntypedActor {
             
             if (response.getStatus() != Response.Status.ACCEPTED.getStatusCode()) {
                 log.error("NotificationActor: failed notification " + list.getId() + " to client " + notification.getSubscription().getSubscription().getCallback() + ", result = " + response.getStatusInfo().getReasonPhrase());
+                // TODO: Tell discovery provider...
+                DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
                 discoveryProvider.deleteSubscription(notification.getSubscription().getId());
             }
             else if (log.isDebugEnabled()) {

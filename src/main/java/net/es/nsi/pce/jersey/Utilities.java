@@ -15,7 +15,7 @@ import javax.ws.rs.core.MediaType;
  */
 public class Utilities {
     public static Map<String, String> getNameSpace() {
-        Map<String, String> namespacePrefixMapper = new HashMap<>(8);
+        Map<String, String> namespacePrefixMapper = new HashMap<>(9);
         namespacePrefixMapper.put("http://schemas.es.net/nsi/2013/08/pce/messages", "m");
         namespacePrefixMapper.put("http://schemas.ogf.org/nsi/2013/12/services/point2point", "p");
         namespacePrefixMapper.put("http://schemas.es.net/nsi/2013/07/topology/types", "t");
@@ -23,6 +23,7 @@ public class Utilities {
         namespacePrefixMapper.put("http://schemas.es.net/nsi/2013/07/management/types", "o");
         namespacePrefixMapper.put("http://schemas.ogf.org/nsi/2014/02/discovery/nsa", "n");
         namespacePrefixMapper.put("http://schemas.ogf.org/nsi/2014/02/discovery/types", "d");
+        namespacePrefixMapper.put("http://nordu.net/namespaces/2013/12/gnsbod", "g");
         namespacePrefixMapper.put("urn:ietf:params:xml:ns:vcard-4.0", "v");
         return namespacePrefixMapper;
     }

@@ -1,11 +1,10 @@
 package net.es.nsi.pce.discovery.provider;
 
-import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Date;
 import javax.persistence.EntityExistsException;
 import javax.ws.rs.NotFoundException;
-import net.es.nsi.pce.discovery.actors.DocumentEvent;
+import net.es.nsi.pce.discovery.messages.DocumentEvent;
 import net.es.nsi.pce.discovery.jaxb.DocumentType;
 import net.es.nsi.pce.discovery.jaxb.FilterType;
 import net.es.nsi.pce.discovery.jaxb.NotificationType;
@@ -16,7 +15,7 @@ import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
  * @author hacksaw
  */
 public interface DiscoveryProvider {
-
+    
     public void initialize() throws Exception;
     
     public void shutdown();
@@ -41,13 +40,8 @@ public interface DiscoveryProvider {
     
     public void processNotification(NotificationType notification);
     
-    public String getNsaId();
-    public String getNotificationURL() throws MalformedURLException;
-    public String getMediaType();
-    
     public Collection<Document> getDocuments(FilterType filter);
     public Collection<Subscription> getSubscriptions(DocumentEvent event);
     
     public void loadDocuments(String path);
-    public void expireDocuments();
 }

@@ -9,6 +9,7 @@ import java.util.Date;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -18,13 +19,14 @@ import net.es.nsi.pce.discovery.jaxb.DocumentType;
 import net.es.nsi.pce.discovery.jaxb.InterfaceType;
 import net.es.nsi.pce.discovery.jaxb.NotificationType;
 import net.es.nsi.pce.discovery.jaxb.NsaType;
+import net.es.nsi.pce.discovery.jaxb.NmlTopologyType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
 import net.es.nsi.pce.discovery.provider.DdsProvider;
 import net.es.nsi.pce.jersey.RestClient;
-import net.es.nsi.pce.schema.MediaTypes;
+import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.schema.XmlUtilities;
-import net.es.nsi.pce.topology.jaxb.NmlTopologyType;
 import org.apache.http.client.utils.DateUtils;
+import org.glassfish.jersey.client.ChunkedInput;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,13 +39,7 @@ public class Gof3DiscoveryActor extends UntypedActor {
    
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ObjectFactory factory = new ObjectFactory();
-    net.es.nsi.pce.topology.jaxb.ObjectFactory nmlFactory = new net.es.nsi.pce.topology.jaxb.ObjectFactory();
-    private DdsProvider provider;
     private Client client;
-    
-    public Gof3DiscoveryActor(DdsProvider provider) {
-        this.provider = provider;
-    }
 
     @Override
     public void preStart() {
@@ -84,7 +80,7 @@ public class Gof3DiscoveryActor extends UntypedActor {
 
         Response response;
         try {
-            response = nsaTarget.request(MediaTypes.NSI_NSA_V1)
+            response = nsaTarget.request("*/*") // NsiConstants.NSI_NSA_V1
                     .header("If-Modified-Since", DateUtils.formatDate(new Date(message.getNsaLastModifiedTime()), DateUtils.PATTERN_RFC1123))
                     .get();
         }
@@ -109,7 +105,7 @@ public class Gof3DiscoveryActor extends UntypedActor {
             
             // Find the topology endpoint for the next step.
             for (InterfaceType inf : nsa.getInterface()) {
-                if (MediaTypes.NSI_TOPOLOGY_V2.equalsIgnoreCase(inf.getType().trim())) {
+                if (NsiConstants.NSI_TOPOLOGY_V2.equalsIgnoreCase(inf.getType().trim())) {
                     message.setTopologyURL(inf.getHref());
                     break;
                 }
@@ -161,11 +157,11 @@ public class Gof3DiscoveryActor extends UntypedActor {
             return false;
         }
         
-        WebTarget nsaTarget = client.target(url);
+        WebTarget topologyTarget = client.target(url);
 
         Response response;
         try {
-            response = nsaTarget.request(MediaTypes.NSI_TOPOLOGY_V2)
+            response = topologyTarget.request("*/*") // MediaTypes.NSI_TOPOLOGY_V2
                     .header("If-Modified-Since", DateUtils.formatDate(new Date(message.getTopologyLastModifiedTime()), DateUtils.PATTERN_RFC1123))
                     .get();
         }
@@ -177,8 +173,14 @@ public class Gof3DiscoveryActor extends UntypedActor {
         }
         
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            // We have a document to process.
-            NmlTopologyType topology = response.readEntity(NmlTopologyType.class);
+            NmlTopologyType topology = null;
+            try (ChunkedInput<NmlTopologyType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<NmlTopologyType>>() {})) {
+                NmlTopologyType chunk;
+                while ((chunk = chunkedInput.read()) != null) {
+                    topology = chunk;
+                }
+            }
+
             if (topology == null) {
                 // TODO: Should we clear the topology URL and lastModified
                 // dates for errors and route back?
@@ -231,7 +233,7 @@ public class Gof3DiscoveryActor extends UntypedActor {
 
         // Set the naming attributes.
         document.setId(nsa.getId());
-        document.setType(MediaTypes.NSI_NSA_V1);
+        document.setType(NsiConstants.NSI_NSA_V1);
         document.setNsa(nsa.getId());
 
         // We need the version of the document.
@@ -266,7 +268,7 @@ public class Gof3DiscoveryActor extends UntypedActor {
         notify.setDiscovered(discovered);
         notify.setDocument(document);
         
-        provider.processNotification(notify);
+        DdsProvider.getInstance().processNotification(notify);
         
         return true;
     }
@@ -278,11 +280,25 @@ public class Gof3DiscoveryActor extends UntypedActor {
 
         // Set the naming attributes.
         document.setId(topology.getId());
-        document.setType(MediaTypes.NSI_TOPOLOGY_V2);
+        document.setType(NsiConstants.NSI_TOPOLOGY_V2);
         document.setNsa(nsaId);
+        
+        // If there is no version specified then we add one.
+        if (topology.getVersion() == null || !topology.getVersion().isValid()) {
+            // No expire value provided so make one.
+            XMLGregorianCalendar xmlGregorianCalendar;
+            try {
+                xmlGregorianCalendar = XmlUtilities.xmlGregorianCalendar();
+            } catch (DatatypeConfigurationException ex) {
+                log.error("discover: Topology document does not contain a version, id=" + topology.getId());
+                return false;
+            }
 
-        // We need the version of the document.
-        document.setVersion(topology.getVersion());
+            document.setVersion(xmlGregorianCalendar);
+        }
+        else {
+            document.setVersion(topology.getVersion());
+        }
 
         // If there is no expires time specified then it is infinite.
         if (topology.getLifetime() == null || topology.getLifetime().getEnd() == null || !topology.getLifetime().getEnd().isValid()) {
@@ -304,7 +320,7 @@ public class Gof3DiscoveryActor extends UntypedActor {
 
         // Add the NSA document into the entry.
         AnyType any = factory.createAnyType();
-        any.getAny().add(nmlFactory.createTopology(topology));
+        any.getAny().add(factory.createTopology(topology));
         document.setContent(any);
         
         // Try to add the document as a notification of document change.
@@ -313,7 +329,7 @@ public class Gof3DiscoveryActor extends UntypedActor {
         notify.setDiscovered(discovered);
         notify.setDocument(document);
         
-        provider.processNotification(notify);
+        DdsProvider.getInstance().processNotification(notify);
         
         return true;
     }

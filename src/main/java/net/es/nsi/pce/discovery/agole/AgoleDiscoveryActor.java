@@ -5,27 +5,30 @@
 package net.es.nsi.pce.discovery.agole;
 
 import akka.actor.UntypedActor;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
+import java.util.List;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.discovery.jaxb.AnyType;
 import net.es.nsi.pce.discovery.jaxb.DocumentEventType;
 import net.es.nsi.pce.discovery.jaxb.DocumentType;
+import net.es.nsi.pce.discovery.jaxb.FeatureType;
 import net.es.nsi.pce.discovery.jaxb.InterfaceType;
+import net.es.nsi.pce.discovery.jaxb.LocationType;
 import net.es.nsi.pce.discovery.jaxb.NotificationType;
 import net.es.nsi.pce.discovery.jaxb.NsaType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
 import net.es.nsi.pce.discovery.provider.DdsProvider;
-import net.es.nsi.pce.jersey.RestClient;
-import net.es.nsi.pce.schema.MediaTypes;
+import net.es.nsi.pce.discovery.jaxb.NmlLifeTimeType;
+import net.es.nsi.pce.discovery.jaxb.NmlLocationType;
+import net.es.nsi.pce.discovery.jaxb.NmlNSARelationType;
+import net.es.nsi.pce.discovery.jaxb.NmlNSAType;
+import net.es.nsi.pce.discovery.jaxb.NmlServiceType;
+import net.es.nsi.pce.discovery.jaxb.NmlTopologyType;
+import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.schema.XmlUtilities;
-import net.es.nsi.pce.topology.jaxb.NmlTopologyType;
-import org.apache.http.client.utils.DateUtils;
-import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,20 +40,10 @@ public class AgoleDiscoveryActor extends UntypedActor {
    
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ObjectFactory factory = new ObjectFactory();
-    net.es.nsi.pce.topology.jaxb.ObjectFactory nmlFactory = new net.es.nsi.pce.topology.jaxb.ObjectFactory();
-    private DdsProvider provider;
-    private Client client;
-    
-    public AgoleDiscoveryActor(DdsProvider provider) {
-        this.provider = provider;
-    }
 
     @Override
     public void preStart() {
         log.debug("preStart: entering.");
-        ClientConfig clientConfig = new ClientConfig();
-        RestClient.configureClient(clientConfig);
-        client = ClientBuilder.newClient(clientConfig);
         log.debug("preStart: exiting.");
     }
 
@@ -60,14 +53,11 @@ public class AgoleDiscoveryActor extends UntypedActor {
         if (msg instanceof AgoleDiscoveryMsg) {
             AgoleDiscoveryMsg message = (AgoleDiscoveryMsg) msg;
             
-            // Read the NSA discovery document.
-            if (discoverNSA(message) == false) {
+            // Read the NML topology document.
+            if (discoverTopology(message) == false) {
                 // No update so return.
                 return;
             }
-            
-            // Read the associated Topology document.
-            discoverTopology(message);
             
             // Send an updated discovery message back to the router.
             getSender().tell(message, getSelf());
@@ -76,147 +66,59 @@ public class AgoleDiscoveryActor extends UntypedActor {
         }
         log.debug("onReceive: exiting.");
     }
-    
-    private boolean discoverNSA(AgoleDiscoveryMsg message) {
-        log.debug("discover: nsa=" + message.getNsaURL());
-        
-        WebTarget nsaTarget = client.target(message.getNsaURL());
-
-        Response response;
-        try {
-            response = nsaTarget.request(MediaTypes.NSI_NSA_V1)
-                    .header("If-Modified-Since", DateUtils.formatDate(new Date(message.getNsaLastModifiedTime()), DateUtils.PATTERN_RFC1123))
-                    .get();
-        }
-        catch (Exception ex) {
-            // TODO: Should we clear the topology URL and lastModified
-            // dates for errors and route back?
-            log.error("discover: failed to retrieve NSA document from endpoint " + message.getNsaURL(), ex);
-            return false;
-        }
-        
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            // We have a document to process.
-            NsaType nsa = response.readEntity(NsaType.class);
-            if (nsa == null) {
-                // TODO: Should we clear the topology URL and lastModified
-                // dates for errors and route back?
-                log.error("discover: NSA document is empty from endpoint " + message.getNsaURL());
-                return false;
-            }
-            
-            message.setNsaId(nsa.getId());
-            
-            // Find the topology endpoint for the next step.
-            for (InterfaceType inf : nsa.getInterface()) {
-                if (MediaTypes.NSI_TOPOLOGY_V2.equalsIgnoreCase(inf.getType().trim())) {
-                    message.setTopologyURL(inf.getHref());
-                    break;
-                }
-            }
-            // Add the document.
-            long time = 0;
-            if (response.getLastModified() != null) {
-                time = response.getLastModified().getTime();
-            }
-
-            XMLGregorianCalendar cal;
-            try {
-                cal = XmlUtilities.longToXMLGregorianCalendar(time);
-            } catch (DatatypeConfigurationException ex) {
-                log.error("discover: NSA document failed to create lastModified " + message.getNsaURL());
-                return false;
-            }
-
-            if (addNsaDocument(nsa, cal) == false) {
-                return false;
-            }
-        }
-        else if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
-            // We did not get an updated document.
-            log.debug("discover: NSA document not modified " + message.getNsaURL());
-        }
-        else {
-            log.error("discover: get of NSA document failed " + response.getStatus() + ", url=" + message.getNsaURL());
-            // TODO: Should we clear the topology URL and lastModified
-            // dates for errors and route back?
-            return false;
-        }
-        
-        if (response.getLastModified() != null) {
-            message.setNsaLastModifiedTime(response.getLastModified().getTime());
-        }
-
-        // Now we retrieve the associated topology document.
-        log.debug("discover: exiting.");
-        
-        return true;
-    }
-    
+ 
     private boolean discoverTopology(AgoleDiscoveryMsg message) {
+        String id = message.getId();
         String url = message.getTopologyURL();
-        log.debug("discover: topology=" + url);
+
+        log.debug("discover: topology id=" + id + ", url=" + url);
         
         if (url == null || url.isEmpty()) {
             return false;
         }
         
-        WebTarget nsaTarget = client.target(url);
-
-        Response response;
+        AgoleTopologyReader topologyReader = new AgoleTopologyReader(id, url, message.getTopologyLastModifiedTime());
+        NmlNSAType nsa;
         try {
-            response = nsaTarget.request(MediaTypes.NSI_TOPOLOGY_V2)
-                    .header("If-Modified-Since", DateUtils.formatDate(new Date(message.getTopologyLastModifiedTime()), DateUtils.PATTERN_RFC1123))
-                    .get();
-        }
-        catch (Exception ex) {
-            // TODO: Should we clear the topology URL and lastModified
-            // dates for errors and route back?
-            log.error("discoverTopology: failed to retrieve Topology document from endpoint " + url, ex);
+            nsa = topologyReader.readNsaTopology();
+        } catch (Exception ex) {
+            log.error("discoverTopology: failed to read topology for id=" + id + ", url=" + url, ex);
             return false;
         }
         
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            // We have a document to process.
-            NmlTopologyType topology = response.readEntity(NmlTopologyType.class);
-            if (topology == null) {
-                // TODO: Should we clear the topology URL and lastModified
-                // dates for errors and route back?
-                log.error("discoverTopology: Topology document is empty from endpoint " + url);
-                return false;
-            }
+        if (nsa == null) {
+            log.debug("discoverTopology: Topology document not modified for id=" + id + ", url=" + url);
+            return false;
+        }
+        
+        XMLGregorianCalendar lastDiscovered;
+        try {
+            lastDiscovered = XmlUtilities.xmlGregorianCalendar();
+        } catch (DatatypeConfigurationException ex) {
+            log.error("discoverTopology: Failed to create a lastDiscovered value, id=" + nsa.getId());
+            return false;
+        }
+        
+        // We need to create both the NSA Discovery and Topology documents from
+        // the contents of this single document.
+        NsaType nsaDocument = parseNsa(nsa);
+        if (nsaDocument == null || !addNsaDocument(nsaDocument, lastDiscovered)) {
+            return false;
+        }
 
-            // Add the document.
-            long time = 0;
-            if (response.getLastModified() != null) {
-                time = response.getLastModified().getTime();
-            }
+        // Update the lastModified time and nsaId in the message so we can sent
+        // it back to the router to update the master list.
+        message.setTopologyLastModifiedTime(topologyReader.getLastModifiedTime());
+        message.setNsaId(nsa.getId());
 
-            XMLGregorianCalendar cal;
+        Collection<NmlTopologyType> nmlDocuments = parseTopology(nsa, nsaDocument);
+        for (NmlTopologyType nmlDocument : nmlDocuments) {
             try {
-                cal = XmlUtilities.longToXMLGregorianCalendar(time);
-            } catch (DatatypeConfigurationException ex) {
-                log.error("discoverTopology: Topology document failed to create lastModified " + url);
-                return false;
+                addTopologyDocument(nmlDocument, lastDiscovered, nsa.getId());
             }
-
-            if (addTopologyDocument(topology, cal, message.getNsaId()) == false) {
-                return false;
+            catch (Exception ex) {
+                log.error("discoverTopology: Failed to topology document, nsaId=" + nsa.getId() + ", networkId=" + nmlDocument.getId());
             }
-        }
-        else if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
-            // We did not get an updated document.
-            log.debug("discoverTopology: Topology document not modified " + message.getNsaURL());
-        }
-        else {
-            log.error("discoverTopology: get of Topology document failed " + response.getStatus() + ", url=" + message.getNsaURL());
-            // TODO: Should we clear the topology URL and lastModified
-            // dates for errors and route back?
-            return false;
-        }
-        
-        if (response.getLastModified() != null) {
-            message.setTopologyLastModifiedTime(response.getLastModified().getTime());
         }
 
         // Now we retrieve the associated topology document.
@@ -231,11 +133,17 @@ public class AgoleDiscoveryActor extends UntypedActor {
 
         // Set the naming attributes.
         document.setId(nsa.getId());
-        document.setType(MediaTypes.NSI_NSA_V1);
+        document.setType(NsiConstants.NSI_NSA_V1);
         document.setNsa(nsa.getId());
 
         // We need the version of the document.
-        document.setVersion(nsa.getVersion());
+        XMLGregorianCalendar version = nsa.getVersion();
+        if (version == null || !version.isValid()) {
+            
+        }
+        else {
+            document.setVersion(version);
+        }
 
         // If there is no expires time specified then it is infinite.
         if (nsa.getExpires() == null || !nsa.getExpires().isValid()) {
@@ -266,7 +174,7 @@ public class AgoleDiscoveryActor extends UntypedActor {
         notify.setDiscovered(discovered);
         notify.setDocument(document);
         
-        provider.processNotification(notify);
+        DdsProvider.getInstance().processNotification(notify);
         
         return true;
     }
@@ -278,7 +186,7 @@ public class AgoleDiscoveryActor extends UntypedActor {
 
         // Set the naming attributes.
         document.setId(topology.getId());
-        document.setType(MediaTypes.NSI_TOPOLOGY_V2);
+        document.setType(NsiConstants.NSI_TOPOLOGY_V2);
         document.setNsa(nsaId);
 
         // We need the version of the document.
@@ -304,7 +212,7 @@ public class AgoleDiscoveryActor extends UntypedActor {
 
         // Add the NSA document into the entry.
         AnyType any = factory.createAnyType();
-        any.getAny().add(nmlFactory.createTopology(topology));
+        any.getAny().add(factory.createTopology(topology));
         document.setContent(any);
         
         // Try to add the document as a notification of document change.
@@ -313,8 +221,105 @@ public class AgoleDiscoveryActor extends UntypedActor {
         notify.setDiscovered(discovered);
         notify.setDocument(document);
         
-        provider.processNotification(notify);
+        DdsProvider.getInstance().processNotification(notify);
         
         return true;
+    }
+    
+    private NsaType parseNsa(NmlNSAType nsa) {
+        // We need to create both the NSA Discovery and Topology documents from
+        // the contents of this single document.
+        NsaType nsaDocument = factory.createNsaType();
+        nsaDocument.setId(nsa.getId());
+        nsaDocument.setVersion(nsa.getVersion());
+        nsaDocument.setName(nsa.getName());
+        if (nsa.getLifetime() != null) {
+            nsaDocument.setExpires(nsa.getLifetime().getEnd());
+        }
+        
+        NmlLocationType location = nsa.getLocation();
+        if (location != null) {
+            LocationType loc = factory.createLocationType();
+            loc.setAltitude(location.getAlt());
+            loc.setLatitude(location.getLat());
+            loc.setLongitude(location.getLong());
+            loc.setName(location.getName());
+            loc.setUnlocode(location.getUnlocode());
+            nsaDocument.setLocation(loc);
+        }
+        
+        // Add the uPA NSA feature.
+        FeatureType upa = factory.createFeatureType();
+        upa.setType(NsiConstants.NSI_CS_UPA);
+        List<FeatureType> feature = nsaDocument.getFeature();
+        feature.add(upa);
+        
+        //nsaDocument.setAdminContact(null);
+        
+        // Parse the NML peersWith relationship.
+        try {
+            nsaDocument.getPeersWith().addAll(parsePeersWith(nsa.getRelation()));
+        }
+        catch (Exception ex) {
+            // Ignore the error for now.
+            log.error("discoverTopology: failed to add NML peersWith relationship.", ex);
+        }
+        
+        // Parse the NML Service element into an interface element.
+        try {
+            nsaDocument.getInterface().addAll(parseService(nsa.getService()));
+        }
+        catch (Exception ex) {
+            // Ignore the error for now.
+            log.error("discoverTopology: failed to add NML Service.", ex);
+        }
+        
+        // We pull the networkId out of the <Topology> elements.
+        List<String> networkId = nsaDocument.getNetworkId();
+        for (NmlTopologyType topology : nsa.getTopology()) {
+            networkId.add(topology.getId());
+        }
+        
+        return nsaDocument;
+    }
+    
+    private Collection<NmlTopologyType> parseTopology(NmlNSAType nmlNsa, NsaType nsaDocument) {
+        List<NmlTopologyType> topologies = nmlNsa.getTopology();
+        for (NmlTopologyType topology : topologies) {
+            if (topology.getVersion() == null || !topology.getVersion().isValid()) {
+                topology.setVersion(nsaDocument.getVersion());
+            }
+            if (topology.getLifetime() == null || topology.getLifetime().getEnd() == null || !topology.getLifetime().getEnd().isValid()) {
+                NmlLifeTimeType lifetime = factory.createNmlLifeTimeType();
+                lifetime.setEnd(nsaDocument.getExpires());
+                topology.setLifetime(lifetime);
+            }
+        }
+        return topologies;
+    }
+
+    private Collection<String> parsePeersWith(List<NmlNSARelationType> relationList) {
+        List<String> peersWith = new ArrayList<>();
+        for (NmlNSARelationType relation : relationList) {
+            if (NsiConstants.NML_PEERSWITH_RELATION.equalsIgnoreCase(relation.getType())) {
+                for (NmlNSAType nsa : relation.getNSA()) {
+                    peersWith.add(nsa.getId());
+                }
+            }
+        }
+        
+        return peersWith;
+    }
+
+    private List<InterfaceType> parseService(List<NmlServiceType> services) {
+        List<InterfaceType> interfaceList = new ArrayList<>();
+        for (NmlServiceType service : services) {
+            InterfaceType aInterface = factory.createInterfaceType();
+            aInterface.setHref(service.getLink());
+            aInterface.setType(NsiConstants.NSI_CS_PROVIDER_V2);
+            interfaceList.add(aInterface);
+        }
+        
+        return interfaceList;
     }
 }
