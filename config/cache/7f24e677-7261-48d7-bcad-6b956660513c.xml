@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns5:document xmlns:ns2="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns3="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns4="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns5="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns7="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:ns8="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns9="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" id="urn:ogf:network:geant.net:2013:topology" href="/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/application%2Fvnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Atopology" version="2014-04-07T21:11:24.146-04:00" expires="2014-04-24T21:51:53.074-04:00">
+<ns4:document xmlns:ns2="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns3="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns4="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns5="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns7="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns8="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" xmlns:ns9="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" id="urn:ogf:network:geant.net:2013:topology" href="/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/application%2Fvnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Atopology" version="2014-04-08T00:02:55.994-04:00" expires="2014-04-25T00:43:24.922-04:00">
     <nsa>urn:ogf:network:geant.net:2013:nsa</nsa>
     <type>application/vnd.ogf.nsi.topology.v2+xml</type>
     <content>
@@ -148,4 +148,4 @@
             </ns2:Relation>
         </ns2:Topology>
     </content>
-</ns5:document>
+</ns4:document>

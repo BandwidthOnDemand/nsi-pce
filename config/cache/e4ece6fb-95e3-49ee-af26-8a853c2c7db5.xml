@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns4:document xmlns:ns2="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns3="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns4="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns5="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns7="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns8="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" xmlns:ns9="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" id="urn:ogf:network:es.net:2013:nsa" href="/discovery/documents/urn%3Aogf%3Anetwork%3Aes.net%3A2013%3Ansa/application%2Fvnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aes.net%3A2013%3Ansa" version="2013-09-24T12:12:00Z" expires="2014-04-25T00:43:24.825-04:00">
+    <nsa>urn:ogf:network:es.net:2013:nsa</nsa>
+    <type>application/vnd.ogf.nsi.nsa.v1+xml</type>
+    <content>
+        <ns9:nsa id="urn:ogf:network:es.net:2013:nsa" version="2013-09-24T12:12:00Z">
+            <location>
+                <longitude>-122.272995</longitude>
+                <latitude>37.87161</latitude>
+            </location>
+            <networkId>urn:ogf:network:es.net:2013</networkId>
+            <interface>
+                <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                <href>https://oscars.es.net/ConnectionService</href>
+            </interface>
+            <feature type="vnd.ogf.nsi.cs.v2.role.uPA"/>
+            <peersWith>urn:ogf:network:manlan.internet2.edu:2013:nsa</peersWith>
+            <peersWith>urn:ogf:network:startap.net:2013:nsa</peersWith>
+        </ns9:nsa>
+    </content>
+</ns4:document>
