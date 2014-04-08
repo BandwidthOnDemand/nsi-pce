@@ -3,6 +3,7 @@ package net.es.nsi.pce.pf;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -86,12 +87,12 @@ public class ReachabilityPCE implements PCEModule {
             if (isInMyNetwork(destStp)) {
                 return onlyLocalPath(sourceStp, destStp);
             } else {
-                return findSplitPath(sourceStp, destStp, pceData.getTopology(), pceData.getReachabilityTable());
+                return findSplitPath(sourceStp, destStp, pceData.getTopology(), pceData.getReachabilityTable(), pceData.getConnectionTrace());
             }
         } else if (isInMyNetwork(destStp)) {
-            return findSplitPath(destStp, sourceStp, pceData.getTopology(), pceData.getReachabilityTable());
+            return findSplitPath(destStp, sourceStp, pceData.getTopology(), pceData.getReachabilityTable(), pceData.getConnectionTrace());
         } else {
-            return findForwardPath(sourceStp, destStp, pceData.getReachabilityTable());
+            return findForwardPath(sourceStp, destStp, pceData.getReachabilityTable(), pceData.getConnectionTrace());
         }
     }
 
@@ -120,22 +121,20 @@ public class ReachabilityPCE implements PCEModule {
     }
 
     @VisibleForTesting
-    protected Optional<Path> findSplitPath(Stp localStp, Stp remoteStp, NsiTopology topology, Map<String, Map<String, Integer>> reachabilityTable) {
-        // TODO Is this needed???
-//        if (topology.getStp(localStp.getId()) == null) {
-//            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2Point.SOURCESTP, localStp.getId()));
-//        }
+    protected Optional<Path> findSplitPath(Stp localStp, Stp remoteStp, NsiTopology topology, Map<String, Map<String, Integer>> reachabilityTable, List<String> connectionTrace) {
+        Optional<Reachability> remoteNsa = findPeerWithLowestCostToReachNetwork(remoteStp.getNetworkId(), reachabilityTable);
 
-        Optional<Reachability> remoteReachability = findPeerWithLowestCostToReachNetwork(remoteStp.getNetworkId(), reachabilityTable);
-        Optional<SdpType> connectingSdp = remoteReachability.isPresent() ?
-            findConnectingSdp(localStp.getNetworkId(), remoteReachability.get().getNetworkId(), topology) : Optional.<SdpType>absent();
+        checkNotIntroducingLoop(remoteNsa, connectionTrace);
+
+        Optional<SdpType> connectingSdp = remoteNsa.isPresent() ?
+            findConnectingSdp(localStp.getNetworkId(), remoteNsa.get().getNetworkId(), topology) : Optional.<SdpType>absent();
 
         if (!connectingSdp.isPresent()) {
             throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, Point2Point.NAMESPACE, Point2Point.DESTSTP));
         }
 
         Stp localIntermediateStp = findStpFromSdp(connectingSdp.get(), localStp.getNetworkId());
-        Stp remoteIntermediateStp = findStpFromSdp(connectingSdp.get(), remoteReachability.get().getNetworkId());
+        Stp remoteIntermediateStp = findStpFromSdp(connectingSdp.get(), remoteNsa.get().getNetworkId());
 
         StpPair localStpPair = new StpPair(localStp.toStpType(), localIntermediateStp.toStpType());
         StpPair remoteSptPair = new StpPair(remoteIntermediateStp.toStpType(), remoteStp.toStpType());
@@ -159,10 +158,11 @@ public class ReachabilityPCE implements PCEModule {
         return Optional.absent();
     }
 
-    // TODO loop detection
     @VisibleForTesting
-    protected Optional<Path> findForwardPath(final Stp sourceStp, final Stp destStp, Map<String, Map<String, Integer>> reachabilityTable) {
+    protected Optional<Path> findForwardPath(final Stp sourceStp, final Stp destStp, Map<String, Map<String, Integer>> reachabilityTable, List<String> connectionTrace) {
         final Optional<Reachability> forwardNsa = findCheapestForwardNsa(sourceStp, destStp, reachabilityTable);
+
+        checkNotIntroducingLoop(forwardNsa, connectionTrace);
 
         return forwardNsa.transform(new Function<Reachability, Path>() {
             @Override
@@ -173,6 +173,12 @@ public class ReachabilityPCE implements PCEModule {
                 return new Path(new StpPair(a, z));
             }
         });
+    }
+
+    private void checkNotIntroducingLoop(Optional<Reachability> forwardNsa, List<String> connectionTrace) {
+        if (forwardNsa.isPresent() && connectionTrace.contains(forwardNsa.get().getNsaId())) {
+            throw new IllegalArgumentException("Loooop detected");
+        }
     }
 
     private Optional<Reachability> findCheapestForwardNsa(Stp sourceStp, Stp destStp, Map<String, Map<String, Integer>> reachabilityTable) {
@@ -203,8 +209,9 @@ public class ReachabilityPCE implements PCEModule {
             if (nsaCosts.getValue().containsKey(networkId)) {
                 Integer nsaCost = nsaCosts.getValue().get(networkId);
                 if (!reachability.isPresent() || reachability.get().getCost() > nsaCost) {
-                    ServiceInfo serviceInfo = serviceInfoProvider.byNsaId(nsaCosts.getKey());
-                    reachability = Optional.of(new Reachability(nsaCost, serviceInfo.getNetworkId()));
+                    String nsaId = nsaCosts.getKey();
+                    ServiceInfo serviceInfo = serviceInfoProvider.byNsaId(nsaId);
+                    reachability = Optional.of(new Reachability(nsaCost, serviceInfo.getNetworkId(), nsaId));
                 }
             }
         }
@@ -249,16 +256,21 @@ public class ReachabilityPCE implements PCEModule {
     public static class Reachability {
         private final Integer cost;
         private final String networkId;
+        private final String nsaId;
 
-        public Reachability(Integer cost, String networkId) {
+        public Reachability(Integer cost, String networkId, String nsaId) {
             this.cost = cost;
             this.networkId = networkId;
+            this.nsaId = nsaId;
         }
         public Integer getCost() {
             return cost;
         }
         public String getNetworkId() {
             return networkId;
+        }
+        public String getNsaId() {
+            return nsaId;
         }
     }
 

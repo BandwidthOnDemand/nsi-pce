@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +96,7 @@ public class ReachabilityPCETest {
 
         PCEData pceData = new PCEData(source, destination);
         pceData.setReachabilityTable(reachabilityTable);
+        pceData.setConnectionTrace(Collections.<String>emptyList());
 
         when(serviceInfoProviderMock.byNsaId(peerNsaId)).thenReturn(createServiceInfo(peerNsaId, peerNetworkId));
 
@@ -123,13 +125,31 @@ public class ReachabilityPCETest {
 
         when(serviceInfoProviderMock.byNsaId(peerNsaId)).thenReturn(createServiceInfo(peerNsaId, peerNetworkId));
 
-        Optional<Path> path = subject.findSplitPath(localStp, remoteStp, topology, reachabilityTable);
+        Optional<Path> path = subject.findSplitPath(localStp, remoteStp, topology, reachabilityTable, Collections.<String>emptyList());
 
         assertTrue(path.isPresent());
         assertThat(path.get().getStpPairs().size(), is(2));
 
         assertPair(path.get().getStpPairs().get(0), surfnetNetworkId, surfnetNetworkId, localStp.getId(), surfnetNetworkId + ":surf-intermediate");
         assertPair(path.get().getStpPairs().get(1), peerNetworkId, esnetNetworkId, peerNetworkId + ":peer-intermediate", remoteStp.getId());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void should_dectect_loop_when_splitting_path() {
+        String esnetNetworkId = "urn:ogf:network:es.net:2013:topology";
+        String surfnetNetworkId = "urn:ogf:network:surfnet.nl:1990:topology";
+        String peerNsaId = "urn:ogf:network:foo:2001:nsa";
+        String peerNetworkId = "urn:ogf:network:foo:2013:toplogy";
+
+        Stp localStp = ReachabilityPCE.Stp.fromStpId(surfnetNetworkId + ":start");
+        Stp remoteStp = ReachabilityPCE.Stp.fromStpId(esnetNetworkId + ":end");
+
+        Map<String, Integer> costs = ImmutableMap.of(esnetNetworkId, 5);
+        Map<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaId, costs);
+
+        when(serviceInfoProviderMock.byNsaId(peerNsaId)).thenReturn(createServiceInfo(peerNsaId, peerNetworkId));
+
+        subject.findSplitPath(localStp, remoteStp, new NsiTopology(), reachabilityTable, Arrays.asList(peerNsaId));
     }
 
     @Test
@@ -147,7 +167,7 @@ public class ReachabilityPCETest {
 
         when(serviceInfoProviderMock.byNsaId(peerNsaId)).thenReturn(createServiceInfo(peerNsaId, peerNetworkId));
 
-        Optional<Path> path = subject.findForwardPath(sourceStp, destStp, reachabilityTable);
+        Optional<Path> path = subject.findForwardPath(sourceStp, destStp, reachabilityTable, Collections.<String>emptyList());
 
         assertTrue(path.isPresent());
 
@@ -177,9 +197,27 @@ public class ReachabilityPCETest {
         when(serviceInfoProviderMock.byNsaId(peerNsaIdOne)).thenReturn(createServiceInfo(peerNsaIdOne, peerNetworkIdOne));
         when(serviceInfoProviderMock.byNsaId(peerNsaIdTwo)).thenReturn(createServiceInfo(peerNsaIdTwo, peerNetworkIdTwo));
 
-        Optional<Path> path = subject.findForwardPath(sourceStp, destStp, reachabilityTable);
+        Optional<Path> path = subject.findForwardPath(sourceStp, destStp, reachabilityTable, Collections.<String>emptyList());
 
         assertThat(path.get().getStpPairs().iterator().next().getA().getNetworkId(), is(peerNetworkIdOne));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void should_detect_loop_when_finding_forward_path() {
+        String surfnetNetworkId = "urn:ogf:network:surfnet.nl:1990:topology";
+
+        Stp sourceStp = ReachabilityPCE.Stp.fromStpId(surfnetNetworkId + ":start");
+        Stp destStp = ReachabilityPCE.Stp.fromStpId("urn:ogf:network:es.net:2013:topology:end");
+
+        String peerNsaId = "urn:ogf:network:foo:2013:nsa";
+        String peerNetworkId = "urn:ogf:network:foo:2013:topology";
+
+        Map<String, Integer> costs = ImmutableMap.of(surfnetNetworkId, 5, "urn:ogf:network:es.net:2013:topology", 10);
+        Map<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaId, costs);
+
+        when(serviceInfoProviderMock.byNsaId(peerNsaId)).thenReturn(createServiceInfo(peerNsaId, peerNetworkId));
+
+        subject.findForwardPath(sourceStp, destStp, reachabilityTable, Arrays.asList(peerNsaId));
     }
 
     @Test

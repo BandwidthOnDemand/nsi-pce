@@ -5,8 +5,8 @@ import net.es.nsi.pce.pf.api.cons.Constraints;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,6 +30,7 @@ public class PCEData {
     private Set<Constraint> constraints = new HashSet<>();
     private NsiTopology topology = new NsiTopology();
     private Map<String, Map<String, Integer>> reachabilityTable;
+    private List<String> connectionTrace;
 
     public PCEData() {
     }
@@ -72,5 +73,13 @@ public class PCEData {
 
     public boolean addConstraint(Constraint constraint) {
         return constraints.add(constraint);
+    }
+
+    public List<String> getConnectionTrace() {
+        return connectionTrace;
+    }
+
+    public void setConnectionTrace(List<String> connectionTrace) {
+        this.connectionTrace = connectionTrace;
     }
 }
