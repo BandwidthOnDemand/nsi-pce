@@ -2,9 +2,7 @@ package net.es.nsi.pce.pf;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -57,7 +54,7 @@ public class ReachabilityPCETest {
     }
 
     @Test
-    public void should_calculate_path_if_both_src_and_dest_belong_to_local_network() {
+    public void should_calculate_path_if_both_src_and_dest_belongs_to_local_network() {
         String sourceStp = LOCAL_NETWORK_ID + ":start";
         String destStp = LOCAL_NETWORK_ID + ":end";
 
@@ -66,18 +63,52 @@ public class ReachabilityPCETest {
 
         PCEData pceData = new PCEData(source, destination);
 
-        Optional<Path> path = subject.findPath(pceData);
+        PCEData reply = subject.apply(pceData);
         verifyZeroInteractions(serviceInfoProviderMock);
+        Path path = reply.getPath();
 
-        assertTrue(path.isPresent());
-        assertTrue(path.get().getStpPairs().size() == 1);
-        StpPair pair = path.get().getStpPairs().get(0);
-        assertTrue(pair.getA().getNetworkId().equals(pair.getZ().getNetworkId()) && pair.getA().getNetworkId().equals(LOCAL_NETWORK_ID));
+        assertNotNull(path);
+        assertTrue(path.getStpPairs().size() == 1);
+        StpPair pair = path.getStpPairs().get(0);
+        assertTrue(pair.getA().getNetworkId().equals(pair.getZ().getNetworkId())
+                && pair.getA().getNetworkId().equals(LOCAL_NETWORK_ID));
     }
 
     @Test
-    @Ignore("todo")
-    public void should_splitup_request_if_src_is_in_toplogy() {
+    public void should_split_up_request_if_src_or_dest_belongs_to_local_network() {
+        String sourceStp = LOCAL_NETWORK_ID + ":start";
+        String destNetworkId= "urn:ogf:network:bar:1980:topology";
+        String destStp = destNetworkId + ":end";
+
+        String peerNsaId = "urn:ogf:network:foo:2013:nsa";
+        String peerNetworkId = "urn:ogf:network:foo:2013:topology";
+
+        StringAttrConstraint source = createStringConstraint(Point2Point.SOURCESTP, sourceStp);
+        StringAttrConstraint destination = createStringConstraint(Point2Point.DESTSTP, destStp);
+
+        Map<String, Integer> costs = ImmutableMap.of(destNetworkId, 5, "urn:ogf:network:es.net:2013:topology", 10);
+        ImmutableMap<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaId, costs);
+
+        NsiTopology topology = new NsiTopology();
+        SdpType sdp = createSdpType(LOCAL_NETWORK_ID, peerNetworkId, "surf-intermediate", "peer-intermediate");
+        topology.addSdp(sdp);
+
+        PCEData pceData = new PCEData(source, destination);
+        pceData.setReachabilityTable(reachabilityTable);
+        pceData.setTopology(topology);
+
+        when(serviceInfoProviderMock.byNsaId(peerNsaId)).thenReturn(createServiceInfo(peerNsaId, peerNetworkId));
+
+        PCEData reply = subject.apply(pceData);
+        Path path = reply.getPath();
+
+        assertNotNull(path);
+        assertEquals(2, path.getStpPairs().size());
+        // the first pair must be the segment we can provide: from source stp to the SDP that talks to the appropriate peer
+        assertPair(path.getStpPairs().get(0), LOCAL_NETWORK_ID, LOCAL_NETWORK_ID, sourceStp, LOCAL_NETWORK_ID + ":surf-intermediate");
+
+        // the second pair should be the remainder of the path to be computed by upstream peer
+        assertPair(path.getStpPairs().get(1), peerNetworkId, destNetworkId, peerNetworkId + ":peer-intermediate", destStp);
     }
 
     @Test
@@ -86,7 +117,7 @@ public class ReachabilityPCETest {
         String destStp = "urn:ogf:network:es.net:2013:topology:end";
 
         String peerNsaId = "urn:ogf:network:foo:2013:nsa";
-        String peerNetworkId = "urn:ogf:network:foo:2013:toplogy";
+        String peerNetworkId = "urn:ogf:network:foo:2013:topology";
 
         StringAttrConstraint source = createStringConstraint(Point2Point.SOURCESTP, sourceStp);
         StringAttrConstraint destination = createStringConstraint(Point2Point.DESTSTP, destStp);
