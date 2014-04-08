@@ -79,6 +79,10 @@ public class ReachabilityPCE implements PCEModule {
 
     @VisibleForTesting
     protected Optional<Path> findPath(PCEData pceData) {
+
+        if (pceData.getConnectionTrace() == null) {
+            throw new IllegalArgumentException("No connection trace provided, can't continue.");
+        }
         Constraints constraints = pceData.getAttrConstraints();
         Stp sourceStp = findSourceStp(constraints);
         Stp destStp = findDestinationStp(constraints);
@@ -177,7 +181,7 @@ public class ReachabilityPCE implements PCEModule {
 
     private void checkNotIntroducingLoop(Optional<Reachability> forwardNsa, List<String> connectionTrace) {
         if (forwardNsa.isPresent() && connectionTrace.contains(forwardNsa.get().getNsaId())) {
-            throw new IllegalArgumentException("Loooop detected");
+            throw new IllegalArgumentException("Loop detected");
         }
     }
 

@@ -53,6 +53,18 @@ public class ReachabilityPCETest {
         subject.findPath(pceData);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void should_throw_exception_when_missing_connection_trace() {
+        String sourceStp = LOCAL_NETWORK_ID + ":start";
+        String destStp = LOCAL_NETWORK_ID + ":end";
+
+        StringAttrConstraint source = createStringConstraint(Point2Point.SOURCESTP, sourceStp);
+        StringAttrConstraint destination = createStringConstraint(Point2Point.DESTSTP, destStp);
+
+        PCEData pceData = new PCEData(source, destination);
+        subject.apply(pceData);
+    }
+
     @Test
     public void should_calculate_path_if_both_src_and_dest_belongs_to_local_network() {
         String sourceStp = LOCAL_NETWORK_ID + ":start";
@@ -62,6 +74,7 @@ public class ReachabilityPCETest {
         StringAttrConstraint destination = createStringConstraint(Point2Point.DESTSTP, destStp);
 
         PCEData pceData = new PCEData(source, destination);
+        pceData.setConnectionTrace(Collections.EMPTY_LIST);
 
         PCEData reply = subject.apply(pceData);
         verifyZeroInteractions(serviceInfoProviderMock);
@@ -94,6 +107,8 @@ public class ReachabilityPCETest {
         topology.addSdp(sdp);
 
         PCEData pceData = new PCEData(source, destination);
+        pceData.setConnectionTrace(Collections.EMPTY_LIST);
+
         pceData.setReachabilityTable(reachabilityTable);
         pceData.setTopology(topology);
 
