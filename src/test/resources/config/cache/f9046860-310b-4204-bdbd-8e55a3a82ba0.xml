@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns5:document xmlns:ns2="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns3="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns4="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns5="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns7="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:ns8="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns9="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" id="urn:ogf:network:surfnet.nl:1990:nsa:bod-acc" href="/discovery/documents/urn%3Aogf%3Anetwork%3Asurfnet.nl%3A1990%3Ansa%3Abod-acc/application%2Fvnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Asurfnet.nl%3A1990%3Ansa%3Abod-acc" version="2014-04-08T03:11:23+02:00" expires="2014-04-24T21:51:52.640-04:00">
+<ns5:document xmlns:ns2="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns3="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns4="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns5="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns7="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:ns8="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns9="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" id="urn:ogf:network:surfnet.nl:1990:nsa:bod-acc" href="/discovery/documents/urn%3Aogf%3Anetwork%3Asurfnet.nl%3A1990%3Ansa%3Abod-acc/application%2Fvnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Asurfnet.nl%3A1990%3Ansa%3Abod-acc" version="2014-04-08T06:18:37+02:00" expires="2014-04-25T00:59:06.978-04:00">
     <nsa>urn:ogf:network:surfnet.nl:1990:nsa:bod-acc</nsa>
     <type>application/vnd.ogf.nsi.nsa.v1+xml</type>
     <content>
-        <ns7:nsa id="urn:ogf:network:surfnet.nl:1990:nsa:bod-acc" version="2014-04-08T03:11:23+02:00">
+        <ns7:nsa id="urn:ogf:network:surfnet.nl:1990:nsa:bod-acc" version="2014-04-08T06:18:37+02:00">
             <name>SURFnet7 test bed</name>
             <softwareVersion>1.24.29</softwareVersion>
             <startTime>2014-04-07T16:08:43+02:00</startTime>
@@ -16,7 +16,7 @@
                         <ns4:text>surfnet-acc</ns4:text>
                     </ns4:prodid>
                     <ns4:rev>
-                        <ns4:timestamp>20140408T031123Z</ns4:timestamp>
+                        <ns4:timestamp>20140408T061837Z</ns4:timestamp>
                     </ns4:rev>
                     <ns4:kind>
                         <ns4:text>individual</ns4:text>

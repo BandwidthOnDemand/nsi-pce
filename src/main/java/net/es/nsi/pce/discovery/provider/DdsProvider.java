@@ -66,11 +66,18 @@ public class DdsProvider implements DiscoveryProvider {
     }
 
     @Override
-    public void initialize() throws IllegalArgumentException, JAXBException, FileNotFoundException {
+    public void initialize() {
         log.info("DdsProvider: Initializing...");
-        ddsActorSystem.start();
+        // All initialization is now through bean config.
         log.info("DdsProvider: Initializing complete.");
     }
+    
+    @Override
+    public void start() {
+        log.info("start: Starting...");
+        ddsActorSystem.start();
+        log.info("start: ...Started.");
+    }   
  
     @Override
     public Subscription addSubscription(SubscriptionRequestType request, String encoding) {

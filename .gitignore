@@ -6,3 +6,4 @@
 nsi-pce.iml
 .idea
 *.iml
+config/cache/*.xml

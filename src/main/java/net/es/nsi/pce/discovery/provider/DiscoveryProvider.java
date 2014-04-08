@@ -17,7 +17,7 @@ import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
 public interface DiscoveryProvider {
     
     public void initialize() throws Exception;
-    
+    public void start();
     public void shutdown();
     
     public Subscription addSubscription(SubscriptionRequestType request, String encoding);

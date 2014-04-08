@@ -82,10 +82,13 @@ public enum ConfigurationManager {
             pceServer = (PCEServer) context.getBean("pceServer");
             pceServer.start(PCE_SERVER_CONFIG_NAME);
             
-            serviceInfoProvider = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
+            // Start the discovery process.
             discoveryProvider = (DiscoveryProvider) context.getBean("discoveryProvider");
-            topologyProvider = (TopologyProvider) context.getBean("topologyProvider");
+            discoveryProvider.start();
             
+            serviceInfoProvider = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
+            topologyProvider = (TopologyProvider) context.getBean("topologyProvider");
+
             // TODO: This need to change to a local cache load.
             log.info("Loading network topology...");
             getTopologyProvider().loadTopology();

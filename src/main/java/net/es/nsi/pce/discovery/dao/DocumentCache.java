@@ -168,21 +168,21 @@ public class DocumentCache {
         Collection<String> xmlFilenames = XmlUtilities.getXmlFilenames(path);
 
         for (String filename : xmlFilenames) {
-            log.debug("load: filename " + filename);
+            log.debug("loadDirectory: filename " + filename);
             DocumentType document;
             try {
                 document = DiscoveryParser.getInstance().readDocument(filename);
                 if (document == null) {
-                    log.error("load: Loaded empty document from " + filename);
+                    log.error("loadDirectory: Loaded empty document from " + filename);
                     continue;
                 }
             }
             catch (JAXBException | FileNotFoundException ex) {
-                log.error("load: Failed to load file " + filename, ex);
+                log.error("loadDirectory: Failed to load file " + filename, ex);
                 if (delete) {
                     File file = new File(filename);
                     if(!file.delete()) {
-                        log.error("remove: Delete failed for file  " + filename);
+                        log.error("loadDirectory: Delete failed for file  " + filename);
                     }
                 }
                 continue;
@@ -199,11 +199,11 @@ public class DocumentCache {
                 now.setTime(now.getTime() + configReader.getExpiryInterval() * 1000);
                 if (expiresTime.before(now)) {
                     // This document is old and no longer valid.
-                    log.error("load: Loaded document has expired " + filename + ", expires=" + expires.toGregorianCalendar().getTime().toString());
+                    log.error("loadDirectory: Loaded document has expired " + filename + ", expires=" + expires.toGregorianCalendar().getTime().toString());
                     if (delete) {
                         File file = new File(filename);
                         if(!file.delete()) {
-                            log.error("load: Delete failed for file  " + filename);
+                            log.error("loadDirectory: Delete failed for file  " + filename);
                         }
                     }
                     continue;
@@ -216,7 +216,7 @@ public class DocumentCache {
                 try {
                     xmlGregorianCalendar = XmlUtilities.xmlGregorianCalendar(date);
                 } catch (DatatypeConfigurationException ex) {
-                    log.error("load: Document does not contain an expires date and creation of one failed id=" + document.getId());
+                    log.error("loadDirectory: Document does not contain an expires date and creation of one failed id=" + document.getId());
                     continue;
                 }
 
@@ -233,26 +233,26 @@ public class DocumentCache {
 
             if (result == null) {
                 documents.put(entry.getId(), entry);
-                log.debug("load: added document id=" + entry.getId() + ", filename=" + filename);                
+                log.debug("loadDirectory: added document id=" + entry.getId() + ", filename=" + filename);                
             }
             else if (entry.getDocument().getVersion().compare(result.getDocument().getVersion()) == DatatypeConstants.GREATER) {
-                log.debug("load: new document found so removing old cached document id=" + result.getId() + ", filename="+ result.getFilename());
+                log.debug("loadDirectory: new document found so removing old cached document id=" + result.getId() + ", filename="+ result.getFilename());
                 documents.remove(result.getId());
                 documents.put(entry.getId(), entry);
-                log.debug("load: added new document id=" + entry.getId() + ", filename=" + filename);
+                log.debug("loadDirectory: added new document id=" + entry.getId() + ", filename=" + filename);
             }
             else {
-                log.debug("load: document currently in cache is newer, removing old document id=" + entry.getId() + ", filename=" + filename);
+                log.debug("loadDirectory: document currently in cache is newer, removing old document id=" + entry.getId() + ", filename=" + filename);
                 if (delete) {
                     File file = new File(filename);
                     if(!file.delete()) {
-                    log.error("load: Delete failed for file  " + filename);
+                    log.error("loadDirectory: Delete failed for file  " + filename);
                     }
                 }
             }
         }
         
-        log.debug("load: exiting");
+        log.debug("loadDirectory: exiting");
     }
     
     public void expire() {

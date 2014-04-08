@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ns4:document xmlns:ns2="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns3="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns4="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns5="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns7="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:ns8="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns9="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" id="urn:ogf:network:example.com:2013:nsa:vixen" href="/discovery/documents/urn%3Aogf%3Anetwork%3Aexample.com%3A2013%3Ansa%3Avixen/application%2Fvnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aexample.com%3A2013%3Ansa%3Avixen" version="2014-04-08T00:01:29.156-04:00" expires="2014-04-08T00:07:29.157-04:00">
+<ns5:document xmlns:ns2="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns3="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns4="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns5="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns7="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:ns8="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns9="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" id="urn:ogf:network:example.com:2013:nsa:vixen" href="/discovery/documents/urn%3Aogf%3Anetwork%3Aexample.com%3A2013%3Ansa%3Avixen/application%2Fvnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aexample.com%3A2013%3Ansa%3Avixen" version="2014-04-08T00:18:53.238-04:00" expires="2014-04-08T00:24:53.238-04:00">
     <nsa>urn:ogf:network:example.com:2013:nsa:vixen</nsa>
     <type>application/vnd.ogf.nsi.nsa.v1+xml</type>
     <content>
@@ -8,34 +8,34 @@
             <softwareVersion>ExampleNsa-Version-1.0</softwareVersion>
             <startTime>2014-01-01T18:13:51Z</startTime>
             <adminContact>
-                <ns5:vcard>
-                    <ns5:uid>
-                        <ns5:uri>http://www.example.com/santa.claus/santa.asc</ns5:uri>
-                    </ns5:uid>
-                    <ns5:prodid>
-                        <ns5:text>OGF Example Maker // EN</ns5:text>
-                    </ns5:prodid>
-                    <ns5:rev>
-                        <ns5:timestamp>20080424T195243Z</ns5:timestamp>
-                    </ns5:rev>
-                    <ns5:kind>
-                        <ns5:text>individual</ns5:text>
-                    </ns5:kind>
-                    <ns5:fn>
-                        <ns5:text>Saint Nicholas</ns5:text>
-                    </ns5:fn>
-                    <ns5:n>
-                        <ns5:surname>Claus</ns5:surname>
-                        <ns5:given>Santa</ns5:given>
-                        <ns5:suffix>Saint</ns5:suffix>
-                    </ns5:n>
-                    <ns5:tel>
-                        <ns5:text>+1 555-555-5555</ns5:text>
-                    </ns5:tel>
-                    <ns5:email>
-                        <ns5:text>santa.claus@theworkshop.example.com</ns5:text>
-                    </ns5:email>
-                </ns5:vcard>
+                <ns4:vcard>
+                    <ns4:uid>
+                        <ns4:uri>http://www.example.com/santa.claus/santa.asc</ns4:uri>
+                    </ns4:uid>
+                    <ns4:prodid>
+                        <ns4:text>OGF Example Maker // EN</ns4:text>
+                    </ns4:prodid>
+                    <ns4:rev>
+                        <ns4:timestamp>20080424T195243Z</ns4:timestamp>
+                    </ns4:rev>
+                    <ns4:kind>
+                        <ns4:text>individual</ns4:text>
+                    </ns4:kind>
+                    <ns4:fn>
+                        <ns4:text>Saint Nicholas</ns4:text>
+                    </ns4:fn>
+                    <ns4:n>
+                        <ns4:surname>Claus</ns4:surname>
+                        <ns4:given>Santa</ns4:given>
+                        <ns4:suffix>Saint</ns4:suffix>
+                    </ns4:n>
+                    <ns4:tel>
+                        <ns4:text>+1 555-555-5555</ns4:text>
+                    </ns4:tel>
+                    <ns4:email>
+                        <ns4:text>santa.claus@theworkshop.example.com</ns4:text>
+                    </ns4:email>
+                </ns4:vcard>
             </adminContact>
             <location>
                 <name>Santa's Workshop</name>
@@ -43,13 +43,13 @@
                 <latitude>90.0</latitude>
                 <altitude>10.0</altitude>
                 <address>
-                    <ns5:pobox></ns5:pobox>
-                    <ns5:ext></ns5:ext>
-                    <ns5:street>1 Top of the world boulevard</ns5:street>
-                    <ns5:locality>Polar Ice Flows</ns5:locality>
-                    <ns5:region>The North Pole</ns5:region>
-                    <ns5:code>CA</ns5:code>
-                    <ns5:country>Canada</ns5:country>
+                    <ns4:pobox></ns4:pobox>
+                    <ns4:ext></ns4:ext>
+                    <ns4:street>1 Top of the world boulevard</ns4:street>
+                    <ns4:locality>Polar Ice Flows</ns4:locality>
+                    <ns4:region>The North Pole</ns4:region>
+                    <ns4:code>CA</ns4:code>
+                    <ns4:country>Canada</ns4:country>
                 </address>
             </location>
             <networkId>urn:ogf:network:example.com:2013:network:theworkshop</networkId>
@@ -81,4 +81,4 @@
             <peersWith>urn:ogf:network:example.com:2013:nsa:prancer</peersWith>
         </ns7:nsa>
     </content>
-</ns4:document>
+</ns5:document>
