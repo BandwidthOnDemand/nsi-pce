@@ -11,6 +11,7 @@ import javax.xml.bind.JAXBElement;
 import net.es.nsi.pce.discovery.api.DiscoveryService;
 import net.es.nsi.pce.path.api.FindPathService;
 import net.es.nsi.pce.management.api.ManagementService;
+import net.es.nsi.pce.path.api.ReachabilityService;
 import net.es.nsi.pce.topology.api.TopologyService;
 import net.es.nsi.pce.path.jaxb.FindPathErrorType;
 import net.es.nsi.pce.path.jaxb.ObjectFactory;
@@ -28,6 +29,7 @@ public class RestServer {
         return new ResourceConfig()
                 .packages(packageName) // This seems to be broken when run outside of Jersey test.
                 .register(FindPathService.class) // Remove this if packages gets fixed.
+                .register(ReachabilityService.class) // Remove this if packages gets fixed.
                 .register(TopologyService.class) // Remove this if packages gets fixed.
                 .register(DiscoveryService.class) // Remove this if packages gets fixed.
                 .register(ManagementService.class) // Remove this if packages gets fixed.
