@@ -24,25 +24,25 @@ public class PathfinderCore {
 
     private ApplicationContext context = null;
     private TopologyProvider topologyProvider = null;
-    
+
     /**
      * Default constructor for this class.  Performs lookups on the Spring
      * beans for required services.
-     * 
+     *
      * @throws Exception If Spring cannot resolve the desired beans.
      */
-    public PathfinderCore() throws Exception {
+    public PathfinderCore() {
         // Load the providers we will need for Path Computation.
         SpringContext sc  = SpringContext.getInstance();
         context = sc.getContext();
-        topologyProvider = (TopologyProvider) context.getBean("topologyProvider");       
+        topologyProvider = (TopologyProvider) context.getBean("topologyProvider");
     }
-    
+
     /**
      * This class builds a path finding request, loads the appropriate path
      * finding modules, issues the path finding request, collects the
      * results, and builds a list of NSA and request segments.
-     * 
+     *
      * @param algorithm The algorithm to run for this path request (CHAIN or TREE).
      * @param contraints The list of path constraints.
      * @param po The list to populate the path results.
@@ -50,18 +50,18 @@ public class PathfinderCore {
      * @throws Exception An exception carrying an XML encoded findPathErrorType.
      */
     public Path findPath(FindPathAlgorithmType algorithm, Set<Constraint> contraints) throws Exception {
-        
+
         log.debug("findPath: P2PS path request");
 
         // Build the path computation request.
         PCEData pceData = new PCEData();
-        
+
         // Add routing constrains.
         pceData.getConstraints().addAll(contraints);
 
-        // Add topology 
+        // Add topology
         pceData.setTopology(topologyProvider.getTopology());
-      
+
         // Determine the path computation module to invoke.
         PCEModule pce;
         if (algorithm == null) {
