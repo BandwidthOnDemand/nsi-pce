@@ -58,21 +58,30 @@
     <bean id="AuthPCE" class="net.es.nsi.pce.pf.AuthPCE" scope="singleton" />
 
     <bean id="chainPCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
-        <property name="moduleList">
-            <list>
-                <ref bean="AuthPCE" />
-                <ref bean="DijkstraPCE" />
-            </list>
-        </property>
+      <property name="moduleList">
+        <list>
+          <ref bean="AuthPCE" />
+          <ref bean="DijkstraPCE" />
+        </list>
+      </property>
     </bean>
 
     <bean id="treePCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
-        <property name="moduleList">
-            <list>
-                <ref bean="DijkstraPCE" />
-            </list>
-        </property>
+      <property name="moduleList">
+        <list>
+          <ref bean="DijkstraPCE" />
+        </list>
+      </property>
     </bean>
-
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+
+    <!-- Reachability / GangOf3 PCE.
+    <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE" >
+      <constructor-arg index="0" ref="serviceInfoProvider" />
+      <constructor-arg index="1" value="${localNetworkId}" />
+    </bean>
+    -->
+
+
+
 </beans>
