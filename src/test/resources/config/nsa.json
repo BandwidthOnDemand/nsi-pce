@@ -74,7 +74,7 @@
         }
     },
     "urn:ogf:network:netherlight.net:2013:nsa:bod": {
-        "networkId": "urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed",
+        "networkId": "urn:ogf:network:netherlight.net:2013:testbed",
         "providerUrl": "https://bod.netherlight.net/nsi/v2/provider",
         "auth": {
             "method": "OAUTH_2",

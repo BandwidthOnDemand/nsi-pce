@@ -13,20 +13,18 @@ import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.jaxb.ResolvedPathType;
 import net.es.nsi.pce.path.jaxb.TypeValueType;
 import net.es.nsi.pce.pf.api.NsiError;
+import net.es.nsi.pce.pf.api.PCEConstraints;
 import net.es.nsi.pce.pf.api.cons.BooleanAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.NumAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
-import net.es.nsi.pce.config.SpringContext;
-import net.es.nsi.pce.config.nsa.ServiceInfo;
-import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
 import net.es.nsi.pce.pf.api.Path;
+import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.AttrConstraint;
 import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.pf.api.cons.Constraints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
 /**
  *
@@ -50,8 +48,6 @@ public class Point2Point {
     public static final String MTU = "http://schemas.ogf.org/nml/2012/10/ethernet#mtu";
     public static final String VLAN = "http://schemas.ogf.org/nml/2012/10/ethernet#vlan";
 
-    private ApplicationContext context = null;
-    private ServiceInfoProvider sip = null;
     private ObjectFactory factory = new ObjectFactory();
     private Constraints constraints = new Constraints();
 
@@ -118,27 +114,25 @@ public class Point2Point {
         return constraints.get();
     }
     
-    public List<ResolvedPathType> resolvePath(String serviceType, Path path) {
+    public List<ResolvedPathType> resolvePath(Path path) {
         List<ResolvedPathType> resolvedPath = new ArrayList<>();
 
-        // TODO: These are copied directly from the request criteria for
-        // but will need to be specific per segment in the future.
-        NumAttrConstraint capacity = constraints.removeNumAttrConstraint(CAPACITY);
-        StringAttrConstraint directionality = constraints.removeStringAttrConstraint(DIRECTIONALITY);
-        BooleanAttrConstraint symmetric = constraints.removeBooleanAttrConstraint(SYMMETRICPATH);
-        constraints.removeStringAttrConstraint(SOURCESTP);
-        constraints.removeStringAttrConstraint(DESTSTP);
-        List<TypeValueType> attrConstraints = constraints.removeStringAttrConstraints();
-        
         // For each pair of STP we need to build a resolved path.
-        for (StpPair stpPair: path.getStpPairs() ) {
+        for (PathSegment segment : path.getPathSegments()) {
+            // Convert the constraints.
+            Constraints pathConstraints = segment.getConstraints();
+            StringAttrConstraint serviceType = pathConstraints.removeStringAttrConstraint(PCEConstraints.SERVICETYPE);
+            NumAttrConstraint capacity = pathConstraints.removeNumAttrConstraint(CAPACITY);
+            StringAttrConstraint directionality = pathConstraints.removeStringAttrConstraint(DIRECTIONALITY);
+            BooleanAttrConstraint symmetric = pathConstraints.removeBooleanAttrConstraint(SYMMETRICPATH);
+            List<TypeValueType> attrConstraints = pathConstraints.removeStringAttrConstraints();
+            
+            StpPair stpPair = segment.getStpPair();
+
             // Build our path finding results into an P2PS service.
             P2PServiceBaseType p2psResult = factory.createP2PServiceBaseType();
             p2psResult.setSourceSTP(stpPair.getA().getId());
             p2psResult.setDestSTP(stpPair.getZ().getId());
-            
-            // Get the managing network of this STP pair.
-            String networkId = stpPair.getA().getNetworkId();
 
             if (capacity != null) {
                 p2psResult.setCapacity(capacity.getValue());
@@ -156,23 +150,14 @@ public class Point2Point {
             
             // Set the corresponding serviceType and add out EVTS results.
             ResolvedPathType pathObj = new ResolvedPathType();
-            pathObj.setServiceType(serviceType);
+            pathObj.setServiceType(serviceType.getValue());
             pathObj.getAny().add(factory.createP2Ps(p2psResult));
-            
-            /* Look up the managing NSA for this path segment.  TODO: This
-             * should use control plane topology to determine the next NSA to
-             * pass the request just in case we cannot talk to the managing NSA
-             * directly.
-             */
-            SpringContext sc  = SpringContext.getInstance();
-            context = sc.getContext();
-            sip = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
-            ServiceInfo si = sip.byNetworkId(networkId);
-            pathObj.setNsa(si.getNsaId());
-            pathObj.setCsProviderURL(si.getProviderUrl());
+
+            pathObj.setNsa(segment.getNsaId());
+            pathObj.setCsProviderURL(segment.getCsProviderURL());
+
             resolvedPath.add(pathObj);
         }
-
         return resolvedPath;
     }
 }

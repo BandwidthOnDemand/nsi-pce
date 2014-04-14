@@ -6,11 +6,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import net.es.nsi.pce.spring.SpringApplicationContext;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author hacksaw
  */
+@Component
 public class RemoteSubscriptionCache {
     // In-memory subscription cache indexed by subscriptionId.
     private Map<String, RemoteSubscription> remoteSubscriptions = new ConcurrentHashMap<>();

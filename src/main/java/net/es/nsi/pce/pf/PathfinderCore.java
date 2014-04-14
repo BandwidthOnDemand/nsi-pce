@@ -35,7 +35,7 @@ public class PathfinderCore {
         // Load the providers we will need for Path Computation.
         SpringContext sc  = SpringContext.getInstance();
         context = sc.getContext();
-        topologyProvider = (TopologyProvider) context.getBean("topologyProvider");       
+        topologyProvider = (TopologyProvider) context.getBean("topologyProvider");
     }
     
     /**
@@ -50,9 +50,6 @@ public class PathfinderCore {
      * @throws Exception An exception carrying an XML encoded findPathErrorType.
      */
     public Path findPath(FindPathAlgorithmType algorithm, Set<Constraint> contraints) throws Exception {
-        
-        log.debug("findPath: P2PS path request");
-
         // Build the path computation request.
         PCEData pceData = new PCEData();
         
@@ -64,16 +61,11 @@ public class PathfinderCore {
       
         // Determine the path computation module to invoke.
         PCEModule pce;
-        if (algorithm == null) {
+        if (algorithm != null && algorithm.equals(FindPathAlgorithmType.CHAIN)) {
             pce = (PCEModule) context.getBean("chainPCE");
-
-        } else if (algorithm.equals(FindPathAlgorithmType.CHAIN)) {
-            pce = (PCEModule) context.getBean("chainPCE");
-
-        } else if (algorithm.equals(FindPathAlgorithmType.TREE)) {
+        }
+        else {
             pce = (PCEModule) context.getBean("treePCE");
-        } else {
-            pce = (PCEModule) context.getBean("chainPCE");
         }
 
         // Invoke the path computation sequence on this request.

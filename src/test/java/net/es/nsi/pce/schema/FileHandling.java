@@ -43,7 +43,7 @@ public class FileHandling {
                     continue;
                 }
             }
-            catch (JAXBException | FileNotFoundException ex) {
+            catch (JAXBException | IOException ex) {
                 System.err.println("cacheReadWrite: Failed to load file " + filename);
                 ex.printStackTrace();
                 continue;

@@ -26,6 +26,9 @@ public class NsiConstants {
     public static final String NSI_CS_PROVIDER_V1 = "application/vnd.ogf.nsi.cs.v1.provider+soap";
     public static final String NSI_CS_REQUESTER_V1 = "application/vnd.ogf.nsi.cs.v1.requester+soap";
 
+    public static final String NSI_DOC_TYPE_NSA_V1 = "vnd.ogf.nsi.nsa.v1+xml";
+    public static final String NSI_DOC_TYPE_TOPOLOGY_V1 = "vnd.ogf.nsi.topology.v1+xml";
+    public static final String NSI_DOC_TYPE_TOPOLOGY_V2 = "vnd.ogf.nsi.topology.v2+xml";
     
     public static final String NSI_CS_URA = "vnd.ogf.nsi.cs.v2.role.uRA";
     public static final String NSI_CS_UPA = "vnd.ogf.nsi.cs.v2.role.uPA";

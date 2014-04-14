@@ -7,8 +7,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import net.es.nsi.pce.topology.jaxb.NetworkType;
-import net.es.nsi.pce.topology.jaxb.NmlNSAType;
+import net.es.nsi.pce.topology.jaxb.NsaHolderType;
+import net.es.nsi.pce.topology.jaxb.NsaNsaType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.NsiResourceType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
@@ -19,7 +19,7 @@ import org.apache.http.client.utils.DateUtils;
  * @author hacksaw
  */
 public class NsiNsaFactory {
-    private static final String NSI_ROOT_NSAS = "/topology/nsas/";
+    private static final String NSI_ROOT_NSAS = "/nsas/";
     
     /**
      * Create a NSI NSA resource object from an NML JAXB object.
@@ -27,18 +27,36 @@ public class NsiNsaFactory {
      * @param nmlNsa NML JAXB object.
      * @return
      */
-    public static NsaType createNsaType(NmlNSAType nmlNsa) {
+    public static NsaType createNsaType(NsaNsaType nsa) {
         NsaType nsiNsa = new NsaType();
-        nsiNsa.setId(nmlNsa.getId());
-        nsiNsa.setName(nmlNsa.getName());
-        nsiNsa.setVersion(nmlNsa.getVersion());
-
+        nsiNsa.setId(nsa.getId());
+        nsiNsa.setName(nsa.getName());
+        nsiNsa.setVersion(nsa.getVersion());
         nsiNsa.setHref(NSI_ROOT_NSAS + nsiNsa.getId());
+
+        nsiNsa.setSoftwareVersion(nsa.getSoftwareVersion());
+        nsiNsa.setStartTime(nsa.getStartTime());
+        nsiNsa.setLocation(nsa.getLocation());
+        nsiNsa.setAdminContact(nsa.getAdminContact());
         
-        if (nmlNsa.getLocation() != null) {
-            nsiNsa.setLatitude(nmlNsa.getLocation().getLat());
-            nsiNsa.setLongitude(nmlNsa.getLocation().getLong());
+        if (nsa.getInterface() != null && !nsa.getInterface().isEmpty()) {
+            nsiNsa.getInterface().addAll(nsa.getInterface());
         }
+        
+        if (nsa.getFeature() != null && !nsa.getFeature().isEmpty()) {
+            nsiNsa.getFeature().addAll(nsa.getFeature());
+        }
+        
+        if (nsa.getPeersWith() != null && !nsa.getPeersWith().isEmpty()) {
+            nsiNsa.getPeersWith().addAll(nsa.getPeersWith());
+        }
+        
+        for (NsaHolderType holder : nsa.getOther()) {
+            nsiNsa.getAny().addAll(holder.getAny());
+        }
+
+        // The network ResourceRefType is populated after the corresponding
+        // networks are created.
         
         return nsiNsa;
     }

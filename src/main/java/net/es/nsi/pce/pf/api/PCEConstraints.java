@@ -19,9 +19,9 @@ import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
  */
 public class PCEConstraints {
     // These are fixed element definitions within the findPath request.
-    public static final String STARTTIME = "startTime";
-    public static final String ENDTIME = "endTime";
-    public static final String SERVICETYPE = "serviceType";
+    public static final String STARTTIME = "http://schemas.ogf.org/nsi/2013/12/connection/types#criteria/startTime";
+    public static final String ENDTIME = "http://schemas.ogf.org/nsi/2013/12/connection/types#criteria/endTime";
+    public static final String SERVICETYPE = "http://schemas.ogf.org/nsi/2013/12/connection/types#criteria/serviceType";
 
     /**
      * Build a routing constraint set from the standard API parameters.

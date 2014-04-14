@@ -35,6 +35,11 @@ public class AuthPCE implements PCEModule {
     
     @Override
     public PCEData apply(PCEData pceData) throws Exception {
+        return pceData;
+    }
+    
+    /*
+    public PCEData apply(PCEData pceData) throws Exception {
         log.debug("AuthPCE.apply: Starting ...");
         
         // Get the Spring context and the required providers.
@@ -131,5 +136,5 @@ public class AuthPCE implements PCEModule {
         log.debug("AuthPCE.apply: ... Finished.");
         
         return result;
-    }
+    }*/
 }

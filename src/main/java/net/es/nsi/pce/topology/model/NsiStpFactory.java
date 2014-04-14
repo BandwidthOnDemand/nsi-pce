@@ -16,7 +16,6 @@ import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.TypeValueType;
-import net.es.nsi.pce.topology.provider.NmlPort;
 import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,7 @@ public class NsiStpFactory {
     private final static String NML_LABEL_VLAN = "http://schemas.ogf.org/nml/2012/10/ethernet#vlan";
 
     // REST interface URL for each resource type.
-    private static final String NSI_ROOT_STPS = "/topology/stps/";
+    private static final String NSI_ROOT_STPS = "/stps/";
 
     /**
      * 
@@ -135,7 +134,6 @@ public class NsiStpFactory {
                 StpType stp = createStpType(port, label, nsiTopology);
 
                 // Build the STP Identifier using label if present.
-                log.debug("Creating STP " + stp.getId());
                 stpList.add(stp);
             }
         }

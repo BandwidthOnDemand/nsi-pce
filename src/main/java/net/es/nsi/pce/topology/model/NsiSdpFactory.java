@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * @author hacksaw
  */
 public class NsiSdpFactory {
-    private static final String NSI_ROOT_SDPS = "/topology/sdps/";
+    private static final String NSI_ROOT_SDPS = "/sdps/";
     
     public static SdpType createSdpType(StpType stpA, StpType stpZ) {
         // We want a new NSI STP.

@@ -26,7 +26,6 @@ import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
-import net.es.nsi.pce.topology.provider.NmlPort;
 import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NsiServiceDomainFactory {
     
-    private static final String NSI_ROOT_SERVICEDOMAINS = "/topology/serviceDomains/";
+    private static final String NSI_ROOT_SERVICEDOMAINS = "/serviceDomains/";
 
     /**
      * Create a NSI ServiceDomain resource object from an NML JAXB object.

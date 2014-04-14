@@ -35,7 +35,7 @@ public class NsiTopology {
     private ConcurrentHashMap<String, NsaType> nsas = new ConcurrentHashMap<>();
     
     // The time of the most recent discovered item.
-    private long lastModified = 0L;
+    private long lastDiscovered = 0L;
 
     /*************************************************************************
      * The base type adders.
@@ -442,16 +442,16 @@ public class NsiTopology {
     }
         
     /**
-     * @return the lastModified
+     * @return the lastDiscovered
      */
-    public long getLastModified() {
-        return lastModified;
+    public long getLastDiscovered() {
+        return lastDiscovered;
     }
 
     /**
      * @param lastModified the lastModified to set
      */
-    public void setLastModified(long lastModified) {
-        this.lastModified = lastModified;
+    public void setLastDiscovered(long lastDiscovered) {
+        this.lastDiscovered = lastDiscovered;
     }
 }

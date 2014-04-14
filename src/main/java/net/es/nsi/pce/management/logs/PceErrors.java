@@ -29,9 +29,15 @@ public enum PceErrors {
     AUDIT_NSA_COMMS(2007, "AUDIT_NSA_COMMS", "NSA audit failed due to a communication error (%s)."),
     AUDIT_NSA_XML_PARSE(2008, "AUDIT_NSA_XML_PARSE", "NSA audit failed do to XML parse error (%s)."),
     
+    // Topology audit errors - specifically around the discovery of topology from NSA.
+    AUDIT_NSA_DOCUMENT(2100, "AUDIT_NSA_DOCUMENT", "The NSA document audit failed."),
+    AUDIT_NSA_DOCUMENT_FORCED(2101, "AUDIT_NSA_DOCUMENT_FORCED", "A user forced audit failed (%s)."),
+    AUDIT_NSA_DOCUMENT_FAILED(2102, "AUDIT_NSA_DOCUMENT_FAILED", "Audit failed for (%s)."),
+    AUDIT_DDS_COMMS(2104, "AUDIT_DDS_COMMS", "Audit failed due to a DDS communication error (%s)."),
+    AUDIT_NSA_DOCUMENT_XML_PARSE(2105, "AUDIT_NSA_DOCUMENT_XML_PARSE", "Audit failed to parse NSA Document XML (%s)."),
+    
     // Unidirectional STP errors.
     STP(3000, "STP", "Unidirectional STP error."),
-    STP_NO_REMOTE_REFERNCE(3001, "STP_NO_REMOTE_REFERNCE", "Unidirectional STP has zero isAlias relationships."),
     STP_MULTIPLE_REMOTE_REFERNCES(3002, "STP_MULTIPLE_REMOTE_REFERNCES", "Unidirectional STP has multiple isAlias relationships (%s)."),
     STP_INVALID_REMOTE_REFERNCE(3003, "STP_INVALID_REMOTE_REFERNCES", "STP has a remote reference (isAlias) that references an STP not within topology (%s)."),
     STP_OUTBOUND_REFERNCE_MISMATCH(3004, "STP_OUTBOUND_REFERNCE_MISMATCH", "Outbound STP is not connected to an inbound STP (%s)."),

@@ -69,17 +69,20 @@ public class AgoleTopologyReader {
         }
         catch (Exception ex) {
             topologyLogger.errorAudit(PceErrors.AUDIT_NSA_COMMS, target, ex.getMessage());
+            client.close();
             throw ex;
         }
         
         // A 304 Not Modified indicates we already have a up-to-date document.
         if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
             log.debug("readNsaTopology: NOT_MODIFIED returned " + target);
+            client.close();
             return null;
         }
         
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
             topologyLogger.errorAudit(PceErrors.AUDIT_NSA_COMMS, target, Integer.toString(response.getStatus()));
+            client.close();
             throw new NotFoundException("Failed to retrieve NSA topology " + target);
         }
         
@@ -95,7 +98,8 @@ public class AgoleTopologyReader {
         // Now we want the NML XML document.  We have to read this as a string
         // because GitHub is returning incorrect media type (text/plain).
         String xml = response.readEntity(String.class);
-        
+        client.close();
+ 
         log.debug("readNsaTopology: input message " + xml);
         
         // Parse the NSA topology. 

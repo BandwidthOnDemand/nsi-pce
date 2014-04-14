@@ -5,7 +5,7 @@
     version="2014-04-01T18:13:51.0Z"
     expires="2014-05-04T18:13:51.0Z">
     <nsa>urn:ogf:network:example.com:2013:nsa:vixen</nsa>
-    <type>application/vnd.ogf.nsi.nsa.v1+xml</type>
+    <type>vnd.ogf.nsi.nsa.v1+xml</type>
     <content>
         <tns:nsa xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                 xmlns:xcard="urn:ietf:params:xml:ns:vcard-4.0"

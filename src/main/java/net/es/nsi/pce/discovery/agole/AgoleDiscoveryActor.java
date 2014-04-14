@@ -43,13 +43,10 @@ public class AgoleDiscoveryActor extends UntypedActor {
 
     @Override
     public void preStart() {
-        log.debug("preStart: entering.");
-        log.debug("preStart: exiting.");
     }
 
     @Override
     public void onReceive(Object msg) {
-        log.debug("onReceive: entering.");
         if (msg instanceof AgoleDiscoveryMsg) {
             AgoleDiscoveryMsg message = (AgoleDiscoveryMsg) msg;
             
@@ -64,7 +61,6 @@ public class AgoleDiscoveryActor extends UntypedActor {
         } else {
             unhandled(msg);
         }
-        log.debug("onReceive: exiting.");
     }
  
     private boolean discoverTopology(AgoleDiscoveryMsg message) {
@@ -133,7 +129,7 @@ public class AgoleDiscoveryActor extends UntypedActor {
 
         // Set the naming attributes.
         document.setId(nsa.getId());
-        document.setType(NsiConstants.NSI_NSA_V1);
+        document.setType(NsiConstants.NSI_DOC_TYPE_NSA_V1);
         document.setNsa(nsa.getId());
 
         // We need the version of the document.
@@ -186,7 +182,7 @@ public class AgoleDiscoveryActor extends UntypedActor {
 
         // Set the naming attributes.
         document.setId(topology.getId());
-        document.setType(NsiConstants.NSI_TOPOLOGY_V2);
+        document.setType(NsiConstants.NSI_DOC_TYPE_TOPOLOGY_V2);
         document.setNsa(nsaId);
 
         // We need the version of the document.
@@ -205,6 +201,10 @@ public class AgoleDiscoveryActor extends UntypedActor {
             }
 
             document.setExpires(xmlGregorianCalendar);
+            NmlLifeTimeType lifetime = factory.createNmlLifeTimeType();
+            lifetime.setStart(topology.getVersion());
+            lifetime.setEnd(xmlGregorianCalendar);
+            topology.setLifetime(lifetime);
         }
         else {
             document.setExpires(topology.getLifetime().getEnd());
@@ -277,7 +277,7 @@ public class AgoleDiscoveryActor extends UntypedActor {
         // We pull the networkId out of the <Topology> elements.
         List<String> networkId = nsaDocument.getNetworkId();
         for (NmlTopologyType topology : nsa.getTopology()) {
-            networkId.add(topology.getId());
+            networkId.add(topology.getId().trim());
         }
         
         return nsaDocument;
@@ -303,7 +303,7 @@ public class AgoleDiscoveryActor extends UntypedActor {
         for (NmlNSARelationType relation : relationList) {
             if (NsiConstants.NML_PEERSWITH_RELATION.equalsIgnoreCase(relation.getType())) {
                 for (NmlNSAType nsa : relation.getNSA()) {
-                    peersWith.add(nsa.getId());
+                    peersWith.add(nsa.getId().trim());
                 }
             }
         }
@@ -315,7 +315,7 @@ public class AgoleDiscoveryActor extends UntypedActor {
         List<InterfaceType> interfaceList = new ArrayList<>();
         for (NmlServiceType service : services) {
             InterfaceType aInterface = factory.createInterfaceType();
-            aInterface.setHref(service.getLink());
+            aInterface.setHref(service.getLink().trim());
             aInterface.setType(NsiConstants.NSI_CS_PROVIDER_V2);
             interfaceList.add(aInterface);
         }

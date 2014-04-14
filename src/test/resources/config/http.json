@@ -1,7 +1,7 @@
 {
     "pce": {
         "url": "http://localhost:8400/",
-        "packageName": "net.es.nsi.pce.api",
+        "packageName": "net.es.nsi.pce",
         "staticPath": "config/www/",
         "wwwPath": "/www"
     }

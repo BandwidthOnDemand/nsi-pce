@@ -37,8 +37,9 @@ import net.es.nsi.pce.discovery.jaxb.NsaType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionType;
-import net.es.nsi.pce.discovery.dao.ConfigurationReader;
+import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
 import net.es.nsi.pce.discovery.provider.DiscoveryParser;
+import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.schema.XmlUtilities;
 import org.glassfish.jersey.client.ChunkedInput;
 import org.glassfish.jersey.test.TestProperties;
@@ -59,7 +60,6 @@ public class DiscoveryTest extends JerseyTest {
     private final static String DOCUMENT_DIR = "src/test/resources/documents/";
     private final static String callbackURL = testServer.getUrl() + "discovery/callback";
     private final static ObjectFactory factory = new ObjectFactory();
-    final WebTarget root = target();
     final WebTarget discovery = target().path("discovery");
 
     @Override
@@ -74,7 +74,9 @@ public class DiscoveryTest extends JerseyTest {
         try {
             ConfigurationManager.INSTANCE.initialize(CONFIG_DIR);
         } catch (Exception ex) {
-            System.err.println("configure(): Could not initialize test environment." + ex.toString());
+            System.err.println("configure(): Could not initialize test environment.");
+            ex.printStackTrace();
+            ConfigurationManager.INSTANCE.shutdown();
             fail("configure(): Could not initialize test environment.");
         }
         Application app = new Application();
@@ -161,7 +163,7 @@ public class DiscoveryTest extends JerseyTest {
             System.out.println("cDocumentsFull: " + document.getNsa() + ", " + document.getType() + ", " + document.getId() + ", href=" + document.getHref());
             assertFalse(document.getContent().getAny().isEmpty());
             
-            response = root.path(document.getHref()).request(MediaType.APPLICATION_XML).get();
+            response = discovery.path(document.getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
             DocumentType doc = response.readEntity(DocumentType.class);
             assertNotNull(doc);
@@ -206,7 +208,7 @@ public class DiscoveryTest extends JerseyTest {
             assertNull(document.getContent());
             
             // Read the direct href and get summary contents.
-            response = root.path(document.getHref()).queryParam("summary", "true").request(MediaType.APPLICATION_XML).get();
+            response = discovery.path(document.getHref()).queryParam("summary", "true").request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
             DocumentType doc = response.readEntity(DocumentType.class);
             assertNotNull(doc);
@@ -217,9 +219,16 @@ public class DiscoveryTest extends JerseyTest {
     @Test
     public void eDocumentNotFound() throws Exception {
         System.out.println("************************** Running eDocumentNotFound test ********************************");
-        // We want a NOT_FOUND for a nonexistent document.
-        Response response = root.path("documents").path("noDocument").request(MediaType.APPLICATION_XML).get();
-        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());            
+        // We want a NOT_FOUND for a nonexistent nsa resource on document path.
+        Response response = discovery.path("documents").path("invalidNsaValue").request(MediaType.APPLICATION_XML).get();
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        
+        // We want an empty result set for an invalid type on document path.
+        response = discovery.path("documents").path("urn:ogf:network:czechlight.cesnet.cz:2013:nsa").path("invalidDocumentType").request(MediaType.APPLICATION_XML).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        DocumentListType documents = response.readEntity(DocumentListType.class);
+        assertNotNull(documents);
+        assertTrue(documents.getDocument().isEmpty());
     }
     
     @Test
@@ -239,7 +248,7 @@ public class DiscoveryTest extends JerseyTest {
         assertNotNull(documents);
         
         for (DocumentType document : documents.getDocument()) {
-            assertEquals(document.getNsa(), ConfigurationReader.getInstance().getNsaId());
+            assertEquals(document.getNsa(), DiscoveryConfiguration.getInstance().getNsaId());
             
             response = discovery.path("local").path(URLEncoder.encode(document.getType(), "UTF-8")).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -322,10 +331,10 @@ public class DiscoveryTest extends JerseyTest {
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
         SubscriptionType result = response.readEntity(SubscriptionType.class);
-        response = root.path(result.getHref()).request(MediaType.APPLICATION_XML).get();
+        response = discovery.path(result.getHref()).request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         
-        response = root.path(result.getHref()).request(MediaType.APPLICATION_XML).delete();
+        response = discovery.path(result.getHref()).request(MediaType.APPLICATION_XML).delete();
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
     }
     
@@ -346,7 +355,7 @@ public class DiscoveryTest extends JerseyTest {
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
         SubscriptionType result = response.readEntity(SubscriptionType.class);
-        response = root.path(result.getHref()).request(MediaType.APPLICATION_XML).get();
+        response = discovery.path(result.getHref()).request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         
         // Now we wait for the initial notifications to arrive.
@@ -388,6 +397,36 @@ public class DiscoveryTest extends JerseyTest {
                 System.out.println("Notification: event=" + notification.getEvent() + ", documentId=" + notification.getDocument().getId());
             }
             notifications = TestServer.INSTANCE.pollDiscoveryNotification();
+        }
+    }
+    
+    @Test
+    public void iReadEachDocumentType() throws Exception {
+        readDocumentType(NsiConstants.NSI_DOC_TYPE_NSA_V1);
+        readDocumentType(NsiConstants.NSI_DOC_TYPE_TOPOLOGY_V2);
+    }
+    
+    public void readDocumentType(String type) throws Exception {
+        String encode = URLEncoder.encode(type, "UTF-8");
+        Response response = discovery.path("documents").queryParam("type", encode).queryParam("summary", true).request(NsiConstants.NSI_DDS_V1_XML).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        DocumentListType documents = null;
+        try (final ChunkedInput<DocumentListType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<DocumentListType>>() {})) {
+            DocumentListType chunk;
+            while ((chunk = chunkedInput.read()) != null) {
+                documents = chunk;
+            }
+        }
+        
+        assertNotNull(documents);
+        assertNotNull(documents.getDocument());
+        assertFalse(documents.getDocument().isEmpty());
+        
+        for (DocumentType document : documents.getDocument()) {
+            System.out.println("readDocumentType: reaading document " + document.getId());
+            response = discovery.path(document.getHref()).request(NsiConstants.NSI_DDS_V1_XML).get();
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         }
     }
 }

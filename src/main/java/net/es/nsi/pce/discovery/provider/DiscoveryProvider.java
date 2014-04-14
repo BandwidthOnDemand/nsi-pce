@@ -16,7 +16,7 @@ import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
  */
 public interface DiscoveryProvider {
     
-    public void initialize() throws Exception;
+    public void init() throws Exception;
     public void start();
     public void shutdown();
     
@@ -30,7 +30,7 @@ public interface DiscoveryProvider {
     public Document updateDocument(String nsa, String type, String id, DocumentType document) throws IllegalArgumentException, NotFoundException, InvalidVersionException;
     public Document updateDocument(DocumentType request) throws IllegalArgumentException, NotFoundException, InvalidVersionException;
     public Collection<Document> getDocuments(String nsa, String type, String id, Date lastDiscovered);
-    public Collection<Document> getDocumentsByNsa(String nsa, String type, String id, Date lastDiscovered) throws IllegalArgumentException;
+    public Collection<Document> getDocumentsByNsa(String nsa, String type, String id, Date lastDiscovered) throws IllegalArgumentException, NotFoundException;
     public Collection<Document> getDocumentsByNsaAndType(String nsa, String type, String id, Date lastDiscovered) throws IllegalArgumentException;
     public Document getDocument(String nsa, String type, String id, Date lastDiscovered) throws IllegalArgumentException, NotFoundException;
     public Document getDocument(DocumentType document) throws IllegalArgumentException, NotFoundException;

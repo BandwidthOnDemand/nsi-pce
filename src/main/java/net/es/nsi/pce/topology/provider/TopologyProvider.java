@@ -1,7 +1,7 @@
 package net.es.nsi.pce.topology.provider;
 
-import java.util.Collection;
 import net.es.nsi.pce.management.jaxb.TopologyStatusType;
+import net.es.nsi.pce.topology.dao.TopologyConfiguration;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
 /**
@@ -16,7 +16,7 @@ public interface TopologyProvider {
      * 
      * @Exception Will throw an exception if the provider cannot be initialized.
      */
-    public void initialize() throws Exception;
+    public void init() throws Exception;
     
     /**
      * Get the discovered NSI network topology.  Will load a copy of topology
@@ -40,29 +40,15 @@ public interface TopologyProvider {
      * 
      * @param configuration The source from which to load NSI topology.
      */
-    public void setConfiguration(String configuration);
+    public void setConfiguration(TopologyConfiguration configuration);
     
     /**
      * Get the configuration for NSI topology discovery.
      * 
      * @return A String identifying the configuration source of NSI topology.
      */
-    public String getConfiguration();
-    
-    /**
-     * Load topology from the local cache source.
-     * 
-     * @throws Exception If topology discovery fails.
-     */
-    public void loadCache() throws Exception;
-    
-    /**
-     * Saves a current copy of topology to the local cache.
-     * 
-     * @throws Exception If topology discovery fails.
-     */
-    public void saveCache() throws Exception;
-    
+    public TopologyConfiguration getConfiguration();
+
     /**
      * Load topology from the defined source.  This is also invoked by the
      * PCE schedule to perform an audit.
@@ -73,16 +59,13 @@ public interface TopologyProvider {
     
     public long getLastAudit();
     
-    public long getLastModified();
+    public long getLastDiscovered();
     
     /**
      * 
      * @return The current status of the topology provider.
      */
-    public TopologyStatusType getSummaryStatus();
+    public TopologyStatusType getAuditStatus();
     
-    public TopologyProviderStatus getManifestStatus();
-    
-    public Collection<TopologyProviderStatus> getProviderStatus();
-    
+    public TopologyProviderStatus getProviderStatus();
 }

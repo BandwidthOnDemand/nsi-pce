@@ -23,6 +23,8 @@ public enum PceLogs {
     AUDIT_HAULTED(1009, "AUDIT_HAULTED", "User requested suspension of audit."),
     AUDIT_SCHEDULED(1010, "AUDIT_SCHEDULED", "User requested a schedule of an audit."),
     
+    STP_NO_REMOTE_REFERNCE(3001, "STP_NO_REMOTE_REFERNCE", "Unidirectional STP has zero isAlias relationships."),
+    
     END(9000, "", "");
     
     private int code;

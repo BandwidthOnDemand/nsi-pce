@@ -3,7 +3,7 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
   xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" 
   jxb:extensionBindingPrefixes="xjc">
-
+    
     <jxb:bindings schemaLocation="nmlbase.xsd" node="/xs:schema">
         <jxb:schemaBindings>
             <jxb:nameXmlTransform>
@@ -12,7 +12,7 @@
             </jxb:nameXmlTransform>
         </jxb:schemaBindings>
     </jxb:bindings>
-
+    
     <jxb:bindings schemaLocation="nsi-ext.xsd" node="/xs:schema">
         <jxb:schemaBindings>
             <jxb:nameXmlTransform>
@@ -25,4 +25,40 @@
         </jxb:bindings>
     </jxb:bindings>
 
+    <jxb:bindings schemaLocation="xCard.xsd" node="/xs:schema">
+        <jxb:schemaBindings>
+            <jxb:nameXmlTransform>
+                <jxb:typeName prefix="Xcard"/>
+                <jxb:anonymousTypeName prefix="Xcard"/>
+                <jxb:elementName prefix="Xcard" />
+            </jxb:nameXmlTransform>
+        </jxb:schemaBindings>
+        <jxb:bindings node=".//xs:element[@name='label']">
+                <jxb:factoryMethod name="xLabel"/>
+        </jxb:bindings>
+    </jxb:bindings>
+
+    <jxb:bindings schemaLocation="ogf_nsi_discovery_protocol_v1_0.xsd" node="/xs:schema">
+        <jxb:schemaBindings>
+            <jxb:nameXmlTransform>
+            	<jxb:typeName prefix="Dds"/>
+            	<jxb:anonymousTypeName prefix="Dds"/>
+            </jxb:nameXmlTransform>
+        </jxb:schemaBindings>
+        <jxb:bindings node=".//xs:element[@name='collection']">
+                <jxb:factoryMethod name="ddsCollection"/>
+        </jxb:bindings>
+    </jxb:bindings>
+    
+    <jxb:bindings schemaLocation="ogf_nsi_discovery_nsa_v1_0.xsd" node="/xs:schema">
+        <jxb:schemaBindings>
+            <jxb:nameXmlTransform>
+            	<jxb:typeName prefix="Nsa"/>
+            	<jxb:anonymousTypeName prefix="Nsa"/>
+            </jxb:nameXmlTransform>
+        </jxb:schemaBindings>
+        <jxb:bindings node=".//xs:element[@name='nsa']">
+                <jxb:factoryMethod name="nsaNSA"/>
+        </jxb:bindings>
+    </jxb:bindings>
 </jxb:bindings>

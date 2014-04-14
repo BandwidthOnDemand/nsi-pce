@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PceLogger {
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private static final String NSI_ROOT_LOGS = "/management/logs/";
+    private static final String NSI_ROOT_LOGS = "/logs/";
     private static final int MAX_LOG_SIZE = 2000;
     
     private ObjectFactory logFactory = new ObjectFactory();

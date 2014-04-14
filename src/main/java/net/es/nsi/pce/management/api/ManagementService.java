@@ -69,50 +69,25 @@ public class ManagementService {
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         
-        // Get the overall topology provider status.
-        TopologyStatusType providerStatus = topologyProvider.getSummaryStatus();
-        
         // Create and populate the status element to return in response.
         StatusType status = managementFactory.createStatusType();
-        status.setStatus(providerStatus);
+        status.setStatus(topologyProvider.getAuditStatus());
         status.setAuditInterval(topologyProvider.getAuditInterval());
         status.setLastAudit(XmlUtilities.longToXMLGregorianCalendar(topologyProvider.getLastAudit()));
-        status.setLastModified(XmlUtilities.longToXMLGregorianCalendar(topologyProvider.getLastModified()));
+        status.setLastDiscovered(XmlUtilities.longToXMLGregorianCalendar(topologyProvider.getLastDiscovered()));
         
-        // Populate the manifest status if available.
-        TopologyProviderStatus manifestStatus = topologyProvider.getManifestStatus();
-        if (manifestStatus != null) {
-            TopologyProviderType manifest = managementFactory.createTopologyProviderType();
-            manifest.setId(manifestStatus.getId());
-            manifest.setHref(manifestStatus.getHref());
-            
-            TopologyStatusType manStat = manifestStatus.getStatus();
-            manifest.setStatus(manStat);
-            
-            manifest.setLastAudit(XmlUtilities.longToXMLGregorianCalendar(manifestStatus.getLastAudit()));
-            manifest.setLastSuccessfulAudit(XmlUtilities.longToXMLGregorianCalendar(manifestStatus.getLastSuccessfulAudit()));
-            manifest.setLastModified(XmlUtilities.longToXMLGregorianCalendar(manifestStatus.getLastModified()));
-            manifest.setLastDiscovered(XmlUtilities.longToXMLGregorianCalendar(manifestStatus.getLastDiscovered()));
-            
-            status.setManifest(manifest);
-        }
-        
-        // Populate the individual topology providers status.
-        Collection<TopologyProviderStatus> provstat = topologyProvider.getProviderStatus();
-        for (TopologyProviderStatus ps : provstat) {
+        // Populate the provider status if available.
+        TopologyProviderStatus providerStatus = topologyProvider.getProviderStatus();
+        if (providerStatus != null) {
             TopologyProviderType provider = managementFactory.createTopologyProviderType();
-            provider.setId(ps.getId());
-            provider.setHref(ps.getHref());
+            provider.setId(providerStatus.getId());
+            provider.setHref(providerStatus.getHref());
+            provider.setStatus(providerStatus.getStatus());           
+            provider.setLastAudit(XmlUtilities.longToXMLGregorianCalendar(providerStatus.getLastAudit()));
+            provider.setLastSuccessfulAudit(XmlUtilities.longToXMLGregorianCalendar(providerStatus.getLastSuccessfulAudit()));
+            provider.setLastDiscovered(XmlUtilities.longToXMLGregorianCalendar(providerStatus.getLastDiscovered()));
             
-            TopologyStatusType stat = ps.getStatus();
-            provider.setStatus(stat);
-            
-            provider.setLastAudit(XmlUtilities.longToXMLGregorianCalendar(ps.getLastAudit()));
-            provider.setLastSuccessfulAudit(XmlUtilities.longToXMLGregorianCalendar(ps.getLastSuccessfulAudit()));
-            provider.setLastModified(XmlUtilities.longToXMLGregorianCalendar(ps.getLastModified()));
-            provider.setLastDiscovered(XmlUtilities.longToXMLGregorianCalendar(ps.getLastDiscovered()));
-            
-            status.getProvider().add(provider);      
+            status.setProvider(provider);
         }
         
         String date = DateUtils.formatDate(new Date(topologyProvider.getLastAudit()), DateUtils.PATTERN_RFC1123);

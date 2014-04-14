@@ -2,10 +2,17 @@
 <xsd:schema targetNamespace="http://schemas.es.net/nsi/2013/07/topology/types"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:sd="http://schemas.ogf.org/nsi/2013/12/services/definition"
+    xmlns:nsa="http://schemas.ogf.org/nsi/2014/02/discovery/nsa"
+    xmlns:xcard="urn:ietf:params:xml:ns:vcard-4.0"
     xmlns:tns="http://schemas.es.net/nsi/2013/07/topology/types">
     
     <xsd:import namespace="http://schemas.ogf.org/nsi/2013/12/services/definition"
         schemaLocation="ogf_nsi_services_definition_v2_0.xsd"/>
+    
+    <xsd:import namespace="http://schemas.ogf.org/nsi/2014/02/discovery/nsa"
+        schemaLocation="ogf_nsi_discovery_nsa_v1_0.xsd"/>
+    
+    <xsd:import namespace="urn:ietf:params:xml:ns:vcard-4.0" schemaLocation="xCard.xsd"/>
     
     <xsd:element name="stp"               type="tns:StpType" />    
     <xsd:element name="sdp"               type="tns:SdpType" />
@@ -162,14 +169,19 @@
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
                 <xsd:sequence>
-                    <xsd:element name="network"   type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
-                    <xsd:element name="latitude"  type="xsd:float" minOccurs="0" />
-                    <xsd:element name="longitude" type="xsd:float" minOccurs="0" />
+                    <xsd:element name="softwareVersion" type="xsd:string"          minOccurs="0" />
+                    <xsd:element name="startTime"       type="xsd:dateTime"        minOccurs="0" />
+                    <xsd:element name="location"        type="nsa:LocationType"    minOccurs="0" />
+                    <xsd:element name="adminContact"    type="xcard:VcardsType"    minOccurs="0" />
+                    <xsd:element name="network"         type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="interface"       type="nsa:InterfaceType"   minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="feature"         type="nsa:FeatureType"     minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="peersWith"       type="xsd:anyURI"          minOccurs="0" maxOccurs="unbounded" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
-    </xsd:complexType>  
+    </xsd:complexType>
     
     <xsd:complexType name="ResourceRefType">
         <xsd:attribute name="id"   type="xsd:anyURI" />

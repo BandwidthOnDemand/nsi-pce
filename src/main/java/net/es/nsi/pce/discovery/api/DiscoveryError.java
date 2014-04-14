@@ -15,12 +15,13 @@ import net.es.nsi.pce.discovery.provider.DiscoveryParser;
  */
 public enum DiscoveryError {
     // Message content errors.
-    MISSING_PARAMETER(100, "MISSING_PARAMETER", "Invalid or missing parameter (%s)."),
-    INVALID_PARAMETER(101, "MISSING_PARAMETER", "Invalid or missing parameter (%s)."),
+    MISSING_PARAMETER(100, "MISSING_PARAMETER", "Missing parameter (%s)."),
+    INVALID_PARAMETER(101, "INVALID_PARAMETER", "Invalid parameter (%s)."),
     UNSUPPORTED_PARAMETER(102, "UNSUPPORTED_PARAMETER", "Parameter provided contains an unsupported value which MUST be processed (%s)."),
     NOT_IMPLEMENTED(103, "NOT_IMPLEMENTED", "Parameter is for a feature that has not been implemented (%s)."),
     VERSION_NOT_SUPPORTED(104, "VERSION_NOT_SUPPORTED", "The service version requested is not supported. (%s)."),
     INTERNAL_SERVER_ERROR(105, "INTERNAL_SERVER_ERROR", "There was an internal server processing error (%s)."),
+    NOT_FOUND(106, "NOT_FOUND", "Requested resources was not found (%s)."),
     
     DOCUMENT_EXISTS(110, "DOCUMENT_EXISTS", "There is already a registered document under provided id (%s)."),
     DOCUMENT_DOES_NOT_EXIST(111, "DOCUMENT_DOES_NOT_EXIST", "The requested document does not exist (%s)."),

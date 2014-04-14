@@ -15,6 +15,7 @@ import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +49,6 @@ public class Gof3DiscoveryRouter extends UntypedActor {
 
     @Override
     public void preStart() {
-        log.debug("preStart: entering.");
         List<Routee> routees = new ArrayList<>();
         for (int i = 0; i < poolSize; i++) {
             ActorRef r = getContext().actorOf(Props.create(Gof3DiscoveryActor.class));
@@ -56,12 +56,10 @@ public class Gof3DiscoveryRouter extends UntypedActor {
             routees.add(new ActorRefRoutee(r));
         }
         router = new Router(new RoundRobinRoutingLogic(), routees);
-        log.debug("preStart: exiting.");
     }
 
     @Override
     public void onReceive(Object msg) {
-        log.debug("onReceive: entering.");
         TimerMsg message = new TimerMsg();
 
         // Check to see if we got the go ahead to start registering.
@@ -73,6 +71,7 @@ public class Gof3DiscoveryRouter extends UntypedActor {
         if (msg instanceof TimerMsg) {
             log.debug("onReceive: timer event.");
             routeTimerEvent();
+            ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
         }
         else if (msg instanceof Gof3DiscoveryMsg) {
             Gof3DiscoveryMsg incoming = (Gof3DiscoveryMsg) msg;
@@ -89,18 +88,14 @@ public class Gof3DiscoveryRouter extends UntypedActor {
             router = router.addRoutee(new ActorRefRoutee(r));
         }
         else {
-            log.debug("onReceive: unhandled event.");
+            log.error("onReceive: unhandled event.");
             unhandled(msg);
         }
-
-        ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
-        log.debug("onReceive: exiting.");
     }
     
     private void routeTimerEvent() {
-        log.debug("routeTimerEvent: entering.");
         Set<PeerURLType> discoveryURL = ddsActorSystem.getConfigReader().getDiscoveryURL();
-        Set<String> notSent = discovery.keySet();
+        Set<String> notSent = new HashSet<>(discovery.keySet());
 
         for (PeerURLType url : discoveryURL) {
             if (!url.getType().equalsIgnoreCase(NsiConstants.NSI_NSA_V1)) {
@@ -124,7 +119,5 @@ public class Gof3DiscoveryRouter extends UntypedActor {
             log.debug("routeTimerEvent: entry no longer needed, url=" + url);
             discovery.remove(url);
         }
-
-        log.debug("routeTimerEvent: exiting.");
     }
 }

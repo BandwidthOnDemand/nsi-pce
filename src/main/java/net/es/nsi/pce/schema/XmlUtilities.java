@@ -27,7 +27,7 @@ import javax.xml.namespace.QName;
  * @author hacksaw
  */
 public class XmlUtilities {
-    public final static long ONE_YEAR = 1000*60*60*24*365;
+    public final static long ONE_YEAR = 31536000000L;
     
 	/**
 	 * Utility method to marshal a JAXB annotated java object to an XML

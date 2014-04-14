@@ -17,7 +17,6 @@ public class TopologyProviderStatus {
     private TopologyStatusType status = TopologyStatusType.INITIALIZING;
     private long lastAudit = System.currentTimeMillis();
     private long lastSuccessfulAudit = 0;
-    private long lastModified = 0;
     private long lastDiscovered = 0;
 
     /**
@@ -88,20 +87,6 @@ public class TopologyProviderStatus {
      */
     public void setLastSuccessfulAudit(long lastSuccessfulAudit) {
         this.lastSuccessfulAudit = lastSuccessfulAudit;
-    }
-
-    /**
-     * @return the lastModified
-     */
-    public long getLastModified() {
-        return lastModified;
-    }
-
-    /**
-     * @param lastModified the lastModified to set
-     */
-    public void setLastModified(long lastModified) {
-        this.lastModified = lastModified;
     }
 
     /**

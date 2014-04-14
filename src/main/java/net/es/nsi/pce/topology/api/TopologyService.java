@@ -61,7 +61,7 @@ public class TopologyService {
         // Check to see if there was any change in consolidated topology before
         // looking at individual entries.  This should save some processing.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty() &&
-            DateUtils.parseDate(ifModifiedSince).getTime() >= nsiTopology.getLastModified()) {
+            DateUtils.parseDate(ifModifiedSince).getTime() >= nsiTopology.getLastDiscovered()) {
             return Response.notModified().header("Last-Modified", ifModifiedSince).build();
         }
         
@@ -79,7 +79,7 @@ public class TopologyService {
         collection.getServiceDomain().addAll(nsiTopology.getServiceDomains());
         collection.getStp().addAll(nsiTopology.getStps());
         
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
                 
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -172,7 +172,7 @@ public class TopologyService {
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.BAD_REQUEST).entity("Query filter on labelValue must contain labelType.").build()); 
         }
         
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
                 
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -221,7 +221,7 @@ public class TopologyService {
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested stpId does not exist.").build());            
         }
         
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
 
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -287,7 +287,7 @@ public class TopologyService {
             } 
         }
         
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
                 
         // Now filter by the If-Modified-Since header.  TODO: Validate the Network discovered value is populated.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -337,7 +337,7 @@ public class TopologyService {
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested networkId does not exist.").build());            
         }
         
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
 
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -392,7 +392,7 @@ public class TopologyService {
         // Do initial population of all NSA.
         nsas.getNsa().addAll(nsiTopology.getNsas());
               
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
                 
         // Now filter by the If-Modified-Since header.  TODO: Validate the Network discovered value is populated.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -442,7 +442,7 @@ public class TopologyService {
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested nsaId does not exist.").build());            
         }
               
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
 
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -518,7 +518,7 @@ public class TopologyService {
             } 
         }
               
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
                 
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -568,7 +568,7 @@ public class TopologyService {
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested serviceDomain id does not exist.").build());            
         }
               
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
 
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -663,7 +663,7 @@ public class TopologyService {
             } 
         }
               
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
                 
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -713,7 +713,7 @@ public class TopologyService {
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested serviceAdaptation id does not exist.").build());            
         }
               
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
 
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -808,7 +808,7 @@ public class TopologyService {
             } 
         }
               
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
                 
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -858,7 +858,7 @@ public class TopologyService {
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested service id does not exist.").build());            
         }
               
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
 
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -982,7 +982,7 @@ public class TopologyService {
             } 
         }
               
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
                 
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -1032,7 +1032,7 @@ public class TopologyService {
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested SDP id does not exist.").build());            
         }
               
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
 
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
@@ -1066,7 +1066,7 @@ public class TopologyService {
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        String date = DateUtils.formatDate(new Date(nsiTopology.getLastModified()), DateUtils.PATTERN_RFC1123);
+        String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
         return Response.ok().header("Last-Modified", date).build();
     }
 }

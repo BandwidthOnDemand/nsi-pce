@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    
     <context:component-scan base-package="net.es.nsi.pce"/>
     
-    <bean id="serviceInfoProvider" class="net.es.nsi.pce.config.nsa.JsonNsaConfigProvider" init-method="loadConfig" scope="singleton">
-        <property name="filename" value="config/nsa.json"/>
-    </bean>
-
-    <bean id="authProvider" class="net.es.nsi.pce.config.nsa.auth.NsaConfigAuthProvider" scope="singleton" />
-
     <bean id="httpConfigProvider" class="net.es.nsi.pce.config.http.JsonHttpConfigProvider" init-method="loadConfig" scope="singleton">
         <property name="filename" value="config/http.json"/>
     </bean>
@@ -20,59 +14,62 @@
         <constructor-arg index="0" ref="httpConfigProvider"/>
     </bean>
     
-    <bean id="configurationReader" class="net.es.nsi.pce.discovery.dao.ConfigurationReader" init-method="load" scope="singleton">
+    <bean id="discoveryConfiguration" class="net.es.nsi.pce.discovery.dao.DiscoveryConfiguration" init-method="load" scope="singleton">
         <property name="filename" value="config/dds.xml"/>
     </bean>
     
     <bean id="documentCache" class="net.es.nsi.pce.discovery.dao.DocumentCache" init-method="load" scope="singleton">
-        <constructor-arg index="0" ref="configurationReader"/>
+        <constructor-arg index="0" ref="discoveryConfiguration"/>
     </bean>
     
     <bean id="remoteSubscriptionCache" class="net.es.nsi.pce.discovery.dao.RemoteSubscriptionCache" scope="singleton" />
     
     <bean id="ddsActorSystem" class="net.es.nsi.pce.discovery.actors.DdsActorSystem" init-method="init" scope="singleton" depends-on="remoteSubscriptionCache, pceServer">
-        <constructor-arg index="0" ref="configurationReader"/>
+        <constructor-arg index="0" ref="discoveryConfiguration"/>
         <constructor-arg index="1" ref="documentCache"/>
     </bean>
-
-    <!-- Discovery providers are configured through the config parameter and initialize methods. -->
-    <bean id="discoveryProvider" class="net.es.nsi.pce.discovery.provider.DdsProvider" init-method="initialize" scope="singleton" depends-on="pceServer">
-        <constructor-arg index="0" ref="configurationReader"/>
+    
+    <bean id="discoveryProvider" class="net.es.nsi.pce.discovery.provider.DdsProvider" init-method="init" scope="singleton" depends-on="pceServer">
+        <constructor-arg index="0" ref="discoveryConfiguration"/>
         <constructor-arg index="1" ref="documentCache"/>
         <constructor-arg index="2" ref="ddsActorSystem"/>
     </bean>
-
-    <!-- Topology providers are configured through the config parameter and initialize methods. -->
-    <bean id="topologyProvider" class="net.es.nsi.pce.topology.provider.PollingTopologyProvider" init-method="initialize" scope="singleton" depends-on="discoveryProvider">
-        <property name="configuration" value="${topologyProviderConfigPath}"/>
-        <property name="topologyManifestReader" ref="topologyManifestReader"/>
-        <property name="topologyReaderFactory" ref="topologyReaderFactory"/>
+    
+    <bean id="topologyConfiguration" class="net.es.nsi.pce.topology.dao.TopologyConfiguration" init-method="load" scope="singleton">
+        <property name="filename" value="config/topology-dds.xml"/>
     </bean>
-
-    <bean id="topologyManifestReader" class="net.es.nsi.pce.topology.provider.GitHubManifestReader" scope="prototype" />
-
-    <bean id="topologyReaderFactory" class="net.es.nsi.pce.topology.provider.NsaTopologyReaderFactory" scope="prototype" />
-
+    
+    <bean id="topologyProvider" class="net.es.nsi.pce.topology.provider.DdsTopologyProvider" init-method="init" scope="singleton" depends-on="discoveryProvider">
+        <constructor-arg index="0" ref="topologyConfiguration"/>
+    </bean>
+    
     <bean id="DijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="singleton" />
- 
+    
     <bean id="AuthPCE" class="net.es.nsi.pce.pf.AuthPCE" scope="singleton" />
-
+    
+    <bean id="PolicyPCE" class="net.es.nsi.pce.pf.AuthPCE" scope="singleton" />
+    
+    <bean id="ResolvePCE" class="net.es.nsi.pce.pf.ResolvePCE" />
+    
     <bean id="chainPCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
         <property name="moduleList">
             <list>
                 <ref bean="AuthPCE" />
+                <ref bean="PolicyPCE" />
                 <ref bean="DijkstraPCE" />
+                <ref bean="ResolvePCE" />
             </list>
         </property>
     </bean>
-
+    
     <bean id="treePCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
         <property name="moduleList">
             <list>
+                <ref bean="AuthPCE" />
+                <ref bean="PolicyPCE" />
                 <ref bean="DijkstraPCE" />
+                <ref bean="ResolvePCE" />
             </list>
         </property>
     </bean>
-
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
 </beans>

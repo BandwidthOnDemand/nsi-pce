@@ -77,6 +77,8 @@ public class ConnectionTest extends JerseyTest {
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         
         NmlTopologyType documents = response.readEntity(NmlTopologyType.class);
+        client.close();
+        
         /*
         final ChunkedInput<NmlTopologyType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<NmlTopologyType>>() {});
         NmlTopologyType chunk;

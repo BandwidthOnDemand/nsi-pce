@@ -11,6 +11,7 @@ import java.util.Date;
 import net.es.nsi.pce.discovery.api.DiscoveryError;
 import net.es.nsi.pce.discovery.jaxb.DocumentType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
+import org.glassfish.jersey.uri.UriComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,7 @@ public class Document implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private static final String DOCUMENTS_URL = "/discovery/documents/";
+    private static final String DOCUMENTS_URL = "/documents/";
     private static ObjectFactory factory = new ObjectFactory();
     
     private String id;

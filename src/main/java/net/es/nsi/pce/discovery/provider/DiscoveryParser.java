@@ -77,8 +77,8 @@ public class DiscoveryParser {
      * @throws JAXBException If the XML contained in the file is not valid.
      * @throws FileNotFoundException If the specified file was not found.
      */
-    @SuppressWarnings({"unchecked", "unchecked"})
-    public DiscoveryConfigurationType parse(String file) throws JAXBException, FileNotFoundException {
+    @SuppressWarnings("unchecked")
+    public DiscoveryConfigurationType parse(String file) throws JAXBException, IOException {
         // Make sure we initialized properly.
         if (jaxbContext == null) {
             throw new JAXBException("parseTopologyConfiguration: Failed to load JAXB instance");
@@ -86,8 +86,13 @@ public class DiscoveryParser {
         
         // Parse the specified file.
         JAXBElement<DiscoveryConfigurationType> configurationElement;
+
         try {
-            Object result = jaxbContext.createUnmarshaller().unmarshal(new BufferedInputStream(new FileInputStream(file)));
+            Object result;
+            try (FileInputStream fileInputStream = new FileInputStream(file); BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream)) {
+                result = jaxbContext.createUnmarshaller().unmarshal(bufferedInputStream);
+            }
+            
             if (result instanceof JAXBElement<?> && ((JAXBElement<?>) result).getValue() instanceof DiscoveryConfigurationType) {
                 configurationElement = (JAXBElement<DiscoveryConfigurationType>) result;
             }
@@ -95,16 +100,17 @@ public class DiscoveryParser {
                 throw new IllegalArgumentException("Expected DiscoveryConfigurationType from " + file);
             }
         }
-        catch (JAXBException | FileNotFoundException ex) {
+        catch (JAXBException | IOException ex) {
             log.error("parse: unmarshall error from file " + file, ex);
             throw ex;
         }
+        
         // Return the NSAType object.
         return configurationElement.getValue();
     }
     
     @SuppressWarnings("unchecked")
-    public DocumentType readDocument(String file) throws JAXBException, FileNotFoundException {
+    public DocumentType readDocument(String file) throws JAXBException, IOException {
         // Make sure we initialized properly.
         if (jaxbContext == null) {
             throw new JAXBException("readDocument: Failed to load JAXB instance");
@@ -113,7 +119,11 @@ public class DiscoveryParser {
         // Parse the specified file.
         JAXBElement<DocumentType> document;
         try {
-            Object result = jaxbContext.createUnmarshaller().unmarshal(new BufferedInputStream(new FileInputStream(file)));
+            Object result;
+            try (FileInputStream fileInputStream = new FileInputStream(file); BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream)) {
+                result = jaxbContext.createUnmarshaller().unmarshal(bufferedInputStream);
+            }
+
             if (result instanceof JAXBElement<?> && ((JAXBElement<?>) result).getValue() instanceof DocumentType) {
                 document = (JAXBElement<DocumentType>) result;
             }
@@ -121,7 +131,7 @@ public class DiscoveryParser {
                 throw new IllegalArgumentException("Expected DocumentType from " + file);
             }
         }
-        catch (JAXBException | FileNotFoundException ex) {
+        catch (JAXBException | IOException ex) {
             log.error("parse: unmarshall error from file " + file, ex);
             throw ex;
         }

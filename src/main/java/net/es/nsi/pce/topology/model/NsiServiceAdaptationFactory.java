@@ -18,7 +18,7 @@ import org.apache.http.client.utils.DateUtils;
  */
 public class NsiServiceAdaptationFactory {
     
-    private static final String NSI_ROOT_SERVICEADAPTATIONS = "/topology/serviceAdaptations/";
+    private static final String NSI_ROOT_SERVICEADAPTATIONS = "/serviceAdaptations/";
     
     public static List<ServiceAdaptationType> ifModifiedSince(String ifModifiedSince, List<ServiceAdaptationType> serviceAdaptationList) throws DatatypeConfigurationException {
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {

@@ -21,7 +21,7 @@ import org.apache.http.client.utils.DateUtils;
  * @author hacksaw
  */
 public class NsiNetworkFactory {
-    private static final String NSI_ROOT_NETWORKS = "/topology/networks/";
+    private static final String NSI_ROOT_NETWORKS = "/networks/";
 
     /**
      * Create a NSI Network resource object from an NML JAXB object.

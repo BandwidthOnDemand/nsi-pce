@@ -53,7 +53,6 @@ public class RegistrationRouter extends UntypedActor {
 
     @Override
     public void preStart() {
-        log.debug("preStart: entering.");
         List<Routee> routees = new ArrayList<>();
         for (int i = 0; i < poolSize; i++) {
             ActorRef r = getContext().actorOf(Props.create(RegistrationActor.class, ddsActorSystem));
@@ -61,13 +60,10 @@ public class RegistrationRouter extends UntypedActor {
             routees.add(new ActorRefRoutee(r));
         }
         router = new Router(new RoundRobinRoutingLogic(), routees);
-        log.debug("preStart: exiting.");
     }
 
     @Override
     public void onReceive(Object msg) {
-        log.debug("onReceive: entering.");
-        
         // Check to see if we got the go ahead to start registering.
         if (msg instanceof StartMsg) {
             // Create a Register event to start us off.
@@ -107,7 +103,6 @@ public class RegistrationRouter extends UntypedActor {
         RegistrationEvent event = new RegistrationEvent();
         event.setEvent(RegistrationEvent.Event.Audit);
         ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), event, ddsActorSystem.getActorSystem().dispatcher(), null);
-        log.debug("onReceive: exiting.");
     }
     
     private void routeRegister() {

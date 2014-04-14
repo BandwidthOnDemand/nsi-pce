@@ -36,7 +36,6 @@ public class NotificationActor extends UntypedActor {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ObjectFactory factory = new ObjectFactory();
     private DdsActorSystem ddsActorSystem;
-    private Client client;
     
     public NotificationActor(DdsActorSystem ddsActorSystem) {
         this.ddsActorSystem = ddsActorSystem;
@@ -44,11 +43,6 @@ public class NotificationActor extends UntypedActor {
 
     @Override
     public void preStart() {
-        log.debug("NotificationActor: preStart");
-        
-        ClientConfig clientConfig = new ClientConfig();
-        RestClient.configureClient(clientConfig);
-        client = ClientBuilder.newClient(clientConfig);
     }
 
     @Override
@@ -90,6 +84,10 @@ public class NotificationActor extends UntypedActor {
                 log.error("NotificationActor: discovered date conversion failed", ex);
             }
             
+            ClientConfig clientConfig = new ClientConfig();
+            RestClient.configureClient(clientConfig);
+            Client client = ClientBuilder.newClient(clientConfig);
+            
             final WebTarget webTarget = client.target(notification.getSubscription().getSubscription().getCallback());
             
             JAXBElement<NotificationListType> jaxb = factory.createNotifications(list);
@@ -106,6 +104,7 @@ public class NotificationActor extends UntypedActor {
             else if (log.isDebugEnabled()) {
                 log.debug("NotificationActor: sent notitifcation " + list.getId() + " to client " + notification.getSubscription().getSubscription().getCallback() + ", result = " + response.getStatusInfo().getReasonPhrase());
             }
+            client.close();
         } else {
             unhandled(msg);
         }

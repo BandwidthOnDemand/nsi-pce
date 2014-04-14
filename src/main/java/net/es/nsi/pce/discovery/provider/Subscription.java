@@ -23,7 +23,7 @@ public class Subscription implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private static final String SUBSCRIPTIONS_URL = "/discovery/subscriptions/";
+    private static final String SUBSCRIPTIONS_URL = "/subscriptions/";
     private ObjectFactory factory;
     private String id;
     private String encoding;

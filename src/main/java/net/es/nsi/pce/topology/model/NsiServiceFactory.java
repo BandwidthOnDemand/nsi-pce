@@ -20,7 +20,7 @@ import org.apache.http.client.utils.DateUtils;
  * @author hacksaw
  */
 public class NsiServiceFactory {
-    private static final String NSI_ROOT_SERVICES = "/topology/services/";
+    private static final String NSI_ROOT_SERVICES = "/services/";
 
     /**
      * Create a NSI Service resource object from an NML JAXB object.

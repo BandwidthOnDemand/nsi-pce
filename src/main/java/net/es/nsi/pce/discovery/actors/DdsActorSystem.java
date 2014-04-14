@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.discovery.agole.AgoleDiscoveryRouter;
-import net.es.nsi.pce.discovery.dao.ConfigurationReader;
+import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
 import net.es.nsi.pce.discovery.dao.DocumentCache;
 import net.es.nsi.pce.discovery.gangofthree.Gof3DiscoveryRouter;
 import net.es.nsi.pce.discovery.messages.StartMsg;
@@ -30,7 +30,7 @@ public class DdsActorSystem {
     private final Logger log = LoggerFactory.getLogger(getClass());
     
     // Configuration reader.
-    private ConfigurationReader configReader;
+    private DiscoveryConfiguration configReader;
     private DocumentCache documentCache;
     private ActorSystem actorSystem;
     private ActorRef notificationRouter;
@@ -43,7 +43,7 @@ public class DdsActorSystem {
     
     private List<ActorRef> startList = new ArrayList<>();
     
-    public DdsActorSystem(ConfigurationReader configReader, DocumentCache documentCache) {
+    public DdsActorSystem(DiscoveryConfiguration configReader, DocumentCache documentCache) {
         this.configReader = configReader;
         this.documentCache = documentCache;
     }
@@ -111,7 +111,7 @@ public class DdsActorSystem {
         return actorSystem;
     }
     
-    public ConfigurationReader getConfigReader() {
+    public DiscoveryConfiguration getConfigReader() {
         return configReader;
     }
     

@@ -15,6 +15,7 @@ import net.es.nsi.pce.pf.api.cons.Constraints;
 import net.es.nsi.pce.pf.api.cons.BooleanAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.path.services.Point2Point;
+import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
@@ -62,8 +63,8 @@ public class DijkstraPCE implements PCEModule {
         // Determine path symmetry.
         boolean symmetricPath = true;
         BooleanAttrConstraint symmetricPathConstraint = constraints.getBooleanAttrConstraint(Point2Point.SYMMETRICPATH);
-        if (directionalityConstraint != null) {
-            directionality = DirectionalityType.valueOf(directionalityConstraint.getValue());
+        if (symmetricPathConstraint != null) {
+            symmetricPath = Boolean.valueOf(symmetricPathConstraint.getValue());
         }
         
         // Get source stpId.
@@ -135,16 +136,27 @@ public class DijkstraPCE implements PCEModule {
                 throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, Point2Point.DESTSTP, dstStpId));
             }
         }
+                
+        // These will be applied to individual path segment results.
+        Constraints segmentConstraints = new Constraints(pceData.getConstraints());
+        segmentConstraints.removeStringAttrConstraint(Point2Point.SOURCESTP);
+        segmentConstraints.removeStringAttrConstraint(Point2Point.DESTSTP);
         
         // We can save time by handling the special case of A and Z STP in same
         // network.
         String srcNetwork = srcStp.getNetworkId();
         String dstNetwork = dstStp.getNetworkId();
+        
         if (srcNetwork.equals(dstNetwork)) {
             StpPair pathPair = new StpPair();
             pathPair.setA(srcStp);
             pathPair.setZ(dstStp);
-            pceData.getPath().getStpPairs().add(pathPair);
+            PathSegment pathSegment = new PathSegment();
+            pathSegment.setStpPair(pathPair);
+            Constraints cons = new Constraints(segmentConstraints);
+            pathSegment.setConstraints(cons);
+            pceData.getPath().getPathSegments().add(pathSegment);
+            
             return pceData;
         }
 
@@ -153,7 +165,7 @@ public class DijkstraPCE implements PCEModule {
         
         // Add ServiceDomains as verticies.
         for (ServiceDomainType serviceDomain : nsiTopology.getServiceDomains()) {
-            log.debug("Adding Vertex: " + serviceDomain.getId());
+            //log.debug("Adding Vertex: " + serviceDomain.getId());
             graph.addVertex(serviceDomain);
         }
 
@@ -199,7 +211,8 @@ public class DijkstraPCE implements PCEModule {
         }
         
         // Now we pull the individual edge segments out of the result and
-        // determine the component STPs.
+        // determine the component STPs.  We make a copy of the contraints
+        // used to create each segment.
         int i = 0;
         StpPair pathPair = new StpPair();
         pathPair.setA(srcStp);
@@ -218,16 +231,32 @@ public class DijkstraPCE implements PCEModule {
                 nextPathPair.setA(stpA);
             }
 
-            pceData.getPath().getStpPairs().add(i, pathPair);
+            Constraints cons = new Constraints(segmentConstraints);
+            PathSegment pathSegment = new PathSegment();
+            pathSegment.setStpPair(pathPair);
+            pathSegment.setConstraints(cons);
+            pceData.getPath().getPathSegments().add(i, pathSegment);
+            
             pathPair = nextPathPair;
             i++;
         }
+        
         pathPair.setZ(dstStp);
-        pceData.getPath().getStpPairs().add(i, pathPair);
 
-        for (StpPair pair : pceData.getPath().getStpPairs()) {
-            log.debug("Pair: " + pair.getA().getId() + " -- " + pair.getZ().getId());
+        Constraints cons = new Constraints(segmentConstraints);
+        PathSegment pathSegment = new PathSegment();
+        pathSegment.setStpPair(pathPair);
+        pathSegment.setConstraints(cons);
+        pceData.getPath().getPathSegments().add(i, pathSegment);
+
+        //for (StpPair pair : pceData.getPath().getStpPairs()) {
+            //log.debug("Pair: " + pair.getA().getId() + " -- " + pair.getZ().getId());
+        //}
+        
+        for (PathSegment segment : pceData.getPath().getPathSegments()) {
+            log.debug("Pair: " + segment.getStpPair().getA().getId() + " -- " + segment.getStpPair().getZ().getId());
         }
+
         return pceData;
     }
 

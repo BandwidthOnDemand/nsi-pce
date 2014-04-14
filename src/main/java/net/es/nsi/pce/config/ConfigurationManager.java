@@ -3,14 +3,13 @@ package net.es.nsi.pce.config;
 import java.io.File;
 import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.config.http.HttpConfigProvider;
-import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
 import net.es.nsi.pce.discovery.provider.DiscoveryProvider;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.sched.PCEScheduler;
 import net.es.nsi.pce.sched.TopologyAudit;
-import static net.es.nsi.pce.server.Main.PCE_SERVER_CONFIG_NAME;
 import net.es.nsi.pce.server.PCEServer;
 import org.apache.log4j.xml.DOMConfigurator;
+import org.quartz.SchedulerException;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
@@ -49,7 +48,7 @@ public enum ConfigurationManager {
     
     private static HttpConfigProvider httpConfigProvider;
     private static PCEServer pceServer;
-    private static ServiceInfoProvider serviceInfoProvider;
+    //private static ServiceInfoProvider serviceInfoProvider;
     private static TopologyProvider topologyProvider;
     private static DiscoveryProvider discoveryProvider;
     
@@ -86,7 +85,7 @@ public enum ConfigurationManager {
             discoveryProvider = (DiscoveryProvider) context.getBean("discoveryProvider");
             discoveryProvider.start();
             
-            serviceInfoProvider = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
+            //serviceInfoProvider = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
             topologyProvider = (TopologyProvider) context.getBean("topologyProvider");
 
             // TODO: This need to change to a local cache load.
@@ -97,7 +96,7 @@ public enum ConfigurationManager {
             // Start the task scheduler.
             log.info("Starting task scheduler...");
             log.info("--- Adding topology audit for " + getTopologyProvider().getAuditInterval());
-            PCEScheduler.getInstance().add(TopologyAudit.JOBNAME, TopologyAudit.JOBGROUP, TopologyAudit.class, getTopologyProvider().getAuditInterval());
+            PCEScheduler.getInstance().add(TopologyAudit.JOBNAME, TopologyAudit.JOBGROUP, TopologyAudit.class, getTopologyProvider().getAuditInterval()*1000);
             PCEScheduler.getInstance().start();
             log.info("...Task scheduler started.");
 
@@ -131,16 +130,16 @@ public enum ConfigurationManager {
     /**
      * @return the sip
      */
-    public ServiceInfoProvider getServiceInfoProvider() {
-        return serviceInfoProvider;
-    }
+    //public ServiceInfoProvider getServiceInfoProvider() {
+    //    return serviceInfoProvider;
+    //}
 
     /**
      * @param aSip the sip to set
      */
-    public void setServiceInfoProvider(ServiceInfoProvider aSip) {
-        serviceInfoProvider = aSip;
-    }
+    //public void setServiceInfoProvider(ServiceInfoProvider aSip) {
+    //    serviceInfoProvider = aSip;
+    //}
 
     /**
      * @return the topology provider
@@ -172,6 +171,13 @@ public enum ConfigurationManager {
     }
     
     public void shutdown() {
-        discoveryProvider.shutdown();
+        
+        try {
+            discoveryProvider.shutdown();
+            pceServer.stop();
+            PCEScheduler.getInstance().stop();
+        }
+        catch (IllegalStateException | SchedulerException ex) {
+        }
     }
 }

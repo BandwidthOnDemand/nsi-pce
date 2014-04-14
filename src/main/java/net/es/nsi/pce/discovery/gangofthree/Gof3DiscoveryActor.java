@@ -39,20 +39,17 @@ public class Gof3DiscoveryActor extends UntypedActor {
    
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ObjectFactory factory = new ObjectFactory();
-    private Client client;
+    //private Client client;
 
     @Override
     public void preStart() {
-        log.debug("preStart: entering.");
-        ClientConfig clientConfig = new ClientConfig();
-        RestClient.configureClient(clientConfig);
-        client = ClientBuilder.newClient(clientConfig);
-        log.debug("preStart: exiting.");
+        //ClientConfig clientConfig = new ClientConfig();
+        //RestClient.configureClient(clientConfig);
+        //client = ClientBuilder.newClient(clientConfig);
     }
 
     @Override
     public void onReceive(Object msg) {
-        log.debug("onReceive: entering.");
         if (msg instanceof Gof3DiscoveryMsg) {
             Gof3DiscoveryMsg message = (Gof3DiscoveryMsg) msg;
             
@@ -70,11 +67,14 @@ public class Gof3DiscoveryActor extends UntypedActor {
         } else {
             unhandled(msg);
         }
-        log.debug("onReceive: exiting.");
     }
     
     private boolean discoverNSA(Gof3DiscoveryMsg message) {
         log.debug("discover: nsa=" + message.getNsaURL());
+        
+        ClientConfig clientConfig = new ClientConfig();
+        RestClient.configureClient(clientConfig);
+        Client client = ClientBuilder.newClient(clientConfig);
         
         WebTarget nsaTarget = client.target(message.getNsaURL());
 
@@ -88,9 +88,10 @@ public class Gof3DiscoveryActor extends UntypedActor {
             // TODO: Should we clear the topology URL and lastModified
             // dates for errors and route back?
             log.error("discover: failed to retrieve NSA document from endpoint " + message.getNsaURL(), ex);
+            client.close();
             return false;
         }
-        
+
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             // We have a document to process.
             NsaType nsa = response.readEntity(NsaType.class);
@@ -98,8 +99,11 @@ public class Gof3DiscoveryActor extends UntypedActor {
                 // TODO: Should we clear the topology URL and lastModified
                 // dates for errors and route back?
                 log.error("discover: NSA document is empty from endpoint " + message.getNsaURL());
+                client.close();
                 return false;
             }
+            
+            client.close();
             
             message.setNsaId(nsa.getId());
             
@@ -131,11 +135,13 @@ public class Gof3DiscoveryActor extends UntypedActor {
         else if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
             // We did not get an updated document.
             log.debug("discover: NSA document not modified " + message.getNsaURL());
+            client.close();
         }
         else {
             log.error("discover: get of NSA document failed " + response.getStatus() + ", url=" + message.getNsaURL());
             // TODO: Should we clear the topology URL and lastModified
             // dates for errors and route back?
+            client.close();
             return false;
         }
         
@@ -153,6 +159,10 @@ public class Gof3DiscoveryActor extends UntypedActor {
         String url = message.getTopologyURL();
         log.debug("discover: topology=" + url);
         
+        ClientConfig clientConfig = new ClientConfig();
+        RestClient.configureClient(clientConfig);
+        Client client = ClientBuilder.newClient(clientConfig);
+        
         if (url == null || url.isEmpty()) {
             return false;
         }
@@ -169,6 +179,7 @@ public class Gof3DiscoveryActor extends UntypedActor {
             // TODO: Should we clear the topology URL and lastModified
             // dates for errors and route back?
             log.error("discoverTopology: failed to retrieve Topology document from endpoint " + url, ex);
+            client.close();
             return false;
         }
         
@@ -180,6 +191,8 @@ public class Gof3DiscoveryActor extends UntypedActor {
                     topology = chunk;
                 }
             }
+            
+            client.close();
 
             if (topology == null) {
                 // TODO: Should we clear the topology URL and lastModified
@@ -209,11 +222,13 @@ public class Gof3DiscoveryActor extends UntypedActor {
         else if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
             // We did not get an updated document.
             log.debug("discoverTopology: Topology document not modified " + message.getNsaURL());
+            client.close();
         }
         else {
             log.error("discoverTopology: get of Topology document failed " + response.getStatus() + ", url=" + message.getNsaURL());
             // TODO: Should we clear the topology URL and lastModified
             // dates for errors and route back?
+            client.close();
             return false;
         }
         
@@ -233,7 +248,7 @@ public class Gof3DiscoveryActor extends UntypedActor {
 
         // Set the naming attributes.
         document.setId(nsa.getId());
-        document.setType(NsiConstants.NSI_NSA_V1);
+        document.setType(NsiConstants.NSI_DOC_TYPE_NSA_V1);
         document.setNsa(nsa.getId());
 
         // We need the version of the document.
@@ -280,7 +295,7 @@ public class Gof3DiscoveryActor extends UntypedActor {
 
         // Set the naming attributes.
         document.setId(topology.getId());
-        document.setType(NsiConstants.NSI_TOPOLOGY_V2);
+        document.setType(NsiConstants.NSI_DOC_TYPE_TOPOLOGY_V2);
         document.setNsa(nsaId);
         
         // If there is no version specified then we add one.

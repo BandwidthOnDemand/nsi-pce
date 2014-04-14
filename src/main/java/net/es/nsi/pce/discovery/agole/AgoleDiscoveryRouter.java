@@ -13,6 +13,7 @@ import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,8 +30,6 @@ import net.es.nsi.pce.management.jaxb.TopologyStatusType;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.management.logs.PceLogs;
-import net.es.nsi.pce.topology.provider.GitHubManifestReader;
-import net.es.nsi.pce.topology.provider.TopologyManifest;
 import net.es.nsi.pce.topology.provider.TopologyProviderStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +50,7 @@ public class AgoleDiscoveryRouter extends UntypedActor {
     private int poolSize;
     private Router router;
     private Map<String, AgoleDiscoveryMsg> discovery = new ConcurrentHashMap<>();
-    private GitHubManifestReader manifestReader;
+    private AgoleManifestReader manifestReader;
     private TopologyManifest manifest = null;
 
     public AgoleDiscoveryRouter(DdsActorSystem ddsActorSystem, int poolSize, long interval) {
@@ -62,7 +61,18 @@ public class AgoleDiscoveryRouter extends UntypedActor {
 
     @Override
     public void preStart() {
-        log.debug("preStart: entering.");
+        Set<PeerURLType> discoveryURL = ddsActorSystem.getConfigReader().getDiscoveryURL();
+        for (PeerURLType url : discoveryURL) {
+            if (url.getType().equalsIgnoreCase(NsiConstants.NSI_TOPOLOGY_V1)) {
+                manifestReader = new AgoleManifestReader(url.getValue());
+                break;
+            }
+        }
+        
+        if (manifestReader == null) {
+            log.info("preStart: No AGOLE URL provisioned so disabling audit.");
+        }
+
         List<Routee> routees = new ArrayList<>();
         for (int i = 0; i < poolSize; i++) {
             ActorRef r = getContext().actorOf(Props.create(AgoleDiscoveryActor.class));
@@ -70,33 +80,33 @@ public class AgoleDiscoveryRouter extends UntypedActor {
             routees.add(new ActorRefRoutee(r));
         }
         router = new Router(new RoundRobinRoutingLogic(), routees);
-        Set<PeerURLType> discoveryURL = ddsActorSystem.getConfigReader().getDiscoveryURL();
-        for (PeerURLType url : discoveryURL) {
-            if (url.getType().equalsIgnoreCase(NsiConstants.NSI_TOPOLOGY_V1)) {
-                manifestReader = new GitHubManifestReader(url.getValue());
-                break;
-            }
-        }
-        log.debug("preStart: exiting.");
     }
 
     @Override
     public void onReceive(Object msg) {
-        log.debug("onReceive: entering.");
-        
         TimerMsg message = new TimerMsg();
 
         // Check to see if we got the go ahead to start registering.
         if (msg instanceof StartMsg) {
             // Create a Register event to start us off.
             msg = message;
+            if (manifestReader == null) {
+                log.info("onReceive: StartMsg no AGOLE URL provisioned so disabling audit.");
+                return;
+            }
         }
 
         if (msg instanceof TimerMsg) {
             log.debug("onReceive: timer event.");
+            if (manifestReader == null) {
+                log.info("onReceive: TimerMsg no AGOLE URL provisioned so disabling audit.");
+                return;
+            }
             if (readManifest() != null) {
                 routeTimerEvent();
             }
+            
+            ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
         }
         else if (msg instanceof AgoleDiscoveryMsg) {
             AgoleDiscoveryMsg incoming = (AgoleDiscoveryMsg) msg;
@@ -116,9 +126,6 @@ public class AgoleDiscoveryRouter extends UntypedActor {
             log.debug("onReceive: unhandled event.");
             unhandled(msg);
         }
-
-        ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
-        log.debug("onReceive: exiting.");
     }
     
     private TopologyManifest readManifest() {
@@ -145,7 +152,7 @@ public class AgoleDiscoveryRouter extends UntypedActor {
     private void routeTimerEvent() {
         log.debug("routeTimerEvent: entering.");
         Map<String, String> entryList = manifest.getEntryList();
-        Set<String> notSent = discovery.keySet();
+        Set<String> notSent = new HashSet<>(discovery.keySet());
 
         for (Map.Entry<String, String> entry : manifest.getEntryList().entrySet()) {
             String id = entry.getKey();
@@ -201,6 +208,6 @@ public class AgoleDiscoveryRouter extends UntypedActor {
         manifestStatus.setHref(manifestReader.getTarget());
         manifestStatus.setStatus(TopologyStatusType.COMPLETED);
         manifestStatus.setLastSuccessfulAudit(manifestStatus.getLastAudit());
-        manifestStatus.setLastModified(manifestReader.getLastModified());
+        manifestStatus.setLastDiscovered(manifestReader.getLastModified());
     }
 }

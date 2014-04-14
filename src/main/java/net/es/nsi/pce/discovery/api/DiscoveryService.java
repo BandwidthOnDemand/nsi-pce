@@ -158,8 +158,6 @@ public class DiscoveryService {
             @QueryParam("type") String type,
             @DefaultValue("false") @QueryParam("summary") boolean summary,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) {
- 
-        log.debug("getDocuments: " + nsa + ", " + type + ", " + id + ", " + summary + ", " + ifModifiedSince);
         
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
 
@@ -187,6 +185,9 @@ public class DiscoveryService {
                     results.getDocument().add(document.getDocument());
                 }
             }                
+        }
+        else {
+            log.debug("getDocuments: zero results to query nsa=" + nsa + ", type=" + type + ", id=" + id + ", summary=" + summary);
         }
         
         // Now we need to determine what "Last-Modified" date we send back.
@@ -223,10 +224,14 @@ public class DiscoveryService {
             documents = discoveryProvider.getDocumentsByNsa(nsa.trim(), type, id, lastDiscovered);
         }
         catch (IllegalArgumentException ex) {
-            // 400 bad request
-            log.error("getDocumentsByNsa: illegal arument", ex);
+            log.error("getDocumentsByNsa: illegal arument.\n", ex);
             ErrorType errorType = DiscoveryError.getErrorType(ex.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();            
+        }
+        catch (NotFoundException nf) {
+            log.error("getDocumentsByNsa: resource not found.\n ", nf);
+            ErrorType errorType = DiscoveryError.getErrorType(nf.getMessage());
+            return Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();               
         }
   
         Date discovered = new Date(0); 
@@ -576,6 +581,20 @@ public class DiscoveryService {
         String date = DateUtils.formatDate(document.getLastDiscovered(), DateUtils.PATTERN_RFC1123);
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<DocumentType>>(jaxb){}).build();
     }
+    
+    @GET
+    @Path("/documents/{nsa}/{type}/{id}/{crap}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
+    public Response poop (
+            @PathParam("nsa") String nsa,
+            @PathParam("type") String type,
+            @PathParam("id") String id,
+            @PathParam("crap") String crap,
+            @DefaultValue("false") @QueryParam("summary") boolean summary,
+            @HeaderParam("If-Modified-Since") String ifModifiedSince) {
+        log.debug("\n\n\n\n\n\n CRAP!!!!! : " + nsa + ", " + type + ", " + id + ", " + crap + "\n\n\n\n\n\n");
+            return Response.ok().build();
+        }
 
     @PUT
     @Path("/documents/{nsa}/{type}/{id}")

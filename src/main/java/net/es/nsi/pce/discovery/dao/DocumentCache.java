@@ -24,16 +24,18 @@ import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.spring.SpringApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author hacksaw
  */
+@Component
 public class DocumentCache {
     private final Logger log = LoggerFactory.getLogger(getClass());
     
     // The holder of our configuration.
-    private ConfigurationReader configReader;
+    private DiscoveryConfiguration configReader;
     
     // In-memory document cache indexed by nsa/type/id.
     private Map<String, Document> documents = new ConcurrentHashMap<>();
@@ -44,7 +46,7 @@ public class DocumentCache {
     private boolean useDocuments = false;
     private String documentPath;
     
-    public DocumentCache(ConfigurationReader configReader) throws FileNotFoundException {
+    public DocumentCache(DiscoveryConfiguration configReader) throws FileNotFoundException {
         this.configReader = configReader;
         
         // Load all documents within the cache directory.
@@ -101,13 +103,19 @@ public class DocumentCache {
         return result;
     }
     
-    public Document update(String id, Document doc) throws JAXBException, IOException {
+    public Document update(String id, Document doc) throws JAXBException, IOException {   
         // Store the document.
         Document result = documents.put(id, doc);
         
         // We need to write this new document to disk.
         if (useCache) {
             String filename = doc.getFilename();
+            if (result != null) {
+                filename = result.getFilename();
+                doc.setFilename(filename);
+                log.debug("update: reusing old filename " + filename);
+            }
+            
             if (filename == null || filename.isEmpty()) {
                 filename = Paths.get(cachePath, UUID.randomUUID().toString() + ".xml").toString();
                 doc.setFilename(filename);
@@ -141,7 +149,7 @@ public class DocumentCache {
         loadDocuments();
     }
 
-    public void loadCache() {
+    private void loadCache() {
         log.debug("loadCache: entering");
         
         if (!useCache) {
@@ -152,7 +160,7 @@ public class DocumentCache {
         loadDirectory(cachePath, true);
     }
     
-    public void loadDocuments() {
+    private void loadDocuments() {
         log.debug("loadDocuments: entering");
         
         if (!useDocuments) {
@@ -164,7 +172,7 @@ public class DocumentCache {
     }
     
     
-    public void loadDirectory(String path, boolean delete) {
+    private void loadDirectory(String path, boolean delete) {
         Collection<String> xmlFilenames = XmlUtilities.getXmlFilenames(path);
 
         for (String filename : xmlFilenames) {
@@ -174,17 +182,13 @@ public class DocumentCache {
                 document = DiscoveryParser.getInstance().readDocument(filename);
                 if (document == null) {
                     log.error("loadDirectory: Loaded empty document from " + filename);
+                    deleteFile(filename, delete);
                     continue;
                 }
             }
-            catch (JAXBException | FileNotFoundException ex) {
+            catch (JAXBException | IOException ex) {
                 log.error("loadDirectory: Failed to load file " + filename, ex);
-                if (delete) {
-                    File file = new File(filename);
-                    if(!file.delete()) {
-                        log.error("loadDirectory: Delete failed for file  " + filename);
-                    }
-                }
+                deleteFile(filename, delete);
                 continue;
             }
 
@@ -200,12 +204,7 @@ public class DocumentCache {
                 if (expiresTime.before(now)) {
                     // This document is old and no longer valid.
                     log.error("loadDirectory: Loaded document has expired " + filename + ", expires=" + expires.toGregorianCalendar().getTime().toString());
-                    if (delete) {
-                        File file = new File(filename);
-                        if(!file.delete()) {
-                            log.error("loadDirectory: Delete failed for file  " + filename);
-                        }
-                    }
+                    deleteFile(filename, delete);
                     continue;
                 }
             }
@@ -238,17 +237,13 @@ public class DocumentCache {
             else if (entry.getDocument().getVersion().compare(result.getDocument().getVersion()) == DatatypeConstants.GREATER) {
                 log.debug("loadDirectory: new document found so removing old cached document id=" + result.getId() + ", filename="+ result.getFilename());
                 documents.remove(result.getId());
+                deleteFile(result.getFilename(), delete);
                 documents.put(entry.getId(), entry);
                 log.debug("loadDirectory: added new document id=" + entry.getId() + ", filename=" + filename);
             }
             else {
                 log.debug("loadDirectory: document currently in cache is newer, removing old document id=" + entry.getId() + ", filename=" + filename);
-                if (delete) {
-                    File file = new File(filename);
-                    if(!file.delete()) {
-                    log.error("loadDirectory: Delete failed for file  " + filename);
-                    }
-                }
+                deleteFile(filename, delete);
             }
         }
         
@@ -288,5 +283,17 @@ public class DocumentCache {
      */
     public boolean isUseDocuments() {
         return useDocuments;
+    }
+    
+    public void deleteFile(String filename, boolean delete) {
+        if (delete) {
+            File file = new File(filename);
+            if(!file.delete()) {
+                log.error("DocumentCache: Delete failed for file  " + filename);
+            }
+            else {
+                log.debug("DocumentCache: Deleted old cache document " + filename);
+            }
+        }
     }
 }

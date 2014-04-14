@@ -25,6 +25,7 @@ public enum NsiError {
     TOPOLOGY_ERROR("00400", "TOPOLOGY_ERROR", "A topology error has occurred (%s)."),
     NO_PATH_FOUND("00403", "NO_PATH_FOUND", "Path computation failed (%s)."),
     UNKNOWN_NETWORK("00405", "UNKNOWN_NETWORK", "Unknown network for requested resource (%s)."),
+    INVALID_DISCOVERY_INFORMATION("00406", "INVALID_DISCOVERY_INFORMATION", "Cannot map networkId to service interface (%s)."),
     
     // Service specific errors.
     SERVICE_ERROR("00700", "SERVICE_ERROR", "A service specific error has occurred (%s)."),

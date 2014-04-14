@@ -42,7 +42,6 @@ public class RegistrationActor extends UntypedActor {
     private final ObjectFactory factory = new ObjectFactory();
     private DdsActorSystem ddsActorSystem;
     private RemoteSubscriptionCache remoteSubscriptionCache;
-    private Client client;
     
     public RegistrationActor(DdsActorSystem ddsActorSystem) {
         this.ddsActorSystem = ddsActorSystem;
@@ -51,11 +50,6 @@ public class RegistrationActor extends UntypedActor {
 
     @Override
     public void preStart() {
-        log.debug("RegistrationActor: preStart");
-        
-        ClientConfig clientConfig = new ClientConfig();
-        RestClient.configureClient(clientConfig);
-        client = ClientBuilder.newClient(clientConfig);
     }
 
     @Override
@@ -102,7 +96,11 @@ public class RegistrationActor extends UntypedActor {
             log.error("RegistrationActor.register: failed registration for " + event.getSubscription().getDdsURL());
             return;
         }
-
+        
+        ClientConfig clientConfig = new ClientConfig();
+        RestClient.configureClient(clientConfig);
+        Client client = ClientBuilder.newClient(clientConfig);
+        
         WebTarget webTarget = client.target(event.getSubscription().getDdsURL()).path("subscriptions");
         JAXBElement<SubscriptionRequestType> jaxb = factory.createSubscriptionRequest(request);
         Response response;
@@ -111,6 +109,7 @@ public class RegistrationActor extends UntypedActor {
         }
         catch (Exception ex) {
             log.error("RegistrationActor.register: endpoint " + event.getSubscription().getDdsURL(), ex);
+            client.close();
             return;
         }
 
@@ -121,11 +120,13 @@ public class RegistrationActor extends UntypedActor {
             if (error != null) {
                 log.error("RegistrationActor.register: id=" + error.getId() + ", label=" + error.getLabel() + ", resource=" + error.getResource() + ", description=" + error.getDescription());
             }
+            client.close();
             return;
         }
         
         // Looks like we were successful so save the subscription information.
         SubscriptionType subscription = response.readEntity(SubscriptionType.class);
+        client.close();
         log.debug("RegistrationActor.register: created subscription " + subscription.getId() + ", href=" + subscription.getHref());
         
         event.getSubscription().setSubscription(subscription);
@@ -133,7 +134,11 @@ public class RegistrationActor extends UntypedActor {
         remoteSubscriptionCache.add(event.getSubscription());
     }
     
-    private void update(RegistrationEvent event) {
+    private void update(RegistrationEvent event) {        
+        ClientConfig clientConfig = new ClientConfig();
+        RestClient.configureClient(clientConfig);
+        Client client = ClientBuilder.newClient(clientConfig);
+        
         // First we retrieve the remote subscription to see if it is still
         // valid.  If it is not then we register again, otherwise we leave it
         // alone for now.
@@ -146,6 +151,7 @@ public class RegistrationActor extends UntypedActor {
         }
         catch (Exception ex) {
             log.error("RegistrationActor.update: failed to update subscription " + subscription.getSubscription().getHref(), ex);
+            client.close();
             return;
         }
         
@@ -174,9 +180,13 @@ public class RegistrationActor extends UntypedActor {
                 log.error("RegistrationActor.update: id=" + error.getId() + ", label=" + error.getLabel() + ", resource=" + error.getResource() + ", description=" + error.getDescription());
             }
         }
+        client.close();
     }
     
     private void delete(RegistrationEvent event) {
+        ClientConfig clientConfig = new ClientConfig();
+        RestClient.configureClient(clientConfig);
+        Client client = ClientBuilder.newClient(clientConfig);
         WebTarget webTarget = client.target(event.getSubscription().getSubscription().getHref());
         
         Response response;
@@ -185,6 +195,7 @@ public class RegistrationActor extends UntypedActor {
         }
         catch (Exception ex) {
             log.error("RegistrationActor.delete: failed to delete subscription " + event.getSubscription().getDdsURL(), ex);
+            client.close();
             return;
         }
 
@@ -201,9 +212,11 @@ public class RegistrationActor extends UntypedActor {
             if (error != null) {
                 log.error("RegistrationActor.delete: id=" + error.getId() + ", label=" + error.getLabel() + ", resource=" + error.getResource() + ", description=" + error.getDescription());
             }
+            client.close();
             return;
         }
         
+        client.close();
         remoteSubscriptionCache.remove(event.getSubscription().getDdsURL());        
     }
 }

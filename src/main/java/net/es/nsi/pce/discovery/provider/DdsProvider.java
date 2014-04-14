@@ -4,10 +4,7 @@
  */
 package net.es.nsi.pce.discovery.provider;
 
-import net.es.nsi.pce.discovery.dao.DocumentCache;
-import net.es.nsi.pce.discovery.dao.ConfigurationReader;
 import akka.actor.Cancellable;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,6 +16,8 @@ import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
+import net.es.nsi.pce.discovery.dao.DocumentCache;
+import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
 import net.es.nsi.pce.discovery.actors.DdsActorSystem;
 import net.es.nsi.pce.discovery.messages.DocumentEvent;
 import net.es.nsi.pce.discovery.messages.SubscriptionEvent;
@@ -43,7 +42,7 @@ public class DdsProvider implements DiscoveryProvider {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     // Configuration reader.
-    private ConfigurationReader configReader;
+    private DiscoveryConfiguration configReader;
     
     // In-memory document cache.
     private DocumentCache documentCache;
@@ -54,7 +53,7 @@ public class DdsProvider implements DiscoveryProvider {
     // In-memory subscription cache indexed by subscriptionId.
     private Map<String, Subscription> subscriptions = new ConcurrentHashMap<>();
  
-    public DdsProvider(ConfigurationReader configuration, DocumentCache documentCache, DdsActorSystem ddsActorSystem) {
+    public DdsProvider(DiscoveryConfiguration configuration, DocumentCache documentCache, DdsActorSystem ddsActorSystem) {
         this.configReader = configuration;
         this.documentCache = documentCache;
         this.ddsActorSystem = ddsActorSystem;
@@ -66,17 +65,13 @@ public class DdsProvider implements DiscoveryProvider {
     }
 
     @Override
-    public void initialize() {
-        log.info("DdsProvider: Initializing...");
+    public void init() {
         // All initialization is now through bean config.
-        log.info("DdsProvider: Initializing complete.");
     }
     
     @Override
     public void start() {
-        log.info("start: Starting...");
         ddsActorSystem.start();
-        log.info("start: ...Started.");
     }   
  
     @Override
@@ -413,13 +408,17 @@ public class DdsProvider implements DiscoveryProvider {
     }
     
     @Override
-    public Collection<Document> getDocumentsByNsa(String nsa, String type, String id, Date lastDiscovered) throws IllegalArgumentException {
+    public Collection<Document> getDocumentsByNsa(String nsa, String type, String id, Date lastDiscovered) throws IllegalArgumentException, NotFoundException {
         // Seed the results.
         Collection<Document> results = documentCache.values();
 
         // This is the primary search value.  Make sure it is present.
         if (nsa != null && !nsa.isEmpty()) {
             results = getDocumentsByNsa(nsa, results);
+            if (results == null || results.isEmpty()) {
+                String error = DiscoveryError.getErrorString(DiscoveryError.NOT_FOUND, "nsa", nsa);
+                throw new NotFoundException(error);   
+            }
         }
         else {
             String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "document", "nsa");
@@ -580,14 +579,14 @@ public class DdsProvider implements DiscoveryProvider {
     /**
      * @return the configReader
      */
-    public ConfigurationReader getConfigReader() {
+    public DiscoveryConfiguration getConfigReader() {
         return configReader;
     }
 
     /**
      * @param configReader the configReader to set
      */
-    public void setConfigReader(ConfigurationReader configReader) {
+    public void setConfigReader(DiscoveryConfiguration configReader) {
         this.configReader = configReader;
     }
 
@@ -603,7 +602,7 @@ public class DdsProvider implements DiscoveryProvider {
                     continue;
                 }
             }
-            catch (JAXBException | FileNotFoundException ex) {
+            catch (JAXBException | IOException ex) {
                 log.error("loadDocuments: Failed to load file " + filename, ex);
                 continue;
             }

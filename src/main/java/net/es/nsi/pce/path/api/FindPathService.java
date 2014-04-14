@@ -188,9 +188,9 @@ public class FindPathService {
 
                         // TODO: In the future this path may be composed of
                         // segments of different serviceType.  When this
-                        // occurs we must provess each one in their own
+                        // occurs we must process each one in their own
                         // service specific path resolver.
-                        List<ResolvedPathType> resolved = p2p.resolvePath(serviceType, path);
+                        List<ResolvedPathType> resolved = p2p.resolvePath(path);
                         resp.getPath().addAll(resolved);                        
                     }
                 }
@@ -209,6 +209,7 @@ public class FindPathService {
         Client client = ClientBuilder.newClient(clientConfig);
         WebTarget webTarget = client.target(replyTo.getUrl());
         Response response = webTarget.request(mediaType).post(Entity.entity(new GenericEntity<JAXBElement<FindPathResponseType>>(jaxbRequest) {}, mediaType));
+        client.close();
         
         if (log.isDebugEnabled()) {
             log.debug("FindPathService: sent response " + resp.getStatus().name() + " to client " + replyTo.getUrl() + ", result = " + response.getStatusInfo().getReasonPhrase());

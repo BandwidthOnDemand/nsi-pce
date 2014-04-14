@@ -6,7 +6,7 @@ package net.es.nsi.pce.discovery.actors;
 
 import net.es.nsi.pce.discovery.messages.TimerMsg;
 import akka.actor.UntypedActor;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import javax.xml.bind.JAXBException;
 import org.slf4j.Logger;
@@ -29,15 +29,12 @@ public class ConfigurationActor extends UntypedActor {
     }
     @Override
     public void preStart() {
-        log.debug("preStart: entering.");  
         TimerMsg message = new TimerMsg();
         ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
-        log.debug("preStart: exiting.");
     }
 
     @Override
     public void onReceive(Object msg) {
-        log.debug("onReceive: entering.");
         if (msg instanceof TimerMsg) {
             TimerMsg event = (TimerMsg) msg;
             log.debug("onReceive: processing.");
@@ -45,7 +42,7 @@ public class ConfigurationActor extends UntypedActor {
             try {
                 ddsActorSystem.getConfigReader().load();
             }
-            catch (IllegalArgumentException | JAXBException | FileNotFoundException | NullPointerException ex) {
+            catch (IllegalArgumentException | JAXBException | IOException | NullPointerException ex) {
                 log.error("onReceive: Configuration load failed.", ex);
             }
 
@@ -54,7 +51,6 @@ public class ConfigurationActor extends UntypedActor {
         } else {
             unhandled(msg);
         }
-        log.debug("onReceive: exiting.");
     }
 
 }

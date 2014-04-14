@@ -29,6 +29,10 @@ public class Constraints {
         }
     }
     
+    public Constraints(Constraints constraints) {
+        this.constraints = new HashSet<>(constraints.get());
+    }
+    
     public boolean add(AttrConstraint constraint) {
         return constraints.add(constraint);
     }
