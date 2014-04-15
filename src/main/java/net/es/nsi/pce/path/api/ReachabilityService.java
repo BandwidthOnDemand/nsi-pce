@@ -24,13 +24,13 @@ import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 
 @Path("/reachability")
-// Todo make this bean spring-managed and thus eleminate the calls to the ApplicationContext
+// Todo make this bean spring-managed and thus eliminate the calls to the ApplicationContext
 public class ReachabilityService {
 
     @GET
     public Response reachability() {
 
-        SpringContext sc  = SpringContext.getInstance();
+        SpringContext sc = SpringContext.getInstance();
         final ApplicationContext applicationContext = sc.getContext();
         TopologyProvider topologyProvider = (TopologyProvider) applicationContext.getBean("topologyProvider");
         final NsiTopology topology = topologyProvider.getTopology();
