@@ -245,7 +245,6 @@ public class ReachabilityPCETest {
         when(serviceInfoProviderMock.byNsaId(peerNsaIdTwo)).thenReturn(createServiceInfo(peerNsaIdTwo, peerNetworkIdTwo));
 
         Optional<Path> path = subject.findForwardPath(sourceStp, destStp, reachabilityTable, Collections.<String>emptyList());
-
         assertThat(path.get().getPathSegments().iterator().next().getStpPair().getA().getNetworkId(), is(peerNetworkIdOne));
     }
 

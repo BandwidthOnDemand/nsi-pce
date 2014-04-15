@@ -52,6 +52,7 @@
     <bean id="ResolvePCE" class="net.es.nsi.pce.pf.ResolvePCE" />
     
     <bean id="chainPCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
+<<<<<<< HEAD
         <property name="moduleList">
             <list>
                 <ref bean="AuthPCE" />
@@ -60,9 +61,18 @@
                 <ref bean="ResolvePCE" />
             </list>
         </property>
+=======
+      <property name="moduleList">
+        <list>
+          <ref bean="AuthPCE" />
+          <ref bean="DijkstraPCE" />
+        </list>
+      </property>
+>>>>>>> FETCH_HEAD
     </bean>
     
     <bean id="treePCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
+<<<<<<< HEAD
         <property name="moduleList">
             <list>
                 <ref bean="AuthPCE" />
@@ -71,8 +81,14 @@
                 <ref bean="ResolvePCE" />
             </list>
         </property>
+=======
+      <property name="moduleList">
+        <list>
+          <ref bean="DijkstraPCE" />
+        </list>
+      </property>
+>>>>>>> FETCH_HEAD
     </bean>
-
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
 
     <!-- Reachability / GangOf3 PCE.
@@ -81,4 +97,10 @@
       <constructor-arg index="1" value="${localNetworkId}" />
     </bean>
     -->
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> FETCH_HEAD
 </beans>

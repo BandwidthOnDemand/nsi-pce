@@ -86,22 +86,6 @@ public class DijkstraPCE implements PCEModule {
         // Get the topology model used for routing.
         NsiTopology nsiTopology = pceData.getTopology();
 
-        // Once we decide on the format of the STP URN so that we can extract
-        // the networkId we will not verify the network and just look up the
-        // stpId directly.
-
-        /*
-        NetworkType srcNetwork = nsiTopology.getNetworkById(pe.getSrcNetwork());
-        NetworkType dstNetwork = nsiTopology.getNetworkById(pe.getDstNetwork());
-
-        if (srcNetwork == null) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNKNOWN_NETWORK, "sourceNetwork", pe.getSrcNetwork()));
-        }
-        else if (dstNetwork == null) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNKNOWN_NETWORK, "dstNetwork", pe.getDstNetwork()));
-        }
-        */
-
         // Look up the STP within our model matching the request.
         StpType srcStp = nsiTopology.getStp(srcStpId);
         StpType dstStp = nsiTopology.getStp(dstStpId);
@@ -199,6 +183,7 @@ public class DijkstraPCE implements PCEModule {
         List<StpPair> segments = pullIndividualSegmentsOut(srcStp, dstStp, path, nsiTopology);
         for (int i = 0; i < segments.size(); i++) {
             StpPair pair = segments.get(i);
+
             log.debug("Pair: " + pair.getA().getId() + " -- " + pair.getZ().getId());
             
             Constraints cons = new Constraints(segmentConstraints);

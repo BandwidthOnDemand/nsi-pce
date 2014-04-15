@@ -174,7 +174,6 @@ public class ReachabilityPCE implements PCEModule {
             public Path apply(Reachability reachability) {
                 StpType a = createStpType(sourceStp.getId(), forwardNsa.get().getNetworkId());
                 StpType z = createStpType(destStp.getId(), forwardNsa.get().getNetworkId());
-
                 return new Path(new PathSegment(new StpPair(a, z)));
             }
         });
