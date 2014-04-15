@@ -162,7 +162,7 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
         reply.setUrl(callbackURL);
         reply.setMediaType(mediaType);
         req.setReplyTo(reply);
-        req.setAlgorithm(FindPathAlgorithmType.CHAIN);
+        req.setAlgorithm(FindPathAlgorithmType.TREE);
                 
         // Reservation start time is 2 minutes from now.
         GregorianCalendar startTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));

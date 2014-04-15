@@ -16,6 +16,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
+import java.util.HashMap;
 
 import net.es.nsi.pce.config.nsa.ServiceInfo;
 import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
@@ -29,9 +30,12 @@ import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.Constraints;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
+import net.es.nsi.pce.topology.jaxb.NsaType;
+import net.es.nsi.pce.topology.jaxb.ReachabilityType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.topology.jaxb.VectorType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
 /**
@@ -59,11 +63,9 @@ public class ReachabilityPCE implements PCEModule {
         }
     });
 
-    private final ServiceInfoProvider serviceInfoProvider;
     private final String localNetworkId;
 
-    public ReachabilityPCE(ServiceInfoProvider serviceInfoProvider, String localNetworkId) {
-        this.serviceInfoProvider = serviceInfoProvider;
+    public ReachabilityPCE(String localNetworkId) {
         this.localNetworkId = localNetworkId;
     }
 
@@ -84,6 +86,10 @@ public class ReachabilityPCE implements PCEModule {
         if (pceData.getConnectionTrace() == null) {
             throw new IllegalArgumentException("No connection trace provided, can't continue.");
         }
+        
+        // Disctance vectors are available in NSA objects within topology.
+        Map<String, Map<String, Integer>> reachabilityTable = getReachabilityTable(pceData.getTopology());
+        
         Constraints constraints = pceData.getAttrConstraints();
         Stp sourceStp = findSourceStp(constraints);
         Stp destStp = findDestinationStp(constraints);
@@ -92,13 +98,35 @@ public class ReachabilityPCE implements PCEModule {
             if (isInMyNetwork(destStp)) {
                 return onlyLocalPath(sourceStp, destStp);
             } else {
-                return findSplitPath(sourceStp, destStp, pceData.getTopology(), pceData.getReachabilityTable(), pceData.getConnectionTrace());
+                return findSplitPath(sourceStp, destStp, pceData.getTopology(), reachabilityTable, pceData.getConnectionTrace());
             }
         } else if (isInMyNetwork(destStp)) {
-            return findSplitPath(destStp, sourceStp, pceData.getTopology(), pceData.getReachabilityTable(), pceData.getConnectionTrace());
+            return findSplitPath(destStp, sourceStp, pceData.getTopology(), reachabilityTable, pceData.getConnectionTrace());
         } else {
-            return findForwardPath(sourceStp, destStp, pceData.getReachabilityTable(), pceData.getConnectionTrace());
+            return findForwardPath(sourceStp, destStp, reachabilityTable, pceData.getConnectionTrace());
         }
+    }
+    
+    // If we model this correctly then each NSA would have a reachability table
+    // for each network it supports.  I assumed this is currently:
+    //          Map<nsaId, Map<remoteNetworkId, cost>>
+    // However, we could model this as:
+    //          Map<nsaId, Map<localNetworkId, Map<remoteNetworkId, cost>>>.
+    //
+    private Map<String, Map<String, Integer>> getReachabilityTable(NsiTopology topology) {
+        Map<String, Map<String, Integer>> table = new HashMap<>();
+        for (NsaType nsa : topology.getNsas()) {
+            Map<String, Integer> vectors = new HashMap<>();
+            for (ReachabilityType reachability : nsa.getReachability()) {
+                // reachability.getId(); <-- local network this reachability is for.
+                for (VectorType vector : reachability.getVector()) {
+                    vectors.put(vector.getId(), vector.getCost());
+                }
+            }
+            table.put(nsa.getId(), vectors);
+        }
+        
+        return table;
     }
 
     private Stp findSourceStp(Constraints constraints) {
@@ -214,6 +242,9 @@ public class ReachabilityPCE implements PCEModule {
                 Integer nsaCost = nsaCosts.getValue().get(networkId);
                 if (!reachability.isPresent() || reachability.get().getCost() > nsaCost) {
                     String nsaId = nsaCosts.getKey();
+                    
+                    // ServiceInfo is no longer supported.  NsiTopology has all
+                    // information required.  This networkId corresponds to???
                     ServiceInfo serviceInfo = serviceInfoProvider.byNsaId(nsaId);
                     reachability = Optional.of(new Reachability(nsaCost, serviceInfo.getNetworkId(), nsaId));
                 }

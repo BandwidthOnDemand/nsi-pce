@@ -96,6 +96,7 @@ public class Main {
         if (cmd.getOptionValue(LOCAL_NETWORK_ID) != null) {
             System.setProperty(LOCAL_NETWORK_ID, cmd.getOptionValue(LOCAL_NETWORK_ID));
         }
+
         // Load PCE configuration from disk.
         ConfigurationManager.INSTANCE.initialize(configPath);
 

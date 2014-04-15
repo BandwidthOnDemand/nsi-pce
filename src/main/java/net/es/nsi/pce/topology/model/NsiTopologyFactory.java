@@ -32,6 +32,7 @@ import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.management.logs.PceLogs;
 import net.es.nsi.pce.schema.XmlUtilities;
+import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
 import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
 import net.es.nsi.pce.topology.jaxb.NsaNsaType;
 import net.es.nsi.pce.topology.provider.DdsWrapper;
@@ -72,11 +73,22 @@ public class NsiTopologyFactory {
         this.defaultServiceType = defaultServiceType;
     }
     
-    public NsiTopology createNsiTopology(Map<String, DdsWrapper> nsaDocuments, Map<String, DdsWrapper> topologyDocuments) throws Exception {
+    public NsiTopology createNsiTopology(DdsDocumentListType localNsaDocuments, Map<String, DdsWrapper> nsaDocuments, DdsDocumentListType localTopologyDocuments, Map<String, DdsWrapper> topologyDocuments) throws Exception {
         log.info("createNsiTopology: Processing... isEmpty=" + nsaDocuments.isEmpty());
         
         // Create the NSI topology.
         NsiTopology newNsiTopology = new NsiTopology();
+        
+        // Assign the local nsaId if there is one.
+        if (localNsaDocuments.getDocument().size() > 0) {
+            newNsiTopology.setLocalNsaId(localNsaDocuments.getDocument().get(0).getId());
+        }
+        
+        List<String> networkIds = new ArrayList<>();
+        for (DdsDocumentType topology : localTopologyDocuments.getDocument()) {
+            networkIds.add(topology.getId());
+        }
+        newNsiTopology.setLocalNetworks(networkIds);
         
         // For each NSA document we found...
         for (DdsWrapper documentWrapper : nsaDocuments.values()) {

@@ -15,6 +15,7 @@ import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.management.jaxb.TopologyStatusType;
 import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.topology.dao.TopologyConfiguration;
+import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
 
 
 /**
@@ -35,10 +36,12 @@ public class DdsTopologyProvider implements TopologyProvider {
     // List of discovered NSA documents published in the DDS.
     private DdsDocumentReader nsaDocumentReader;
     private Map<String, DdsWrapper> nsaDocuments;
+    private DdsDocumentListType localNsaDocuments;
     
     // List of discovered topology documents published in the DDS.
     private DdsDocumentReader topologyDocumentReader;
     private Map<String, DdsWrapper> topologyDocuments;
+    private DdsDocumentListType localTopologyDocuments;
 
     // The NSI Topology model used by path finding.
     private NsiTopology nsiTopology = new NsiTopology();
@@ -104,6 +107,7 @@ public class DdsTopologyProvider implements TopologyProvider {
         // See if the NSA document list has changed.
         if (newNsadocs != null) {
             nsaDocuments = newNsadocs;
+            localNsaDocuments = nsaDocumentReader.getLocalDocuments();
             changed = true;
         }
 
@@ -129,6 +133,7 @@ public class DdsTopologyProvider implements TopologyProvider {
         // See if the topology document list has changed.
         if (newTopologyDocs != null) {
             topologyDocuments = newTopologyDocs;
+            localTopologyDocuments = topologyDocumentReader.getLocalDocuments();
             changed = true;
         }
 
@@ -140,7 +145,7 @@ public class DdsTopologyProvider implements TopologyProvider {
             throw new NotFoundException("Failed to load topology documents.");               
         }
         
-        // We had a change in the discovered data so process.
+        // If no change then get out of here.
         if (!changed) {
             log.debug("loadNetworkTopology: no change in topology.");
             ddsAuditSuccess();
@@ -150,7 +155,7 @@ public class DdsTopologyProvider implements TopologyProvider {
         NsiTopology newTopology;
         NsiTopologyFactory nsiFactory = new NsiTopologyFactory();
         nsiFactory.setDefaultServiceType(configuration.getDefaultServiceType());
-        newTopology = nsiFactory.createNsiTopology(nsaDocuments, topologyDocuments);
+        newTopology = nsiFactory.createNsiTopology(localNsaDocuments, nsaDocuments, localTopologyDocuments, topologyDocuments);
         lastDiscovered = nsiFactory.getLastDiscovered();
         newTopology = consolidateGlobalTopology(newTopology);
         newTopology.setLastDiscovered(lastDiscovered);

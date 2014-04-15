@@ -66,7 +66,7 @@ public class Main {
         reply.setUrl(callbackURL);
         reply.setMediaType(MediaType.APPLICATION_JSON);
         req.setReplyTo(reply);
-        req.setAlgorithm(FindPathAlgorithmType.CHAIN);
+        req.setAlgorithm(FindPathAlgorithmType.TREE);
                 
         // Reservation start time is 2 minutes from now.
         GregorianCalendar startTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));

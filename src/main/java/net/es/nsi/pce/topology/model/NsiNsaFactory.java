@@ -3,15 +3,21 @@ package net.es.nsi.pce.topology.model;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import net.es.nsi.pce.discovery.jaxb.TopologyReachabilityType;
+import net.es.nsi.pce.discovery.jaxb.TopologyType;
 import net.es.nsi.pce.topology.jaxb.NsaHolderType;
 import net.es.nsi.pce.topology.jaxb.NsaNsaType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.NsiResourceType;
+import net.es.nsi.pce.topology.jaxb.ObjectFactory;
+import net.es.nsi.pce.topology.jaxb.ReachabilityType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
+import net.es.nsi.pce.topology.jaxb.VectorType;
 import org.apache.http.client.utils.DateUtils;
 
 /**
@@ -28,7 +34,8 @@ public class NsiNsaFactory {
      * @return
      */
     public static NsaType createNsaType(NsaNsaType nsa) {
-        NsaType nsiNsa = new NsaType();
+        ObjectFactory factory = new ObjectFactory();
+        NsaType nsiNsa = factory.createNsaType();
         nsiNsa.setId(nsa.getId());
         nsiNsa.setName(nsa.getName());
         nsiNsa.setVersion(nsa.getVersion());
@@ -51,8 +58,33 @@ public class NsiNsaFactory {
             nsiNsa.getPeersWith().addAll(nsa.getPeersWith());
         }
         
+        // Pull the G0f3 reachability information out of the ANY as a custom
+        // extension to the standard NSA elements.
+        
         for (NsaHolderType holder : nsa.getOther()) {
-            nsiNsa.getAny().addAll(holder.getAny());
+            for (Object any : holder.getAny()) {
+                if (any instanceof JAXBElement && ((JAXBElement) any).getValue() instanceof TopologyReachabilityType) {
+                    @SuppressWarnings("unchecked")
+                    JAXBElement<TopologyReachabilityType> element = (JAXBElement<TopologyReachabilityType>) any;
+                    ReachabilityType reachability = factory.createReachabilityType();
+                    // Assume there is only one networkId until Gof3 fix their
+                    // modelling issue.
+                    List<String> networkId = nsa.getNetworkId();
+                    if (networkId.size() > 0) {
+                        reachability.setId(networkId.get(0));
+                    }
+                    for (TopologyType topology : element.getValue().getTopology()) {
+                        VectorType vector = factory.createVectorType();
+                        vector.setId(topology.getId());
+                        vector.setCost(topology.getCost());
+                        reachability.getVector().add(vector);                        
+                    }
+                    nsiNsa.getReachability().add(reachability);
+                }
+                else {
+                    nsiNsa.getAny().add(any);
+                }
+            }
         }
 
         // The network ResourceRefType is populated after the corresponding

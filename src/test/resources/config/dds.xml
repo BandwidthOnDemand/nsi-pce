@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tns:discovery xmlns:tns="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <nsaId>urn:ogf:network:netherlight.net:2013:nsa:bod</nsaId>
+    <nsaId>urn:ogf:network:surfnet.nl:1990:nsa:bod-acc</nsaId>
     <documents>src/test/resources/config/documents</documents>
     <cache>src/test/resources/config/cache</cache>
     <auditInterval>600</auditInterval>

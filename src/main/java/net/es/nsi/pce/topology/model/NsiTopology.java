@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
@@ -26,6 +28,8 @@ public class NsiTopology {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     // The NSI Topology model.
+    private String localNsaId;
+    private List<String> localNetworks = new CopyOnWriteArrayList<>();
     private ConcurrentHashMap<String, StpType> stps = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, SdpType> sdps = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, ServiceAdaptationType> serviceAdaptations = new ConcurrentHashMap<>();
@@ -453,5 +457,34 @@ public class NsiTopology {
      */
     public void setLastDiscovered(long lastDiscovered) {
         this.lastDiscovered = lastDiscovered;
+    }
+
+    /**
+     * @return the localNsaId
+     */
+    public String getLocalNsaId() {
+        return localNsaId;
+    }
+
+    /**
+     * @param localNsaId the localNsaId to set
+     */
+    public void setLocalNsaId(String localNsaId) {
+        this.localNsaId = localNsaId;
+    }
+
+    /**
+     * @return the localNetworks
+     */
+    public List<String> getLocalNetworks() {
+        return Collections.unmodifiableList(localNetworks);
+    }
+
+    /**
+     * @param localNetworks the localNetworks to set
+     */
+    public void setLocalNetworks(List<String> localNetworks) {
+        this.localNetworks.clear();
+        this.localNetworks.addAll(localNetworks);
     }
 }

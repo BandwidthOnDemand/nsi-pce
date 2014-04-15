@@ -43,64 +43,39 @@
         <constructor-arg index="0" ref="topologyConfiguration"/>
     </bean>
     
-    <bean id="DijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="singleton" />
+    <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE" >
+        <constructor-arg index="0" value="${localNetworkId}" />
+    </bean>
     
-    <bean id="AuthPCE" class="net.es.nsi.pce.pf.AuthPCE" scope="singleton" />
+    <bean id="dijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" />
     
-    <bean id="PolicyPCE" class="net.es.nsi.pce.pf.AuthPCE" scope="singleton" />
+    <bean id="authPCE" class="net.es.nsi.pce.pf.AuthPCE" />
     
-    <bean id="ResolvePCE" class="net.es.nsi.pce.pf.ResolvePCE" />
+    <bean id="policyPCE" class="net.es.nsi.pce.pf.AuthPCE" />
+    
+    <bean id="resolvePCE" class="net.es.nsi.pce.pf.ResolvePCE" />
     
     <bean id="chainPCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
-<<<<<<< HEAD
         <property name="moduleList">
             <list>
-                <ref bean="AuthPCE" />
-                <ref bean="PolicyPCE" />
-                <ref bean="DijkstraPCE" />
-                <ref bean="ResolvePCE" />
+                <ref bean="authPCE" />
+                <ref bean="policyPCE" />
+                <ref bean="reachabilityPCE" />
+                <ref bean="resolvePCE" />
             </list>
         </property>
-=======
-      <property name="moduleList">
-        <list>
-          <ref bean="AuthPCE" />
-          <ref bean="DijkstraPCE" />
-        </list>
-      </property>
->>>>>>> FETCH_HEAD
     </bean>
     
     <bean id="treePCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
-<<<<<<< HEAD
         <property name="moduleList">
             <list>
-                <ref bean="AuthPCE" />
-                <ref bean="PolicyPCE" />
-                <ref bean="DijkstraPCE" />
-                <ref bean="ResolvePCE" />
+                <ref bean="authPCE" />
+                <ref bean="policyPCE" />
+                <ref bean="dijkstraPCE" />
+                <ref bean="resolvePCE" />
             </list>
         </property>
-=======
-      <property name="moduleList">
-        <list>
-          <ref bean="DijkstraPCE" />
-        </list>
-      </property>
->>>>>>> FETCH_HEAD
     </bean>
+    
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
-
-    <!-- Reachability / GangOf3 PCE.
-    <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE" >
-      <constructor-arg index="0" ref="serviceInfoProvider" />
-      <constructor-arg index="1" value="${localNetworkId}" />
-    </bean>
-    -->
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> FETCH_HEAD
 </beans>

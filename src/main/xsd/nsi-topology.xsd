@@ -169,18 +169,31 @@
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
                 <xsd:sequence>
-                    <xsd:element name="softwareVersion" type="xsd:string"          minOccurs="0" />
-                    <xsd:element name="startTime"       type="xsd:dateTime"        minOccurs="0" />
-                    <xsd:element name="location"        type="nsa:LocationType"    minOccurs="0" />
-                    <xsd:element name="adminContact"    type="xcard:VcardsType"    minOccurs="0" />
-                    <xsd:element name="network"         type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
-                    <xsd:element name="interface"       type="nsa:InterfaceType"   minOccurs="0" maxOccurs="unbounded" />
-                    <xsd:element name="feature"         type="nsa:FeatureType"     minOccurs="0" maxOccurs="unbounded" />
-                    <xsd:element name="peersWith"       type="xsd:anyURI"          minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="softwareVersion" type="xsd:string"            minOccurs="0" />
+                    <xsd:element name="startTime"       type="xsd:dateTime"          minOccurs="0" />
+                    <xsd:element name="location"        type="nsa:LocationType"      minOccurs="0" />
+                    <xsd:element name="adminContact"    type="xcard:VcardsType"      minOccurs="0" />
+                    <xsd:element name="network"         type="tns:ResourceRefType"   minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="interface"       type="nsa:InterfaceType"     minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="feature"         type="nsa:FeatureType"       minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="peersWith"       type="xsd:anyURI"            minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="reachability"    type="tns:ReachabilityType"  minOccurs="0" maxOccurs="unbounded" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="ReachabilityType">
+         <xsd:sequence>
+             <xsd:element name="vector" type="tns:VectorType" minOccurs="0" maxOccurs="unbounded" />
+         </xsd:sequence>
+        <xsd:attribute name="id"    use="required" type="xsd:anyURI" />
+    </xsd:complexType>
+
+    <xsd:complexType name="VectorType">
+        <xsd:attribute name="id"    use="required" type="xsd:anyURI" />
+        <xsd:attribute name="cost"  use="required" type="xsd:int" />
     </xsd:complexType>
     
     <xsd:complexType name="ResourceRefType">

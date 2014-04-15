@@ -29,7 +29,6 @@ public class PCEData {
     private Path path = new Path();
     private Set<Constraint> constraints = new HashSet<>();
     private NsiTopology topology = new NsiTopology();
-    private Map<String, Map<String, Integer>> reachabilityTable;
     private List<String> connectionTrace;
 
     public PCEData() {
@@ -61,14 +60,6 @@ public class PCEData {
 
     public void setTopology(NsiTopology topology) {
         this.topology = topology;
-    }
-
-    public Map<String, Map<String, Integer>> getReachabilityTable() {
-        return reachabilityTable;
-    }
-
-    public void setReachabilityTable(Map<String, Map<String, Integer>> reachabilityTable) {
-        this.reachabilityTable = reachabilityTable;
     }
 
     public boolean addConstraint(Constraint constraint) {

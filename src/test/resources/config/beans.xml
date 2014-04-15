@@ -42,33 +42,36 @@
     <bean id="topologyProvider" class="net.es.nsi.pce.topology.provider.DdsTopologyProvider" init-method="init" scope="singleton" depends-on="discoveryProvider">
         <constructor-arg index="0" ref="topologyConfiguration"/>
     </bean>
-
-    <bean id="DijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="singleton" />
- 
-    <bean id="AuthPCE" class="net.es.nsi.pce.pf.AuthPCE" scope="singleton" />
+    <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE" >
+        <constructor-arg index="0" value="${localNetworkId}" />
+    </bean>
     
-    <bean id="PolicyPCE" class="net.es.nsi.pce.pf.AuthPCE" scope="singleton" />
+    <bean id="dijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" />
     
-    <bean id="ResolvePCE" class="net.es.nsi.pce.pf.ResolvePCE" />
+    <bean id="authPCE" class="net.es.nsi.pce.pf.AuthPCE" />
+    
+    <bean id="policyPCE" class="net.es.nsi.pce.pf.AuthPCE" />
+    
+    <bean id="resolvePCE" class="net.es.nsi.pce.pf.ResolvePCE" />
     
     <bean id="chainPCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
         <property name="moduleList">
             <list>
-                <ref bean="AuthPCE" />
-                <ref bean="PolicyPCE" />
-                <ref bean="DijkstraPCE" />
-                <ref bean="ResolvePCE" />
+                <ref bean="authPCE" />
+                <ref bean="policyPCE" />
+                <ref bean="reachabilityPCE" />
+                <ref bean="resolvePCE" />
             </list>
         </property>
     </bean>
-
+    
     <bean id="treePCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
         <property name="moduleList">
             <list>
-                <ref bean="AuthPCE" />
-                <ref bean="PolicyPCE" />
-                <ref bean="DijkstraPCE" />
-                <ref bean="ResolvePCE" />
+                <ref bean="authPCE" />
+                <ref bean="policyPCE" />
+                <ref bean="dijkstraPCE" />
+                <ref bean="resolvePCE" />
             </list>
         </property>
     </bean>

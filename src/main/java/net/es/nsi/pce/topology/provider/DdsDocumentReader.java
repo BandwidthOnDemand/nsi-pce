@@ -42,8 +42,11 @@ public class DdsDocumentReader {
     // Time we last read the master topology.
     private long lastModified = 0;
     
-    // The version of the last read master topology.
+    // A list of full documents matching the specified type.
     private Map<String, DdsWrapper> ddsDocuments = new ConcurrentHashMap<>();
+    
+    // Documents of the specified type discovered as local to this DDS service.
+    private DdsDocumentListType localDocuments = new DdsDocumentListType();
     
     /**
      * Class constructor takes the remote location URL from which to load the
@@ -77,6 +80,10 @@ public class DdsDocumentReader {
     
     private boolean read() throws NotFoundException, JAXBException, UnsupportedEncodingException {
         boolean isChanged = false;
+        
+        // Read and store local documents.
+        localDocuments = readLocal();
+        
         
         DdsDocumentListType documents = readSummary();
         
@@ -255,6 +262,44 @@ public class DdsDocumentReader {
         client.close();
         return document;
     }
+    
+    private DdsDocumentListType readLocal() throws NotFoundException, JAXBException, UnsupportedEncodingException {
+         // Use the REST client to retrieve the document.
+        ClientConfig clientConfig = new ClientConfig();
+        RestClient.configureClient(clientConfig);
+        Client client = ClientBuilder.newClient(clientConfig);
+        String encode = URLEncoder.encode(type, "UTF-8");
+        final WebTarget webGet = client.target(target).path("local").path(encode);
+        
+        boolean isChanged = false;
+        
+        Response response = null;
+        try {
+            response = webGet.request(NsiConstants.NSI_DDS_V1_XML).get();
+        }
+        catch (Exception ex) {
+            topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, ex.getMessage());
+            client.close();
+            throw ex;
+        }
+        
+        if (response.getStatus() != Status.OK.getStatusCode()) {
+            topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, Integer.toString(response.getStatus()));
+            client.close();
+            throw new NotFoundException("Failed to retrieve document (" + response.getStatus() + ") from target=" + target + ", path=local/" + encode);
+        }
+
+        DdsDocumentListType documents = null;
+        try (final ChunkedInput<DdsDocumentListType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<DdsDocumentListType>>() {})) {
+            DdsDocumentListType chunk;
+            while ((chunk = chunkedInput.read()) != null) {
+                documents = chunk;
+            }
+        }
+        
+        client.close();
+        return documents;
+    }
 
     public Map<String, DdsWrapper> get() throws NotFoundException, JAXBException, UnsupportedEncodingException {
         read();
@@ -267,5 +312,12 @@ public class DdsDocumentReader {
         }
 
         return null;
+    }
+
+    /**
+     * @return the localDocuments
+     */
+    public DdsDocumentListType getLocalDocuments() {
+        return localDocuments;
     }
 }
