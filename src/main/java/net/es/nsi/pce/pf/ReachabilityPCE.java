@@ -18,8 +18,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 
-import java.util.HashMap;
-
 import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
 import net.es.nsi.pce.path.services.Point2Point;
 import net.es.nsi.pce.pf.api.NsiError;
@@ -31,12 +29,9 @@ import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.Constraints;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
-import net.es.nsi.pce.topology.jaxb.NsaType;
-import net.es.nsi.pce.topology.jaxb.ReachabilityType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.StpType;
-import net.es.nsi.pce.topology.jaxb.VectorType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
 /**
