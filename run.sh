@@ -25,4 +25,5 @@ java -Xmx512m -Djava.net.preferIPv4Stack=true  \
 	-Djavax.net.ssl.trustStorePassword=changeit \
 	-jar target/pce.jar \
 	-topologyConfigFile config/topology-github.xml \
+	-localNetworkId "urn:ogf:network:surfnet.nl:1990:nsa:bod-acc" \
 	$*
