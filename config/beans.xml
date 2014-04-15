@@ -44,7 +44,10 @@
     </bean>
     
     <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE" >
-        <constructor-arg index="0" value="${localNetworkId}" />
+        <constructor-arg index="0" ref="localNetworkId" />
+    </bean>
+    <bean id="localNetworkId" class="java.lang.String">
+      <constructor-arg value="${localNetworkId}"/>
     </bean>
     
     <bean id="dijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" />

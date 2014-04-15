@@ -1,5 +1,6 @@
 package net.es.nsi.pce.path.api;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +11,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.springframework.context.ApplicationContext;
+
 import com.google.gson.Gson;
+
+import net.es.nsi.pce.config.SpringContext;
+import net.es.nsi.pce.topology.jaxb.NsaType;
+import net.es.nsi.pce.topology.jaxb.ReachabilityType;
+import net.es.nsi.pce.topology.jaxb.VectorType;
+import net.es.nsi.pce.topology.model.NsiTopology;
+import net.es.nsi.pce.topology.provider.TopologyProvider;
 
 @Path("/reachability")
 public class ReachabilityService {
@@ -18,18 +28,34 @@ public class ReachabilityService {
     @GET
     public Response reachability() {
 
-        Map<String, Object> holder = new HashMap<>();
+        SpringContext sc  = SpringContext.getInstance();
 
-        Map<String, Object> entry = new HashMap<>();
-        entry.put("id", "http://some.topology");
-        entry.put("cost", new Integer(3));
+        final ApplicationContext applicationContext = sc.getContext();
+        TopologyProvider topologyProvider = (TopologyProvider) applicationContext.getBean("topologyProvider");
+        final NsiTopology topology = topologyProvider.getTopology();
+        final String localNetworkId = (String) applicationContext.getBean("localNetworkId");
 
-        // simply return it as json object (the reachability table is a Map<String, Map<String, Integer>> so that should auto-marshal)
-        holder.put("reachability", Arrays.asList(entry));
 
-        // marshall the simple way as Jersey mystifies me
+        List<Map<String,Object>> entries = new ArrayList<>();
+        for (NsaType nsa : topology.getNsas()) {
+            for (ReachabilityType reachability : nsa.getReachability()) {
+                if (reachability.getId().equals(localNetworkId)) {
+                    for (VectorType vector : reachability.getVector()) {
+                        Map<String, Object> entry = new HashMap<>();
+                        entry.put("id", vector.getId());
+                        entry.put("cost", vector.getCost());
+                        entries.add(entry);
+                    }
+                }
+            }
+        }
+
+        Map<String, Object> jsonHolder = new HashMap<>();
+
+        jsonHolder.put("reachability", entries);
+
         Gson gson = new Gson();
-        final String s = gson.toJson(holder);
+        final String s = gson.toJson(jsonHolder);
         return  Response.ok().header("Content-type", "application/json").entity(s).build();
     }
 }
