@@ -18,7 +18,7 @@
                 <ns2:PortGroup id="urn:ogf:network:grnet.gr:2013:grnet-geant">
                     <ns2:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns2:LabelGroup>
                     <ns2:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                        <ns2:PortGroup id="urn:ogf:network:geant.net:2013:grnet-geant"/>
+                        <ns2:PortGroup id="urn:ogf:network:geant.net:2013:topology:bi-geant-grnet-in"/>
                     </ns2:Relation>
                 </ns2:PortGroup>
             </ns2:Relation>
@@ -26,7 +26,7 @@
                 <ns2:PortGroup id="urn:ogf:network:grnet.gr:2013:geant-grnet">
                     <ns2:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns2:LabelGroup>
                     <ns2:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                        <ns2:PortGroup id="urn:ogf:network:geant.net:2013:geant-grnet"/>
+                        <ns2:PortGroup id="urn:ogf:network:geant.net:2013:topology:bi-geant-grnet-out"/>
                     </ns2:Relation>
                 </ns2:PortGroup>
             </ns2:Relation>

@@ -100,17 +100,17 @@
             </ns2:Relation>
             <ns2:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                 <ns2:PortGroup id="urn:ogf:network:geant.net:2013:topology:bi-geant-grnet-out">
-                    <ns2:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1-4094</ns2:LabelGroup>
+                    <ns2:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns2:LabelGroup>
                     <ns2:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                        <ns2:PortGroup id="urn:ogf:network:grnet.gr:2013:topology:bi-grnet-geant-in"/>
+                        <ns2:PortGroup id="urn:ogf:network:grnet.gr:2013:geant-grnet"/>
                     </ns2:Relation>
                 </ns2:PortGroup>
             </ns2:Relation>
             <ns2:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                 <ns2:PortGroup id="urn:ogf:network:geant.net:2013:topology:bi-geant-grnet-in">
-                    <ns2:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1-4094</ns2:LabelGroup>
+                    <ns2:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns2:LabelGroup>
                     <ns2:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                        <ns2:PortGroup id="urn:ogf:network:grnet.gr:2013:topology:bi-grnet-geant-out"/>
+                        <ns2:PortGroup id="urn:ogf:network:grnet.gr:2013:grnet-geant"/>
                     </ns2:Relation>
                 </ns2:PortGroup>
             </ns2:Relation>
@@ -132,17 +132,17 @@
             </ns2:Relation>
             <ns2:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                 <ns2:PortGroup id="urn:ogf:network:geant.net:2013:topology:port-to-nether-out">
-                    <ns2:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1-4094</ns2:LabelGroup>
+                    <ns2:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns2:LabelGroup>
                     <ns2:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                        <ns2:PortGroup id="urn:ogf:network:netherlight:port-to-geant-in"/>
+                        <ns2:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:geant:1:in"/>
                     </ns2:Relation>
                 </ns2:PortGroup>
             </ns2:Relation>
             <ns2:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                 <ns2:PortGroup id="urn:ogf:network:geant.net:2013:topology:port-to-nether-in">
-                    <ns2:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1-4094</ns2:LabelGroup>
+                    <ns2:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns2:LabelGroup>
                     <ns2:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                        <ns2:PortGroup id="urn:ogf:network:netherlight:port-to-geant-out"/>
+                        <ns2:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:geant:1:out"/>
                     </ns2:Relation>
                 </ns2:PortGroup>
             </ns2:Relation>

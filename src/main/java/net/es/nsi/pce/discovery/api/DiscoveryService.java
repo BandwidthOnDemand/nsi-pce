@@ -67,8 +67,6 @@ public class DiscoveryService {
             @DefaultValue("false") @QueryParam("summary") boolean summary,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
         
-        log.debug("getAll: " + ifModifiedSince);
-        
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
         
         Date lastDiscovered = null;
@@ -209,8 +207,6 @@ public class DiscoveryService {
             @QueryParam("id") String id,
             @DefaultValue("false") @QueryParam("summary") boolean summary,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) {
- 
-        log.debug("getDocumentsByNsa: " + nsa + ", " + type + ", " + id + ", " + summary + ", " + ifModifiedSince);
         
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
 
@@ -323,7 +319,6 @@ public class DiscoveryService {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
     public Response addDocument(DocumentType request) throws Exception {
-        log.debug("addDocument: " + request.getNsa() + ", " + request.getType() + ", " + request.getId());
         
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
         
@@ -342,7 +337,7 @@ public class DiscoveryService {
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }        
         catch (Exception ex) {
-            log.error("addDocument: internal server error", ex);
+            log.error("addDocument: internal server error\n", ex);
             ErrorType errorType = DiscoveryError.getErrorType(ex.getMessage());
             return Response.serverError().entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
@@ -369,9 +364,7 @@ public class DiscoveryService {
             @QueryParam("type") String type,
             @DefaultValue("false") @QueryParam("summary") boolean summary,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) {
- 
-        log.debug("getLocalDocuments: " + type + ", " + id + ", " + summary + ", " + ifModifiedSince);
-        
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
 
         Date lastDiscovered = null;
@@ -385,7 +378,7 @@ public class DiscoveryService {
         }
         catch (IllegalArgumentException ex) {
             // 400 bad request
-            log.error("getDocumentsByNsa: illegal arument", ex);
+            log.debug("getDocumentsByNsa: illegal arugment\n" + ex.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ex.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();            
         }
@@ -427,9 +420,7 @@ public class DiscoveryService {
             @QueryParam("id") String id,
             @DefaultValue("false") @QueryParam("summary") boolean summary,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) {
-        
-        log.debug("getLocalDocumentsByType: " + type + ", " + id + ", " + summary + ", " + ifModifiedSince);
-        
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
 
         Date lastDiscovered = null;
@@ -443,7 +434,7 @@ public class DiscoveryService {
         }
         catch (IllegalArgumentException ex) {
             // 400 bad request
-            log.error("getDocumentsByNsaAndType: illegal arument", ex);
+            log.debug("getDocumentsByNsaAndType: illegal arument\n" + ex.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ex.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();            
         }
@@ -485,9 +476,7 @@ public class DiscoveryService {
             @PathParam("id") String id,
             @DefaultValue("false") @QueryParam("summary") boolean summary,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) {
-        
-        log.debug("getLocalDocument: " + type + ", " + id + ", " + summary + ", " + ifModifiedSince);
-        
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
 
         Date lastDiscovered = null;
@@ -501,13 +490,13 @@ public class DiscoveryService {
         }
         catch (IllegalArgumentException ia) {
             // 400 Bad Request
-            log.error("getDocument: illegal arument", ia);
+            log.debug("getDocument: illegal arument\n" + ia.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ia.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
         catch (NotFoundException nf) {
             // 404 Not Found
-            log.error("getDocument: requested document resource not found", nf);
+            log.debug("getDocument: requested document resource not found\n" + nf.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(nf.getMessage());
             return Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
@@ -538,9 +527,7 @@ public class DiscoveryService {
             @PathParam("id") String id,
             @DefaultValue("false") @QueryParam("summary") boolean summary,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) {
-        
-        log.debug("getDocument: " + nsa + ", " + type + ", " + id + ", " + summary + ", " + ifModifiedSince);
-        
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
 
         Date lastDiscovered = null;
@@ -554,13 +541,13 @@ public class DiscoveryService {
         }
         catch (IllegalArgumentException ia) {
             // 400 Bad Request
-            log.error("getDocument: illegal arument", ia);
+            log.debug("getDocument: illegal arument\n" + ia.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ia.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
         catch (NotFoundException nf) {
             // 404 Not Found
-            log.error("getDocument: requested document resource not found", nf);
+            log.debug("getDocument: requested document resource not found\n" + nf.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(nf.getMessage());
             return Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
@@ -581,20 +568,6 @@ public class DiscoveryService {
         String date = DateUtils.formatDate(document.getLastDiscovered(), DateUtils.PATTERN_RFC1123);
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<DocumentType>>(jaxb){}).build();
     }
-    
-    @GET
-    @Path("/documents/{nsa}/{type}/{id}/{crap}")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
-    public Response poop (
-            @PathParam("nsa") String nsa,
-            @PathParam("type") String type,
-            @PathParam("id") String id,
-            @PathParam("crap") String crap,
-            @DefaultValue("false") @QueryParam("summary") boolean summary,
-            @HeaderParam("If-Modified-Since") String ifModifiedSince) {
-        log.debug("\n\n\n\n\n\n CRAP!!!!! : " + nsa + ", " + type + ", " + id + ", " + crap + "\n\n\n\n\n\n");
-            return Response.ok().build();
-        }
 
     @PUT
     @Path("/documents/{nsa}/{type}/{id}")
@@ -606,8 +579,6 @@ public class DiscoveryService {
             @PathParam("id") String id,
             DocumentType request) throws Exception {
         
-        log.debug("updateDocument: " + nsa + ", " + type + ", " + id);
-        
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
         
         Document document;
@@ -615,22 +586,22 @@ public class DiscoveryService {
             document = discoveryProvider.updateDocument(nsa, type, id, request);
         }
         catch (NotFoundException ee) {
-            log.error("updateDocument: document does not exist", ee);
+            log.debug("updateDocument: document does not exist\n" + ee.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ee.getMessage());
             return Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
         catch (IllegalArgumentException ia) {
-            log.error("updateDocument: illegal arument", ia);
+            log.debug("updateDocument: illegal arument\n" + ia.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ia.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
         catch (InvalidVersionException vr) {
-            log.error("updateDocument: invalid version", vr);
+            log.debug("updateDocument: invalid version\n" + vr.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(vr.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();            
         }
         catch (Exception ex) {
-            log.error("updateDocument: internal server error", ex);
+            log.debug("updateDocument: internal server error\n" + ex.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ex.getMessage());
             return Response.serverError().entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
@@ -662,7 +633,7 @@ public class DiscoveryService {
         }
         catch (IllegalArgumentException ex) {
             // 400 bad request
-            log.error("getSubscriptions: illegal arument", ex);
+            log.debug("getSubscriptions: illegal arument\n" + ex.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ex.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();            
         }
@@ -704,13 +675,13 @@ public class DiscoveryService {
         }
         catch (IllegalArgumentException ia) {
             // 400 bad request
-            log.error("addSubscription: illegal arument", ia);
+            log.debug("addSubscription: illegal arument\n" + ia.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ia.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }        
         catch (Exception ex) {
             //500 - Internal server error (Catchall)
-            log.error("addSubscription: internal server error", ex);
+            log.debug("addSubscription: internal server error\n" + ex.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ex.getMessage());
             return Response.serverError().entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
@@ -726,9 +697,7 @@ public class DiscoveryService {
     public Response getSubscription(
             @PathParam("id") String id,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) {
-        
-        log.debug("getSubscription: " + id + ", " + ifModifiedSince);
-        
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
 
         Date lastDiscovered = null;
@@ -742,13 +711,13 @@ public class DiscoveryService {
         }
         catch (IllegalArgumentException ia) {
             // 400 Bad Request
-            log.error("getSubscription: illegal arument", ia);
+            log.debug("getSubscription: illegal arument\n" + ia.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ia.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
         catch (NotFoundException nf) {
             // 404 Not Found
-            log.error("getSubscription: requested subscription resource not found, id=" + id, nf);
+            log.debug("getSubscription: requested subscription resource not found, id=" + id + "\n" + nf.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(nf.getMessage());
             return Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
@@ -774,8 +743,6 @@ public class DiscoveryService {
             @PathParam("id") String id,
             SubscriptionRequestType subscriptionRequest) throws Exception {
 
-        log.debug("editSubscription: " + id);
-
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
         Subscription subscription;
         try {
@@ -783,13 +750,13 @@ public class DiscoveryService {
         }
         catch (IllegalArgumentException ia) {
             // 400 bad request
-            log.error("editSubscription: illegal arument", ia);
+            log.debug("editSubscription: illegal arument\n" + ia.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ia.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }        
         catch (NotFoundException nf) {
             // 404 Not Found
-            log.error("editSubscription: requested subscription resource not found, id=" + id, nf);
+            log.debug("editSubscription: requested subscription resource not found, id=" + id + "\n" + nf.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(nf.getMessage());
             return Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
@@ -804,24 +771,21 @@ public class DiscoveryService {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
     public Response deleteSubscription(@PathParam("id") String id) throws Exception {
-        
-        log.debug("deleteSubscription: id=" + id);
-        
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
-        
-        Subscription subscription;
+
         try {
-            subscription = discoveryProvider.deleteSubscription(id);
+            discoveryProvider.deleteSubscription(id);
         }
         catch (NotFoundException ee) {
             // 404 not found
-            log.error("deleteSubscription: subscription does not exist, id=" + id, ee);
+            log.debug("deleteSubscription: subscription does not exist, id=" + id + "\n" + ee.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ee.getMessage());
             return Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
         catch (IllegalArgumentException ia) {
             // 400 bad request
-            log.error("deleteSubscription: illegal arument", ia);
+            log.debug("deleteSubscription: illegal arument\n" + ia.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ia.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
@@ -834,8 +798,7 @@ public class DiscoveryService {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
     public Response notifications(NotificationListType notifications) throws Exception {
-        log.debug("notifications: entering");
-        
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
         
         if (notifications != null) {
@@ -854,7 +817,6 @@ public class DiscoveryService {
             log.error("notifications: Received empty notification.");
         }
 
-        log.debug("notifications: leaving.");
         return Response.accepted().build();
     }
 }

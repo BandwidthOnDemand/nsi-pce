@@ -73,19 +73,19 @@ public class NsiTopologyFactory {
         this.defaultServiceType = defaultServiceType;
     }
     
-    public NsiTopology createNsiTopology(DdsDocumentListType localNsaDocuments, Map<String, DdsWrapper> nsaDocuments, DdsDocumentListType localTopologyDocuments, Map<String, DdsWrapper> topologyDocuments) throws Exception {
-        log.info("createNsiTopology: Processing... isEmpty=" + nsaDocuments.isEmpty());
-        
+    public NsiTopology createNsiTopology(DdsDocumentListType localNsaDocuments, Map<String, DdsWrapper> nsaDocuments, DdsDocumentListType localTopologyDocuments, Map<String, DdsWrapper> topologyDocuments) throws Exception {       
         // Create the NSI topology.
         NsiTopology newNsiTopology = new NsiTopology();
         
         // Assign the local nsaId if there is one.
         if (localNsaDocuments.getDocument().size() > 0) {
             newNsiTopology.setLocalNsaId(localNsaDocuments.getDocument().get(0).getId());
+            log.debug("createNsiTopology: local nsaId=" + newNsiTopology.getLocalNsaId());
         }
         
         List<String> networkIds = new ArrayList<>();
         for (DdsDocumentType topology : localTopologyDocuments.getDocument()) {
+            log.debug("createNsiTopology: local networkId=" + topology.getId());
             networkIds.add(topology.getId());
         }
         newNsiTopology.setLocalNetworks(networkIds);
@@ -288,11 +288,7 @@ public class NsiTopologyFactory {
 
                     // Log an error if we have more than one connectedTo
                     // relationship but continue.
-                    if (count == 0) {
-                        topologyLogger.logAudit(PceLogs.STP_NO_REMOTE_REFERNCE, portGroup.getId());
-                        
-                    }
-                    else if (count > 1) {
+                    if (count > 1) {
                         topologyLogger.errorAudit(PceErrors.STP_MULTIPLE_REMOTE_REFERNCES, portGroup.getId(), Integer.toString(count));
                     }
 
@@ -326,10 +322,7 @@ public class NsiTopologyFactory {
 
                     // Log an error if we have more than one connectedTo
                     // relationship but continue.
-                    if (count == 0) {
-                        topologyLogger.logAudit(PceLogs.STP_NO_REMOTE_REFERNCE, port.getId());
-                    }
-                    else if (count > 1) {
+                    if (count > 1) {
                         topologyLogger.errorAudit(PceErrors.STP_MULTIPLE_REMOTE_REFERNCES, port.getId(), Integer.toString(count));
                     }
 
