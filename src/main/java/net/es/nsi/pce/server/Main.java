@@ -24,6 +24,7 @@ public class Main {
     
     private static final String CONFIG_DEFAULT_PATH = "config/";
     public static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
+    public static final String LOCAL_NETWORK_ID = "localNetworkId";
     public static final String PCE_SERVER_CONFIG_NAME = "pce";
 
     // Keep running PCE while true.
@@ -65,6 +66,10 @@ public class Main {
         topologyOption.setRequired(true);
         options.addOption(topologyOption);
 
+        Option localNetworkOption = new Option(LOCAL_NETWORK_ID, true, "The id of your local network, e.g: urn:ogf:network:surfnet.nl:1990:testbed");
+        localNetworkOption.setRequired(false);
+        options.addOption(localNetworkOption);
+
         options.addOption("c", true, "Where you keep your other configfiles (defaults to ./config)");
         
         // Parse the command line options.
@@ -76,7 +81,7 @@ public class Main {
         } catch (ParseException e) {
             System.err.println("You did not provide the correct arguments, see usage below.");
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("java -jar pce.jar -topologyConfigFile [file] -c [configDir]", options );
+            formatter.printHelp("java -jar pce.jar  -c [configDir] -topologyConfigFile [file] [-localNetworkId=[NSI network Id]].\n Setting the localNetworkId implies that you want to run in Gang Of 3 (reachability-pce) mode", options );
             System.exit(1);
         }
 
@@ -87,6 +92,10 @@ public class Main {
         }
 
         System.setProperty("topologyProviderConfigPath", cmd.getOptionValue(TOPOLOGY_CONFIG_FILE_ARGNAME));
+
+        if (cmd.getOptionValue(LOCAL_NETWORK_ID) != null) {
+            System.setProperty(LOCAL_NETWORK_ID, cmd.getOptionValue(LOCAL_NETWORK_ID));
+        }
         // Load PCE configuration from disk.
         ConfigurationManager.INSTANCE.initialize(configPath);
 

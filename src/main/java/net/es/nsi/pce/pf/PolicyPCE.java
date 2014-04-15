@@ -5,7 +5,8 @@ import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 
 public class PolicyPCE implements PCEModule {
-    public PCEData apply(PCEData pceData) throws Exception {
+
+    public PCEData apply(PCEData pceData) {
         return pceData;
     }
 }

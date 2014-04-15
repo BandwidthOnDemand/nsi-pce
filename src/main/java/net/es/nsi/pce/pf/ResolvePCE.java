@@ -24,7 +24,7 @@ public class ResolvePCE implements PCEModule {
     private final Logger log = LoggerFactory.getLogger(getClass());
     
     @Override
-    public PCEData apply(PCEData pceData) throws Exception {
+    public PCEData apply(PCEData pceData) {
         NsiTopology topology = pceData.getTopology();
 
         for (PathSegment segment : pceData.getPath().getPathSegments()) {

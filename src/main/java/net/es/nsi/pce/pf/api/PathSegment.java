@@ -5,8 +5,6 @@
 package net.es.nsi.pce.pf.api;
 
 import java.io.Serializable;
-import java.util.Set;
-import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.pf.api.cons.Constraints;
 
 /**
@@ -21,6 +19,12 @@ public class PathSegment implements Serializable {
     private StpPair stpPair;
     private Constraints constraints = new Constraints();
 
+    public PathSegment() {
+    }
+    
+    public PathSegment(StpPair stpPair) {
+        this.stpPair = stpPair;
+    }
     /**
      * @return the nsaId
      */

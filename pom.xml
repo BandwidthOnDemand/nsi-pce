@@ -134,13 +134,12 @@
             <version>3.2</version>
             <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>1.2</version>
         </dependency>
-
 
         <!-- graphs -->
         <dependency>
@@ -160,7 +159,7 @@
             <artifactId>jung-visualization</artifactId>
             <version>${jung.version}</version>
             <scope>compile</scope>
-        </dependency>        
+        </dependency>
 
         <!-- For HTTP header utilities. -->
         <dependency>
@@ -175,31 +174,41 @@
             <artifactId>nsi-nsa-db</artifactId>
             <version>1.0</version>
         </dependency>
-        
+
         <dependency>
-          <groupId>com.typesafe.akka</groupId>
-          <artifactId>akka-actor_2.10</artifactId>
-          <version>2.3.0-RC4</version>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-actor_2.10</artifactId>
+            <version>2.3.0-RC4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.9.5</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
         </dependency>
      </dependencies>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>jaxb2-maven-plugin</artifactId>
-                    <version>1.5</version>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.1</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -214,6 +223,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>1.5</version>
                 <executions>
                   <execution>
                     <id>pce.rest.api</id>
@@ -316,7 +326,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -328,7 +338,7 @@
                     <argLine>-Djavax.net.ssl.trustStorePassword=changeit</argLine>   
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>2.5</version>

@@ -72,4 +72,13 @@
             </list>
         </property>
     </bean>
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+
+    <!-- Reachability / GangOf3 PCE.
+    <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE" >
+      <constructor-arg index="0" ref="serviceInfoProvider" />
+      <constructor-arg index="1" value="${localNetworkId}" />
+    </bean>
+    -->
 </beans>
