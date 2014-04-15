@@ -1,7 +1,9 @@
 package net.es.nsi.pce.pf;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -11,14 +13,13 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
+
 import java.util.HashMap;
 
-import net.es.nsi.pce.config.nsa.ServiceInfo;
 import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
 import net.es.nsi.pce.path.services.Point2Point;
 import net.es.nsi.pce.pf.api.NsiError;
@@ -71,7 +72,14 @@ public class ReachabilityPCE implements PCEModule {
 
     @Override
     public PCEData apply(PCEData pceData) {
-        Optional<Path> path = findPath(pceData);
+        checkNotNull(pceData.getConnectionTrace(), "No connection trace was provided");
+        checkNotNull(pceData.getTopology(), "No topology was provided");
+
+        Constraints constraints = pceData.getAttrConstraints();
+        Stp sourceStp = findSourceStp(constraints);
+        Stp destStp = findDestinationStp(constraints);
+
+        Optional<Path> path = findPath(sourceStp, destStp, pceData.getTopology(), pceData.getTopology().getReachabilityTable(), pceData.getConnectionTrace());
 
         if (path.isPresent()) {
             pceData.setPath(path.get());
@@ -81,52 +89,18 @@ public class ReachabilityPCE implements PCEModule {
     }
 
     @VisibleForTesting
-    protected Optional<Path> findPath(PCEData pceData) {
-
-        if (pceData.getConnectionTrace() == null) {
-            throw new IllegalArgumentException("No connection trace provided, can't continue.");
-        }
-        
-        // Disctance vectors are available in NSA objects within topology.
-        Map<String, Map<String, Integer>> reachabilityTable = getReachabilityTable(pceData.getTopology());
-        
-        Constraints constraints = pceData.getAttrConstraints();
-        Stp sourceStp = findSourceStp(constraints);
-        Stp destStp = findDestinationStp(constraints);
-
+    protected Optional<Path> findPath(Stp sourceStp, Stp destStp, NsiTopology topology, Map<String, Map<String, Integer>> reachabilityTable, List<String> connectionTrace) {
         if (isInMyNetwork(sourceStp)) {
             if (isInMyNetwork(destStp)) {
                 return onlyLocalPath(sourceStp, destStp);
             } else {
-                return findSplitPath(sourceStp, destStp, pceData.getTopology(), reachabilityTable, pceData.getConnectionTrace());
+                return findSplitPath(sourceStp, destStp, topology, reachabilityTable, connectionTrace);
             }
         } else if (isInMyNetwork(destStp)) {
-            return findSplitPath(destStp, sourceStp, pceData.getTopology(), reachabilityTable, pceData.getConnectionTrace());
+            return findSplitPath(destStp, sourceStp, topology, reachabilityTable, connectionTrace);
         } else {
-            return findForwardPath(sourceStp, destStp, reachabilityTable, pceData.getConnectionTrace());
+            return findForwardPath(sourceStp, destStp, topology, reachabilityTable, connectionTrace);
         }
-    }
-    
-    // If we model this correctly then each NSA would have a reachability table
-    // for each network it supports.  I assumed this is currently:
-    //          Map<nsaId, Map<remoteNetworkId, cost>>
-    // However, we could model this as:
-    //          Map<nsaId, Map<localNetworkId, Map<remoteNetworkId, cost>>>.
-    //
-    private Map<String, Map<String, Integer>> getReachabilityTable(NsiTopology topology) {
-        Map<String, Map<String, Integer>> table = new HashMap<>();
-        for (NsaType nsa : topology.getNsas()) {
-            Map<String, Integer> vectors = new HashMap<>();
-            for (ReachabilityType reachability : nsa.getReachability()) {
-                // reachability.getId(); <-- local network this reachability is for.
-                for (VectorType vector : reachability.getVector()) {
-                    vectors.put(vector.getId(), vector.getCost());
-                }
-            }
-            table.put(nsa.getId(), vectors);
-        }
-        
-        return table;
     }
 
     private Stp findSourceStp(Constraints constraints) {
@@ -148,7 +122,7 @@ public class ReachabilityPCE implements PCEModule {
     }
 
     private Optional<Path> onlyLocalPath(Stp sourceStp, Stp destStp) {
-        Preconditions.checkArgument(sourceStp.getNetworkId().equals(destStp.getNetworkId()));
+        checkArgument(sourceStp.getNetworkId().equals(destStp.getNetworkId()));
 
         return Optional.of(new Path(new PathSegment(new StpPair(sourceStp.toStpType(), destStp.toStpType()))));
     }
@@ -160,39 +134,58 @@ public class ReachabilityPCE implements PCEModule {
         checkNotIntroducingLoop(remoteNsa, connectionTrace);
 
         Optional<SdpType> connectingSdp = remoteNsa.isPresent() ?
-            findConnectingSdp(localStp.getNetworkId(), remoteNsa.get().getNetworkId(), topology) : Optional.<SdpType>absent();
+            findConnectingSdp(localStp.getNetworkId(), remoteNsa.get().getNsaId(), topology) : Optional.<SdpType>absent();
 
         if (!connectingSdp.isPresent()) {
             throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, Point2Point.NAMESPACE, Point2Point.DESTSTP));
         }
 
         Stp localIntermediateStp = findStpFromSdp(connectingSdp.get(), localStp.getNetworkId());
-        Stp remoteIntermediateStp = findStpFromSdp(connectingSdp.get(), remoteNsa.get().getNetworkId());
+        Stp remoteIntermediateStp = findOtherStpFromSdp(connectingSdp.get(), localIntermediateStp);
 
         StpPair localStpPair = new StpPair(localStp.toStpType(), localIntermediateStp.toStpType());
-        StpPair remoteSptPair = new StpPair(remoteIntermediateStp.toStpType(), remoteStp.toStpType());
+        StpPair remoteStpPair = new StpPair(remoteIntermediateStp.toStpType(), remoteStp.toStpType());
 
-        return Optional.of(new Path(new PathSegment(localStpPair), new PathSegment(remoteSptPair)));
+        return Optional.of(new Path(new PathSegment(localStpPair), new PathSegment(remoteStpPair)));
+    }
+
+    private Stp findOtherStpFromSdp(SdpType sdp, Stp stp) {
+        if (sdp.getDemarcationA().getNetwork().getId().equals(stp.getNetworkId())) {
+            return Stp.fromDemarcation(sdp.getDemarcationZ());
+        } else {
+            return Stp.fromDemarcation(sdp.getDemarcationA());
+        }
     }
 
     private Stp findStpFromSdp(SdpType sdp, String networkId) {
         return sdp.getDemarcationA().getNetwork().getId().equals(networkId) ? Stp.fromDemarcation(sdp.getDemarcationA()) : Stp.fromDemarcation(sdp.getDemarcationZ());
     }
 
-    private Optional<SdpType> findConnectingSdp(String networkIdA, String networkIdZ, NsiTopology topology) {
-        for (SdpType sdp : topology.getSdps()) {
-            if (sdp.getDemarcationA().getNetwork().getId().equals(networkIdA) && sdp.getDemarcationZ().getNetwork().getId().equals(networkIdZ)) {
-                return Optional.of(sdp);
-            } else if (sdp.getDemarcationA().getNetwork().getId().equals(networkIdZ) && sdp.getDemarcationZ().getNetwork().getId().equals(networkIdA)) {
-                return Optional.of(sdp);
+    private Optional<SdpType> findConnectingSdp(String networkId, String nsaId, NsiTopology topology) {
+        List<ResourceRefType> remoteNetworks = topology.getNsa(nsaId).getNetwork();
+        for (ResourceRefType network : remoteNetworks) {
+            Optional<SdpType> sdp = findSdp(networkId, network.getId(), topology.getSdps());
+            if (sdp.isPresent()) {
+                return sdp;
             }
         }
 
         return Optional.absent();
     }
 
+    private Optional<SdpType> findSdp(String networkIdA, String networkIdZ, Collection<SdpType> sdps) {
+        for (SdpType sdp : sdps) {
+            if (sdp.getDemarcationA().getNetwork().getId().equals(networkIdA) && sdp.getDemarcationZ().getNetwork().getId().equals(networkIdZ)) {
+                return Optional.of(sdp);
+            } else if (sdp.getDemarcationA().getNetwork().getId().equals(networkIdZ) && sdp.getDemarcationZ().getNetwork().getId().equals(networkIdA)) {
+                return Optional.of(sdp);
+            }
+        }
+        return Optional.absent();
+    }
+
     @VisibleForTesting
-    protected Optional<Path> findForwardPath(final Stp sourceStp, final Stp destStp, Map<String, Map<String, Integer>> reachabilityTable, List<String> connectionTrace) {
+    protected Optional<Path> findForwardPath(final Stp sourceStp, final Stp destStp, final NsiTopology topology, Map<String, Map<String, Integer>> reachabilityTable, List<String> connectionTrace) {
         final Optional<Reachability> forwardNsa = findCheapestForwardNsa(sourceStp, destStp, reachabilityTable);
 
         checkNotIntroducingLoop(forwardNsa, connectionTrace);
@@ -200,8 +193,9 @@ public class ReachabilityPCE implements PCEModule {
         return forwardNsa.transform(new Function<Reachability, Path>() {
             @Override
             public Path apply(Reachability reachability) {
-                StpType a = createStpType(sourceStp.getId(), forwardNsa.get().getNetworkId());
-                StpType z = createStpType(destStp.getId(), forwardNsa.get().getNetworkId());
+                String forwardNetworkId = topology.getNsa(forwardNsa.get().getNsaId()).getNetwork().iterator().next().getId();
+                StpType a = createStpType(sourceStp.getId(), forwardNetworkId);
+                StpType z = createStpType(destStp.getId(), forwardNetworkId);
                 return new Path(new PathSegment(new StpPair(a, z)));
             }
         });
@@ -241,12 +235,7 @@ public class ReachabilityPCE implements PCEModule {
             if (nsaCosts.getValue().containsKey(networkId)) {
                 Integer nsaCost = nsaCosts.getValue().get(networkId);
                 if (!reachability.isPresent() || reachability.get().getCost() > nsaCost) {
-                    String nsaId = nsaCosts.getKey();
-                    
-                    // ServiceInfo is no longer supported.  NsiTopology has all
-                    // information required.  This networkId corresponds to???
-                    ServiceInfo serviceInfo = serviceInfoProvider.byNsaId(nsaId);
-                    reachability = Optional.of(new Reachability(nsaCost, serviceInfo.getNetworkId(), nsaId));
+                    reachability = Optional.of(new Reachability(nsaCost, nsaCosts.getKey()));
                 }
             }
         }
@@ -290,19 +279,14 @@ public class ReachabilityPCE implements PCEModule {
 
     public static class Reachability {
         private final Integer cost;
-        private final String networkId;
         private final String nsaId;
 
-        public Reachability(Integer cost, String networkId, String nsaId) {
+        public Reachability(Integer cost, String nsaId) {
             this.cost = cost;
-            this.networkId = networkId;
             this.nsaId = nsaId;
         }
         public Integer getCost() {
             return cost;
-        }
-        public String getNetworkId() {
-            return networkId;
         }
         public String getNsaId() {
             return nsaId;
