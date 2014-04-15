@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response;
 
 import org.springframework.context.ApplicationContext;
 
+import com.google.common.base.Optional;
 import com.google.gson.Gson;
 
 import net.es.nsi.pce.config.SpringContext;
@@ -23,13 +24,13 @@ import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 
 @Path("/reachability")
+// Todo make this bean spring-managed and thus eleminate the calls to the ApplicationContext
 public class ReachabilityService {
 
     @GET
     public Response reachability() {
 
         SpringContext sc  = SpringContext.getInstance();
-
         final ApplicationContext applicationContext = sc.getContext();
         TopologyProvider topologyProvider = (TopologyProvider) applicationContext.getBean("topologyProvider");
         final NsiTopology topology = topologyProvider.getTopology();
@@ -37,19 +38,17 @@ public class ReachabilityService {
 
 
         List<Map<String,Object>> entries = new ArrayList<>();
-        for (NsaType nsa : topology.getNsas()) {
-            for (ReachabilityType reachability : nsa.getReachability()) {
-                if (reachability.getId().equals(localNetworkId)) {
-                    for (VectorType vector : reachability.getVector()) {
-                        Map<String, Object> entry = new HashMap<>();
-                        entry.put("id", vector.getId());
-                        entry.put("cost", vector.getCost());
-                        entries.add(entry);
-                    }
-                }
-            }
+        final Optional<ReachabilityType> ourReachability = findOurReachability(topology, localNetworkId);
+        if (!ourReachability.isPresent() ) {
+            throw new RuntimeException("No reachability information found for our local network id: " + localNetworkId);
         }
 
+        for (VectorType vector : ourReachability.get().getVector()) {
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("id", vector.getId());
+            entry.put("cost", vector.getCost());
+            entries.add(entry);
+        }
         Map<String, Object> jsonHolder = new HashMap<>();
 
         jsonHolder.put("reachability", entries);
@@ -57,5 +56,16 @@ public class ReachabilityService {
         Gson gson = new Gson();
         final String s = gson.toJson(jsonHolder);
         return  Response.ok().header("Content-type", "application/json").entity(s).build();
+    }
+
+    private Optional<ReachabilityType> findOurReachability(NsiTopology topology, String localNetworkId) {
+        for (NsaType nsa : topology.getNsas()) {
+            for (ReachabilityType reachability : nsa.getReachability()) {
+                if (reachability.getId().equals(localNetworkId)) {
+                    return Optional.of(reachability);
+                }
+            }
+        }
+        return Optional.absent();
     }
 }
