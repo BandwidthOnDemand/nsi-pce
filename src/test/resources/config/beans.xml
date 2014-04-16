@@ -9,7 +9,7 @@
     <bean id="httpConfigProvider" class="net.es.nsi.pce.config.http.JsonHttpConfigProvider" init-method="loadConfig" scope="singleton">
         <property name="filename" value="src/test/resources/config/http.json"/>
     </bean>
-    
+
     <bean id="pceServer" class="net.es.nsi.pce.server.PCEServer" scope="singleton">
         <constructor-arg index="0" ref="httpConfigProvider"/>
     </bean>
@@ -21,9 +21,9 @@
     <bean id="documentCache" class="net.es.nsi.pce.discovery.dao.DocumentCache" init-method="load" scope="singleton">
         <constructor-arg index="0" ref="discoveryConfiguration"/>
     </bean>
-    
+
     <bean id="remoteSubscriptionCache" class="net.es.nsi.pce.discovery.dao.RemoteSubscriptionCache" scope="singleton" />
-    
+
     <bean id="ddsActorSystem" class="net.es.nsi.pce.discovery.actors.DdsActorSystem" init-method="init" scope="singleton" depends-on="remoteSubscriptionCache, pceServer">
         <constructor-arg index="0" ref="discoveryConfiguration"/>
         <constructor-arg index="1" ref="documentCache"/>
@@ -42,18 +42,22 @@
     <bean id="topologyProvider" class="net.es.nsi.pce.topology.provider.DdsTopologyProvider" init-method="init" scope="singleton" depends-on="discoveryProvider">
         <constructor-arg index="0" ref="topologyConfiguration"/>
     </bean>
+
     <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE" >
-        <constructor-arg index="0" value="${localNetworkId}" />
+        <constructor-arg index="0" ref="localNetworkId" />
     </bean>
-    
+    <bean id="localNetworkId" class="java.lang.String">
+      <constructor-arg value="${localNetworkId}"/>
+    </bean>
+
     <bean id="dijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" />
-    
+
     <bean id="authPCE" class="net.es.nsi.pce.pf.AuthPCE" />
-    
+
     <bean id="policyPCE" class="net.es.nsi.pce.pf.AuthPCE" />
-    
+
     <bean id="resolvePCE" class="net.es.nsi.pce.pf.ResolvePCE" />
-    
+
     <bean id="chainPCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
         <property name="moduleList">
             <list>
@@ -64,7 +68,7 @@
             </list>
         </property>
     </bean>
-    
+
     <bean id="treePCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
         <property name="moduleList">
             <list>
@@ -75,4 +79,6 @@
             </list>
         </property>
     </bean>
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
 </beans>
