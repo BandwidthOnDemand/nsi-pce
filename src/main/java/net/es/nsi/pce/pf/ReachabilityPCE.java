@@ -219,7 +219,6 @@ public class ReachabilityPCE implements PCEModule {
 
         if (sourceCost.isPresent()) {
             if (destCost.isPresent()) {
-                // TODO when costs are equal always return source except when source is in connection trace
                 return sourceCost.get().getCost() <= destCost.get().getCost() ? sourceCost : destCost;
             } else {
                 return sourceCost;
