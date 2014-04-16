@@ -22,16 +22,11 @@ import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.VectorType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  *
  * @author hacksaw
  */
 public class NsiTopology {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
     // The NSI Topology model.
     private String localNsaId;
     private List<String> localNetworks = new CopyOnWriteArrayList<>();
@@ -476,6 +471,14 @@ public class NsiTopology {
      */
     public void setLocalNsaId(String localNsaId) {
         this.localNsaId = localNsaId;
+    }
+
+    public String getLocalProviderUrl() {
+        return getProviderUrl(getLocalNsaId());
+    }
+
+    public String getProviderUrl(String nsaId) {
+        return getNsa(nsaId).getHref();
     }
 
     /**

@@ -43,33 +43,21 @@
         <constructor-arg index="0" ref="topologyConfiguration"/>
     </bean>
 
-    <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE" >
-        <constructor-arg index="0" ref="localNetworkId" />
-    </bean>
-    <bean id="localNetworkId" class="java.lang.String">
-      <constructor-arg value="${localNetworkId}"/>
-    </bean>
-
+    <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE"/>
     <bean id="dijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" />
-
     <bean id="authPCE" class="net.es.nsi.pce.pf.AuthPCE" />
-
     <bean id="policyPCE" class="net.es.nsi.pce.pf.AuthPCE" />
-
     <bean id="resolvePCE" class="net.es.nsi.pce.pf.ResolvePCE" />
 
-    <bean id="chainPCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
+    <bean id="chainPCE" class="net.es.nsi.pce.pf.SequentialPCE">
         <property name="moduleList">
             <list>
-                <ref bean="authPCE" />
-                <ref bean="policyPCE" />
                 <ref bean="reachabilityPCE" />
-                <ref bean="resolvePCE" />
             </list>
         </property>
     </bean>
 
-    <bean id="treePCE" class="net.es.nsi.pce.pf.SequentialPCE" scope="singleton">
+    <bean id="treePCE" class="net.es.nsi.pce.pf.SequentialPCE">
         <property name="moduleList">
             <list>
                 <ref bean="authPCE" />

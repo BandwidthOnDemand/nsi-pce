@@ -16,15 +16,14 @@ import net.es.nsi.pce.config.ConfigurationManager;
  * runtime configuration is loaded from disk, the HTTP server is started, and
  * a shutdown hook is added to monitor for termination conditions and clean up
  * services.
- * 
+ *
  * @author hacksaw
  */
 public class Main {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
-    
+
     private static final String CONFIG_DEFAULT_PATH = "config/";
     public static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
-    public static final String LOCAL_NETWORK_ID = "localNetworkId";
     public static final String PCE_SERVER_CONFIG_NAME = "pce";
 
     // Keep running PCE while true.
@@ -33,7 +32,7 @@ public class Main {
     /**
      * Returns a boolean indicating whether the PCE should continue running
      * (true) or should terminate (false).
-     * 
+     *
      * @return true if the PCE should be running, false otherwise.
      */
     public static boolean isKeepRunning() {
@@ -42,7 +41,7 @@ public class Main {
 
     /**
      * Set whether the PCE should be running (true) or terminated (false).
-     * 
+     *
      * @param keepRunning true if the PCE should be running, false otherwise.
      */
     public static void setKeepRunning(boolean keepRunning) {
@@ -52,11 +51,10 @@ public class Main {
     /**
      * Main initialization and execution thread for the NSI Path Computation
      * Engine.  Method will loop until a signal is received to shutdown.
-     * 
+     *
      * @param args No arguments are accepted.
      * @throws Exception If anything fails during initialization.
      */
-    @SuppressWarnings({"ResultOfMethodCallIgnored"})
     public static void main(String[] args) throws Exception {
         // Create Options object to hold our command line options.
         Options options = new Options();
@@ -66,12 +64,8 @@ public class Main {
         topologyOption.setRequired(true);
         options.addOption(topologyOption);
 
-        Option localNetworkOption = new Option(LOCAL_NETWORK_ID, true, "The id of your local network, e.g: urn:ogf:network:surfnet.nl:1990:testbed");
-        localNetworkOption.setRequired(false);
-        options.addOption(localNetworkOption);
-
         options.addOption("c", true, "Where you keep your other configfiles (defaults to ./config)");
-        
+
         // Parse the command line options.
         CommandLineParser parser = new GnuParser();
 
@@ -92,10 +86,6 @@ public class Main {
         }
 
         System.setProperty("topologyProviderConfigPath", cmd.getOptionValue(TOPOLOGY_CONFIG_FILE_ARGNAME));
-
-        if (cmd.getOptionValue(LOCAL_NETWORK_ID) != null) {
-            System.setProperty(LOCAL_NETWORK_ID, cmd.getOptionValue(LOCAL_NETWORK_ID));
-        }
 
         // Load PCE configuration from disk.
         ConfigurationManager.INSTANCE.initialize(configPath);

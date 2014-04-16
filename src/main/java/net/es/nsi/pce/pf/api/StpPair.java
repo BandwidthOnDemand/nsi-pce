@@ -16,15 +16,6 @@ public class StpPair implements Cloneable {
         this.z = z;
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) return true;
-        if (! (other instanceof StpType)) return false;
-
-        StpPair that = (StpPair) other;
-        return this.getA().equals(that.getA()) && this.getZ().equals(that.getZ());
-    }
-
     public StpType getA() {
         return a;
     }
@@ -43,4 +34,12 @@ public class StpPair implements Cloneable {
         return new StpPair(a, z);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (! (other instanceof StpType)) return false;
+
+        StpPair that = (StpPair) other;
+        return this.getA().equals(that.getA()) && this.getZ().equals(that.getZ());
+    }
 }

@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.base.Optional;
@@ -20,7 +21,6 @@ import net.es.nsi.pce.pf.ReachabilityPCE.Stp;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.PathSegment;
-import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
@@ -31,8 +31,26 @@ import net.es.nsi.pce.topology.model.NsiTopology;
 public class ReachabilityPCETest {
 
     private final static String LOCAL_NETWORK_ID = "urn:ogf:network:local.net:1970:topology";
+    private final static String LOCAL_NSA_ID = "urn:ogf:network:local.net:1970:nsa";
 
-    private ReachabilityPCE subject = new ReachabilityPCE(LOCAL_NETWORK_ID);
+    private ReachabilityPCE subject = new ReachabilityPCE();
+
+    private NsiTopology topologyMock;
+
+    @Before
+    public void setupTopology() {
+        topologyMock = mock(NsiTopology.class);
+        NsaType localNsa = mock(NsaType.class);
+        ResourceRefType localNetwork = mock(ResourceRefType.class);
+
+        when(topologyMock.getLocalNsaId()).thenReturn(LOCAL_NSA_ID);
+        when(topologyMock.getNsa(LOCAL_NSA_ID)).thenReturn(localNsa);
+        when(topologyMock.getLocalProviderUrl()).thenReturn("http://localhost/provider");
+        when(topologyMock.getProviderUrl(anyString())).thenCallRealMethod();
+        when(topologyMock.getLocalNetworks()).thenReturn(Arrays.asList(LOCAL_NETWORK_ID));
+        when(localNsa.getNetwork()).thenReturn(Arrays.asList(localNetwork));
+        when(localNsa.getHref()).thenReturn("http://localhost/provider");
+    }
 
     @Test(expected = IllegalArgumentException.class)
     public void should_throw_exception_when_missing_source_stp() {
@@ -64,19 +82,18 @@ public class ReachabilityPCETest {
 
         PCEData pceData = new PCEData(source, destination);
         pceData.setTrace(Collections.<String>emptyList());
+        pceData.setTopology(topologyMock);
 
         PCEData reply = subject.apply(pceData);
         Path path = reply.getPath();
 
-        assertTrue(path.getPathSegments().size() == 1);
+        assertThat(path.getPathSegments().size(), is(1));
 
-        StpPair pair = path.getPathSegments().get(0).getStpPair();
-        assertTrue(pair.getA().getNetworkId().equals(pair.getZ().getNetworkId())
-                && pair.getA().getNetworkId().equals(LOCAL_NETWORK_ID));
+        assertPathSegment(path.getPathSegments().iterator().next(), sourceStp, destStp, LOCAL_NSA_ID);
     }
 
     @Test
-    public void should_split_up_request_if_src_or_dest_belongs_to_local_network() {
+    public void should_split_up_request_if_src_belongs_to_local_network() {
         String sourceStp = LOCAL_NETWORK_ID + ":start";
         String destNetworkId= "urn:ogf:network:bar:1980:topology";
         String destStp = destNetworkId + ":end";
@@ -92,18 +109,19 @@ public class ReachabilityPCETest {
 
         SdpType sdp = createSdpType(LOCAL_NETWORK_ID, peerNetworkId, "surf-intermediate", "peer-intermediate");
 
-        NsiTopology topology = mock(NsiTopology.class);
-        NsaType nsa = mock(NsaType.class);
+        NsaType peerNsa = mock(NsaType.class);
+        when(topologyMock.getSdps()).thenReturn(Arrays.asList(sdp));
         ResourceRefType network = mock(ResourceRefType.class);
-        when(topology.getReachabilityTable()).thenReturn(reachabilityTable);
-        when(topology.getNsa(peerNsaId)).thenReturn(nsa);
-        when(nsa.getNetwork()).thenReturn(Arrays.asList(network));
+        when(topologyMock.getReachabilityTable()).thenReturn(reachabilityTable);
+        when(topologyMock.getNsa(peerNsaId)).thenReturn(peerNsa);
+        when(topologyMock.getSdps()).thenReturn(Arrays.asList(sdp));
+        when(peerNsa.getNetwork()).thenReturn(Arrays.asList(network));
+        when(peerNsa.getHref()).thenReturn("http://foo.bar/provider");
         when(network.getId()).thenReturn(peerNetworkId);
-        when(topology.getSdps()).thenReturn(Arrays.asList(sdp));
 
         PCEData pceData = new PCEData(source, destination);
         pceData.setTrace(Collections.<String>emptyList());
-        pceData.setTopology(topology);
+        pceData.setTopology(topologyMock);
 
         PCEData reply = subject.apply(pceData);
 
@@ -112,9 +130,9 @@ public class ReachabilityPCETest {
         assertEquals(2, path.getPathSegments().size());
 
         // the first pair must be the segment we can provide: from source stp to the SDP that talks to the appropriate peer
-        assertPair(path.getPathSegments().get(0).getStpPair(), LOCAL_NETWORK_ID, LOCAL_NETWORK_ID, sourceStp, LOCAL_NETWORK_ID + ":surf-intermediate");
+        assertPathSegment(path.getPathSegments().get(0), sourceStp, LOCAL_NETWORK_ID + ":surf-intermediate", LOCAL_NSA_ID);
         // the second pair should be the remainder of the path to be computed by upstream peer
-        assertPair(path.getPathSegments().get(1).getStpPair(), peerNetworkId, destNetworkId, peerNetworkId + ":peer-intermediate", destStp);
+        assertPathSegment(path.getPathSegments().get(1), peerNetworkId + ":peer-intermediate", destStp, peerNsaId);
     }
 
     @Test
@@ -123,22 +141,17 @@ public class ReachabilityPCETest {
         String destStp = "urn:ogf:network:es.net:2013:topology:end";
 
         String peerNsaId = "urn:ogf:network:foo:2013:nsa";
-        String peerNetworkId = "urn:ogf:network:foo:2013:topology";
 
         Map<String, Integer> costs = ImmutableMap.of("urn:ogf:network:surfnet.nl:1990:topology", 5, "urn:ogf:network:es.net:2013:topology", 10);
         ImmutableMap<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaId, costs);
 
         NsiTopology topology = mock(NsiTopology.class);
-        NsaType peerNsa = mock(NsaType.class);
-        ResourceRefType resourceRefType = mock(ResourceRefType.class);
-        when(topology.getNsa(peerNsaId)).thenReturn(peerNsa);
-        when(peerNsa.getNetwork()).thenReturn(Arrays.asList(resourceRefType));
-        when(resourceRefType.getId()).thenReturn(peerNetworkId);
 
         Optional<Path> path = subject.findPath(Stp.fromStpId(sourceStp), Stp.fromStpId(destStp), topology, reachabilityTable, Collections.<String>emptyList());
 
         assertTrue(path.isPresent());
-        assertPair(path.get().getPathSegments().iterator().next().getStpPair(), peerNetworkId, peerNetworkId, sourceStp, destStp);
+
+        assertPathSegment(path.get().getPathSegments().iterator().next(), sourceStp, destStp, peerNsaId);
     }
 
     @Test
@@ -153,24 +166,24 @@ public class ReachabilityPCETest {
 
         SdpType sdp = createSdpType(surfnetNetworkId, peerNetworkId, "surf-intermediate", "peer-intermediate");
 
-        NsiTopology topology = mock(NsiTopology.class);
         NsaType nsa = mock(NsaType.class);
         ResourceRefType network = mock(ResourceRefType.class);
-        when(topology.getNsa(peerNsaId)).thenReturn(nsa);
+
+        when(topologyMock.getNsa(peerNsaId)).thenReturn(nsa);
         when(nsa.getNetwork()).thenReturn(Arrays.asList(network));
         when(network.getId()).thenReturn(peerNetworkId);
-        when(topology.getSdps()).thenReturn(Arrays.asList(sdp));
+        when(topologyMock.getSdps()).thenReturn(Arrays.asList(sdp));
 
         Map<String, Integer> costs = ImmutableMap.of(esnetNetworkId, 5);
         Map<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaId, costs);
 
-        Optional<Path> path = subject.findSplitPath(localStp, remoteStp, topology, reachabilityTable, Collections.<String>emptyList());
+        Optional<Path> path = subject.findSplitPath(localStp, remoteStp, topologyMock, reachabilityTable, Collections.<String>emptyList());
 
         assertTrue(path.isPresent());
         assertThat(path.get().getPathSegments().size(), is(2));
 
-        assertPair(path.get().getPathSegments().get(0).getStpPair(), surfnetNetworkId, surfnetNetworkId, localStp.getId(), surfnetNetworkId + ":surf-intermediate");
-        assertPair(path.get().getPathSegments().get(1).getStpPair(), peerNetworkId, esnetNetworkId, peerNetworkId + ":peer-intermediate", remoteStp.getId());
+        assertPathSegment(path.get().getPathSegments().get(0), localStp.getId(), surfnetNetworkId + ":surf-intermediate", LOCAL_NSA_ID);
+        assertPathSegment(path.get().getPathSegments().get(1), peerNetworkId + ":peer-intermediate", remoteStp.getId(), peerNsaId);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -191,22 +204,15 @@ public class ReachabilityPCETest {
     @Test
     public void should_find_forward_path() {
         String surfnetNetworkId = "urn:ogf:network:surfnet.nl:1990:topology";
+        String peerNsaId = "urn:ogf:network:foo:2013:nsa";
 
         Stp sourceStp = ReachabilityPCE.Stp.fromStpId(surfnetNetworkId + ":start");
         Stp destStp = ReachabilityPCE.Stp.fromStpId("urn:ogf:network:es.net:2013:topology:end");
-
-        String peerNsaId = "urn:ogf:network:foo:2013:nsa";
-        String peerNetworkId = "urn:ogf:network:foo:2013:topology";
 
         Map<String, Integer> costs = ImmutableMap.of(surfnetNetworkId, 5, "urn:ogf:network:es.net:2013:topology", 10);
         Map<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaId, costs);
 
         NsiTopology topology = mock(NsiTopology.class);
-        NsaType peerNsa = mock(NsaType.class);
-        ResourceRefType resourceRefType = mock(ResourceRefType.class);
-        when(topology.getNsa(peerNsaId)).thenReturn(peerNsa);
-        when(peerNsa.getNetwork()).thenReturn(Arrays.asList(resourceRefType));
-        when(resourceRefType.getId()).thenReturn(peerNetworkId);
 
         Optional<Path> path = subject.findForwardPath(sourceStp, destStp, topology, reachabilityTable, Collections.<String>emptyList());
 
@@ -215,7 +221,7 @@ public class ReachabilityPCETest {
         List<PathSegment> pathSegments = path.get().getPathSegments();
         assertThat(pathSegments.size(), is(1));
 
-        assertPair(pathSegments.get(0).getStpPair(), peerNetworkId, peerNetworkId, sourceStp.getId(), destStp.getId());
+        assertPathSegment(pathSegments.get(0), sourceStp.getId(), destStp.getId(), peerNsaId);
     }
 
     @Test
@@ -228,22 +234,16 @@ public class ReachabilityPCETest {
 
         String peerNsaIdOne = "urn:ogf:network:foo:2013:nsa";
         String peerNsaIdTwo = "urn:ogf:network:bar:2013:nsa";
-        String peerNetworkIdOne = "urn:ogf:network:foo:2013:topology";
 
         Map<String, Integer> costsOne = ImmutableMap.of(sourceNetworkId, 5);
         Map<String, Integer> costsTwo = ImmutableMap.of(destNetworkId, 5);
         ImmutableMap<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaIdOne, costsOne, peerNsaIdTwo, costsTwo);
 
         NsiTopology topology = mock(NsiTopology.class);
-        NsaType peerNsa = mock(NsaType.class);
-        ResourceRefType resourceRefType = mock(ResourceRefType.class);
-        when(topology.getNsa(peerNsaIdOne)).thenReturn(peerNsa);
-        when(peerNsa.getNetwork()).thenReturn(Arrays.asList(resourceRefType));
-        when(resourceRefType.getId()).thenReturn(peerNetworkIdOne);
 
         Optional<Path> path = subject.findForwardPath(sourceStp, destStp, topology, reachabilityTable, Collections.<String>emptyList());
 
-        assertThat(path.get().getPathSegments().iterator().next().getStpPair().getA().getNetworkId(), is(peerNetworkIdOne));
+        assertThat(path.get().getPathSegments().iterator().next().getNsaId(), is(peerNsaIdOne));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -355,11 +355,10 @@ public class ReachabilityPCETest {
         return source;
     }
 
-    private void assertPair(StpPair pair, String networkA, String networkZ, String portA, String portZ) {
-        assertEquals(networkA, pair.getA().getNetworkId());
-        assertEquals(networkZ, pair.getZ().getNetworkId());
-        assertEquals(portA, pair.getA().getId());
-        assertEquals(portZ, pair.getZ().getId());
+    private void assertPathSegment(PathSegment segment, String stpIdA, String stpIdZ, String nsaId) {
+        assertEquals(stpIdA, segment.getStpPair().getA().getId());
+        assertEquals(stpIdZ, segment.getStpPair().getZ().getId());
+        assertEquals(nsaId, segment.getNsaId());
     }
 
     private SdpType createSdpType(String networkIdA, String networkIdZ, String portA, String portZ) {

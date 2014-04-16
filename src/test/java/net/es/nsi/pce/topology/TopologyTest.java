@@ -33,14 +33,14 @@ import org.glassfish.jersey.test.TestProperties;
 
 public class TopologyTest extends JerseyTest {
     private final static String CONFIG_DIR = "src/test/resources/config/";
-    
+
     final WebTarget topology = target().path("topology");
-    
+
     @Override
     protected Application configure() {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
-        
+
         // Configure test instance of PCE server.
         try {
             ConfigurationManager.INSTANCE.initialize(CONFIG_DIR);
@@ -54,8 +54,6 @@ public class TopologyTest extends JerseyTest {
         app.getProperties();
         return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceConfig().getPackageName());
     }
-    
-
 
     @Override
     protected void configureClient(ClientConfig clientConfig) {
@@ -75,7 +73,7 @@ public class TopologyTest extends JerseyTest {
         // Get a list of all topology resources.
         Response response = topology.request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        
+
         // The test topology is too big for a single blocking read so we need
         // to use the jersey client chunked read.  It would appear that a single
         // read is all that is required for this JSON based message.
@@ -86,9 +84,9 @@ public class TopologyTest extends JerseyTest {
             System.out.println("Chunk received...");
             finalTopology = chunk;
         }
-        
+
         assertNotNull(finalTopology);
-        
+
         System.out.println("Nsa: " + finalTopology.getNsa().size());
         System.out.println("Networks: " + finalTopology.getNetwork().size());
         System.out.println("Stps: " + finalTopology.getStp().size());
@@ -96,7 +94,7 @@ public class TopologyTest extends JerseyTest {
         System.out.println("ServiceDomains: " + finalTopology.getServiceDomain().size());
         System.out.println("ServiceAdaptations: " + finalTopology.getServiceAdaptation().size());
         System.out.println("Sdps: " + finalTopology.getSdp().size());
-        
+
         // Verify the complete topology retrieval matches the individual ones.
 
         // Get a list of NSA.
@@ -116,25 +114,25 @@ public class TopologyTest extends JerseyTest {
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         collection = response.readEntity(CollectionType.class);
         assertEquals(collection.getService().size(), finalTopology.getService().size());
-        
+
         // Get a list of all ServicesDomains.
         response = topology.path("serviceDomains").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         collection = response.readEntity(CollectionType.class);
         assertEquals(collection.getServiceDomain().size(), finalTopology.getServiceDomain().size());
-        
+
         // Get a list of all ServiceAdaptations.
         response = topology.path("serviceAdaptations").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         collection = response.readEntity(CollectionType.class);
         assertEquals(collection.getServiceAdaptation().size(), finalTopology.getServiceAdaptation().size());
-        
+
         // Get a list of all STP.
         response = topology.path("stps").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         collection = response.readEntity(CollectionType.class);
         assertEquals(collection.getStp().size(), finalTopology.getStp().size());
-        
+
         // Get a list of all SDP.
         response = topology.path("sdps").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -147,19 +145,19 @@ public class TopologyTest extends JerseyTest {
         // Get a list of NSA.
         Response response = topology.path("nsas").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        
+
         // Run some model consistency checks.
         CollectionType collection = response.readEntity(CollectionType.class);
-        
+
         List<NsaType> nsas = collection.getNsa();
         for (NsaType nsa : nsas) {
             // For each NSA retrieved we want to read the individual entry.
             response = topology.path("nsas/" + nsa.getId()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-            
+
             NsaType nsaGet = response.readEntity(NsaType.class);
             assertEquals(nsa.getId(), nsaGet.getId());
-            
+
             List<ResourceRefType> networks = nsa.getNetwork();
             for (ResourceRefType network : networks) {
                 response = topology.path(network.getHref()).request(MediaType.APPLICATION_XML).get();
@@ -167,13 +165,13 @@ public class TopologyTest extends JerseyTest {
             }
         }
     }
-    
+
     @Test
     public void testGetNetwork() throws Exception {
         // Get a list of networks.
         Response response = topology.path("networks").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        
+
         // We want to run some model consistency checks.  Test at most 50
         // entries otherwise this will take way too long.
         CollectionType collection = response.readEntity(CollectionType.class);
@@ -188,20 +186,20 @@ public class TopologyTest extends JerseyTest {
             // For each Network retrieved we want to read the individual entry.
             response = topology.path("networks/" + network.getId()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-            
+
             NetworkType networkGet = response.readEntity(NetworkType.class);
             assertEquals(network.getId(), networkGet.getId());
-            
+
             // Read the NSA entry.
             response = topology.path(networkGet.getNsa().getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-            
+
             // Read the Services offered by this network.
             for (ResourceRefType service : networkGet.getService()) {
                 response = topology.path(service.getHref()).request(MediaType.APPLICATION_XML).get();
-                assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());                
+                assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
             }
-           
+
             // Read the STP exposed by this network.
             int countStp = 0;
             for (ResourceRefType stp : networkGet.getStp()) {
@@ -212,7 +210,7 @@ public class TopologyTest extends JerseyTest {
                     break;
                 }
             }
-            
+
              // Read the ServiceDomain exposed by this network.
             int countSD = 0;
             for (ResourceRefType serviceDomian : networkGet.getServiceDomain()) {
@@ -225,7 +223,7 @@ public class TopologyTest extends JerseyTest {
             }
         }
     }
-    
+
     @Test
     public void testGetServices() throws Exception {
         // Get a list of all STP.
@@ -241,7 +239,7 @@ public class TopologyTest extends JerseyTest {
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         }
     }
-    
+
     @Test
     public void testGetServiceDomains() throws Exception {
         // Get a list of all ServiceDomains.
@@ -251,7 +249,7 @@ public class TopologyTest extends JerseyTest {
         // We want to run some model consistency checks.
         CollectionType collection = response.readEntity(CollectionType.class);
         List<ServiceDomainType> serviceDomains = collection.getServiceDomain();
-        
+
         int count = 0;
         for (ServiceDomainType serviceDomain : serviceDomains) {
             // Limit iterations to avoind long builds.
@@ -259,20 +257,20 @@ public class TopologyTest extends JerseyTest {
             if (count > 10) {
                 break;
             }
-            
+
             // For each ServiceDomain retrieved we want to read the individual entry.
             response = topology.path(serviceDomain.getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-            
+
             // Now the linked resources.
             ServiceDomainType serviceDomainGet = response.readEntity(ServiceDomainType.class);
             assertEquals(serviceDomain.getId(), serviceDomainGet.getId());
-            
+
             response = topology.path(serviceDomainGet.getService().getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         }
     }
-    
+
     @Test
     public void testGetStp() throws Exception {
         // Get a list of all STP.
@@ -293,34 +291,34 @@ public class TopologyTest extends JerseyTest {
             // For each STP retrieved we want to read the individual entry.
             response = topology.path("stps/" + stp.getId()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-            
+
             StpType stpGet = response.readEntity(StpType.class);
             assertEquals(stp.getId(), stpGet.getId());
-            
+
             // Read the direct STP HREF.
             response = topology.path(stpGet.getHref()).request(MediaType.APPLICATION_XML).get();
-            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());            
-            
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
             // Now verify the linked resources of this STP exist.
             response = topology.path("networks/" + stp.getNetworkId()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-            
+
             response = topology.path(stp.getNetwork().getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-            
+
             response = topology.path(stp.getServiceDomain().getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-            
+
             if (stp.getType() == StpDirectionalityType.BIDIRECTIONAL) {
                 response = topology.path(stp.getInboundStp().getHref()).request(MediaType.APPLICATION_XML).get();
                 assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-                
+
                 response = topology.path(stp.getOutboundStp().getHref()).request(MediaType.APPLICATION_XML).get();
                 assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
             }
         }
     }
-    
+
     @Test
     public void testGetStpByNetworkId() throws Exception {
         // Get a list of all STP filtered by Network Id.
@@ -330,15 +328,15 @@ public class TopologyTest extends JerseyTest {
         // Get the returned list so we can count the number of entries.
         CollectionType collection = response.readEntity(CollectionType.class);
         int filteredStpSize = collection.getStp().size();
-        
+
         // Get all the STP under the same network using a network rooted query.
         response = topology.path("networks/urn:ogf:network:uvalight.net:2013:topology/stps").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        
+
         collection = response.readEntity(CollectionType.class);
         assertEquals(filteredStpSize, collection.getStp().size());
     }
-    
+
     @Test
     public void testGetSdp() throws Exception {
         // Get a list of all STP.
@@ -359,27 +357,27 @@ public class TopologyTest extends JerseyTest {
             // For each SDP retrieved we want to read the individual entry.
             response = topology.path("sdps/" + sdp.getId()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-            
+
             SdpType sdpGet = response.readEntity(SdpType.class);
             assertEquals(sdp.getId(), sdpGet.getId());
-            
+
             // Read the direct SDP HREF.
             response = topology.path(sdpGet.getHref()).request(MediaType.APPLICATION_XML).get();
-            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());            
-            
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
             // Now verify the linked resources of this SDP exist.
             response = topology.path(sdp.getDemarcationA().getStp().getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-            
+
             response = topology.path(sdp.getDemarcationA().getServiceDomain().getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
             response = topology.path(sdp.getDemarcationA().getNetwork().getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-            
+
             response = topology.path(sdp.getDemarcationZ().getStp().getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-            
+
             response = topology.path(sdp.getDemarcationZ().getServiceDomain().getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
@@ -393,16 +391,16 @@ public class TopologyTest extends JerseyTest {
         // Get a specific STP.
         Response response = topology.path("stps/urn:ogf:network:netherlight.net:2013:testbed:526?vlan=1784").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        
+
         Date lastMod = response.getLastModified();
-        
+
         response = topology.path("stps/urn:ogf:network:netherlight.net:2013:testbed:526?vlan=1784").request(MediaType.APPLICATION_XML).header("If-Modified-Since", DateUtils.formatDate(lastMod, DateUtils.PATTERN_RFC1123)).get();
         assertEquals(Response.Status.NOT_MODIFIED.getStatusCode(), response.getStatus());
-        
+
         // Get a list of all topology resources.
         response = topology.request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        
+
         // The test topology is too big for a single blocking read so we need
         // to use the jersey client chunked read.  It would appear that a single
         // read is all that is required for this JSON based message.
@@ -413,12 +411,12 @@ public class TopologyTest extends JerseyTest {
             System.out.println("Chunk received...");
             finalTopology = chunk;
         }
-        
+
         assertNotNull(finalTopology);
-        
+
         lastMod = response.getLastModified();
-        
+
         response = topology.request(MediaType.APPLICATION_XML).header("If-Modified-Since", DateUtils.formatDate(lastMod, DateUtils.PATTERN_RFC1123)).get();
-        assertEquals(Response.Status.NOT_MODIFIED.getStatusCode(), response.getStatus());        
+        assertEquals(Response.Status.NOT_MODIFIED.getStatusCode(), response.getStatus());
     }
 }
