@@ -1,10 +1,14 @@
 package net.es.nsi.pce.pf.api.gof3;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.google.common.annotations.VisibleForTesting;
 
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ReachabilityType;
@@ -23,38 +27,41 @@ public class ReachabilityProcessor {
     @Autowired
     private TopologyProvider topologyProvider;
 
-
-    public List<VectorType> getCurrentReachabilityInfo(){
-        List<VectorType> result = new ArrayList<>();
+    /**
+     *
+     * @return a map where the key is the network id and the value is the cost
+     */
+    public Map<String,Integer> getCurrentReachabilityInfo(){
+        Map<String, Integer> result = new HashMap<>();
 
         NsiTopology nsiTopology = topologyProvider.getTopology();
         // put our own networks in with cost 0
         List<String> localNetworkIds = nsiTopology.getLocalNetworks();
         for (String localNetworkId: localNetworkIds){
-            VectorType localVector = new VectorType();
-            localVector.setId(localNetworkId);
-            localVector.setCost(0);
-            result.add(localVector);
+            result.put(localNetworkId, 0);
         }
 
-        for (NsaType nsa : nsiTopology.getNsas()) {
-            for (ReachabilityType reachability : nsa.getReachability()) {
-                for (VectorType vectorType: reachability.getVector()) {
-                    if (!localNetworkIds.contains(vectorType.getId())) {  // so we don't re-advertise our own networks
-                        VectorType resultVector = new VectorType();
-                        resultVector.setId(vectorType.getId());
-                        resultVector.setCost(vectorType.getCost() + 1);
-                        result.add(resultVector);
-                    }
+        return makeResult(new ArrayList(nsiTopology.getNsas()), localNetworkIds, result);
+    }
 
+    @VisibleForTesting
+    protected Map<String, Integer> makeResult(List<NsaType> nsas, List<String> localNetworkIds, Map<String,Integer> intermediateResult){
+        for (NsaType nsa : nsas) {
+            for (ReachabilityType reachability : nsa.getReachability()) {
+                for (final VectorType vectorType: reachability.getVector()) {
+                    if (!localNetworkIds.contains(vectorType.getId())) {  //don't re-advertise our own networks
+                        String networkId = vectorType.getId();
+                        Integer cost = vectorType.getCost() + 1;
+                        if (!intermediateResult.containsKey(networkId) || intermediateResult.get(networkId) > cost) {
+                            // make sure we don't advertise a route that is more expensive
+                            intermediateResult.put(networkId, cost);
+                        }
+                    }
                 }
 
             }
         }
-        return result;
+        return intermediateResult;
     }
-
-
-
 
 }

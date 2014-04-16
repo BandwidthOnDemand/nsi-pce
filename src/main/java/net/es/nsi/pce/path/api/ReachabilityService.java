@@ -1,6 +1,8 @@
 package net.es.nsi.pce.path.api;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -23,10 +25,17 @@ public class ReachabilityService {
         final ApplicationContext applicationContext = sc.getContext();
         ReachabilityProcessor reachabilityProcessor = (ReachabilityProcessor) applicationContext.getBean("reachabilityProcessor");
 
+        final Map<String, Integer> currentReachabilityInfo = reachabilityProcessor.getCurrentReachabilityInfo();
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (String id: currentReachabilityInfo.keySet()){
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("id", id);
+            entry.put("cost", currentReachabilityInfo.get(id));
+            result.add(entry);
+        }
+
         Map<String, Object> jsonHolder = new HashMap<>();
-
-        jsonHolder.put("reachability", reachabilityProcessor.getCurrentReachabilityInfo());
-
+        jsonHolder.put("reachability", result);
         Gson gson = new Gson();
         final String s = gson.toJson(jsonHolder);
         return  Response.ok().header("Content-type", "application/json").entity(s).build();
