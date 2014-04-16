@@ -18,12 +18,11 @@ BASEDIR=`cd "$PRGDIR" >/dev/null; pwd`
 
 java -Xmx512m -Djava.net.preferIPv4Stack=true  \
 	-Dapp.home="$BASEDIR" \
-  	-Dbasedir="$BASEDIR" \
+	-Dbasedir="$BASEDIR" \
 	-Djava.util.logging.config.file="$BASEDIR/config/logging.properties" \
 	-Dcom.sun.xml.bind.v2.runtime.JAXBContextImpl.fastBoot=true \
 	-Djavax.net.ssl.trustStore=config/nsi-pce-truststore \
 	-Djavax.net.ssl.trustStorePassword=changeit \
 	-jar target/pce.jar \
 	-topologyConfigFile config/topology-github.xml \
-	-localNetworkId "urn:ogf:network:surfnet.nl:1990:nsa:bod-acc" \
 	$*
