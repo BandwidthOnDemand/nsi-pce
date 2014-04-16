@@ -37,7 +37,7 @@ public class ReachabilityPCETest {
     @Test(expected = IllegalArgumentException.class)
     public void should_throw_exception_when_missing_source_stp() {
         PCEData pceData = new PCEData();
-        pceData.setConnectionTrace(Collections.<String>emptyList());
+        pceData.setTrace(Collections.<String>emptyList());
 
         subject.apply(pceData);
     }
@@ -63,7 +63,7 @@ public class ReachabilityPCETest {
         StringAttrConstraint destination = createStringConstraint(Point2Point.DESTSTP, destStp);
 
         PCEData pceData = new PCEData(source, destination);
-        pceData.setConnectionTrace(Collections.<String>emptyList());
+        pceData.setTrace(Collections.<String>emptyList());
 
         PCEData reply = subject.apply(pceData);
         Path path = reply.getPath();
@@ -102,7 +102,7 @@ public class ReachabilityPCETest {
         when(topology.getSdps()).thenReturn(Arrays.asList(sdp));
 
         PCEData pceData = new PCEData(source, destination);
-        pceData.setConnectionTrace(Collections.<String>emptyList());
+        pceData.setTrace(Collections.<String>emptyList());
         pceData.setTopology(topology);
 
         PCEData reply = subject.apply(pceData);

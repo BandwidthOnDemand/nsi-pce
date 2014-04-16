@@ -67,14 +67,14 @@ public class ReachabilityPCE implements PCEModule {
 
     @Override
     public PCEData apply(PCEData pceData) {
-        checkNotNull(pceData.getConnectionTrace(), "No connection trace was provided");
+        checkNotNull(pceData.getTrace(), "No trace was provided");
         checkNotNull(pceData.getTopology(), "No topology was provided");
 
         Constraints constraints = pceData.getAttrConstraints();
         Stp sourceStp = findSourceStp(constraints);
         Stp destStp = findDestinationStp(constraints);
 
-        Optional<Path> path = findPath(sourceStp, destStp, pceData.getTopology(), pceData.getTopology().getReachabilityTable(), pceData.getConnectionTrace());
+        Optional<Path> path = findPath(sourceStp, destStp, pceData.getTopology(), pceData.getTopology().getReachabilityTable(), pceData.getTrace());
 
         if (path.isPresent()) {
             pceData.setPath(path.get());

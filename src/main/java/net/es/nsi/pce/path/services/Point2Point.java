@@ -23,16 +23,13 @@ import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.AttrConstraint;
 import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.pf.api.cons.Constraints;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author hacksaw
  */
 public class Point2Point {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-    
+  
     public static final String NAMESPACE = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps";
 
     // These are fixed element definitions within the P2P schema.

@@ -28,7 +28,7 @@ public class PCEData {
     private Path path = new Path();
     private Set<Constraint> constraints = new HashSet<>();
     private NsiTopology topology = new NsiTopology();
-    private List<String> connectionTrace;
+    private List<String> trace;
 
     public PCEData() {
     }
@@ -65,11 +65,11 @@ public class PCEData {
         return constraints.add(constraint);
     }
 
-    public List<String> getConnectionTrace() {
-        return connectionTrace;
+    public List<String> getTrace() {
+        return trace;
     }
 
-    public void setConnectionTrace(List<String> connectionTrace) {
-        this.connectionTrace = connectionTrace;
+    public void setTrace(List<String> trace) {
+        this.trace = trace;
     }
 }

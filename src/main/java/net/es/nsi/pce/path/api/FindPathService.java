@@ -1,5 +1,8 @@
 package net.es.nsi.pce.path.api;
 
+import com.google.common.collect.Ordering;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +31,7 @@ import net.es.nsi.pce.path.jaxb.ResolvedPathType;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.jersey.RestServer;
 import net.es.nsi.pce.jersey.Utilities;
+import net.es.nsi.pce.path.jaxb.TraceType;
 import net.es.nsi.pce.pf.Algorithms;
 import net.es.nsi.pce.pf.PathfinderCore;
 import net.es.nsi.pce.pf.api.NsiError;
@@ -135,7 +139,7 @@ public class FindPathService {
             log.error("findPath: Unsupported serviceType element received.");
             return RestServer.getBadRequestError("findPathRequest", "serviceType");         
         }
-        
+
         // 
         // TODO: Place the Path Finding and FindPathResponse building code
         // in a separate model and route via Scala.
@@ -177,7 +181,7 @@ public class FindPathService {
                         contraints.addAll(addConstraints);
                         net.es.nsi.pce.pf.api.Path path;
                         try {
-                            path = pathfinderCore.findPath(algorithm, contraints);
+                            path = pathfinderCore.findPath(algorithm, contraints, convertTrace(request.getTrace()));
                         }
                         catch (Exception ex) {
                             log.error("findPath: findPath P2PS failed", ex);
@@ -216,5 +220,30 @@ public class FindPathService {
         }
         
         return Response.accepted().build();
+    }
+    
+    public List<String> convertTrace(List<TraceType> trace) {
+        Comparator<TraceType> traceComp = new Comparator<TraceType>() {
+            @Override
+            public int compare(TraceType b1, TraceType b2) {
+                if (b1.getIndex() < b2.getIndex()) {
+                    return -1;
+                }
+                else if (b1.getIndex() == b2.getIndex()) {
+                    return 0;
+                }
+                else {
+                    return 1;
+                }
+            }
+        };
+
+        List<TraceType> sortedList = Ordering.from(traceComp).sortedCopy(trace);
+
+        List<String> list = new ArrayList<>();
+        for (TraceType item : sortedList) {
+            list.add(item.getValue());
+        }
+        return list;
     }
 }

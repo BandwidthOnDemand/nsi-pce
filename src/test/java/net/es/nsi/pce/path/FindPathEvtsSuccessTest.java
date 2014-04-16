@@ -1,5 +1,6 @@
 package net.es.nsi.pce.path;
 
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -30,6 +31,7 @@ import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.config.ConfigurationManager;
 import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.client.TestServer;
+import net.es.nsi.pce.path.jaxb.TraceType;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
@@ -175,6 +177,16 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
         req.setEndTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(endTime));
         
         req.setServiceType("http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE");
+        
+        List<TraceType> trace = Lists.newArrayList(
+                traceType(2, "urn:ogf:network:surfnet.nl:1990:nsa:bod-acc"),
+                traceType(5, "urn:ogf:network:sinet.ac.jp:2013:nsa"),
+                traceType(3, "urn:ogf:network:aist.go.jp:2013:nsa"),
+                traceType(4, "urn:ogf:network:pionier.net.pl:2013:nsa"),
+                traceType(1, "urn:ogf:network:geant.net:2013:nsa")
+            );
+        
+        req.getTrace().addAll(trace);
 
         // We want an P2PS service element for this test.
         P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();
@@ -209,5 +221,12 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
         assertNotNull(findPathResponse);
         
         assertEquals(FindPathStatusType.SUCCESS, findPathResponse.getStatus());
+    }
+    
+    private TraceType traceType(int index, String value) {
+        TraceType trace = factory.createTraceType();
+        trace.setIndex(index);
+        trace.setValue(value);
+        return trace;
     }
 }

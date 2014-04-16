@@ -1,5 +1,6 @@
 package net.es.nsi.pce.pf;
 
+import java.util.List;
 import java.util.Set;
 import org.springframework.context.ApplicationContext;
 import net.es.nsi.pce.config.SpringContext;
@@ -7,6 +8,7 @@ import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.path.jaxb.FindPathAlgorithmType;
+import net.es.nsi.pce.path.jaxb.TraceType;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.cons.Constraint;
@@ -49,7 +51,7 @@ public class PathfinderCore {
      * @return Resolved path if one exists, otherwise an exception.
      * @throws Exception An exception carrying an XML encoded findPathErrorType.
      */
-    public Path findPath(FindPathAlgorithmType algorithm, Set<Constraint> contraints) throws Exception {
+    public Path findPath(FindPathAlgorithmType algorithm, Set<Constraint> contraints, List<String> trace) throws Exception {
         // Build the path computation request.
         PCEData pceData = new PCEData();
 
@@ -58,6 +60,9 @@ public class PathfinderCore {
 
         // Add topology
         pceData.setTopology(topologyProvider.getTopology());
+        
+        // Add trace.
+        pceData.setTrace(trace);
 
         // Determine the path computation module to invoke.
         PCEModule pce;
