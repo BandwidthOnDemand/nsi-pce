@@ -8,8 +8,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import net.es.nsi.pce.discovery.jaxb.TopologyReachabilityType;
-import net.es.nsi.pce.discovery.jaxb.TopologyType;
+import net.es.nsi.pce.topology.jaxb.TopologyReachabilityType;
+import net.es.nsi.pce.topology.jaxb.TopologyType;
 import net.es.nsi.pce.topology.jaxb.NsaHolderType;
 import net.es.nsi.pce.topology.jaxb.NsaNsaType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
@@ -26,10 +26,10 @@ import org.apache.http.client.utils.DateUtils;
  */
 public class NsiNsaFactory {
     private static final String NSI_ROOT_NSAS = "/nsas/";
-    
+
     /**
      * Create a NSI NSA resource object from an NML JAXB object.
-     * 
+     *
      * @param nmlNsa NML JAXB object.
      * @return
      */
@@ -45,22 +45,22 @@ public class NsiNsaFactory {
         nsiNsa.setStartTime(nsa.getStartTime());
         nsiNsa.setLocation(nsa.getLocation());
         nsiNsa.setAdminContact(nsa.getAdminContact());
-        
+
         if (nsa.getInterface() != null && !nsa.getInterface().isEmpty()) {
             nsiNsa.getInterface().addAll(nsa.getInterface());
         }
-        
+
         if (nsa.getFeature() != null && !nsa.getFeature().isEmpty()) {
             nsiNsa.getFeature().addAll(nsa.getFeature());
         }
-        
+
         if (nsa.getPeersWith() != null && !nsa.getPeersWith().isEmpty()) {
             nsiNsa.getPeersWith().addAll(nsa.getPeersWith());
         }
-        
+
         // Pull the G0f3 reachability information out of the ANY as a custom
         // extension to the standard NSA elements.
-        
+
         for (NsaHolderType holder : nsa.getOther()) {
             for (Object any : holder.getAny()) {
                 if (any instanceof JAXBElement && ((JAXBElement) any).getValue() instanceof TopologyReachabilityType) {
@@ -77,7 +77,7 @@ public class NsiNsaFactory {
                         VectorType vector = factory.createVectorType();
                         vector.setId(topology.getId());
                         vector.setCost(topology.getCost());
-                        reachability.getVector().add(vector);                        
+                        reachability.getVector().add(vector);
                     }
                     nsiNsa.getReachability().add(reachability);
                 }
@@ -89,15 +89,15 @@ public class NsiNsaFactory {
 
         // The network ResourceRefType is populated after the corresponding
         // networks are created.
-        
+
         return nsiNsa;
     }
-    
+
     /**
      * Create a resource reference for the NSI Network resource.
-     * 
+     *
      * @param nsa Create a resource for this NSI NSA resource object.
-     * @return 
+     * @return
      */
     public static ResourceRefType createResourceRefType(NsaType nsa) {
         ResourceRefType nsaRef = new ResourceRefType();
@@ -105,7 +105,7 @@ public class NsiNsaFactory {
         nsaRef.setHref(nsa.getHref());
         return nsaRef;
     }
-    
+
     public static List<NsaType> ifModifiedSince(String ifModifiedSince, List<NsaType> nsaList) throws DatatypeConfigurationException {
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             GregorianCalendar cal = new GregorianCalendar();
@@ -118,7 +118,7 @@ public class NsiNsaFactory {
                 }
             }
         }
-        
+
         return nsaList;
     }
 }
