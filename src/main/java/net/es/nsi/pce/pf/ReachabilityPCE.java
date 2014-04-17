@@ -78,10 +78,19 @@ public class ReachabilityPCE implements PCEModule {
 
         if (path.isPresent()) {
             assertAllSegmentsHaveAnNsa(path.get());
+            addConstraints(path.get(), constraints);
             pceData.setPath(path.get());
         }
 
         return pceData;
+    }
+
+    private void addConstraints(Path path, Constraints constraints) {
+        constraints.removeStringAttrConstraint(Point2Point.SOURCESTP);
+        constraints.removeStringAttrConstraint(Point2Point.DESTSTP);
+        for (PathSegment segment: path.getPathSegments()) {
+            segment.setConstraints(constraints);
+        }
     }
 
     private void assertAllSegmentsHaveAnNsa(Path path) {

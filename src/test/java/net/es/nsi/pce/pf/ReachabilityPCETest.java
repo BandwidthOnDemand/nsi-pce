@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import net.es.nsi.pce.path.services.Point2Point;
 import net.es.nsi.pce.pf.ReachabilityPCE.Reachability;
 import net.es.nsi.pce.pf.ReachabilityPCE.Stp;
+import net.es.nsi.pce.pf.api.PCEConstraints;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.PathSegment;
@@ -79,8 +80,9 @@ public class ReachabilityPCETest {
 
         StringAttrConstraint source = createStringConstraint(Point2Point.SOURCESTP, sourceStp);
         StringAttrConstraint destination = createStringConstraint(Point2Point.DESTSTP, destStp);
+        StringAttrConstraint serviceType = createStringConstraint(PCEConstraints.SERVICETYPE, "ServiceType");
 
-        PCEData pceData = new PCEData(source, destination);
+        PCEData pceData = new PCEData(source, destination, serviceType);
         pceData.setTrace(Collections.<String>emptyList());
         pceData.setTopology(topologyMock);
 
@@ -90,6 +92,7 @@ public class ReachabilityPCETest {
         assertThat(path.getPathSegments().size(), is(1));
 
         assertPathSegment(path.getPathSegments().iterator().next(), sourceStp, destStp, LOCAL_NSA_ID);
+        assertThat(path.getPathSegments().iterator().next().getConstraints().getStringAttrConstraint(PCEConstraints.SERVICETYPE).getValue(), is("ServiceType"));
     }
 
     @Test
