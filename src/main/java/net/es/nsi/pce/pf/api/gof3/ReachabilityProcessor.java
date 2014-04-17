@@ -41,7 +41,7 @@ public class ReachabilityProcessor {
             result.put(localNetworkId, 0);
         }
 
-        return makeResult(new ArrayList(nsiTopology.getNsas()), localNetworkIds, result);
+        return makeResult(new ArrayList<>(nsiTopology.getNsas()), localNetworkIds, result);
     }
 
     @VisibleForTesting
