@@ -35,10 +35,10 @@ public class ReachabilityProcessor {
         Map<String, Integer> result = new HashMap<>();
 
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        // put our own networks in with cost 0
+        // put our own networks in with cost 1
         List<String> localNetworkIds = nsiTopology.getLocalNetworks();
         for (String localNetworkId: localNetworkIds){
-            result.put(localNetworkId, 0);
+            result.put(localNetworkId, 1);
         }
 
         return makeResult(new ArrayList<>(nsiTopology.getNsas()), localNetworkIds, result);

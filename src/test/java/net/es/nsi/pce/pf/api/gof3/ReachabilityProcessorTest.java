@@ -46,12 +46,12 @@ public class ReachabilityProcessorTest {
     }
 
     @Test
-    public void no_peers_found_return_only_local() {
+    public void no_peers_found_return_only_local_with_cost_1() {
         final Map<String,Integer> result = subject.getCurrentReachabilityInfo();
         assertTrue(result.size() == 1);
 
         assertTrue(result.containsKey(OUR_NETWORK_ID));
-        assertTrue(result.get(OUR_NETWORK_ID) == 0);
+        assertTrue(result.get(OUR_NETWORK_ID) == 1);
     }
 
     @Test
@@ -97,9 +97,9 @@ public class ReachabilityProcessorTest {
         final Map<String,Integer> result = subject.getCurrentReachabilityInfo();
         assertThat("table must contain our own network only", result.size(), is(1));
 
-        // must contain vector for our self with cost = 0
+        // must contain vector for our self with cost = 1
         assertTrue(result.containsKey(OUR_NETWORK_ID));
-        assertTrue(result.get(OUR_NETWORK_ID) == 0);
+        assertTrue(result.get(OUR_NETWORK_ID) == 1);
     }
 
     @Test
