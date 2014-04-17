@@ -32,12 +32,20 @@ import org.junit.Test;
  * @author hacksaw
  */
 public class TimersTest extends JerseyTest {
+    private final static String CONFIG_DIR = "src/test/resources/config/";
+    private static final String DEFAULT_TOPOLOGY_FILE = CONFIG_DIR + "topology-dds.xml";
+    private static final String DEFAULT_DDS_FILE = CONFIG_DIR + "dds.xml";
+    private static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
+    private static final String DDS_CONFIG_FILE_ARGNAME = "ddsConfigFile";
+    
     final WebTarget root = target();
     final WebTarget topology = target().path("management");
     
     @Override
     protected Application configure() {
         // Configure test instance of PCE server.
+        System.setProperty(DDS_CONFIG_FILE_ARGNAME, DEFAULT_DDS_FILE);
+        System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, DEFAULT_TOPOLOGY_FILE);
         try {
             ConfigurationManager.INSTANCE.initialize("src/test/resources/config/");
         } catch (Exception ex) {

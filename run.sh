@@ -24,5 +24,6 @@ java -Xmx512m -Djava.net.preferIPv4Stack=true  \
 	-Djavax.net.ssl.trustStore=config/nsi-pce-truststore \
 	-Djavax.net.ssl.trustStorePassword=changeit \
 	-jar target/pce.jar \
-	-topologyConfigFile config/topology-github.xml \
+	-topologyConfigFile config/topology-dds.xml \
+	-ddsConfigFile config/dds.xml \
 	$*

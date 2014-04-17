@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.discovery.agole;
 
 import akka.actor.ActorRef;
@@ -48,7 +44,7 @@ public class AgoleDiscoveryRouter extends UntypedActor {
     private DdsActorSystem ddsActorSystem;
     private long interval;
     private int poolSize;
-    private Router router;
+    private Router router = null;
     private Map<String, AgoleDiscoveryMsg> discovery = new ConcurrentHashMap<>();
     private AgoleManifestReader manifestReader;
     private TopologyManifest manifest = null;
@@ -70,7 +66,8 @@ public class AgoleDiscoveryRouter extends UntypedActor {
         }
         
         if (manifestReader == null) {
-            log.info("preStart: No AGOLE URL provisioned so disabling audit.");
+            log.info("AgoleDiscoveryRouter: No AGOLE URL provisioned so disabling audit.");
+            return;
         }
 
         List<Routee> routees = new ArrayList<>();
@@ -117,10 +114,12 @@ public class AgoleDiscoveryRouter extends UntypedActor {
         }
         else if (msg instanceof Terminated) {
             log.debug("onReceive: terminate event.");
-            router = router.removeRoutee(((Terminated) msg).actor());
-            ActorRef r = getContext().actorOf(Props.create(AgoleDiscoveryActor.class));
-            getContext().watch(r);
-            router = router.addRoutee(new ActorRefRoutee(r));
+            if (router != null) {
+                router = router.removeRoutee(((Terminated) msg).actor());
+                ActorRef r = getContext().actorOf(Props.create(AgoleDiscoveryActor.class));
+                getContext().watch(r);
+                router = router.addRoutee(new ActorRefRoutee(r));
+            }
         }
         else {
             log.debug("onReceive: unhandled event.");

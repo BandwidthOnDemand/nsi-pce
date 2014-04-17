@@ -41,7 +41,12 @@ import org.junit.Test;
  * @author hacksaw
  */
 public class FindPathParameterTest extends JerseyTest {
-
+    private final static String CONFIG_DIR = "src/test/resources/config/";
+    private static final String DEFAULT_TOPOLOGY_FILE = CONFIG_DIR + "topology-dds.xml";
+    private static final String DEFAULT_DDS_FILE = CONFIG_DIR + "dds.xml";
+    private static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
+    private static final String DDS_CONFIG_FILE_ARGNAME = "ddsConfigFile";
+    
     private final static HttpConfig testServer = new HttpConfig() {
         { setUrl("http://localhost:9801/"); setPackageName("net.es.nsi.pce.client"); }
     };
@@ -61,6 +66,8 @@ public class FindPathParameterTest extends JerseyTest {
         TestServer.INSTANCE.start(testServer);
         
         // Configure test instance of PCE server.
+        System.setProperty(DDS_CONFIG_FILE_ARGNAME, DEFAULT_DDS_FILE);
+        System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, DEFAULT_TOPOLOGY_FILE);
         try {
             ConfigurationManager.INSTANCE.initialize("src/test/resources/config/");
         } catch (Exception ex) {

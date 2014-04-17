@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import net.es.nsi.pce.spring.SpringApplicationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,13 +16,19 @@ import org.springframework.stereotype.Component;
  * @author hacksaw
  */
 @Component
+@Scope("singleton")
 public class RemoteSubscriptionCache {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+    
     // In-memory subscription cache indexed by subscriptionId.
     private Map<String, RemoteSubscription> remoteSubscriptions = new ConcurrentHashMap<>();
     
+    public RemoteSubscriptionCache() {
+        log.debug("RemoteSubscriptionCache: creating.");
+    }
+    
     public static RemoteSubscriptionCache getInstance() {
-        RemoteSubscriptionCache remoteSubscriptionCache = SpringApplicationContext.getBean("remoteSubscriptionCache", RemoteSubscriptionCache.class);
-        return remoteSubscriptionCache;
+        return SpringApplicationContext.getBean("remoteSubscriptionCache", RemoteSubscriptionCache.class);
     }
     
     public RemoteSubscription get(String url) {

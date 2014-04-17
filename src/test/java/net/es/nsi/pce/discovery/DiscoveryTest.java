@@ -55,9 +55,14 @@ public class DiscoveryTest extends JerseyTest {
             setPackageName("net.es.nsi.pce.client");
         }
     };
-    
+ 
     private final static String CONFIG_DIR = "src/test/resources/config/";
     private final static String DOCUMENT_DIR = "src/test/resources/documents/";
+    private static final String DEFAULT_TOPOLOGY_FILE = CONFIG_DIR + "topology-dds.xml";
+    private static final String DEFAULT_DDS_FILE = CONFIG_DIR + "dds.xml";
+    private static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
+    private static final String DDS_CONFIG_FILE_ARGNAME = "ddsConfigFile";
+
     private final static String callbackURL = testServer.getUrl() + "discovery/callback";
     private final static ObjectFactory factory = new ObjectFactory();
     final WebTarget discovery = target().path("discovery");
@@ -71,6 +76,8 @@ public class DiscoveryTest extends JerseyTest {
         TestServer.INSTANCE.start(testServer);
         
         // Configure test instance of PCE server.
+        System.setProperty(DDS_CONFIG_FILE_ARGNAME, DEFAULT_DDS_FILE);
+        System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, DEFAULT_TOPOLOGY_FILE);
         try {
             ConfigurationManager.INSTANCE.initialize(CONFIG_DIR);
         } catch (Exception ex) {
@@ -97,7 +104,6 @@ public class DiscoveryTest extends JerseyTest {
      */
     @Test
     public void aLoadDocuments() throws Exception {
-        System.out.println("************************** Running aLoadDocuments test ********************************");
         File folder = null;
         try {
             folder = new File(DOCUMENT_DIR);

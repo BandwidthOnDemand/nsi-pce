@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.discovery.jaxb.PeerURLType;
 import net.es.nsi.pce.discovery.jaxb.DiscoveryConfigurationType;
@@ -14,6 +15,8 @@ import net.es.nsi.pce.discovery.provider.DiscoveryParser;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.spring.SpringApplicationContext;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Component;
  * @author hacksaw
  */
 @Component
+@Scope("singleton")
 public class DiscoveryConfiguration {
     private final PceLogger pceLogger = PceLogger.getLogger();
     
@@ -36,7 +40,9 @@ public class DiscoveryConfiguration {
     public static final int ACTORPOOL_DEFAULT_SIZE = 20;
     public static final int ACTORPOOL_MIN_SIZE = 5;
     
+    @Value("#{ systemProperties['ddsConfigFile'] }")
     private String filename = null;
+    
     private long lastModified = 0;
     private String nsaId = null;
     private String baseURL = null;
@@ -58,18 +64,16 @@ public class DiscoveryConfiguration {
     public String getFilename() {
         return filename;
     }
-
-    /**
-     * @param filename the filename to set
-     */
+    
     public void setFilename(String filename) {
         this.filename = filename;
     }
     
+    @PostConstruct
     public synchronized void load() throws IllegalArgumentException, JAXBException, IOException, NullPointerException {
         // Make sure the condifuration file is set.
         if (getFilename() == null || getFilename().isEmpty()) {
-            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "configurationFile", getFilename());
+            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "filename", getFilename());
             throw new IllegalArgumentException();
         }
         
@@ -78,7 +82,7 @@ public class DiscoveryConfiguration {
             file = new File(getFilename());
         }
         catch (NullPointerException ex) {
-            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "configurationFile", getFilename());
+            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "filename", getFilename());
             throw ex;
         }
         
@@ -95,11 +99,11 @@ public class DiscoveryConfiguration {
             config = DiscoveryParser.getInstance().parse(getFilename());
         }
         catch (IOException io) {
-            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "configurationFile", getFilename());
+            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "filename", getFilename());
             throw io;
         }
         catch (JAXBException jaxb) {
-            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_XML, "configurationFile", getFilename());
+            pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_XML, "filename", getFilename());
             throw jaxb;
         }
         

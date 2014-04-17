@@ -2,12 +2,15 @@ package net.es.nsi.pce.topology.dao;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.config.jaxb.TopologyConfigurationType;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.schema.TopologyConfigurationParser;
 import net.es.nsi.pce.spring.SpringApplicationContext;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,13 +18,16 @@ import org.springframework.stereotype.Component;
  * @author hacksaw
  */
 @Component
+@Scope("singleton")
 public class TopologyConfiguration {
     private final PceLogger pceLogger = PceLogger.getLogger();
 
+    @Value("#{ systemProperties['topologyConfigFile'] }")
     private String filename = null;
+
     private long lastModified = 0;
     
-        // topology manifest enpoint.
+    // topology manifest enpoint.
     private String location = null;
     
     // Time between topology refreshes.
@@ -38,25 +44,12 @@ public class TopologyConfiguration {
         TopologyConfiguration configurationReader = SpringApplicationContext.getBean("topologyConfiguration", TopologyConfiguration.class);
         return configurationReader;
     }
-    
-    /**
-     * @return the filename
-     */
-    public String getFilename() {
-        return filename;
-    }
 
-    /**
-     * @param filename the filename to set
-     */
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-    
+    @PostConstruct
     public synchronized void load() throws IllegalArgumentException, JAXBException, FileNotFoundException, NullPointerException {
         // Make sure the condifuration file is set.
         if (getFilename() == null || getFilename().isEmpty()) {
-            pceLogger.errorAudit(PceErrors.CONFIGURATION_INVALID_FILENAME, "configurationFile", getFilename());
+            pceLogger.errorAudit(PceErrors.CONFIGURATION_INVALID_FILENAME, "filename", getFilename());
             throw new IllegalArgumentException();
         }
         
@@ -65,7 +58,7 @@ public class TopologyConfiguration {
             file = new File(getFilename());
         }
         catch (NullPointerException ex) {
-            pceLogger.errorAudit(PceErrors.CONFIGURATION_INVALID_FILENAME, "configurationFile", getFilename());
+            pceLogger.errorAudit(PceErrors.CONFIGURATION_INVALID_FILENAME, "filename", getFilename());
             throw ex;
         }
         
@@ -82,11 +75,11 @@ public class TopologyConfiguration {
             config = TopologyConfigurationParser.getInstance().parse(getFilename());
         }
         catch (FileNotFoundException nf) {
-            pceLogger.errorAudit(PceErrors.CONFIGURATION_INVALID_FILENAME, "configurationFile", getFilename());
+            pceLogger.errorAudit(PceErrors.CONFIGURATION_INVALID_FILENAME, "filename", getFilename());
             throw nf;
         }
         catch (JAXBException jaxb) {
-            pceLogger.errorAudit(PceErrors.CONFIGURATION_INVALID_XML, "configurationFile", getFilename());
+            pceLogger.errorAudit(PceErrors.CONFIGURATION_INVALID_XML, "filename", getFilename());
             throw jaxb;
         }
         
@@ -113,6 +106,13 @@ public class TopologyConfiguration {
         }
         
         lastModified = lastMod;
+    }
+    
+    /**
+     * @return the filename
+     */
+    public String getFilename() {
+        return filename;
     }
 
     /**

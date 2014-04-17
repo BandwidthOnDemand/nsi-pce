@@ -104,7 +104,7 @@ public class DdsActorSystem {
         log.info("DdsActorSystem: Initializing A-GOLE actors...");
         agoleRouter = actorSystem.actorOf(Props.create(AgoleDiscoveryRouter.class, this, poolSize, interval), "discovery-AGOLE-registration");
         startList.add(agoleRouter);
-        log.info("DdsActorSystem:... Gang of Three actors initialized.");        
+        log.info("DdsActorSystem:... A-GOLE actors initialized.");        
     }
     
     public ActorSystem getActorSystem() {
@@ -125,12 +125,14 @@ public class DdsActorSystem {
     }
     
     public void start() {
+        log.info("DdsActorSystem: Starting discovery process...");
         StartMsg msg = new StartMsg();
         for (ActorRef ref : startList) {
             ref.tell(msg, null);
         }
     }
     public void shutdown() {
+        log.info("DdsActorSystem: Shutting down actor system...");
         actorSystem.shutdown();
     }
 }

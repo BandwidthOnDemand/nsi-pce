@@ -8,12 +8,16 @@ import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NsaInterfaceType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.model.NsiTopology;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 
 /**
  *
  * @author hacksaw
  */
+@Component
+@Scope("prototype")
 public class ResolvePCE implements PCEModule {
 
     @Override

@@ -9,7 +9,6 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import net.es.nsi.pce.config.SpringContext;
 import net.es.nsi.pce.discovery.actors.DdsActorSystem;
-import net.es.nsi.pce.discovery.dao.RemoteSubscriptionCache;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

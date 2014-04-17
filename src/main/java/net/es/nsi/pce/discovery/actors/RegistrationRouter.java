@@ -38,21 +38,26 @@ public class RegistrationRouter extends UntypedActor {
     private DdsActorSystem ddsActorSystem;
     private int poolSize;
     private long interval;
-    private RemoteSubscriptionCache remoteSubscriptionCache;
     private Router router;
+    
+    private RemoteSubscriptionCache remoteSubscriptionCache;
     
     // In-memory subscription cache indexed by subscriptionId.
     private Map<String, RemoteSubscription> remoteSubscriptions = new ConcurrentHashMap<>();
 
     public RegistrationRouter(DdsActorSystem ddsActorSystem, int poolSize, long interval) {
+        log.debug("RegistrationRouter: constructor");
         this.ddsActorSystem = ddsActorSystem;
         this.poolSize = poolSize;
         this.interval = interval;
         this.remoteSubscriptionCache = RemoteSubscriptionCache.getInstance();
+
+        log.debug("RegistrationRouter: constructor exiting " + this.remoteSubscriptionCache);
     }
 
     @Override
     public void preStart() {
+        log.debug("RegistrationRouter: pre start");
         List<Routee> routees = new ArrayList<>();
         for (int i = 0; i < poolSize; i++) {
             ActorRef r = getContext().actorOf(Props.create(RegistrationActor.class, ddsActorSystem));
@@ -60,6 +65,7 @@ public class RegistrationRouter extends UntypedActor {
             routees.add(new ActorRefRoutee(r));
         }
         router = new Router(new RoundRobinRoutingLogic(), routees);
+        log.debug("RegistrationRouter: prestart exiting");
     }
 
     @Override

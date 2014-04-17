@@ -2,9 +2,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:context="http://www.springframework.org/schema/context"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+    <context:annotation-config />
+    
     <context:component-scan base-package="net.es.nsi.pce"/>
+    
+    <bean  class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
 
     <bean id="httpConfigProvider" class="net.es.nsi.pce.config.http.JsonHttpConfigProvider" init-method="loadConfig" scope="singleton">
         <property name="filename" value="config/http.json"/>
@@ -14,15 +19,22 @@
         <constructor-arg index="0" ref="httpConfigProvider"/>
     </bean>
 
+    <!-- Autowired.
+
     <bean id="discoveryConfiguration" class="net.es.nsi.pce.discovery.dao.DiscoveryConfiguration" init-method="load" scope="singleton">
         <property name="filename" value="config/dds.xml"/>
     </bean>
-
+    
     <bean id="documentCache" class="net.es.nsi.pce.discovery.dao.DocumentCache" init-method="load" scope="singleton">
         <constructor-arg index="0" ref="discoveryConfiguration"/>
     </bean>
 
     <bean id="remoteSubscriptionCache" class="net.es.nsi.pce.discovery.dao.RemoteSubscriptionCache" scope="singleton" />
+    
+    <bean id="topologyConfiguration" class="net.es.nsi.pce.topology.dao.TopologyConfiguration" init-method="load" scope="singleton">
+        <property name="filename" value="config/topology-dds.xml"/>
+    </bean>
+    -->
 
     <bean id="ddsActorSystem" class="net.es.nsi.pce.discovery.actors.DdsActorSystem" init-method="init" scope="singleton" depends-on="remoteSubscriptionCache, pceServer">
         <constructor-arg index="0" ref="discoveryConfiguration"/>
@@ -35,19 +47,17 @@
         <constructor-arg index="2" ref="ddsActorSystem"/>
     </bean>
 
-    <bean id="topologyConfiguration" class="net.es.nsi.pce.topology.dao.TopologyConfiguration" init-method="load" scope="singleton">
-        <property name="filename" value="config/topology-dds.xml"/>
-    </bean>
-
     <bean id="topologyProvider" class="net.es.nsi.pce.topology.provider.DdsTopologyProvider" init-method="init" scope="singleton" depends-on="discoveryProvider">
         <constructor-arg index="0" ref="topologyConfiguration"/>
     </bean>
 
+    <!-- Autowired
     <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE" />
     <bean id="dijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" />
     <bean id="authPCE" class="net.es.nsi.pce.pf.AuthPCE" />
-    <bean id="policyPCE" class="net.es.nsi.pce.pf.AuthPCE" />
+    <bean id="policyPCE" class="net.es.nsi.pce.pf.PolicyPCE" />
     <bean id="resolvePCE" class="net.es.nsi.pce.pf.ResolvePCE" />
+    -->
 
     <bean id="chainPCE" class="net.es.nsi.pce.pf.SequentialPCE">
         <property name="moduleList">

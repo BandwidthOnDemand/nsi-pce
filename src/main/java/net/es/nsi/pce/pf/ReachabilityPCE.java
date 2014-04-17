@@ -35,6 +35,8 @@ import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * This PCE module calculates the path based on reachability information.
@@ -52,6 +54,8 @@ import net.es.nsi.pce.topology.model.NsiTopology;
  * Because we are forwarding to a nsa we need to get a network id managed by that nsa. So the StpType contains a id (stpId) that doesn't match the networkId.
  * The networkId is queried from the {@link ServiceInfoProvider} by nsa id.
  */
+@Component
+@Scope("prototype")
 public class ReachabilityPCE implements PCEModule {
 
     private final static Ordering<Entry<String, Map<String, Integer>>> REACHABILITY_TABLE_ORDERING = Ordering.from(new Comparator<Entry<String, Map<String, Integer>>>() {

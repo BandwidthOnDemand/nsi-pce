@@ -23,7 +23,12 @@ public class Main {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
 
     private static final String CONFIG_DEFAULT_PATH = "config/";
+    private static final String DEFAULT_TOPOLOGY_FILE = CONFIG_DEFAULT_PATH + "topology-dds.xml";
+    private static final String DEFAULT_DDS_FILE = CONFIG_DEFAULT_PATH + "dds.xml";
+    
     public static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
+    public static final String DDS_CONFIG_FILE_ARGNAME = "ddsConfigFile";
+    
     public static final String PCE_SERVER_CONFIG_NAME = "pce";
 
     // Keep running PCE while true.
@@ -61,10 +66,16 @@ public class Main {
 
         // Configuration directory option.
         Option topologyOption = new Option(TOPOLOGY_CONFIG_FILE_ARGNAME, true, "Path to your topology configuration file");
-        topologyOption.setRequired(true);
+        topologyOption.setRequired(false);
         options.addOption(topologyOption);
+        
+        Option ddsOption = new Option(DDS_CONFIG_FILE_ARGNAME, true, "Path to your DDS configuration file");
+        ddsOption.setRequired(false);
+        options.addOption(ddsOption);
 
-        options.addOption("c", true, "Where you keep your other configfiles (defaults to ./config)");
+        Option configOption = new Option("c", true, "Where you keep your other configfiles (defaults to ./config)");
+        configOption.setRequired(false);
+        options.addOption(configOption);
 
         // Parse the command line options.
         CommandLineParser parser = new GnuParser();
@@ -75,7 +86,7 @@ public class Main {
         } catch (ParseException e) {
             System.err.println("You did not provide the correct arguments, see usage below.");
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("java -jar pce.jar  -c [configDir] -topologyConfigFile [file] [-localNetworkId=[NSI network Id]].\n Setting the localNetworkId implies that you want to run in Gang Of 3 (reachability-pce) mode", options );
+            formatter.printHelp("java -jar pce.jar  [-c <configDir>] [-topologyConfigFile <filename>] [-ddsConfigFile <filename>]", options);
             System.exit(1);
         }
 
@@ -84,8 +95,20 @@ public class Main {
         if(configPath == null) {
             configPath = CONFIG_DEFAULT_PATH;
         }
+        
+        String topologyFile = cmd.getOptionValue(TOPOLOGY_CONFIG_FILE_ARGNAME);
+        if (topologyFile == null || topologyFile.isEmpty()) {
+            topologyFile = DEFAULT_TOPOLOGY_FILE;
+        }
 
-        System.setProperty("topologyProviderConfigPath", cmd.getOptionValue(TOPOLOGY_CONFIG_FILE_ARGNAME));
+        System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, topologyFile);
+        
+        String ddsFile = cmd.getOptionValue(DDS_CONFIG_FILE_ARGNAME);
+        if (ddsFile == null || ddsFile.isEmpty()) {
+            ddsFile = DEFAULT_DDS_FILE;
+        }
+
+        System.setProperty(DDS_CONFIG_FILE_ARGNAME, ddsFile);
 
         // Load PCE configuration from disk.
         ConfigurationManager.INSTANCE.initialize(configPath);
