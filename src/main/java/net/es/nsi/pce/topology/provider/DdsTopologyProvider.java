@@ -235,7 +235,7 @@ public class DdsTopologyProvider implements TopologyProvider {
         
         // Let the logger know we are starting another topology discovery run.
         pceLogger.setAuditTimeStamp(auditTime);
-        pceLogger.logAudit(PceLogs.AUDIT_START, "DsdTopologyProvider", "Full topology audit starting.");
+        pceLogger.logAudit(PceLogs.AUDIT_START, "DdsTopologyProvider", "Full topology audit starting.");
         
         // Set the provider status if this is not our first time.
         if (summaryStatus != TopologyStatusType.INITIALIZING) {
@@ -247,7 +247,7 @@ public class DdsTopologyProvider implements TopologyProvider {
     }
 
     private void ddsAuditError() {
-        pceLogger.errorAudit(PceErrors.AUDIT, "DsdTopologyProvider");
+        pceLogger.errorAudit(PceErrors.AUDIT, "DdsTopologyProvider");
         summaryStatus = TopologyStatusType.ERROR;
         providerStatus.setStatus(TopologyStatusType.ERROR);
         pceLogger.clearAuditTimeStamp();
@@ -260,7 +260,7 @@ public class DdsTopologyProvider implements TopologyProvider {
         providerStatus.setLastSuccessfulAudit(providerStatus.getLastAudit());
         providerStatus.setLastDiscovered(lastDiscovered);
         
-        pceLogger.logAudit(PceLogs.AUDIT_SUCCESSFUL, "DsdTopologyProvider", "Topology audit completed successfully.");        
+        pceLogger.logAudit(PceLogs.AUDIT_SUCCESSFUL, "DdsTopologyProvider", "Topology audit completed successfully.");        
         pceLogger.clearAuditTimeStamp();
     }
 

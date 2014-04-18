@@ -35,8 +35,12 @@ public class PCEServer {
                 try {
                     log.debug("PCEServer.start: Starting Grizzly on " + config.getUrl() + " for resources " + config.getPackageName());
                     server = GrizzlyHttpServerFactory.createHttpServer(URI.create(config.getUrl()), RestServer.getConfig(config.getPackageName()), false);
-                    StaticHttpHandler staticHttpHandler = new StaticHttpHandler(config.getStaticPath());
-                    server.getServerConfiguration().addHttpHandler(staticHttpHandler, config.getWwwPath());
+                    
+                    if (config.getStaticPath() != null && !config.getStaticPath().isEmpty()) {
+                        StaticHttpHandler staticHttpHandler = new StaticHttpHandler(config.getStaticPath());
+                        server.getServerConfiguration().addHttpHandler(staticHttpHandler, config.getWwwPath());
+                    }
+                    
                     server.start();
                     while (!server.isStarted()) {
                         log.debug("PCEServer.start: Waiting for Grizzly to start ...");

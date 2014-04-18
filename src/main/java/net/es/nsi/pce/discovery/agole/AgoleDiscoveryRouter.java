@@ -150,7 +150,6 @@ public class AgoleDiscoveryRouter extends UntypedActor {
     
     private void routeTimerEvent() {
         log.debug("routeTimerEvent: entering.");
-        Map<String, String> entryList = manifest.getEntryList();
         Set<String> notSent = new HashSet<>(discovery.keySet());
 
         for (Map.Entry<String, String> entry : manifest.getEntryList().entrySet()) {

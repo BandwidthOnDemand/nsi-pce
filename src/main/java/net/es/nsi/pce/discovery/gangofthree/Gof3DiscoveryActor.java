@@ -39,13 +39,9 @@ public class Gof3DiscoveryActor extends UntypedActor {
    
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ObjectFactory factory = new ObjectFactory();
-    //private Client client;
 
     @Override
     public void preStart() {
-        //ClientConfig clientConfig = new ClientConfig();
-        //RestClient.configureClient(clientConfig);
-        //client = ClientBuilder.newClient(clientConfig);
     }
 
     @Override

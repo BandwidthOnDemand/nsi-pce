@@ -121,21 +121,13 @@ public class DiscoveryConfiguration {
         
         setBaseURL(config.getBaseURL());
 
+        // The DocumentCache will created the directoy if not present.
         if (config.getDocuments() != null && !config.getDocuments().isEmpty()) {
-            File dir = new File(config.getDocuments());
-            if (!dir.exists()) {
-                pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_PARAMETER, "documents", config.getDocuments() + " does not exist.");
-                throw new FileNotFoundException("Invalid document source directroy: " + config.getDocuments());            
-            }
             setDocuments(config.getDocuments());
         }
         
+        // The DocumentCache will created the directoy if not present.
         if (config.getCache() != null && !config.getCache().isEmpty()) {
-            File dir = new File(config.getCache());
-            if (!dir.exists()) {
-                pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_PARAMETER, "cache", config.getCache() + " does not exist.");
-                throw new FileNotFoundException("Invalid cache location directory: " + config.getCache());        
-            }  
             setCache(config.getCache());
         }
 

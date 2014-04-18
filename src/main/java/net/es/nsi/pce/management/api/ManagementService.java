@@ -30,7 +30,6 @@ import net.es.nsi.pce.management.jaxb.LogListType;
 import net.es.nsi.pce.management.jaxb.LogType;
 import net.es.nsi.pce.management.jaxb.StatusType;
 import net.es.nsi.pce.management.jaxb.TopologyProviderType;
-import net.es.nsi.pce.management.jaxb.TopologyStatusType;
 import net.es.nsi.pce.management.jaxb.ObjectFactory;
 import net.es.nsi.pce.management.jaxb.TimerListType;
 import net.es.nsi.pce.management.jaxb.TimerStatusType;
