@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.google.common.annotations.VisibleForTesting;
 
 import net.es.nsi.pce.topology.jaxb.NsaType;
@@ -21,11 +18,13 @@ import net.es.nsi.pce.topology.provider.TopologyProvider;
  * - adds an entry for our own network with cost=0
  * - increments the reachability info provided by our peers with 1
 */
-@Component
 public class ReachabilityProcessor {
 
-    @Autowired
     private TopologyProvider topologyProvider;
+
+    ReachabilityProcessor(TopologyProvider topologyProvider) {
+        this.topologyProvider = topologyProvider;
+    }
 
     /**
      *

@@ -2,27 +2,21 @@ package net.es.nsi.pce.topology.dao;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import javax.annotation.PostConstruct;
+import java.io.IOException;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.config.jaxb.TopologyConfigurationType;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.schema.TopologyConfigurationParser;
 import net.es.nsi.pce.spring.SpringApplicationContext;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  *
  * @author hacksaw
  */
-@Component
-@Scope("singleton")
 public class TopologyConfiguration {
     private final PceLogger pceLogger = PceLogger.getLogger();
 
-    @Value("#{ systemProperties['topologyConfigFile'] }")
     private String filename = null;
 
     private long lastModified = 0;
@@ -38,15 +32,27 @@ public class TopologyConfiguration {
     
     // Default serviceType provided by topology.
     private String defaultServiceType = "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE";
-    
+
+    /**
+     * @return the filename
+     */
+    public String getFilename() {
+        return filename;
+    }
+ 
+    /**
+     * @return the filename
+     */
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
 
     public static TopologyConfiguration getInstance() {
         TopologyConfiguration configurationReader = SpringApplicationContext.getBean("topologyConfiguration", TopologyConfiguration.class);
         return configurationReader;
     }
 
-    @PostConstruct
-    public synchronized void load() throws IllegalArgumentException, JAXBException, FileNotFoundException, NullPointerException {
+    public synchronized void load() throws IllegalArgumentException, JAXBException, IOException, NullPointerException {
         // Make sure the condifuration file is set.
         if (getFilename() == null || getFilename().isEmpty()) {
             pceLogger.errorAudit(PceErrors.CONFIGURATION_INVALID_FILENAME, "filename", getFilename());
@@ -78,7 +84,7 @@ public class TopologyConfiguration {
             pceLogger.errorAudit(PceErrors.CONFIGURATION_INVALID_FILENAME, "filename", getFilename());
             throw nf;
         }
-        catch (JAXBException jaxb) {
+        catch (JAXBException | IOException jaxb) {
             pceLogger.errorAudit(PceErrors.CONFIGURATION_INVALID_XML, "filename", getFilename());
             throw jaxb;
         }
@@ -106,13 +112,6 @@ public class TopologyConfiguration {
         }
         
         lastModified = lastMod;
-    }
-    
-    /**
-     * @return the filename
-     */
-    public String getFilename() {
-        return filename;
     }
 
     /**

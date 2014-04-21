@@ -4,13 +4,15 @@
     xmlns:context="http://www.springframework.org/schema/context"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-
+<!--
     <context:annotation-config />
     
     <context:component-scan base-package="net.es.nsi.pce"/>
     
     <bean  class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
-
+-->
+    <bean id="springApplicationContext" class="net.es.nsi.pce.spring.SpringApplicationContext" scope="singleton" />
+    
     <bean id="httpConfigProvider" class="net.es.nsi.pce.config.http.JsonHttpConfigProvider" init-method="loadConfig" scope="singleton">
         <property name="filename" value="config/http.json"/>
     </bean>
@@ -18,11 +20,11 @@
     <bean id="pceServer" class="net.es.nsi.pce.server.PCEServer" scope="singleton">
         <constructor-arg index="0" ref="httpConfigProvider"/>
     </bean>
-
-    <!-- Autowired.
+    
+    <bean id="restClient" class="net.es.nsi.pce.jersey.RestClient" scope="singleton" />
 
     <bean id="discoveryConfiguration" class="net.es.nsi.pce.discovery.dao.DiscoveryConfiguration" init-method="load" scope="singleton">
-        <property name="filename" value="config/dds.xml"/>
+        <property name="filename" value="#{ systemProperties['ddsConfigFile'] }"/>
     </bean>
     
     <bean id="documentCache" class="net.es.nsi.pce.discovery.dao.DocumentCache" init-method="load" scope="singleton">
@@ -32,32 +34,89 @@
     <bean id="remoteSubscriptionCache" class="net.es.nsi.pce.discovery.dao.RemoteSubscriptionCache" scope="singleton" />
     
     <bean id="topologyConfiguration" class="net.es.nsi.pce.topology.dao.TopologyConfiguration" init-method="load" scope="singleton">
-        <property name="filename" value="config/topology-dds.xml"/>
+        <property name="filename" value="#{ systemProperties['topologyConfigFile'] }"/>
     </bean>
-    -->
-
-    <bean id="ddsActorSystem" class="net.es.nsi.pce.discovery.actors.DdsActorSystem" init-method="init" scope="singleton" depends-on="remoteSubscriptionCache, pceServer">
-        <constructor-arg index="0" ref="discoveryConfiguration"/>
+    
+    <bean id="agoleManifestReader" class="net.es.nsi.pce.discovery.agole.AgoleManifestReader" scope="prototype" lazy-init="true">
+        <constructor-arg index="0" ref="restClient"/>
+    </bean>
+    
+    <bean id="ddsActorSystem" class="net.es.nsi.pce.discovery.actors.DdsActorSystem" scope="singleton" />
+    
+    <bean id="localDocumentActor" class="net.es.nsi.pce.discovery.actors.LocalDocumentActor" scope="singleton" lazy-init="true">
+        <constructor-arg index="0" ref="ddsActorSystem"/>
+        <constructor-arg index="1" ref="discoveryConfiguration"/>
+        <property name="interval" value="300"/>
+    </bean>
+    
+    <bean id="documentExpiryActor" class="net.es.nsi.pce.discovery.actors.DocumentExpiryActor" scope="singleton" lazy-init="true">
+        <constructor-arg index="0" ref="ddsActorSystem"/>
         <constructor-arg index="1" ref="documentCache"/>
+        <property name="interval" value="600"/>
+    </bean>
+    
+    <bean id="configurationActor" class="net.es.nsi.pce.discovery.actors.ConfigurationActor" scope="singleton" lazy-init="true">
+        <constructor-arg index="0" ref="ddsActorSystem"/>
+        <constructor-arg index="1" ref="discoveryConfiguration"/>
+        <property name="interval" value="300"/>
+    </bean>
+    
+    <bean id="agoleDiscoveryRouter" class="net.es.nsi.pce.discovery.agole.AgoleDiscoveryRouter" scope="singleton" lazy-init="true">
+        <constructor-arg index="0" ref="ddsActorSystem"/>
+        <constructor-arg index="1" ref="discoveryConfiguration"/>
+        <constructor-arg index="2" ref="agoleManifestReader"/>
+        <property name="poolSize" value="10"/>
+        <property name="interval" value="600"/>
+    </bean>
+    
+    <bean id="gof3DiscoveryRouter" class="net.es.nsi.pce.discovery.gangofthree.Gof3DiscoveryRouter" scope="singleton" lazy-init="true">
+        <constructor-arg index="0" ref="ddsActorSystem"/>
+        <constructor-arg index="1" ref="discoveryConfiguration"/>
+        <property name="poolSize" value="5"/>
+        <property name="interval" value="600"/>
+    </bean>
+    
+    <bean id="registrationRouter" class="net.es.nsi.pce.discovery.actors.RegistrationRouter" scope="singleton" lazy-init="true">
+        <constructor-arg index="0" ref="ddsActorSystem"/>
+        <constructor-arg index="1" ref="discoveryConfiguration"/>
+        <constructor-arg index="2" ref="remoteSubscriptionCache"/>
+        <property name="poolSize" value="5"/>
+        <property name="interval" value="600"/>
+    </bean>
+    
+    <bean id="notificationRouter" class="net.es.nsi.pce.discovery.actors.NotificationRouter" scope="singleton" lazy-init="true">
+        <constructor-arg index="0" ref="ddsActorSystem"/>
+        <constructor-arg index="1" ref="discoveryConfiguration"/>
+        <constructor-arg index="2" ref="discoveryProvider"/>
+        <constructor-arg index="3" ref="documentCache"/>
+        <property name="poolSize" value="5"/>
+    </bean>
+
+    <bean id="ddsActorController" class="net.es.nsi.pce.discovery.actors.DdsActorController" init-method="init" scope="singleton" depends-on="remoteSubscriptionCache, pceServer">
+        <constructor-arg index="0" ref="ddsActorSystem"/>
+        <constructor-arg index="1" ref="discoveryConfiguration"/>
+        <constructor-arg index="2" ref="documentCache"/>
     </bean>
 
     <bean id="discoveryProvider" class="net.es.nsi.pce.discovery.provider.DdsProvider" init-method="init" scope="singleton" depends-on="pceServer">
         <constructor-arg index="0" ref="discoveryConfiguration"/>
         <constructor-arg index="1" ref="documentCache"/>
-        <constructor-arg index="2" ref="ddsActorSystem"/>
+        <constructor-arg index="2" ref="ddsActorController"/>
     </bean>
 
     <bean id="topologyProvider" class="net.es.nsi.pce.topology.provider.DdsTopologyProvider" init-method="init" scope="singleton" depends-on="discoveryProvider">
         <constructor-arg index="0" ref="topologyConfiguration"/>
     </bean>
 
-    <!-- Autowired
-    <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE" />
-    <bean id="dijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" />
-    <bean id="authPCE" class="net.es.nsi.pce.pf.AuthPCE" />
-    <bean id="policyPCE" class="net.es.nsi.pce.pf.PolicyPCE" />
-    <bean id="resolvePCE" class="net.es.nsi.pce.pf.ResolvePCE" />
-    -->
+    <bean id="reachabilityProcessor" class="net.es.nsi.pce.pf.api.gof3.ReachabilityProcessor" scope="singleton">
+        <constructor-arg index="0" ref="topologyProvider"/>
+    </bean>
+    
+    <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE" scope="prototype" />    
+    <bean id="dijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="prototype" />
+    <bean id="authPCE" class="net.es.nsi.pce.pf.AuthPCE" scope="prototype" />
+    <bean id="policyPCE" class="net.es.nsi.pce.pf.PolicyPCE" scope="prototype" />
+    <bean id="resolvePCE" class="net.es.nsi.pce.pf.ResolvePCE" scope="prototype" />
 
     <bean id="chainPCE" class="net.es.nsi.pce.pf.SequentialPCE">
         <property name="moduleList">

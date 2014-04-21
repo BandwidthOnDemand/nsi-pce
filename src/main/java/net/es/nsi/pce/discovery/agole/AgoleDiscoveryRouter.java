@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.discovery.actors.DdsActorSystem;
+import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
 import net.es.nsi.pce.discovery.jaxb.PeerURLType;
 import net.es.nsi.pce.discovery.messages.StartMsg;
 import net.es.nsi.pce.schema.NsiConstants;
@@ -46,32 +47,38 @@ public class AgoleDiscoveryRouter extends UntypedActor {
     private int poolSize;
     private Router router = null;
     private Map<String, AgoleDiscoveryMsg> discovery = new ConcurrentHashMap<>();
+    
+    private TopologyManifest manifest;
+    
+    private DiscoveryConfiguration discoveryConfiguration;
     private AgoleManifestReader manifestReader;
-    private TopologyManifest manifest = null;
+    
+    private boolean isConfigured = false;
 
-    public AgoleDiscoveryRouter(DdsActorSystem ddsActorSystem, int poolSize, long interval) {
+    public AgoleDiscoveryRouter(DdsActorSystem ddsActorSystem, DiscoveryConfiguration discoveryConfiguration, AgoleManifestReader manifestReader) {
         this.ddsActorSystem = ddsActorSystem;
-        this.interval = interval;
-        this.poolSize = poolSize;
+        this.discoveryConfiguration = discoveryConfiguration;
+        this.manifestReader = manifestReader;
     }
 
     @Override
     public void preStart() {
-        Set<PeerURLType> discoveryURL = ddsActorSystem.getConfigReader().getDiscoveryURL();
+        Set<PeerURLType> discoveryURL = discoveryConfiguration.getDiscoveryURL();
         for (PeerURLType url : discoveryURL) {
             if (url.getType().equalsIgnoreCase(NsiConstants.NSI_TOPOLOGY_V1)) {
-                manifestReader = new AgoleManifestReader(url.getValue());
+                manifestReader.setTarget(url.getValue());
+                isConfigured = true;
                 break;
             }
         }
         
-        if (manifestReader == null) {
+        if (!isConfigured) {
             log.info("AgoleDiscoveryRouter: No AGOLE URL provisioned so disabling audit.");
             return;
         }
 
         List<Routee> routees = new ArrayList<>();
-        for (int i = 0; i < poolSize; i++) {
+        for (int i = 0; i < getPoolSize(); i++) {
             ActorRef r = getContext().actorOf(Props.create(AgoleDiscoveryActor.class));
             getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
@@ -87,7 +94,7 @@ public class AgoleDiscoveryRouter extends UntypedActor {
         if (msg instanceof StartMsg) {
             // Create a Register event to start us off.
             msg = message;
-            if (manifestReader == null) {
+            if (!isConfigured) {
                 log.info("onReceive: StartMsg no AGOLE URL provisioned so disabling audit.");
                 return;
             }
@@ -95,7 +102,7 @@ public class AgoleDiscoveryRouter extends UntypedActor {
 
         if (msg instanceof TimerMsg) {
             log.debug("onReceive: timer event.");
-            if (manifestReader == null) {
+            if (!isConfigured) {
                 log.info("onReceive: TimerMsg no AGOLE URL provisioned so disabling audit.");
                 return;
             }
@@ -103,7 +110,7 @@ public class AgoleDiscoveryRouter extends UntypedActor {
                 routeTimerEvent();
             }
             
-            ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
+            ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
         }
         else if (msg instanceof AgoleDiscoveryMsg) {
             AgoleDiscoveryMsg incoming = (AgoleDiscoveryMsg) msg;
@@ -207,5 +214,33 @@ public class AgoleDiscoveryRouter extends UntypedActor {
         manifestStatus.setStatus(TopologyStatusType.COMPLETED);
         manifestStatus.setLastSuccessfulAudit(manifestStatus.getLastAudit());
         manifestStatus.setLastDiscovered(manifestReader.getLastModified());
+    }
+
+    /**
+     * @return the interval
+     */
+    public long getInterval() {
+        return interval;
+    }
+
+    /**
+     * @param interval the interval to set
+     */
+    public void setInterval(long interval) {
+        this.interval = interval;
+    }
+
+    /**
+     * @return the poolSize
+     */
+    public int getPoolSize() {
+        return poolSize;
+    }
+
+    /**
+     * @param poolSize the poolSize to set
+     */
+    public void setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
     }
 }

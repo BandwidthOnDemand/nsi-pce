@@ -7,8 +7,8 @@ package net.es.nsi.pce.discovery;
 import java.io.File;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import net.es.nsi.pce.config.SpringContext;
-import net.es.nsi.pce.discovery.actors.DdsActorSystem;
+import net.es.nsi.pce.spring.SpringContext;
+import net.es.nsi.pce.discovery.actors.DdsActorController;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public class TestURLEncode {
         context.getBean("topologyProvider");
         Thread.sleep(60*1000);
         System.out.println("TestConfig: ddsActorSystem");
-        DdsActorSystem actorSystem = (DdsActorSystem) context.getBean("ddsActorSystem");
+        DdsActorController actorSystem = (DdsActorController) context.getBean("ddsActorSystem");
         actorSystem.shutdown();
     }
 }

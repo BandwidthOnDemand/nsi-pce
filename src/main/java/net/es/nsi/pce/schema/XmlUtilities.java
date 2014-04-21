@@ -1,6 +1,7 @@
 package net.es.nsi.pce.schema;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -61,7 +62,7 @@ public class XmlUtilities {
 
             // We will write the XML encoding into a string.
             StringWriter writer = new StringWriter();
-
+            String result;
             try {
                 // We will use JAXB to marshal the java objects.
                 final JAXBContext jaxbContext = JAXBContext.newInstance(xmlClass);
@@ -70,21 +71,26 @@ public class XmlUtilities {
                 Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
                 jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
                 jaxbMarshaller.marshal(jaxbElement, writer);
+                result = writer.toString();
             } catch (Exception e) {             
                 // Something went wrong so get out of here.
                 return null;
             }
-
+            finally {
+                try { writer.close(); } catch (IOException ex) {}
+            }
+            
             // Return the XML string.
-            return writer.toString();
+            return result;
 	}
     
     public static JAXBElement<?> xmlToJaxb(Class<?> xmlClass, String xml) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(xmlClass);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-
-        StringReader reader = new StringReader(xml);
-        JAXBElement<?> element = (JAXBElement<?>) unmarshaller.unmarshal(reader);
+        JAXBElement<?> element;
+        try (StringReader reader = new StringReader(xml)) {
+            element = (JAXBElement<?>) unmarshaller.unmarshal(reader);
+        }
         return element;
     }
 

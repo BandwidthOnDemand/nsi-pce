@@ -30,7 +30,6 @@ import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.management.logs.PceLogger;
-import net.es.nsi.pce.management.logs.PceLogs;
 import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
 import net.es.nsi.pce.topology.jaxb.DdsDocumentType;

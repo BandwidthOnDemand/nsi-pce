@@ -16,7 +16,6 @@ import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 /**
  * This class reads a remote XML formatted NML topology and creates simple
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Component;
  * 
  * @author hacksaw
  */
-@Component
 public class AgoleTopologyReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private PceLogger topologyLogger = PceLogger.getLogger();
@@ -34,10 +32,15 @@ public class AgoleTopologyReader {
     private String target;
     private long lastModifiedTime;
 
+    private ClientConfig clientConfig;
+    
     /**
      * Default class constructor.
      */
-    public AgoleTopologyReader() {}
+    public AgoleTopologyReader() {
+        clientConfig = new ClientConfig();
+        RestClient.configureClient(clientConfig);
+    }
     
     /**
      * Class constructor takes the remote location URL from which to load the
@@ -49,6 +52,8 @@ public class AgoleTopologyReader {
         this.id = id;
         this.target = target;
         this.lastModifiedTime = lastModifiedTime;
+        clientConfig = new ClientConfig();
+        RestClient.configureClient(clientConfig);
     }
     
     /**
@@ -58,8 +63,6 @@ public class AgoleTopologyReader {
      */
     public NmlNSAType readNsaTopology() throws Exception {
         // Use the REST client to retrieve the master topology as a string.
-        ClientConfig clientConfig = new ClientConfig();
-        RestClient.configureClient(clientConfig);
         Client client = ClientBuilder.newClient(clientConfig);
         WebTarget webGet = client.target(target);
         
@@ -77,12 +80,14 @@ public class AgoleTopologyReader {
         if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
             log.debug("readNsaTopology: NOT_MODIFIED returned " + target);
             client.close();
+            response.close();
             return null;
         }
         
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
             topologyLogger.errorAudit(PceErrors.AUDIT_NSA_COMMS, target, Integer.toString(response.getStatus()));
             client.close();
+            response.close();
             throw new NotFoundException("Failed to retrieve NSA topology " + target);
         }
         
@@ -99,6 +104,7 @@ public class AgoleTopologyReader {
         // because GitHub is returning incorrect media type (text/plain).
         String xml = response.readEntity(String.class);
         client.close();
+        response.close();
  
         log.debug("readNsaTopology: input message " + xml);
         

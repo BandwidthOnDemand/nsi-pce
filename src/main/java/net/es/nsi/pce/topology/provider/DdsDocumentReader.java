@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -23,7 +22,6 @@ import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
 import net.es.nsi.pce.schema.NsiConstants;
-import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.http.client.utils.DateUtils;
@@ -48,6 +46,8 @@ public class DdsDocumentReader {
     // Documents of the specified type discovered as local to this DDS service.
     private DdsDocumentListType localDocuments = new DdsDocumentListType();
     
+    private RestClient restClient;
+    
     /**
      * Class constructor takes the remote location URL from which to load the
      * NSA's associated NML topology.
@@ -57,6 +57,7 @@ public class DdsDocumentReader {
     public DdsDocumentReader(String target, String type) {
         this.target = target;
         this.type = type;
+        this.restClient = RestClient.getInstance();
     }
     
     /**
@@ -179,9 +180,7 @@ public class DdsDocumentReader {
     
     private DdsDocumentListType readSummary() throws NotFoundException, JAXBException, UnsupportedEncodingException {
         // Use the REST client to retrieve the master topology as a string. 
-        ClientConfig clientConfig = new ClientConfig();
-        RestClient.configureClient(clientConfig);
-        Client client = ClientBuilder.newClient(clientConfig);
+        Client client = restClient.get();
         final WebTarget webGet = client.target(target).path("documents");
         
         Response response = null;
@@ -192,13 +191,17 @@ public class DdsDocumentReader {
         }
         catch (Exception ex) {
             topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, ex.getMessage());
-            client.close();
+            //client.close();
+            if (response != null) {
+                response.close();
+            }
             throw ex;
         }
         
         if (response.getStatus() != Status.OK.getStatusCode()) {
             topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, Integer.toString(response.getStatus()));
-            client.close();
+            //client.close();
+            response.close();
             throw new NotFoundException("Failed to retrieve document summary (" + response.getStatus() + ") from target=" + target);
         }
         
@@ -217,15 +220,14 @@ public class DdsDocumentReader {
             }
         }
         
-        client.close();
+        //client.close();
+        response.close();
         return documents;
     }
     
     private DdsDocumentType readDetails(String href) throws NotFoundException, JAXBException, UnsupportedEncodingException {
          // Use the REST client to retrieve the master topology as a string.
-        ClientConfig clientConfig = new ClientConfig();
-        RestClient.configureClient(clientConfig);
-        Client client = ClientBuilder.newClient(clientConfig);
+        Client client = restClient.get();
         final WebTarget webGet = client.target(target).path(href);
         
         Response response = null;
@@ -234,13 +236,17 @@ public class DdsDocumentReader {
         }
         catch (Exception ex) {
             topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, ex.getMessage());
-            client.close();
+            //client.close();
+            if (response != null) {
+                response.close();
+            }
             throw ex;
         }
         
         if (response.getStatus() != Status.OK.getStatusCode()) {
             topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, Integer.toString(response.getStatus()));
-            client.close();
+            //client.close();
+            response.close();
             throw new NotFoundException("Failed to retrieve document (" + response.getStatus() + ") from target=" + target + ", path=" + href);
         }
         
@@ -259,15 +265,15 @@ public class DdsDocumentReader {
             }
         }
         
-        client.close();
+        //client.close();
+        response.close();
         return document;
     }
     
     private DdsDocumentListType readLocal() throws NotFoundException, JAXBException, UnsupportedEncodingException {
          // Use the REST client to retrieve the document.
-        ClientConfig clientConfig = new ClientConfig();
-        RestClient.configureClient(clientConfig);
-        Client client = ClientBuilder.newClient(clientConfig);
+        Client client = restClient.get();
+
         String encode = URLEncoder.encode(type, "UTF-8");
         final WebTarget webGet = client.target(target).path("local").path(encode);
         
@@ -279,13 +285,17 @@ public class DdsDocumentReader {
         }
         catch (Exception ex) {
             topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, ex.getMessage());
-            client.close();
+            if (response != null) {
+                response.close();
+            }
+            //client.close();
             throw ex;
         }
         
         if (response.getStatus() != Status.OK.getStatusCode()) {
             topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, Integer.toString(response.getStatus()));
-            client.close();
+            response.close();
+            //client.close();
             throw new NotFoundException("Failed to retrieve document (" + response.getStatus() + ") from target=" + target + ", path=local/" + encode);
         }
 
@@ -297,7 +307,8 @@ public class DdsDocumentReader {
             }
         }
         
-        client.close();
+        response.close();
+        //client.close();
         return documents;
     }
 

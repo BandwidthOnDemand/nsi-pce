@@ -3,6 +3,7 @@ package net.es.nsi.pce.schema;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.StringReader;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -71,15 +72,18 @@ public class NmlParser {
      * @throws JAXBException If the XML contained in the file is not valid.
      * @throws FileNotFoundException If the specified file was not found.
      */
-    public NmlNSAType parseNSAFromFile(String file) throws JAXBException, FileNotFoundException {
+    @SuppressWarnings("unchecked")
+    public NmlNSAType parseNSAFromFile(String file) throws JAXBException, IOException {
         // Make sure we initialized properly.
         if (jaxbContextNSA == null) {
             throw new JAXBException("NmlParser: Failed to load JAXB instance");
         }
         
         // Parse the specified file.
-        @SuppressWarnings("unchecked")
-        JAXBElement<NmlNSAType> nsaElement = (JAXBElement<NmlNSAType>) jaxbContextNSA.createUnmarshaller().unmarshal(new BufferedInputStream(new FileInputStream(file)));
+        JAXBElement<NmlNSAType> nsaElement;
+        try (FileInputStream fileInputStream = new FileInputStream(file); BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream)) {
+            nsaElement = (JAXBElement<NmlNSAType>) jaxbContextNSA.createUnmarshaller().unmarshal(bufferedInputStream);
+        }
         
         // Return the NSAType object.
         return nsaElement.getValue();
@@ -93,17 +97,17 @@ public class NmlParser {
      * @throws JAXBException If the XML contained in the string is not valid.
      * @throws JAXBException If the XML is not well formed.
      */
+    @SuppressWarnings("unchecked")
     public NmlTopologyType parseTopologyFromString(String xml) throws JAXBException {
         // Make sure we initialized properly.
         if (jaxbContextTopology == null) {
             throw new JAXBException("NmlParser: Failed to load JAXB Topology instance");
         }
-        
-        // Parse the specified XML string.
-        StringReader reader = new StringReader(xml);
-        
-        @SuppressWarnings("unchecked")
-        JAXBElement<NmlTopologyType> topologyElement = (JAXBElement<NmlTopologyType>) jaxbContextNSA.createUnmarshaller().unmarshal(reader);
+
+        JAXBElement<NmlTopologyType> topologyElement;
+        try (StringReader reader = new StringReader(xml)) {
+            topologyElement = (JAXBElement<NmlTopologyType>) jaxbContextNSA.createUnmarshaller().unmarshal(reader);
+        }
         
         // Return the NSAType object.
         return topologyElement.getValue();

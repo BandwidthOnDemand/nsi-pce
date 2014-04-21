@@ -8,7 +8,6 @@ import net.es.nsi.pce.discovery.messages.Notification;
 import akka.actor.UntypedActor;
 import java.util.Date;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericEntity;
@@ -16,6 +15,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.config.ConfigurationManager;
+import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
 import net.es.nsi.pce.discovery.jaxb.NotificationListType;
 import net.es.nsi.pce.discovery.jaxb.NotificationType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
@@ -23,7 +23,6 @@ import net.es.nsi.pce.discovery.provider.DiscoveryProvider;
 import net.es.nsi.pce.discovery.provider.Document;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.schema.XmlUtilities;
-import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +34,12 @@ public class NotificationActor extends UntypedActor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ObjectFactory factory = new ObjectFactory();
-    private DdsActorSystem ddsActorSystem;
+    private DiscoveryConfiguration discoveryConfiguration;
+    private RestClient restClient;
     
-    public NotificationActor(DdsActorSystem ddsActorSystem) {
-        this.ddsActorSystem = ddsActorSystem;
+    public NotificationActor(DiscoveryConfiguration discoveryConfiguration) {
+        this.discoveryConfiguration = discoveryConfiguration;
+        restClient = RestClient.getInstance();
     }
 
     @Override
@@ -75,7 +76,7 @@ public class NotificationActor extends UntypedActor {
             
             list.setId(notification.getSubscription().getId());
             list.setHref(notification.getSubscription().getSubscription().getHref());
-            list.setProviderId(ddsActorSystem.getConfigReader().getNsaId());
+            list.setProviderId(discoveryConfiguration.getNsaId());
             try {
                 XMLGregorianCalendar discovered = XmlUtilities.longToXMLGregorianCalendar(lastDiscovered.getTime());
                 list.setDiscovered(discovered);
@@ -84,9 +85,7 @@ public class NotificationActor extends UntypedActor {
                 log.error("NotificationActor: discovered date conversion failed", ex);
             }
             
-            ClientConfig clientConfig = new ClientConfig();
-            RestClient.configureClient(clientConfig);
-            Client client = ClientBuilder.newClient(clientConfig);
+            Client client = restClient.get();
             
             final WebTarget webTarget = client.target(notification.getSubscription().getSubscription().getCallback());
             
@@ -104,7 +103,9 @@ public class NotificationActor extends UntypedActor {
             else if (log.isDebugEnabled()) {
                 log.debug("NotificationActor: sent notitifcation " + list.getId() + " to client " + notification.getSubscription().getSubscription().getCallback() + ", result = " + response.getStatusInfo().getReasonPhrase());
             }
-            client.close();
+            
+            response.close();
+            //client.close();
         } else {
             unhandled(msg);
         }

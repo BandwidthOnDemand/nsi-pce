@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
 import net.es.nsi.pce.discovery.jaxb.PeerURLType;
 import net.es.nsi.pce.discovery.messages.StartMsg;
 import net.es.nsi.pce.schema.NsiConstants;
@@ -36,21 +37,21 @@ public class Gof3DiscoveryRouter extends UntypedActor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     private DdsActorSystem ddsActorSystem;
+    private DiscoveryConfiguration discoveryConfiguration;
     private int poolSize;
     private long interval;
     private Router router;
     private Map<String, Gof3DiscoveryMsg> discovery = new ConcurrentHashMap<>();
 
-    public Gof3DiscoveryRouter(DdsActorSystem ddsActorSystem, int poolSize, long interval) {
+    public Gof3DiscoveryRouter(DdsActorSystem ddsActorSystem, DiscoveryConfiguration discoveryConfiguration) {
         this.ddsActorSystem = ddsActorSystem;
-        this.poolSize = poolSize;
-        this.interval = interval;
+        this.discoveryConfiguration = discoveryConfiguration;
     }
 
     @Override
     public void preStart() {
         List<Routee> routees = new ArrayList<>();
-        for (int i = 0; i < poolSize; i++) {
+        for (int i = 0; i < getPoolSize(); i++) {
             ActorRef r = getContext().actorOf(Props.create(Gof3DiscoveryActor.class));
             getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
@@ -71,7 +72,7 @@ public class Gof3DiscoveryRouter extends UntypedActor {
         if (msg instanceof TimerMsg) {
             log.debug("onReceive: timer event.");
             routeTimerEvent();
-            ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
+            ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
         }
         else if (msg instanceof Gof3DiscoveryMsg) {
             Gof3DiscoveryMsg incoming = (Gof3DiscoveryMsg) msg;
@@ -94,7 +95,7 @@ public class Gof3DiscoveryRouter extends UntypedActor {
     }
     
     private void routeTimerEvent() {
-        Set<PeerURLType> discoveryURL = ddsActorSystem.getConfigReader().getDiscoveryURL();
+        Set<PeerURLType> discoveryURL = discoveryConfiguration.getDiscoveryURL();
         Set<String> notSent = new HashSet<>(discovery.keySet());
 
         for (PeerURLType url : discoveryURL) {
@@ -119,5 +120,33 @@ public class Gof3DiscoveryRouter extends UntypedActor {
             log.debug("routeTimerEvent: entry no longer needed, url=" + url);
             discovery.remove(url);
         }
+    }
+
+    /**
+     * @return the poolSize
+     */
+    public int getPoolSize() {
+        return poolSize;
+    }
+
+    /**
+     * @param poolSize the poolSize to set
+     */
+    public void setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
+    }
+
+    /**
+     * @return the interval
+     */
+    public long getInterval() {
+        return interval;
+    }
+
+    /**
+     * @param interval the interval to set
+     */
+    public void setInterval(long interval) {
+        this.interval = interval;
     }
 }

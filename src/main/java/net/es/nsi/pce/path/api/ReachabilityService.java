@@ -12,7 +12,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.google.gson.Gson;
 
-import net.es.nsi.pce.config.SpringContext;
+import net.es.nsi.pce.spring.SpringContext;
 import net.es.nsi.pce.pf.api.gof3.ReachabilityProcessor;
 
 @Path("/reachability")

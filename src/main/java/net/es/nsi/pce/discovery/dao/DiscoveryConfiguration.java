@@ -5,9 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
-import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.discovery.jaxb.PeerURLType;
 import net.es.nsi.pce.discovery.jaxb.DiscoveryConfigurationType;
@@ -15,16 +14,11 @@ import net.es.nsi.pce.discovery.provider.DiscoveryParser;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.spring.SpringApplicationContext;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  *
  * @author hacksaw
  */
-@Component
-@Scope("singleton")
 public class DiscoveryConfiguration {
     private final PceLogger pceLogger = PceLogger.getLogger();
     
@@ -39,8 +33,7 @@ public class DiscoveryConfiguration {
     public static final int ACTORPOOL_MAX_SIZE = 100;
     public static final int ACTORPOOL_DEFAULT_SIZE = 20;
     public static final int ACTORPOOL_MIN_SIZE = 5;
-    
-    @Value("#{ systemProperties['ddsConfigFile'] }")
+
     private String filename = null;
     
     private long lastModified = 0;
@@ -51,7 +44,7 @@ public class DiscoveryConfiguration {
     private long auditInterval = DEFAULT_AUDIT_INTERVAL;
     private long expiryInterval = EXPIRE_INTERVAL_DEFAULT;
     private int actorPool = ACTORPOOL_DEFAULT_SIZE;
-    private Set<PeerURLType> discoveryURL = new CopyOnWriteArraySet<>();
+    private Set<PeerURLType> discoveryURL = new HashSet<>();
 
     public static DiscoveryConfiguration getInstance() {
         DiscoveryConfiguration configurationReader = SpringApplicationContext.getBean("discoveryConfiguration", DiscoveryConfiguration.class);
@@ -68,8 +61,7 @@ public class DiscoveryConfiguration {
     public void setFilename(String filename) {
         this.filename = filename;
     }
-    
-    @PostConstruct
+
     public synchronized void load() throws IllegalArgumentException, JAXBException, IOException, NullPointerException {
         // Make sure the condifuration file is set.
         if (getFilename() == null || getFilename().isEmpty()) {

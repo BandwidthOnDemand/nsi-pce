@@ -152,10 +152,9 @@ public class DdsTopologyProvider implements TopologyProvider {
             return;
         }
 
-        NsiTopology newTopology;
         NsiTopologyFactory nsiFactory = new NsiTopologyFactory();
         nsiFactory.setDefaultServiceType(configuration.getDefaultServiceType());
-        newTopology = nsiFactory.createNsiTopology(localNsaDocuments, nsaDocuments, localTopologyDocuments, topologyDocuments);
+        NsiTopology newTopology = nsiFactory.createNsiTopology(localNsaDocuments, nsaDocuments, localTopologyDocuments, topologyDocuments);
         lastDiscovered = nsiFactory.getLastDiscovered();
         newTopology = consolidateGlobalTopology(newTopology);
         newTopology.setLastDiscovered(lastDiscovered);

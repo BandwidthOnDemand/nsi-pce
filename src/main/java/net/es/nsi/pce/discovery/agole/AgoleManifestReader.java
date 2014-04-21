@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -18,11 +17,9 @@ import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.topology.jaxb.NmlNetworkObject;
 import net.es.nsi.pce.topology.jaxb.NmlTopologyType;
 import net.es.nsi.pce.management.logs.PceLogger;
-import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.http.client.utils.DateUtils;
-import org.springframework.stereotype.Component;
 
 /**
  * This class reads a remote XML formatted NML topology containing the list of
@@ -31,7 +28,6 @@ import org.springframework.stereotype.Component;
  * 
  * @author hacksaw
  */
-@Component
 public class AgoleManifestReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private PceLogger topologyLogger = PceLogger.getLogger();
@@ -50,19 +46,13 @@ public class AgoleManifestReader {
     // The version of the last read master topology.
     private TopologyManifest manifest = null;
     
+    private RestClient restClient;
+    
     /**
      * Default class constructor.
      */
-    public AgoleManifestReader() {}
-    
-    /**
-     * Class constructor takes the remote location URL from which to load the
-     * NSA's associated NML topology.
-     * 
-     * @param target Location of the NSA's XML based NML topology.
-     */
-    public AgoleManifestReader(String target) {
-        this.target = target;
+    public AgoleManifestReader(RestClient restClient) {
+        this.restClient = restClient;
     }
 
     /**
@@ -122,9 +112,7 @@ public class AgoleManifestReader {
      */
     private TopologyManifest readManifest() throws NotFoundException, JAXBException {
         // Use the REST client to retrieve the master topology as a string.
-        ClientConfig clientConfig = new ClientConfig();
-        RestClient.configureClient(clientConfig);
-        Client client = ClientBuilder.newClient(clientConfig);
+        Client client = restClient.get();
         WebTarget webGet = client.target(getTarget());
         
         Response response = null;
@@ -133,19 +121,21 @@ public class AgoleManifestReader {
         }
         catch (Exception ex) {
             topologyLogger.errorAudit(PceErrors.AUDIT_MANIFEST_COMMS, getTarget(), ex.getMessage());
-            client.close();
+            //client.close();
             throw ex;
         }
         
         // A 304 Not Modified indicates we already have a up-to-date document.
         if (response.getStatus() == Status.NOT_MODIFIED.getStatusCode()) {
-            client.close();
+            //client.close();
+            response.close();
             return null;
         }
         
         if (response.getStatus() != Status.OK.getStatusCode()) {
             topologyLogger.errorAudit(PceErrors.AUDIT_MANIFEST_COMMS, getTarget(), Integer.toString(response.getStatus()));
-            client.close();
+            //client.close();
+            response.close();
             throw new NotFoundException("Failed to retrieve master topology " + getTarget());
         }
         
@@ -159,7 +149,8 @@ public class AgoleManifestReader {
         // Now we want the NML XML document.
         String xml = response.readEntity(String.class);
         
-        client.close();
+        //client.close();
+        response.close();
         
         // Parse the master topology.
         NmlTopologyType topology;

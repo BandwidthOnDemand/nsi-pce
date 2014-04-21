@@ -18,7 +18,7 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.discovery.dao.DocumentCache;
 import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
-import net.es.nsi.pce.discovery.actors.DdsActorSystem;
+import net.es.nsi.pce.discovery.actors.DdsActorController;
 import net.es.nsi.pce.discovery.messages.DocumentEvent;
 import net.es.nsi.pce.discovery.messages.SubscriptionEvent;
 import net.es.nsi.pce.discovery.api.DiscoveryError;
@@ -48,15 +48,15 @@ public class DdsProvider implements DiscoveryProvider {
     private DocumentCache documentCache;
     
     // The actor system used to send notifications.
-    private DdsActorSystem ddsActorSystem;
+    private DdsActorController ddsActorController;
     
     // In-memory subscription cache indexed by subscriptionId.
     private Map<String, Subscription> subscriptions = new ConcurrentHashMap<>();
  
-    public DdsProvider(DiscoveryConfiguration configuration, DocumentCache documentCache, DdsActorSystem ddsActorSystem) {
+    public DdsProvider(DiscoveryConfiguration configuration, DocumentCache documentCache, DdsActorController ddsActorController) {
         this.configReader = configuration;
         this.documentCache = documentCache;
-        this.ddsActorSystem = ddsActorSystem;
+        this.ddsActorController = ddsActorController;
     }
     
     public static DiscoveryProvider getInstance() {
@@ -71,7 +71,7 @@ public class DdsProvider implements DiscoveryProvider {
     
     @Override
     public void start() {
-        ddsActorSystem.start();
+        ddsActorController.start();
     }   
  
     @Override
@@ -88,7 +88,7 @@ public class DdsProvider implements DiscoveryProvider {
         SubscriptionEvent se = new SubscriptionEvent();
         se.setEvent(SubscriptionEvent.Event.New);
         se.setSubscription(subscription);
-        Cancellable scheduleOnce = ddsActorSystem.scheduleNotification(se, 5);
+        Cancellable scheduleOnce = ddsActorController.scheduleNotification(se, 5);
         subscription.setAction(scheduleOnce);
         
         return subscription;
@@ -141,7 +141,7 @@ public class DdsProvider implements DiscoveryProvider {
         SubscriptionEvent se = new SubscriptionEvent();
         se.setEvent(SubscriptionEvent.Event.Update);
         se.setSubscription(subscription);
-        ddsActorSystem.sendNotification(se);
+        ddsActorController.sendNotification(se);
         
         return subscription;
     }
@@ -297,7 +297,7 @@ public class DdsProvider implements DiscoveryProvider {
         DocumentEvent de = new DocumentEvent();
         de.setEvent(DocumentEventType.NEW);
         de.setDocument(document);
-        ddsActorSystem.sendNotification(de);
+        ddsActorController.sendNotification(de);
         return document;
     }
     
@@ -368,7 +368,7 @@ public class DdsProvider implements DiscoveryProvider {
         DocumentEvent de = new DocumentEvent();
         de.setEvent(DocumentEventType.UPDATED);
         de.setDocument(newDoc);
-        ddsActorSystem.sendNotification(de);
+        ddsActorController.sendNotification(de);
         
         return document;
     }
@@ -573,7 +573,7 @@ public class DdsProvider implements DiscoveryProvider {
 
     @Override
     public void shutdown() {
-        ddsActorSystem.shutdown();
+        ddsActorController.shutdown();
     }
 
     /**

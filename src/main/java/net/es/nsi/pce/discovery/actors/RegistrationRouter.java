@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.discovery.actors;
 
 import net.es.nsi.pce.discovery.dao.RemoteSubscriptionCache;
@@ -15,12 +11,12 @@ import akka.routing.ActorRefRoutee;
 import akka.routing.RoundRobinRoutingLogic;
 import akka.routing.Routee;
 import akka.routing.Router;
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
 import net.es.nsi.pce.discovery.jaxb.PeerURLType;
 import net.es.nsi.pce.discovery.messages.StartMsg;
 import net.es.nsi.pce.schema.NsiConstants;
@@ -36,36 +32,31 @@ public class RegistrationRouter extends UntypedActor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     private DdsActorSystem ddsActorSystem;
+    private DiscoveryConfiguration discoveryConfiguration;
     private int poolSize;
     private long interval;
     private Router router;
     
     private RemoteSubscriptionCache remoteSubscriptionCache;
-    
-    // In-memory subscription cache indexed by subscriptionId.
-    private Map<String, RemoteSubscription> remoteSubscriptions = new ConcurrentHashMap<>();
 
-    public RegistrationRouter(DdsActorSystem ddsActorSystem, int poolSize, long interval) {
+    public RegistrationRouter(DdsActorSystem ddsActorSystem, 
+            DiscoveryConfiguration discoveryConfiguration, 
+            RemoteSubscriptionCache remoteSubscriptionCache) {
         log.debug("RegistrationRouter: constructor");
         this.ddsActorSystem = ddsActorSystem;
-        this.poolSize = poolSize;
-        this.interval = interval;
-        this.remoteSubscriptionCache = RemoteSubscriptionCache.getInstance();
-
-        log.debug("RegistrationRouter: constructor exiting " + this.remoteSubscriptionCache);
+        this.discoveryConfiguration = discoveryConfiguration;
+        this.remoteSubscriptionCache = remoteSubscriptionCache;
     }
 
     @Override
     public void preStart() {
-        log.debug("RegistrationRouter: pre start");
         List<Routee> routees = new ArrayList<>();
-        for (int i = 0; i < poolSize; i++) {
-            ActorRef r = getContext().actorOf(Props.create(RegistrationActor.class, ddsActorSystem));
+        for (int i = 0; i < getPoolSize(); i++) {
+            ActorRef r = getContext().actorOf(Props.create(RegistrationActor.class, discoveryConfiguration));
             getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
         }
         router = new Router(new RoundRobinRoutingLogic(), routees);
-        log.debug("RegistrationRouter: prestart exiting");
     }
 
     @Override
@@ -80,7 +71,6 @@ public class RegistrationRouter extends UntypedActor {
 
         if (msg instanceof RegistrationEvent) {
             RegistrationEvent re = (RegistrationEvent) msg;
-            log.debug("RegistrationRouter: event " + re.getEvent());
             if (re.getEvent() == RegistrationEvent.Event.Register) {
                 // This is our first time through after initialization.
                 routeRegister();
@@ -95,25 +85,24 @@ public class RegistrationRouter extends UntypedActor {
             }
         }
         else if (msg instanceof Terminated) {
-            log.debug("RegistrationRouter: terminate event.");
             router = router.removeRoutee(((Terminated) msg).actor());
             ActorRef r = getContext().actorOf(Props.create(NotificationActor.class));
             getContext().watch(r);
             router = router.addRoutee(new ActorRefRoutee(r));
         }
         else {
-            log.debug("RegistrationRouter: unhandled event.");
+            log.error("RegistrationRouter: unhandled event.");
             unhandled(msg);
         }
 
         RegistrationEvent event = new RegistrationEvent();
         event.setEvent(RegistrationEvent.Event.Audit);
-        ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), event, ddsActorSystem.getActorSystem().dispatcher(), null);
+        ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), event, ddsActorSystem.getActorSystem().dispatcher(), null);
     }
     
     private void routeRegister() {
         // Check the list of discovery URL against what we already have.
-        Set<PeerURLType> discoveryURL = ddsActorSystem.getConfigReader().getDiscoveryURL();
+        Set<PeerURLType> discoveryURL = discoveryConfiguration.getDiscoveryURL();
 
         for (PeerURLType url : discoveryURL) {
             // We have not seen this before.
@@ -130,8 +119,8 @@ public class RegistrationRouter extends UntypedActor {
     
     private void routeAudit() {
         // Check the list of discovery URL against what we already have.
-        Set<PeerURLType> discoveryURL = ddsActorSystem.getConfigReader().getDiscoveryURL();
-        Set<String> subscriptionURL = remoteSubscriptionCache.keySet();
+        Set<PeerURLType> discoveryURL = discoveryConfiguration.getDiscoveryURL();
+        Set<String> subscriptionURL = Sets.newHashSet(remoteSubscriptionCache.keySet());
 
         for (PeerURLType url : discoveryURL) {
             if (!url.getType().equalsIgnoreCase(NsiConstants.NSI_DDS_V1_XML)) {
@@ -184,5 +173,33 @@ public class RegistrationRouter extends UntypedActor {
                 router.route(regEvent, getSelf());
             }
         }
+    }
+
+    /**
+     * @return the poolSize
+     */
+    public int getPoolSize() {
+        return poolSize;
+    }
+
+    /**
+     * @param poolSize the poolSize to set
+     */
+    public void setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
+    }
+
+    /**
+     * @return the interval
+     */
+    public long getInterval() {
+        return interval;
+    }
+
+    /**
+     * @param interval the interval to set
+     */
+    public void setInterval(long interval) {
+        this.interval = interval;
     }
 }

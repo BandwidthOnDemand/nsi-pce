@@ -26,8 +26,6 @@ import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  * Main path computation class using Dijkstra's shortest path on an NSI
@@ -35,8 +33,6 @@ import org.springframework.stereotype.Component;
  *
  * @author hacksaw
  */
-@Component
-@Scope("prototype")
 public class DijkstraPCE implements PCEModule {
     private final Logger log = LoggerFactory.getLogger(getClass());
 

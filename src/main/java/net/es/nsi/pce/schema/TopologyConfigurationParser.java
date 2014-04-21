@@ -3,6 +3,7 @@ package net.es.nsi.pce.schema;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -68,7 +69,7 @@ public class TopologyConfigurationParser {
      * @throws FileNotFoundException If the specified file was not found.
      */
     @SuppressWarnings({"unchecked", "unchecked"})
-    public TopologyConfigurationType parse(String file) throws JAXBException, FileNotFoundException {
+    public TopologyConfigurationType parse(String file) throws JAXBException, IOException {
         // Make sure we initialized properly.
         if (jaxbContext == null) {
             throw new JAXBException("parseTopologyConfiguration: Failed to load JAXB instance");
@@ -77,7 +78,11 @@ public class TopologyConfigurationParser {
         // Parse the specified file.
         JAXBElement<TopologyConfigurationType> configurationElement;
         try {
-            Object result = jaxbContext.createUnmarshaller().unmarshal(new BufferedInputStream(new FileInputStream(file)));
+            Object result;
+            try (FileInputStream fileInputStream = new FileInputStream(file); BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream)) {
+                result = jaxbContext.createUnmarshaller().unmarshal(bufferedInputStream);
+            }
+            
             if (result instanceof JAXBElement<?> && ((JAXBElement<?>) result).getValue() instanceof TopologyConfigurationType) {
                 configurationElement = (JAXBElement<TopologyConfigurationType>) result;
             }
@@ -85,7 +90,7 @@ public class TopologyConfigurationParser {
                 throw new IllegalArgumentException("Expected TopologyConfigurationType from " + file);
             }
         }
-        catch (JAXBException | FileNotFoundException ex) {
+        catch (JAXBException | IOException ex) {
             log.error("parseTopologyConfiguration: unmarshall error from file " + file, ex);
             throw ex;
         }

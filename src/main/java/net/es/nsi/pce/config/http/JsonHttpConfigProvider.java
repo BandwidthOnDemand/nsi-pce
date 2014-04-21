@@ -8,7 +8,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.util.HashMap;
-import net.es.nsi.pce.config.SpringContext;
+import net.es.nsi.pce.spring.SpringContext;
 
 public class JsonHttpConfigProvider  extends FileBasedConfigProvider implements HttpConfigProvider {
 

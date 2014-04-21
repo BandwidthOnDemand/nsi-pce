@@ -12,7 +12,6 @@ import net.es.nsi.pce.topology.jaxb.NmlTopologyType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.NsiResourceType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
-import net.es.nsi.pce.topology.jaxb.StpType;
 import org.apache.http.client.utils.DateUtils;
 
 /**

@@ -1,5 +1,6 @@
 package net.es.nsi.pce.config;
 
+import net.es.nsi.pce.spring.SpringContext;
 import java.io.File;
 import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.config.http.HttpConfigProvider;
@@ -48,9 +49,10 @@ public enum ConfigurationManager {
     
     private static HttpConfigProvider httpConfigProvider;
     private static PCEServer pceServer;
-    //private static ServiceInfoProvider serviceInfoProvider;
     private static TopologyProvider topologyProvider;
     private static DiscoveryProvider discoveryProvider;
+    
+    ApplicationContext context;
     
     private static boolean initialized = false;
     
@@ -74,7 +76,10 @@ public enum ConfigurationManager {
 
             // Initialize the Spring context to load our dependencies.
             SpringContext sc = SpringContext.getInstance();
-            ApplicationContext context = sc.initContext(beanConfig);
+            
+            log.info("Loading Spring context...");
+            context = sc.initContext(beanConfig);
+            log.info("Spring context loaded.");
             
             // Get references to the spring controlled beans.
             httpConfigProvider = (HttpConfigProvider) context.getBean("httpConfigProvider");
@@ -105,13 +110,16 @@ public enum ConfigurationManager {
         }
     }
     
+    public ApplicationContext getApplicationContext() {
+        return context;
+    }
+    
     public HttpConfig getPceConfig() {
         if (httpConfigProvider == null) {
             throw new IllegalStateException();
         }
         return httpConfigProvider.getConfig(PCE_SERVER_CONFIG_NAME);
     }
-    
 
     /**
      * @return the pceServer
@@ -126,20 +134,6 @@ public enum ConfigurationManager {
     public static void setPceServer(PCEServer aPceServer) {
         pceServer = aPceServer;
     }
-
-    /**
-     * @return the sip
-     */
-    //public ServiceInfoProvider getServiceInfoProvider() {
-    //    return serviceInfoProvider;
-    //}
-
-    /**
-     * @param aSip the sip to set
-     */
-    //public void setServiceInfoProvider(ServiceInfoProvider aSip) {
-    //    serviceInfoProvider = aSip;
-    //}
 
     /**
      * @return the topology provider

@@ -1,5 +1,6 @@
 package net.es.nsi.pce.schema;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import javax.xml.bind.JAXBContext;
@@ -73,11 +74,11 @@ public class PathApiParser {
             throw new JAXBException("jaxbFromString: Failed to load JAXB PCE API instance");
         }
         
-        // Parse the specified XML string.
-        StringReader reader = new StringReader(xml);
-        
-        @SuppressWarnings("unchecked")
-        JAXBElement<?> jaxbElement = (JAXBElement<?>) jaxbContextAPI.createUnmarshaller().unmarshal(reader);
+        @SuppressWarnings(value = "unchecked")
+        JAXBElement<?> jaxbElement;
+        try (StringReader reader = new StringReader(xml)) {
+            jaxbElement = (JAXBElement<?>) jaxbContextAPI.createUnmarshaller().unmarshal(reader);
+        }
         
         // Return the NSAType object.
         return jaxbElement;
@@ -115,7 +116,11 @@ public class PathApiParser {
             // Something went wrong so get out of here.
             log.error("NsiParser.jaxbToString: Error marshalling object " +
                 jaxbElement.getClass() + ": " + e.getMessage());
+            
             return null;
+        }
+        finally {
+            try { writer.close(); } catch (IOException ex) {}
         }
 
         // Return the XML string.

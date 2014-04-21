@@ -1,6 +1,6 @@
 package net.es.nsi.pce.config.nsa.auth;
 
-import net.es.nsi.pce.config.SpringContext;
+import net.es.nsi.pce.spring.SpringContext;
 import net.es.nsi.pce.config.nsa.JsonNsaConfigProvider;
 import net.es.nsi.pce.config.nsa.NsaConfig;
 

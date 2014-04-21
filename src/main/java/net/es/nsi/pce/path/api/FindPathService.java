@@ -13,7 +13,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericEntity;
@@ -40,7 +39,6 @@ import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.path.services.Point2Point;
 import net.es.nsi.pce.path.services.Service;
-import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,17 +205,17 @@ public class FindPathService {
         
        // Now sent a response back for fun.
        JAXBElement<FindPathResponseType> jaxbRequest = factory.createFindPathResponse(resp);
-        
-        ClientConfig clientConfig = new ClientConfig();
-        RestClient.configureClient(clientConfig);
-        Client client = ClientBuilder.newClient(clientConfig);
+
+        Client client = RestClient.getInstance().get();
         WebTarget webTarget = client.target(replyTo.getUrl());
         Response response = webTarget.request(mediaType).post(Entity.entity(new GenericEntity<JAXBElement<FindPathResponseType>>(jaxbRequest) {}, mediaType));
-        client.close();
+        //client.close();
         
         if (log.isDebugEnabled()) {
             log.debug("FindPathService: sent response " + resp.getStatus().name() + " to client " + replyTo.getUrl() + ", result = " + response.getStatusInfo().getReasonPhrase());
         }
+        
+        response.close();
         
         return Response.accepted().build();
     }

@@ -17,40 +17,45 @@ import scala.concurrent.duration.Duration;
  * @author hacksaw
  */
 public class DocumentExpiryActor extends UntypedActor {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
     private DdsActorSystem ddsActorSystem;
+    private DocumentCache documentCache;
     private long interval;
 
-    public DocumentExpiryActor(DdsActorSystem ddsActorSystem, int poolSize, long interval) {
+    public DocumentExpiryActor(DdsActorSystem ddsActorSystem, DocumentCache documentCache) {
         this.ddsActorSystem = ddsActorSystem;
-        this.interval = interval;
+        this.documentCache = documentCache;
     }
 
     @Override
     public void preStart() {
-        log.debug("DocumentExpiryActor: preStart");  
         TimerMsg message = new TimerMsg();
-        ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
-        log.debug("DocumentExpiryActor: preStart done");
+        ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
     }
 
     @Override
     public void onReceive(Object msg) {
-        log.debug("DocumentExpiryActor: onReceive");
         if (msg instanceof TimerMsg) {
-            TimerMsg event = (TimerMsg) msg;
-            log.debug("DocumentExpiryActor: processing.");
-
-            DocumentCache.getInstance().expire();
-            
-            TimerMsg message = new TimerMsg();
-            ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);        
+            TimerMsg message = (TimerMsg) msg;
+            documentCache.expire();
+            ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);        
 
         } else {
             unhandled(msg);
         }
-        log.debug("DocumentExpiryActor: onReceive done");
+    }
+
+    /**
+     * @return the interval
+     */
+    public long getInterval() {
+        return interval;
+    }
+
+    /**
+     * @param interval the interval to set
+     */
+    public void setInterval(long interval) {
+        this.interval = interval;
     }
 
 }

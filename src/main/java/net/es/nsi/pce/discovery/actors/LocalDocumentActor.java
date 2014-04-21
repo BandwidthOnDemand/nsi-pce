@@ -7,6 +7,7 @@ package net.es.nsi.pce.discovery.actors;
 import net.es.nsi.pce.discovery.messages.TimerMsg;
 import akka.actor.UntypedActor;
 import java.util.concurrent.TimeUnit;
+import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
 import net.es.nsi.pce.discovery.provider.DdsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,37 +21,54 @@ public class LocalDocumentActor extends UntypedActor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     private DdsActorSystem ddsActorSystem;
+    private DiscoveryConfiguration discoveryConfiguration;
     private long interval;
 
-    public LocalDocumentActor(DdsActorSystem ddsActorSystem, int poolSize, long interval) {
+    public LocalDocumentActor(DdsActorSystem ddsActorSystem, DiscoveryConfiguration discoveryConfiguration) {
         this.ddsActorSystem = ddsActorSystem;
-        this.interval = interval;
+        this.discoveryConfiguration = discoveryConfiguration;
     }
 
     @Override
     public void preStart() {
-        log.debug("preStart: entering.");  
         TimerMsg message = new TimerMsg();
-        ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
-        log.debug("entering: exiting.");
+        String directory = discoveryConfiguration.getDocuments();
+        if (directory == null || directory.isEmpty()) {
+            log.info("LocalDocumentActor: Disabling local document audit, local directory not configured.");
+            return;
+        }
+
+        ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
     }
 
     @Override
     public void onReceive(Object msg) {
-        log.debug("onReceive: entering.");
         if (msg instanceof TimerMsg) {
-            TimerMsg event = (TimerMsg) msg;
-            log.debug("onReceive: processing.");
-            String directory = ddsActorSystem.getConfigReader().getDocuments();
-            if (directory != null && !directory.isEmpty()) {
-                DdsProvider.getInstance().loadDocuments(ddsActorSystem.getConfigReader().getDocuments());
+            TimerMsg message = (TimerMsg) msg;
+            String directory = discoveryConfiguration.getDocuments();
+            if (directory == null || directory.isEmpty()) {
+                return;
             }
-            TimerMsg message = new TimerMsg();
-            ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(interval, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);        
+            
+            DdsProvider.getInstance().loadDocuments(discoveryConfiguration.getDocuments());
+            ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);        
 
         } else {
             unhandled(msg);
         }
-        log.debug("onReceive: exiting.");
+    }
+
+    /**
+     * @return the interval
+     */
+    public long getInterval() {
+        return interval;
+    }
+
+    /**
+     * @param interval the interval to set
+     */
+    public void setInterval(long interval) {
+        this.interval = interval;
     }
 }

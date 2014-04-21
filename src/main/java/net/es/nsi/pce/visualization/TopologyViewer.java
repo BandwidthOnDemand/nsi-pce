@@ -53,7 +53,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JMenuBar;
 import javax.swing.JRadioButton;
-import net.es.nsi.pce.config.SpringContext;
+import net.es.nsi.pce.spring.SpringContext;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 import org.apache.commons.collections15.functors.ChainedTransformer;
 import org.apache.log4j.xml.DOMConfigurator;

@@ -1,7 +1,8 @@
 package net.es.nsi.pce.sched;
 
 
-import net.es.nsi.pce.config.SpringContext;
+import net.es.nsi.pce.config.ConfigurationManager;
+import net.es.nsi.pce.spring.SpringContext;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 
 import org.quartz.DisallowConcurrentExecution;
@@ -34,13 +35,9 @@ public class TopologyAudit implements Job {
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         log.info("TopologyAudit: running " + jobExecutionContext.getJobDetail().getKey().getName());
         
-        // Get a reference to the topology provider.
-        SpringContext sc = SpringContext.getInstance();
-        TopologyProvider tp = (TopologyProvider) sc.getContext().getBean("topologyProvider");
-        
         // Invoke the topology audit.
         try {
-            tp.loadTopology();
+            ConfigurationManager.INSTANCE.getTopologyProvider().loadTopology();
         } catch (Exception ex) {
             log.error("TopologyAudit: failed to audit topology", ex);
         }

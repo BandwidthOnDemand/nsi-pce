@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.annotation.PostConstruct;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
@@ -25,16 +24,11 @@ import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.spring.SpringApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 /**
  *
  * @author hacksaw
  */
-@Component
-@Scope("singleton")
 public class DocumentCache {
     private final Logger log = LoggerFactory.getLogger(getClass());
     
@@ -49,8 +43,7 @@ public class DocumentCache {
     
     private boolean useDocuments = false;
     private String documentPath;
-    
-    @Autowired
+
     public DocumentCache(DiscoveryConfiguration configReader) throws FileNotFoundException {
         this.configReader = configReader;
         
@@ -83,8 +76,7 @@ public class DocumentCache {
             useDocuments = true;
         }
     }
-    
-    @PostConstruct
+
     public void load() {
         loadCache();
         loadDocuments();

@@ -3,7 +3,7 @@ package net.es.nsi.pce.pf;
 import java.util.List;
 import java.util.Set;
 import org.springframework.context.ApplicationContext;
-import net.es.nsi.pce.config.SpringContext;
+import net.es.nsi.pce.spring.SpringContext;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.topology.provider.TopologyProvider;

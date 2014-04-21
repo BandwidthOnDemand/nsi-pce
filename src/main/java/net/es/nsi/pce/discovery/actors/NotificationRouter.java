@@ -18,8 +18,8 @@ import akka.routing.Router;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
 import net.es.nsi.pce.discovery.jaxb.DocumentEventType;
-import net.es.nsi.pce.discovery.provider.DdsProvider;
 import net.es.nsi.pce.discovery.provider.DiscoveryProvider;
 import net.es.nsi.pce.discovery.provider.Document;
 import net.es.nsi.pce.discovery.dao.DocumentCache;
@@ -35,20 +35,27 @@ public class NotificationRouter extends UntypedActor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     private DdsActorSystem ddsActorSystem;
+    private DiscoveryConfiguration discoveryConfiguration;
+    private DiscoveryProvider discoveryProvider;
+    private DocumentCache documentCache;
     private int poolSize;
     private Router router;
 
-    public NotificationRouter(DdsActorSystem ddsActorSystem, int poolSize, long interval) {
+    public NotificationRouter(DdsActorSystem ddsActorSystem, 
+            DiscoveryConfiguration discoveryConfiguration, 
+            DiscoveryProvider discoveryProvider, 
+            DocumentCache documentCache) {
         this.ddsActorSystem = ddsActorSystem;
-        this.poolSize = poolSize;
+        this.discoveryProvider = discoveryProvider;
+        this.discoveryProvider = discoveryProvider;
+        this.documentCache = documentCache;
     }
 
     @Override
     public void preStart() {
-        log.debug("NotificationRouter: preStart.");
         List<Routee> routees = new ArrayList<>();
-        for (int i = 0; i < poolSize; i++) {
-            ActorRef r = getContext().actorOf(Props.create(NotificationActor.class, ddsActorSystem));
+        for (int i = 0; i < getPoolSize(); i++) {
+            ActorRef r = getContext().actorOf(Props.create(NotificationActor.class, discoveryConfiguration));
             getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
         }
@@ -83,7 +90,6 @@ public class NotificationRouter extends UntypedActor {
     }
     
     private void routeDocumentEvent(DocumentEvent de) {
-        DiscoveryProvider discoveryProvider = DdsProvider.getInstance();
         Collection<Subscription> subscriptions = discoveryProvider.getSubscriptions(de);
         
         log.debug("routeDocumentEvent: event=" + de.getEvent() + ", documentId=" + de.getDocument().getId());
@@ -108,7 +114,7 @@ public class NotificationRouter extends UntypedActor {
     private void routeSubscriptionEvent(SubscriptionEvent se) {
         
         // TODO: Apply subscription filter to these documents.
-        Collection<Document> documents = DocumentCache.getInstance().values();
+        Collection<Document> documents = documentCache.values();
         
         // Clean up our trigger event.
         log.debug("routeSubscriptionEvent: event=" + se.getEvent() + ", action=" + se.getSubscription().getAction().isCancelled());
@@ -121,5 +127,19 @@ public class NotificationRouter extends UntypedActor {
         notification.setSubscription(se.getSubscription());
         notification.setDocuments(documents);
         router.route(notification, getSender());
+    }
+
+    /**
+     * @return the poolSize
+     */
+    public int getPoolSize() {
+        return poolSize;
+    }
+
+    /**
+     * @param poolSize the poolSize to set
+     */
+    public void setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
     }
 }

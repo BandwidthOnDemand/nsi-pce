@@ -54,7 +54,7 @@ public class PCEScheduler {
             props.setProperty(StdSchedulerFactory.PROP_SCHED_SKIP_UPDATE_CHECK, "true");
             props.setProperty("org.quartz.jobStore.class", "org.quartz.simpl.RAMJobStore");
             props.setProperty("org.quartz.threadPool.class", "org.quartz.simpl.SimpleThreadPool");
-            props.setProperty("org.quartz.threadPool.threadCount", "10");
+            props.setProperty("org.quartz.threadPool.threadCount", "2");
             SchedulerFactory schedFact = new StdSchedulerFactory(props);
             this.scheduler = schedFact.getScheduler();
         } catch (SchedulerException ex) {
@@ -283,6 +283,7 @@ public class PCEScheduler {
         
         // Get a new trigger builder based on the old trigger.
         TriggerBuilder tb = oldTrigger.getTriggerBuilder();
+        @SuppressWarnings("unchecked")
         Trigger newTrigger = tb.withSchedule(simpleSchedule()
                 .withIntervalInMilliseconds(interval)
                 .withRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY))
