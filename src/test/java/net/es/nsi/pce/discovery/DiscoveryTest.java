@@ -3,9 +3,7 @@ package net.es.nsi.pce.discovery;
 import java.io.File;
 import java.net.URLEncoder;
 import javax.ws.rs.client.Entity;
-import net.es.nsi.pce.jersey.RestServer;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
@@ -13,8 +11,6 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.client.TestServer;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.test.JerseyTest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -23,8 +19,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 
-import net.es.nsi.pce.jersey.RestClient;
-import net.es.nsi.pce.config.ConfigurationManager;
 import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.discovery.jaxb.DocumentEventType;
 import net.es.nsi.pce.discovery.jaxb.DocumentListType;
@@ -41,13 +35,15 @@ import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
 import net.es.nsi.pce.discovery.provider.DiscoveryParser;
 import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.schema.XmlUtilities;
+import net.es.nsi.pce.test.TestConfig;
 import org.glassfish.jersey.client.ChunkedInput;
-import org.glassfish.jersey.test.TestProperties;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class DiscoveryTest extends JerseyTest {
+public class DiscoveryTest {
 
     private final static HttpConfig testServer = new HttpConfig() {
         {
@@ -55,52 +51,36 @@ public class DiscoveryTest extends JerseyTest {
             setPackageName("net.es.nsi.pce.client");
         }
     };
- 
-    private final static String CONFIG_DIR = "src/test/resources/config/";
-    private final static String DOCUMENT_DIR = "src/test/resources/documents/";
-    private static final String DEFAULT_TOPOLOGY_FILE = CONFIG_DIR + "topology-dds.xml";
-    private static final String DEFAULT_DDS_FILE = CONFIG_DIR + "dds.xml";
-    private static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
-    private static final String DDS_CONFIG_FILE_ARGNAME = "ddsConfigFile";
 
+    private final static String DOCUMENT_DIR = "src/test/resources/documents/";
     private final static String callbackURL = testServer.getUrl() + "discovery/callback";
     private final static ObjectFactory factory = new ObjectFactory();
-    final WebTarget discovery = target().path("discovery");
+    private static TestConfig testConfig;
+    private static WebTarget target;
+    private static WebTarget discovery;
 
-    @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        System.out.println("*************************************** DiscoveryTest oneTimeSetUp ***********************************");
         // Configure the local test client callback server.
         TestServer.INSTANCE.start(testServer);
-        
-        // Configure test instance of PCE server.
-        System.setProperty(DDS_CONFIG_FILE_ARGNAME, DEFAULT_DDS_FILE);
-        System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, DEFAULT_TOPOLOGY_FILE);
-        try {
-            ConfigurationManager.INSTANCE.initialize(CONFIG_DIR);
-        } catch (Exception ex) {
-            System.err.println("configure(): Could not initialize test environment.");
-            ex.printStackTrace();
-            ConfigurationManager.INSTANCE.shutdown();
-            fail("configure(): Could not initialize test environment.");
-        }
-        Application app = new Application();
-        app.getProperties();
-        return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceServer().getPackageName());
+        testConfig = new TestConfig();
+        target = testConfig.getTarget();
+        discovery = target.path("discovery");
+        System.out.println("*************************************** DiscoveryTest oneTimeSetUp done ***********************************");
     }
 
-    @Override
-    protected void configureClient(ClientConfig clientConfig) {
-        // Configure the JerseyTest client for communciations with PCE.
-        RestClient.configureClient(clientConfig);
+    @AfterClass
+    public static void oneTimeTearDown() {
+        System.out.println("*************************************** DiscoveryTest oneTimeTearDown ***********************************");
+        testConfig.shutdown();
+        System.out.println("*************************************** DiscoveryTest oneTimeTearDown done ***********************************");
     }
 
     /**
      * Load the Discovery Service with a default set of documents.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     @Test
     public void aLoadDocuments() throws Exception {
@@ -112,10 +92,10 @@ public class DiscoveryTest extends JerseyTest {
             System.err.println("Failed to load directory " + DOCUMENT_DIR + ", " + ex.getMessage());
             throw ex;
         }
-        
-        // We will grab all XML files from the target directory. 
-        File[] listOfFiles = folder.listFiles(); 
-        
+
+        // We will grab all XML files from the target directory.
+        File[] listOfFiles = folder.listFiles();
+
         // For each document file in the document directory load into discovery service.
         String file;
         for (int i = 0; i < listOfFiles.length; i++) {
@@ -133,7 +113,7 @@ public class DiscoveryTest extends JerseyTest {
             }
         }
     }
-    
+
     /**
      * A simple get on the ping URL.
      */
@@ -146,8 +126,8 @@ public class DiscoveryTest extends JerseyTest {
 
     /**
      * Queries the default set of documents.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     @Test
     public void cDocumentsFull() throws Exception {
@@ -155,7 +135,7 @@ public class DiscoveryTest extends JerseyTest {
         // Get a list of all documents with full contents.
         Response response = discovery.path("documents").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        
+
         final ChunkedInput<DocumentListType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<DocumentListType>>() {});
         DocumentListType chunk;
         DocumentListType documents = null;
@@ -164,17 +144,17 @@ public class DiscoveryTest extends JerseyTest {
             documents = chunk;
         }
         assertNotNull(documents);
-        
+
         for (DocumentType document : documents.getDocument()) {
             System.out.println("cDocumentsFull: " + document.getNsa() + ", " + document.getType() + ", " + document.getId() + ", href=" + document.getHref());
             assertFalse(document.getContent().getAny().isEmpty());
-            
+
             response = discovery.path(document.getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
             DocumentType doc = response.readEntity(DocumentType.class);
             assertNotNull(doc);
             assertFalse(doc.getContent().getAny().isEmpty());
-            
+
             // Do a search using the NSA and Type from previous result.
             response = discovery.path("documents")
                     .path(URLEncoder.encode(document.getNsa().trim(), "UTF-8"))
@@ -190,15 +170,15 @@ public class DiscoveryTest extends JerseyTest {
                     found = true;
                 }
             }
-            
+
             assertTrue(found);
-        }     
+        }
     }
 
     /**
      * Queries the default set of documents.
-     * 
-     * @throws Exception 
+     *
+     * @throws Exception
      */
     @Test
     public void dDocumentsSummary() throws Exception {
@@ -212,14 +192,14 @@ public class DiscoveryTest extends JerseyTest {
         for (DocumentType document : documents.getDocument()) {
             System.out.println("dDocumentsSummary: " + document.getNsa() + ", " + document.getType() + ", " + document.getId() + ", href=" + document.getHref());
             assertNull(document.getContent());
-            
+
             // Read the direct href and get summary contents.
             response = discovery.path(document.getHref()).queryParam("summary", "true").request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
             DocumentType doc = response.readEntity(DocumentType.class);
             assertNotNull(doc);
             assertNull(doc.getContent());
-        }       
+        }
     }
 
     @Test
@@ -228,7 +208,7 @@ public class DiscoveryTest extends JerseyTest {
         // We want a NOT_FOUND for a nonexistent nsa resource on document path.
         Response response = discovery.path("documents").path("invalidNsaValue").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-        
+
         // We want an empty result set for an invalid type on document path.
         response = discovery.path("documents").path("urn:ogf:network:czechlight.cesnet.cz:2013:nsa").path("invalidDocumentType").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -236,7 +216,7 @@ public class DiscoveryTest extends JerseyTest {
         assertNotNull(documents);
         assertTrue(documents.getDocument().isEmpty());
     }
-    
+
     @Test
     public void fLocalDocuments() throws Exception {
         System.out.println("************************** Running fLocalDocuments test ********************************");
@@ -253,16 +233,16 @@ public class DiscoveryTest extends JerseyTest {
             }
         }
         assertNotNull(documents);
-        
+
         for (DocumentType document : documents.getDocument()) {
             assertEquals(document.getNsa(), DiscoveryConfiguration.getInstance().getNsaId());
-            
+
             response = discovery.path("local").path(URLEncoder.encode(document.getType(), "UTF-8")).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
             DocumentListType docs = response.readEntity(DocumentListType.class);
             assertNotNull(docs);
             response.close();
-            
+
             for (DocumentType d : docs.getDocument()) {
                 assertEquals(document.getType(), d.getType());
             }
@@ -280,10 +260,10 @@ public class DiscoveryTest extends JerseyTest {
             System.err.println("Failed to load directory " + DOCUMENT_DIR + ", " + ex.getMessage());
             throw ex;
         }
-        
-        // We will grab all XML files from the target directory. 
-        File[] listOfFiles = folder.listFiles(); 
-        
+
+        // We will grab all XML files from the target directory.
+        File[] listOfFiles = folder.listFiles();
+
         // For each document file in the document directory load into discovery service.
         String file;
         for (int i = 0; i < listOfFiles.length; i++) {
@@ -305,9 +285,9 @@ public class DiscoveryTest extends JerseyTest {
                             }
                         }
                     }
-                    
+
                     System.out.println("fUpdateDocuments: updating document " + document.getId());
-                    
+
                     JAXBElement<DocumentType> jaxbRequest = factory.createDocument(document);
                     Response response = discovery.path("documents")
                             .path(URLEncoder.encode(document.getNsa().trim(), "UTF-8"))
@@ -342,18 +322,18 @@ public class DiscoveryTest extends JerseyTest {
         SubscriptionType result = response.readEntity(SubscriptionType.class);
         String id = result.getId();
         response.close();
-        
+
         response = discovery.path(result.getHref()).request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         result = response.readEntity(SubscriptionType.class);
         response.close();
         assertEquals(id, result.getId());
-        
+
         response = discovery.path(result.getHref()).request(MediaType.APPLICATION_XML).delete();
         response.close();
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
     }
-    
+
     @Test
     public void hNotification() throws Exception {
         System.out.println("************************** Running hNotification test ********************************");
@@ -367,17 +347,17 @@ public class DiscoveryTest extends JerseyTest {
         filter.getInclude().add(criteria);
         subscription.setFilter(filter);
         JAXBElement<SubscriptionRequestType> jaxbRequest = factory.createSubscriptionRequest(subscription);
-        
+
         Response response = discovery.path("subscriptions").request(MediaType.APPLICATION_XML).post(Entity.entity(new GenericEntity<JAXBElement<SubscriptionRequestType>>(jaxbRequest) {}, MediaType.APPLICATION_XML));
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        
+
         SubscriptionType result = response.readEntity(SubscriptionType.class);
         response.close();
-        
+
         response = discovery.path(result.getHref()).request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         response.close();
-        
+
         // Now we wait for the initial notifications to arrive.
         int count = 0;
         NotificationListType notifications = TestServer.INSTANCE.peekDiscoveryNotification();
@@ -386,7 +366,7 @@ public class DiscoveryTest extends JerseyTest {
             Thread.sleep(1000);
             notifications = TestServer.INSTANCE.peekDiscoveryNotification();
         }
-        
+
         assertNotNull(notifications);
         notifications = TestServer.INSTANCE.pollDiscoveryNotification();
         while (notifications != null) {
@@ -396,10 +376,10 @@ public class DiscoveryTest extends JerseyTest {
             }
             notifications = TestServer.INSTANCE.pollDiscoveryNotification();
         }
-        
+
         // Now send a document update.
         fUpdateDocuments();
-        
+
         // Now we wait for the update notifications to arrive.
         count = 0;
         notifications = TestServer.INSTANCE.peekDiscoveryNotification();
@@ -408,7 +388,7 @@ public class DiscoveryTest extends JerseyTest {
             Thread.sleep(1000);
             notifications = TestServer.INSTANCE.peekDiscoveryNotification();
         }
-        
+
         assertNotNull(notifications);
         notifications = TestServer.INSTANCE.pollDiscoveryNotification();
         while (notifications != null) {
@@ -419,13 +399,13 @@ public class DiscoveryTest extends JerseyTest {
             notifications = TestServer.INSTANCE.pollDiscoveryNotification();
         }
     }
-    
+
     @Test
     public void iReadEachDocumentType() throws Exception {
         readDocumentType(NsiConstants.NSI_DOC_TYPE_NSA_V1);
         readDocumentType(NsiConstants.NSI_DOC_TYPE_TOPOLOGY_V2);
     }
-    
+
     public void readDocumentType(String type) throws Exception {
         String encode = URLEncoder.encode(type, "UTF-8");
         Response response = discovery.path("documents").queryParam("type", encode).queryParam("summary", true).request(NsiConstants.NSI_DDS_V1_XML).get();
@@ -438,11 +418,11 @@ public class DiscoveryTest extends JerseyTest {
                 documents = chunk;
             }
         }
-        
+
         assertNotNull(documents);
         assertNotNull(documents.getDocument());
         assertFalse(documents.getDocument().isEmpty());
-        
+
         for (DocumentType document : documents.getDocument()) {
             System.out.println("readDocumentType: reaading document " + document.getId());
             response = discovery.path(document.getHref()).request(NsiConstants.NSI_DDS_V1_XML).get();

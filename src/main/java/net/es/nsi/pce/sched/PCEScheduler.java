@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import net.es.nsi.pce.management.jaxb.TimerStatusType;
+import net.es.nsi.pce.spring.SpringApplicationContext;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -31,24 +32,24 @@ import org.slf4j.LoggerFactory;
 /**
  * Implements a simple scheduler for timer related tasks using the Quartz
  * scheduling package.
- * 
+ *
  * @author hacksaw
  */
 public class PCEScheduler {
     // Logging facility.
     private final Logger log = LoggerFactory.getLogger(getClass());
-    
+
     // The quartz scheduler.
     private Scheduler scheduler = null;
-    
+
     // Our registered scheduler items.
     private Map<String, SchedulerItem> schedulerItems = new ConcurrentHashMap<>();
-    
+
     /**
      * Private constructor loads the scheduler once and prevents
      * instantiation from other classes.
      */
-    private PCEScheduler() {
+    public void init() {
         try {
             Properties props = new Properties();
             props.setProperty(StdSchedulerFactory.PROP_SCHED_SKIP_UPDATE_CHECK, "true");
@@ -61,27 +62,18 @@ public class PCEScheduler {
             log.error("PCEScheduler: failed to create", ex);
         }
     }
-    
-    /**
-     * An internal static class that invokes our private constructor on object
-     * creation.
-     */
-    private static class PCESchedulerHolder {
-        public static final PCEScheduler INSTANCE = new PCEScheduler();
-    }    
-    
+
      /**
      * Returns an instance of this singleton class.
-     * 
+     *
      * @return The single PCEScheduler object instance.
      */
     public static PCEScheduler getInstance() {
-            return PCESchedulerHolder.INSTANCE;
+        return SpringApplicationContext.getBean("pceScheduler", PCEScheduler.class);
     }
-    
     /**
      * Builds a trigger key using the provided job name and group.
-     * 
+     *
      * @param jobName The job name of the timer item.
      * @param jobGroup The job group of the timer item.
      * @return A trigger key for use in Quartz.
@@ -89,34 +81,34 @@ public class PCEScheduler {
     private TriggerKey pceTriggerKey(String jobName, String jobGroup) {
         return triggerKey("Trigger-" + jobName, "Trigger-" + jobGroup);
     }
-    
+
     /**
      * Start the scheduler.
-     * 
+     *
      * @throws SchedulerException If the scheduler has not been properly initialized.
      */
     public void start() throws SchedulerException {
         if (scheduler == null) {
             throw new SchedulerException("Failed to create scheduler");
         }
-        
+
         scheduler.start();
     }
-    
+
     /**
      * Get the scheduler item associated with the supplied identifier.
-     * 
+     *
      * @param id The identifier of the scheduler item to retrieve.
      * @return The matching scheduler item.
      */
     public SchedulerItem get(String id) {
         return schedulerItems.get(id);
     }
-    
+
     /**
      * Add the specified job to the scheduler with the first instance running
      * at current time + interval.
-     * 
+     *
      * @param jobName The name of the job.
      * @param jobGroup The name of the job group.
      * @param jobClass An instance of this class will be executed.
@@ -130,12 +122,12 @@ public class PCEScheduler {
         if (item != null) {
             throw new SchedulerException("Scheduler job (" + id + ") already exists in scheduler.");
         }
-        
+
         // Make sure the requested job is not in the scheduler.
         if (scheduler.checkExists(jobKey(jobName, jobGroup))) {
             throw new SchedulerException("Scheduler add request failed, (" + id + ") already exist.");
         }
-        
+
         // Add the job to the scheduler but have first instance start in "interval" time.
         Date currentDate = new Date(System.currentTimeMillis() + interval);
         Trigger trigger = newTrigger()
@@ -150,17 +142,17 @@ public class PCEScheduler {
                 .withIdentity(jobKey(jobName, jobGroup))
                 .storeDurably(true)
                 .build();
-        
+
         scheduler.scheduleJob(jobDetail, trigger);
-        
+
         item = new SchedulerItem(jobName, jobGroup, jobClass, interval);
         schedulerItems.put(item.getId(), item);
         return item.getId();
     }
-    
+
     /**
      * Remove the specified job and associated schedule.
-     * 
+     *
      * @param id The identifier of the scheduler item to remove.
      * @return Returns true if the job was unscheduled, false otherwise.
      * @throws SchedulerException If an error occurs during remove schedule operation.
@@ -171,13 +163,13 @@ public class PCEScheduler {
         if (item == null) {
             throw new NotFoundException("Job (" + id + ") does not exists in scheduler.");
         }
-        
+
         return scheduler.deleteJob(jobKey(item.getJobName(), item.getJobGroup()));
     }
-    
+
     /**
      * List the scheduled jobs.
-     * 
+     *
      * @return Collection of scheduled items.
      */
     public Collection<SchedulerItem> list() {
@@ -186,7 +178,7 @@ public class PCEScheduler {
 
     /**
      * Get the time of the next execution of the specified job.
-     * 
+     *
      * @param id The identifier of the schedule item to query for next run time.
      * @return Date of the next run time.
      * @throws SchedulerException If there is an issue getting the run time.
@@ -203,13 +195,13 @@ public class PCEScheduler {
         if (oldTrigger == null) {
             return null;
         }
-        
+
         return oldTrigger.getNextFireTime();
     }
 
     /**
      * Get the status of the specified job schedule.
-     * 
+     *
      * @param id Identifier of the job to retrieve status.
      * @return Job status.
      * @throws SchedulerException If there is an issue getting job schedule.
@@ -220,19 +212,19 @@ public class PCEScheduler {
         if (item == null) {
             throw new NotFoundException("Job (" + id + ") does not exists in scheduler.");
         }
-        
+
         // Make sure the requested job is in the scheduler.  Not sure if this
         // is a valid situation, but there may be timing issues.
         if (!scheduler.checkExists(jobKey(item.getJobName(), item.getJobGroup()))) {
             return TimerStatusType.UNKNOWN;
         }
-        
+
         // Nothing we can do if the scheduler itself is haulted or not running.
         if (scheduler.isInStandbyMode() || scheduler.isShutdown()) {
             log.error("getCurrentStatus: scheduler not running");
             return TimerStatusType.HAULTED;
         }
-        
+
         // Check the list of currently running jobs to see if this one is
         // running.  We need to cover the case where the schedule has no
         // registered triggers and was manually invoked.
@@ -242,14 +234,14 @@ public class PCEScheduler {
             String group = jobCtx.getJobDetail().getKey().getGroup();
             if (name.equalsIgnoreCase(item.getJobName()) && group.equalsIgnoreCase(item.getJobGroup())) {
                 return TimerStatusType.RUNNING;
-            }               
+            }
         }
-     
+
         // Make sure we have a trigger for the schedule item.
         if (!scheduler.checkExists(pceTriggerKey(item.getJobName(), item.getJobGroup()))) {
             return TimerStatusType.HAULTED;
         }
-        
+
         return TimerStatusType.SCHEDULED;
     }
 
@@ -257,7 +249,7 @@ public class PCEScheduler {
      * Updates the recurring interval of a scheduled job.  The next execution
      * time is not modified and will remain the next trigger event.  Every
      * execution after that will occur at the new time.
-     * 
+     *
      * @param id Identifier of the job to update with the new internal value.
      * @param interval New interval value.
      * @return true if the interval was updated, false otherwise.
@@ -269,18 +261,18 @@ public class PCEScheduler {
         if (item == null) {
             throw new NotFoundException("Scheduler job (" + id + ") does not exists in scheduler.");
         }
-        
+
         item.setInterval(interval);
-        
+
         // Get a handle to the old trigger.
         Trigger oldTrigger = scheduler.getTrigger(pceTriggerKey(item.getJobName(), item.getJobGroup()));
-        
+
         // If there is no trigger then the job maybe haulted.  The new interval
         // will be set the next time we schedule a trigger.
         if (oldTrigger == null) {
             return true;
         }
-        
+
         // Get a new trigger builder based on the old trigger.
         TriggerBuilder tb = oldTrigger.getTriggerBuilder();
         @SuppressWarnings("unchecked")
@@ -294,7 +286,7 @@ public class PCEScheduler {
     /**
      * Schedule the timer associated with the supplied identifier using the
      * stored schedule criteria.
-     * 
+     *
      * @param id Identifier of the timer.
      * @throws SchedulerException There was an error scheduling the timer,
      * @throws NotFoundException The specified timer identifier was not found.
@@ -310,12 +302,12 @@ public class PCEScheduler {
         if (!scheduler.checkExists(jobKey(item.getJobName(), item.getJobGroup()))) {
             throw new NotFoundException("Schedule request failed, (" + id + ") does not exist.");
         }
-        
+
         // Make sure there is no existing trigger for the job.
         if (scheduler.checkExists(pceTriggerKey(item.getJobName(), item.getJobGroup()))) {
             throw new BadRequestException("Schedule request failed, (" + id + ") already scheduled.");
         }
-        
+
         // Add the job to the scheduler but have first instance start in "interval" time.
         Date currentDate = new Date(System.currentTimeMillis() + item.getInterval());
         Trigger trigger = newTrigger()
@@ -326,14 +318,14 @@ public class PCEScheduler {
                     .withIntervalInMilliseconds(item.getInterval())
                     .withRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY))
                 .build();
-        
+
         scheduler.scheduleJob(trigger);
     }
 
     /**
      * Removes the schedule trigger associated with a job while leaving the job
      * in place.
-     * 
+     *
      * @param id The id of the scheduled item.
      * @return true if the trigger was removed, otherwise false.
      * @throws SchedulerException If there was an internal error.
@@ -344,14 +336,14 @@ public class PCEScheduler {
         if (item == null) {
             throw new NotFoundException("Job (" + id + ") does not exists in scheduler.");
         }
-        
+
         // Make sure we have a trigger for the schedule item.
         return scheduler.unscheduleJob(pceTriggerKey(item.getJobName(), item.getJobGroup()));
     }
 
     /**
      * Execute the scheduled job now.
-     * 
+     *
      * @param id Identifier of the job to execute now.
      * @throws SchedulerException If there was an issue executing the job schedule.
      * @throws NotFoundException The specified timer identifier was not found.
@@ -361,13 +353,13 @@ public class PCEScheduler {
         if (item == null) {
             throw new NotFoundException("Job (" + id + ") does not exists in scheduler.");
         }
-        
+
         // Make sure the requested job is in the scheduler.
         JobDetail job = scheduler.getJobDetail(jobKey(item.getJobName(), item.getJobGroup()));
         if (job == null){
             throw new NotFoundException("runNow request failed, (" + id + ") does not exist.");
         }
-        
+
         // Check the list of currently running jobs for the one we are
         // interesting in running.
         List<JobExecutionContext> currentJobs = scheduler.getCurrentlyExecutingJobs();
@@ -377,16 +369,16 @@ public class PCEScheduler {
             if (name.equalsIgnoreCase(item.getJobName()) && group.equalsIgnoreCase(item.getJobGroup())) {
                 // We found the job already running so ignore this request.
                 return;
-            }               
+            }
         }
 
         // Job is in the scheduler and it is not running so start it.
         scheduler.triggerJob(jobKey(item.getJobName(), item.getJobGroup()));
     }
-    
+
     /**
      * Stop the scheduler.
-     * 
+     *
      * @throws SchedulerException If there issues stopping the scheduler.
      */
     public void stop() throws SchedulerException {
@@ -394,6 +386,7 @@ public class PCEScheduler {
             throw new SchedulerException("Failed to create scheduler");
         }
 
+        scheduler.clear();
         scheduler.shutdown();
     }
 }

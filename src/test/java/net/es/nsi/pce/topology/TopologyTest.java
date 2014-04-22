@@ -2,21 +2,16 @@ package net.es.nsi.pce.topology;
 
 import java.util.Date;
 import java.util.List;
-import net.es.nsi.pce.jersey.RestServer;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 import org.junit.Test;
 
-import net.es.nsi.pce.jersey.RestClient;
-import net.es.nsi.pce.config.ConfigurationManager;
+import net.es.nsi.pce.test.TestConfig;
 import net.es.nsi.pce.topology.jaxb.CollectionType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
@@ -28,43 +23,28 @@ import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ChunkedInput;
-import org.glassfish.jersey.test.TestProperties;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
 
-public class TopologyTest extends JerseyTest {
-    private final static String CONFIG_DIR = "src/test/resources/config/";
-    private static final String DEFAULT_TOPOLOGY_FILE = CONFIG_DIR + "topology-dds.xml";
-    private static final String DEFAULT_DDS_FILE = CONFIG_DIR + "dds.xml";
-    private static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
-    private static final String DDS_CONFIG_FILE_ARGNAME = "ddsConfigFile";
+public class TopologyTest {
+    private static TestConfig testConfig;
+    private static WebTarget topology;
 
-    final WebTarget topology = target().path("topology");
-
-    @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-
-        // Configure test instance of PCE server.
-        System.setProperty(DDS_CONFIG_FILE_ARGNAME, DEFAULT_DDS_FILE);
-        System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, DEFAULT_TOPOLOGY_FILE);
-        try {
-            ConfigurationManager.INSTANCE.initialize(CONFIG_DIR);
-        } catch (Exception ex) {
-            System.err.println("configure(): Could not initialize test environment.");
-            ex.printStackTrace();
-            ConfigurationManager.INSTANCE.shutdown();
-            fail("configure(): Could not initialize test environment.");
-        }
-        Application app = new Application();
-        app.getProperties();
-        return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceServer().getPackageName());
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        System.out.println("*************************************** TopologyTest oneTimeSetUp ***********************************");
+        // Configure the local test client callback server.
+        testConfig = new TestConfig();
+        topology = testConfig.getTarget().path("topology");
+        System.out.println("*************************************** TopologyTest oneTimeSetUp done ***********************************");
     }
 
-    @Override
-    protected void configureClient(ClientConfig clientConfig) {
-        // Configure the JerseyTest client for communciations with PCE.
-        RestClient.configureClient(clientConfig);
+    @AfterClass
+    public static void oneTimeTearDown() {
+        System.out.println("*************************************** TopologyTest oneTimeTearDown ***********************************");
+        testConfig.shutdown();
+        System.out.println("*************************************** TopologyTest oneTimeTearDown done ***********************************");
     }
 
     @Test

@@ -4,9 +4,9 @@
     xmlns:context="http://www.springframework.org/schema/context"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-
+    
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
-
+    
     <bean id="springApplicationContext" class="net.es.nsi.pce.spring.SpringApplicationContext" scope="singleton" />
     
     <bean id="httpConfigProvider" class="net.es.nsi.pce.config.http.JsonHttpConfigProvider" init-method="loadConfig" scope="singleton">
@@ -16,6 +16,8 @@
     <bean id="pceServer" class="net.es.nsi.pce.server.PCEServer" scope="singleton">
         <constructor-arg index="0" ref="httpConfigProvider"/>
     </bean>
+    
+    <bean id="pceScheduler" class="net.es.nsi.pce.sched.PCEScheduler" init-method="init" scope="singleton" />
     
     <bean id="restClient" class="net.es.nsi.pce.jersey.RestClient" scope="singleton" />
     
@@ -142,7 +144,7 @@
             </list>
         </property>
     </bean>
-
+    
     <bean id="pathfinderCore" class="net.es.nsi.pce.pf.PathfinderCore" scope="prototype">
         <constructor-arg index="0" ref="topologyProvider"/>
         <constructor-arg index="1" ref="chainPCE"/>

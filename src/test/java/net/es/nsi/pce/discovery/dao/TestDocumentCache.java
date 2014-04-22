@@ -20,18 +20,7 @@ import java.net.URLDecoder;
  */
 public class TestDocumentCache {
     DiscoveryConfiguration config;
- 
-    @BeforeClass
-    public static void oneTimeSetUp() {
-        System.out.println("@BeforeClass - oneTimeSetUp");
-    }
- 
-    @AfterClass
-    public static void oneTimeTearDown() {
-        // one-time cleanup code
-    	System.out.println("@AfterClass - oneTimeTearDown");
-    }
- 
+
     @Before
     public void setUp() throws IllegalArgumentException, JAXBException, FileNotFoundException, NullPointerException, IOException {
         config = new DiscoveryConfiguration();
@@ -39,12 +28,7 @@ public class TestDocumentCache {
         config.load();
         System.out.println("Configured nsaId=" + config.getNsaId());
     }
- 
-    @After
-    public void tearDown() {
-        System.out.println("@After - tearDown");
-    }
- 
+
     @Test
     public void testLoadCache() throws FileNotFoundException, UnsupportedEncodingException {
         System.out.println("@Test - testLoadCache");

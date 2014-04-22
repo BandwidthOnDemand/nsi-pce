@@ -17,6 +17,8 @@
         <constructor-arg index="0" ref="httpConfigProvider"/>
     </bean>
     
+    <bean id="pceScheduler" class="net.es.nsi.pce.sched.PCEScheduler" init-method="init" scope="singleton" />
+    
     <bean id="restClient" class="net.es.nsi.pce.jersey.RestClient" scope="singleton" />
     
     <bean id="discoveryConfiguration" class="net.es.nsi.pce.discovery.dao.DiscoveryConfiguration" init-method="load" scope="singleton">

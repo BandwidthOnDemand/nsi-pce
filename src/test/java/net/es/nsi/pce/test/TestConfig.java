@@ -4,8 +4,12 @@
  */
 package net.es.nsi.pce.test;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import net.es.nsi.pce.config.ConfigurationManager;
-import net.es.nsi.pce.topology.provider.TopologyProvider;
+import net.es.nsi.pce.jersey.RestClient;
+import org.glassfish.jersey.client.ClientConfig;
 
 /**
  *
@@ -17,31 +21,41 @@ public class TestConfig {
     private static final String DEFAULT_DDS_FILE = CONFIG_DIR + "dds.xml";
     private static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
     private static final String DDS_CONFIG_FILE_ARGNAME = "ddsConfigFile";
-        
-    private TopologyProvider provider;
 
-    private TestConfig() {
+    private static Client client;
+    private static WebTarget target;
+
+    public TestConfig() {
         System.setProperty(DDS_CONFIG_FILE_ARGNAME, DEFAULT_DDS_FILE);
         System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, DEFAULT_TOPOLOGY_FILE);
         try {
+            if (ConfigurationManager.INSTANCE.isInitialized()) {
+                System.out.println("TestConfig: ConfigurationManager already initialized so shutting down.");
+                ConfigurationManager.INSTANCE.shutdown();
+            }
             ConfigurationManager.INSTANCE.initialize(CONFIG_DIR);
         }
         catch (Exception ex) {
             System.err.println("TestConfig: failed to initialize ConfigurationManager.");
             ex.printStackTrace();
         }
+
+        ClientConfig clientConfig = new ClientConfig();
+        RestClient.configureClient(clientConfig);
+        client = ClientBuilder.newClient(clientConfig);
+
+        target = client.target(ConfigurationManager.INSTANCE.getPceServer().getUrl());
     }
 
-    private static class TestConfigHolder {
-        public static final TestConfig INSTANCE = new TestConfig();
+    public void shutdown() {
+        ConfigurationManager.INSTANCE.shutdown();
+        client.close();
     }
 
-    public static TestConfig getInstance() {
-            return TestConfigHolder.INSTANCE;
+    /**
+     * @return the target
+     */
+    public WebTarget getTarget() {
+        return target;
     }
-    
-    public TopologyProvider getTopologyProvider() {
-        return provider;
-    }
-    
 }

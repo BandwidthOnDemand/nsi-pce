@@ -16,25 +16,25 @@ import org.springframework.context.ApplicationContext;
  * The Path Computation Engine's Configuration Manager loads initial
  * configuration files and instantiates singletons.  Spring Beans are used
  * to drive initialization and created singletons for the key services.
- * 
+ *
  * HttpConfigProvider - This provider contains configuration for the PCEServer
  * and AggServer.  The PCEServer drives the core logic for path computation and
  * exposes the web services interfaces as an external API.  The AggServer is a
  * test endpoint for receiving PCE results and is not utilized during normal
- * operation. 
- * 
+ * operation.
+ *
  * ServiceInfoProvider - This provider loads NSA configuration and security
  * information from a configuration file.  This information is is not used
  * during pat computation, but is exposed through a web service interface for
  * use by the aggregator for peer communications.  ** This functionality should
  * not be part of the PCE and will be moved to a Discovery Service at a later
  * date. **
- * 
+ *
  * TopologyProvider - This provider loads network topology information used
  * during the path computation process.  Topology is currently loaded from a
  * local configuration file but will be changed in the near future to use an
  * external topology service.
- * 
+ *
  * PCEScheduler - The scheduling task for PCE functions such as configuration
  * monitoring and other maintenance tasks.
  *
@@ -46,8 +46,9 @@ public enum ConfigurationManager {
     private static PCEServer pceServer;
     private static TopologyProvider topologyProvider;
     private static DiscoveryProvider discoveryProvider;
+    private static PCEScheduler pceScheduler;
     private static ApplicationContext context;
-    
+
     private boolean initialized = false;
 
     /**
@@ -63,11 +64,11 @@ public enum ConfigurationManager {
     public void setInitialized(boolean aInitialized) {
         initialized = aInitialized;
     }
-    
+
     /**
      * This method initialized the PCE configuration found under the specified
      * configPath.
-     * 
+     *
      * @param configPath The path containing all the needed configuration files.
      * @throws Exception If there is an error loading any of the required configuration files.
      */
@@ -85,11 +86,11 @@ public enum ConfigurationManager {
             // Initialize the Spring context to load our dependencies.
             SpringContext sc = SpringContext.getInstance();
             context = sc.initContext(beanConfig);
-            
+
             // Get references to the spring controlled beans.
             pceServer = (PCEServer) context.getBean("pceServer");
             pceServer.start();
-            
+
             // Start the discovery process.
             discoveryProvider = (DiscoveryProvider) context.getBean("discoveryProvider");
             discoveryProvider.start();
@@ -97,19 +98,16 @@ public enum ConfigurationManager {
             // Start the NIS network topology build.
             topologyProvider = (TopologyProvider) context.getBean("topologyProvider");
             topologyProvider.loadTopology();
-            
-            // Start the task scheduler.
-            log.info("Starting task scheduler...");
-            log.info("--- Adding topology audit for " + getTopologyProvider().getAuditInterval());
-            PCEScheduler.getInstance().add(TopologyAudit.JOBNAME, TopologyAudit.JOBGROUP, TopologyAudit.class, getTopologyProvider().getAuditInterval()*1000);
-            PCEScheduler.getInstance().start();
-            log.info("...Task scheduler started.");
+
+            pceScheduler = (PCEScheduler) context.getBean("pceScheduler");
+            pceScheduler.add(TopologyAudit.JOBNAME, TopologyAudit.JOBGROUP, TopologyAudit.class, getTopologyProvider().getAuditInterval()*1000);
+            pceScheduler.start();
 
             setInitialized(true);
             log.info("Loaded configuration from: " + configPath);
         }
     }
-    
+
     public ApplicationContext getApplicationContext() {
         return context;
     }
@@ -134,15 +132,13 @@ public enum ConfigurationManager {
     public DiscoveryProvider getDiscoveryProvider() {
         return discoveryProvider;
     }
-    
+
     public void shutdown() {
         try {
-            if (initialized) {
-                discoveryProvider.shutdown();
-                pceServer.stop();
-                PCEScheduler.getInstance().stop();
-                initialized = false;
-            }
+            discoveryProvider.shutdown();
+            pceServer.stop();
+            pceScheduler.stop();
+            initialized = false;
         }
         catch (IllegalStateException | SchedulerException ex) {
         }

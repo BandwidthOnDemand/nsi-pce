@@ -4,7 +4,10 @@
  */
 package net.es.nsi.pce.discovery;
 
+import java.io.IOException;
 import java.net.URI;
+import javax.ws.rs.NotFoundException;
+import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.spring.SpringContext;
 import net.es.nsi.pce.discovery.agole.AgoleManifestReader;
 import net.es.nsi.pce.discovery.agole.TopologyManifest;
@@ -26,12 +29,12 @@ public class AgoleManifestReaderTest {
     private static final String DEFAULT_DDS_FILE = CONFIG_DIR + "dds.xml";
     private static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
     private static final String DDS_CONFIG_FILE_ARGNAME = "ddsConfigFile";
-        
+
     @Test
     public void loadMasterList() {
         System.setProperty(DDS_CONFIG_FILE_ARGNAME, DEFAULT_DDS_FILE);
         System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, DEFAULT_TOPOLOGY_FILE);
-        
+
         // Initialize the Spring context to load our dependencies.
         SpringContext sc = SpringContext.getInstance();
         ApplicationContext context = sc.initContext("src/test/resources/config/AgoleManifestReaderTest.xml");
@@ -41,31 +44,32 @@ public class AgoleManifestReaderTest {
         HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:8400"));
         StaticHttpHandler staticHttpHandler = new StaticHttpHandler("src/test/resources/config/www/");
         server.getServerConfiguration().addHttpHandler(staticHttpHandler, "/www");
-                
+
         try {
             server.start();
-                    
+
             // Retrieve a copy of the centralized master topology list.
             TopologyManifest master = reader.getManifest();
-            
+
             assertTrue(master != null);
-            
+
             System.out.println("Master id: " + master.getId() + ", version=" + master.getVersion());
-            
+
             // Test to see if the Netherlight entry is present.
             assertTrue(master.getTopologyURL("urn:ogf:network:netherlight.net:2013:topology:a-gole:testbed") != null);
-            
+
             // We should not see a change in version.
             master = reader.getManifestIfModified();
-            
+
             assertTrue(master == null);
         }
-        catch (Exception ex) {
+        catch (IOException | NotFoundException | JAXBException ex) {
             System.err.println("Failed to load master topology list from: " + reader.getTarget());
+            ex.printStackTrace();
             fail();
         }
         finally {
             server.stop();
         }
-    }    
+    }
 }
