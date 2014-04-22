@@ -30,7 +30,7 @@ public enum NsiError {
     // Service specific errors.
     SERVICE_ERROR("00700", "SERVICE_ERROR", "A service specific error has occurred (%s)."),
     UNKNOWN_STP("00701", "UNKNOWN_STP", "Could not find STP in topology database (%s)."),
-    STP_RESOLUTION_ERROR("00702", "STP_RESOLUTION_ERROR", "Could not resolve STP to a managing NSA (%s)."),
+    STP_RESOLUTION_ERROR("00702", "STP_RESOLUTION_ERROR", "Could not resolve STP (%s)."),
     VLANID_INTERCANGE_NOT_SUPPORTED("00703", "VLANID_INTERCANGE_NOT_SUPPORTED", "VLAN interchange not supported for requested path (%s)."),
     STP_UNAVALABLE("00704", "STP_UNAVALABLE", "Specified STP already in use (%s)."),
     CAPACITY_UNAVAILABLE("00705", "CAPACITY_UNAVAILABLE", "Insufficient capacity available for reservation (%s)."),

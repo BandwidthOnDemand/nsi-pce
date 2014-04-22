@@ -6,10 +6,10 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
-import net.es.nsi.pce.jersey.RestServer;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -31,19 +31,23 @@ import net.es.nsi.pce.config.ConfigurationManager;
 import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.client.TestServer;
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
+import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
+public class FindPathEvtsSwitchingServiceTest {
     private final static String CONFIG_DIR = "src/test/resources/config/";
     private static final String DEFAULT_TOPOLOGY_FILE = CONFIG_DIR + "topology-dds.xml";
     private static final String DEFAULT_DDS_FILE = CONFIG_DIR + "dds.xml";
     private static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
     private static final String DDS_CONFIG_FILE_ARGNAME = "ddsConfigFile";
+    
+    private static Client client;
+    private static WebTarget target;
+    
     
     private final static HttpConfig testServer = new HttpConfig() {
         { setUrl("http://localhost:9801/"); setPackageName("net.es.nsi.pce.client"); }
@@ -76,11 +80,9 @@ public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
         }
     };
 
-    @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-        
+    @BeforeClass
+    public static void oneTimeSetUp() {
+        System.out.println("*************************************** FindPathEvtsSwitchingServiceTest oneTimeSetUp ***********************************");
         // Configure the local test client callback server.
         TestServer.INSTANCE.start(testServer);
         
@@ -88,20 +90,29 @@ public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
         System.setProperty(DDS_CONFIG_FILE_ARGNAME, DEFAULT_DDS_FILE);
         System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, DEFAULT_TOPOLOGY_FILE);
         try {
-            ConfigurationManager.INSTANCE.initialize("src/test/resources/config/");
+            if (ConfigurationManager.INSTANCE.isInitialized()) {
+                System.out.println("ConfigurationManager already initialized so shutting down.");
+                ConfigurationManager.INSTANCE.shutdown();
+            }
+            ConfigurationManager.INSTANCE.initialize(CONFIG_DIR);
         } catch (Exception ex) {
-            System.err.println("configure(): Could not initialize test environment." + ex.toString());
-            fail("configure(): Could not initialize test environment.");
+            System.err.println("FindPathEvtsSwitchingServiceTest.oneTimeSetUp(): Could not initialize test environment." + ex.toString());
+            fail("FindPathEvtsSwitchingServiceTest.oneTimeSetUp(): Could not initialize test environment.");
         }
-        Application app = new Application();
-        app.getProperties();
-        return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceConfig().getPackageName());
-    }
-
-    @Override
-    protected void configureClient(ClientConfig clientConfig) {
-        // Configure the JerseyTest client for communciations with PCE.
+        
+        ClientConfig clientConfig = new ClientConfig();
         RestClient.configureClient(clientConfig);
+        client = ClientBuilder.newClient(clientConfig);
+        
+        target = client.target(ConfigurationManager.INSTANCE.getPceServer().getUrl()); 
+        System.out.println("*************************************** FindPathEvtsSwitchingServiceTest oneTimeSetUp done ***********************************");
+    }
+    
+    @AfterClass
+    public static void oneTimeTearDown() {
+        System.out.println("@After - tearDown");
+        ConfigurationManager.INSTANCE.shutdown();
+        client.close();
     }
 
     @Test
@@ -133,7 +144,8 @@ public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
     }
         
     public void testPCE(String mediaType, StpTestData test) throws Exception {
-        final WebTarget webTarget = target().path("paths/find");
+        System.out.println("*************************************** FindPathEvtsSwitchingServiceTest testPCE ***********************************");
+        final WebTarget webTarget = target.path("paths/find");
         
         // Fill in our valid path request.
         FindPathRequestType req = new FindPathRequestType();
@@ -177,8 +189,8 @@ public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
         TestServer.INSTANCE.setFindPathResponse(null);
         
         Response response = webTarget.request(mediaType).post(Entity.entity(new GenericEntity<JAXBElement<FindPathRequestType>>(jaxbRequest) {}, mediaType));
-        
         assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
+        response.close();
         
         FindPathResponseType findPathResponse = TestServer.INSTANCE.getFindPathResponse();
         int count = 0;
@@ -189,6 +201,8 @@ public class FindPathEvtsSwitchingServiceTest extends JerseyTest {
         
         assertNotNull(findPathResponse);
         
-        assertEquals(FindPathStatusType.SUCCESS, findPathResponse.getStatus());        
+        assertEquals(FindPathStatusType.SUCCESS, findPathResponse.getStatus());
+        
+        System.out.println("*************************************** FindPathEvtsSwitchingServiceTest testPCE done ***********************************");
     }
 }

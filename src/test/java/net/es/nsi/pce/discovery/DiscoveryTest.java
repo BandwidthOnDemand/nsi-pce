@@ -88,7 +88,7 @@ public class DiscoveryTest extends JerseyTest {
         }
         Application app = new Application();
         app.getProperties();
-        return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceConfig().getPackageName());
+        return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceServer().getPackageName());
     }
 
     @Override
@@ -243,13 +243,14 @@ public class DiscoveryTest extends JerseyTest {
         // Get a list of all documents with full contents.
         Response response = discovery.path("local").request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        
-        final ChunkedInput<DocumentListType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<DocumentListType>>() {});
-        DocumentListType chunk;
-        DocumentListType documents = null;
-        while ((chunk = chunkedInput.read()) != null) {
-            System.out.println("Chunk received...");
-            documents = chunk;
+        DocumentListType documents;
+        try (ChunkedInput<DocumentListType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<DocumentListType>>() {})) {
+            DocumentListType chunk;
+            documents = null;
+            while ((chunk = chunkedInput.read()) != null) {
+                System.out.println("Chunk received...");
+                documents = chunk;
+            }
         }
         assertNotNull(documents);
         
@@ -260,6 +261,7 @@ public class DiscoveryTest extends JerseyTest {
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
             DocumentListType docs = response.readEntity(DocumentListType.class);
             assertNotNull(docs);
+            response.close();
             
             for (DocumentType d : docs.getDocument()) {
                 assertEquals(document.getType(), d.getType());
@@ -313,7 +315,8 @@ public class DiscoveryTest extends JerseyTest {
                             .path(URLEncoder.encode(document.getId().trim(), "UTF-8"))
                             .request(MediaType.APPLICATION_XML)
                             .put(Entity.entity(new GenericEntity<JAXBElement<DocumentType>>(jaxbRequest) {}, MediaType.APPLICATION_XML));
-                    assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());                    
+                    assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+                    response.close();
                 }
             }
         }
@@ -337,10 +340,17 @@ public class DiscoveryTest extends JerseyTest {
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
         SubscriptionType result = response.readEntity(SubscriptionType.class);
+        String id = result.getId();
+        response.close();
+        
         response = discovery.path(result.getHref()).request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        result = response.readEntity(SubscriptionType.class);
+        response.close();
+        assertEquals(id, result.getId());
         
         response = discovery.path(result.getHref()).request(MediaType.APPLICATION_XML).delete();
+        response.close();
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
     }
     
@@ -357,12 +367,16 @@ public class DiscoveryTest extends JerseyTest {
         filter.getInclude().add(criteria);
         subscription.setFilter(filter);
         JAXBElement<SubscriptionRequestType> jaxbRequest = factory.createSubscriptionRequest(subscription);
+        
         Response response = discovery.path("subscriptions").request(MediaType.APPLICATION_XML).post(Entity.entity(new GenericEntity<JAXBElement<SubscriptionRequestType>>(jaxbRequest) {}, MediaType.APPLICATION_XML));
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-
+        
         SubscriptionType result = response.readEntity(SubscriptionType.class);
+        response.close();
+        
         response = discovery.path(result.getHref()).request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        response.close();
         
         // Now we wait for the initial notifications to arrive.
         int count = 0;

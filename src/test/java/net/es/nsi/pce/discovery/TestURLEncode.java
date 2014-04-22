@@ -7,11 +7,10 @@ package net.es.nsi.pce.discovery;
 import java.io.File;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import net.es.nsi.pce.discovery.actors.DdsActorSystem;
 import net.es.nsi.pce.spring.SpringContext;
-import net.es.nsi.pce.discovery.actors.DdsActorController;
-import org.apache.log4j.xml.DOMConfigurator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Test;
+import static org.junit.Assert.*;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -19,14 +18,21 @@ import org.springframework.context.ApplicationContext;
  * @author hacksaw
  */
 public class TestURLEncode {
-    private static final String configDir = "src/test/resources/config/";
-    private static final String beanConfig = new StringBuilder(configDir).append("beans.xml").toString().replace("/", File.separator);
-        private static final String log4jConfig = new StringBuilder(configDir).append("log4j.xml").toString().replace("/", File.separator);
-        
-    public static void main(String[] args) throws Exception {
-        DOMConfigurator.configureAndWatch(log4jConfig, 45 * 1000);
-        
-        Logger log = LoggerFactory.getLogger(TestURLEncode.class);
+    
+    private final static String CONFIG_DIR = "src/test/resources/config/";
+    private static final String DEFAULT_TOPOLOGY_FILE = CONFIG_DIR + "topology-dds.xml";
+    private static final String DEFAULT_DDS_FILE = CONFIG_DIR + "dds.xml";
+    private static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
+    private static final String DDS_CONFIG_FILE_ARGNAME = "ddsConfigFile";
+
+    private static final String beanConfig = new StringBuilder(CONFIG_DIR).append("beans.xml").toString().replace("/", File.separator);
+   
+    @Test
+    public void test() throws Exception {
+       
+        //System.setProperty("basedir", "./");
+        System.setProperty(DDS_CONFIG_FILE_ARGNAME, DEFAULT_DDS_FILE);
+        System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, DEFAULT_TOPOLOGY_FILE);
         
         String url = "application/vnd.ogf.nsi.topology.v2+xml";
         System.out.println(url);
@@ -37,7 +43,6 @@ public class TestURLEncode {
         
         // Get a reference to the topology provider through spring.
         SpringContext sc = SpringContext.getInstance();
-        log.debug("TestConfig: loading beanConfig=" + beanConfig);
         ApplicationContext context;
         try {
             context = sc.initContext(beanConfig);
@@ -47,19 +52,12 @@ public class TestURLEncode {
             ex.printStackTrace();
             return;
         }
-        System.out.println("TestConfig: remoteSubscriptionCache");
-        context.getBean("remoteSubscriptionCache");
-        System.out.println("TestConfig: httpConfigProvider");
-        context.getBean("httpConfigProvider");
-        System.out.println("TestConfig: serviceInfoProvider");
-        context.getBean("serviceInfoProvider");
-        System.out.println("TestConfig: discoveryProvider");
-        context.getBean("discoveryProvider");
-        System.out.println("TestConfig: topologyProvider");
-        context.getBean("topologyProvider");
-        Thread.sleep(60*1000);
-        System.out.println("TestConfig: ddsActorSystem");
-        DdsActorController actorSystem = (DdsActorController) context.getBean("ddsActorSystem");
-        actorSystem.shutdown();
+        assertNotNull(context.getBean("remoteSubscriptionCache"));
+        assertNotNull(context.getBean("httpConfigProvider"));
+        assertNotNull(context.getBean("discoveryProvider"));
+        assertNotNull(context.getBean("topologyProvider"));
+        DdsActorSystem actorSystem = (DdsActorSystem) context.getBean("ddsActorSystem");
+        assertNotNull(actorSystem);
+        actorSystem.getActorSystem().shutdown();
     }
 }

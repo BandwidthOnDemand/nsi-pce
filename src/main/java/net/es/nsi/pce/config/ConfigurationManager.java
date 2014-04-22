@@ -2,8 +2,6 @@ package net.es.nsi.pce.config;
 
 import net.es.nsi.pce.spring.SpringContext;
 import java.io.File;
-import net.es.nsi.pce.config.http.HttpConfig;
-import net.es.nsi.pce.config.http.HttpConfigProvider;
 import net.es.nsi.pce.discovery.provider.DiscoveryProvider;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.sched.PCEScheduler;
@@ -45,16 +43,26 @@ import org.springframework.context.ApplicationContext;
 public enum ConfigurationManager {
     INSTANCE;
 
-    public static final String PCE_SERVER_CONFIG_NAME = "pce";
-    
-    private static HttpConfigProvider httpConfigProvider;
     private static PCEServer pceServer;
     private static TopologyProvider topologyProvider;
     private static DiscoveryProvider discoveryProvider;
+    private static ApplicationContext context;
     
-    ApplicationContext context;
-    
-    private static boolean initialized = false;
+    private boolean initialized = false;
+
+    /**
+     * @return the initialized
+     */
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    /**
+     * @param aInitialized the initialized to set
+     */
+    public void setInitialized(boolean aInitialized) {
+        initialized = aInitialized;
+    }
     
     /**
      * This method initialized the PCE configuration found under the specified
@@ -64,7 +72,7 @@ public enum ConfigurationManager {
      * @throws Exception If there is an error loading any of the required configuration files.
      */
     public synchronized void initialize(String configPath) throws Exception {
-        if (!initialized) {
+        if (!isInitialized()) {
             // Build paths for configuration files.
             String log4jConfig = new StringBuilder(configPath).append("log4j.xml").toString().replace("/", File.separator);
             String beanConfig = new StringBuilder(configPath).append("beans.xml").toString().replace("/", File.separator);
@@ -76,27 +84,19 @@ public enum ConfigurationManager {
 
             // Initialize the Spring context to load our dependencies.
             SpringContext sc = SpringContext.getInstance();
-            
-            log.info("Loading Spring context...");
             context = sc.initContext(beanConfig);
-            log.info("Spring context loaded.");
             
             // Get references to the spring controlled beans.
-            httpConfigProvider = (HttpConfigProvider) context.getBean("httpConfigProvider");
             pceServer = (PCEServer) context.getBean("pceServer");
-            pceServer.start(PCE_SERVER_CONFIG_NAME);
+            pceServer.start();
             
             // Start the discovery process.
             discoveryProvider = (DiscoveryProvider) context.getBean("discoveryProvider");
             discoveryProvider.start();
-            
-            //serviceInfoProvider = (ServiceInfoProvider) context.getBean("serviceInfoProvider");
-            topologyProvider = (TopologyProvider) context.getBean("topologyProvider");
 
-            // TODO: This need to change to a local cache load.
-            log.info("Loading network topology...");
-            getTopologyProvider().loadTopology();
-            log.info("...network topology loaded.");
+            // Start the NIS network topology build.
+            topologyProvider = (TopologyProvider) context.getBean("topologyProvider");
+            topologyProvider.loadTopology();
             
             // Start the task scheduler.
             log.info("Starting task scheduler...");
@@ -105,7 +105,7 @@ public enum ConfigurationManager {
             PCEScheduler.getInstance().start();
             log.info("...Task scheduler started.");
 
-            initialized = true;
+            setInitialized(true);
             log.info("Loaded configuration from: " + configPath);
         }
     }
@@ -113,26 +113,12 @@ public enum ConfigurationManager {
     public ApplicationContext getApplicationContext() {
         return context;
     }
-    
-    public HttpConfig getPceConfig() {
-        if (httpConfigProvider == null) {
-            throw new IllegalStateException();
-        }
-        return httpConfigProvider.getConfig(PCE_SERVER_CONFIG_NAME);
-    }
 
     /**
      * @return the pceServer
      */
-    public static PCEServer getPceServer() {
+    public PCEServer getPceServer() {
         return pceServer;
-    }
-
-    /**
-     * @param aPceServer the pceServer to set
-     */
-    public static void setPceServer(PCEServer aPceServer) {
-        pceServer = aPceServer;
     }
 
     /**
@@ -143,33 +129,20 @@ public enum ConfigurationManager {
     }
 
     /**
-     * @param aTp the topology provider to set
-     */
-    public void setTopologyProvider(TopologyProvider aTp) {
-        topologyProvider = aTp;
-    }
-    
-
-    /**
      * @return the discoveryProvider
      */
     public DiscoveryProvider getDiscoveryProvider() {
         return discoveryProvider;
     }
-
-    /**
-     * @param aDiscoveryProvider the discoveryProvider to set
-     */
-    public void setDiscoveryProvider(DiscoveryProvider aDiscoveryProvider) {
-        discoveryProvider = aDiscoveryProvider;
-    }
     
     public void shutdown() {
-        
         try {
-            discoveryProvider.shutdown();
-            pceServer.stop();
-            PCEScheduler.getInstance().stop();
+            if (initialized) {
+                discoveryProvider.shutdown();
+                pceServer.stop();
+                PCEScheduler.getInstance().stop();
+                initialized = false;
+            }
         }
         catch (IllegalStateException | SchedulerException ex) {
         }

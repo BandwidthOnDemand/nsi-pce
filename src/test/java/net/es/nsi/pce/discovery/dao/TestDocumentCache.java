@@ -23,7 +23,7 @@ public class TestDocumentCache {
  
     @BeforeClass
     public static void oneTimeSetUp() {
-        System.out.println("@AfterClass - oneTimeTearDown");
+        System.out.println("@BeforeClass - oneTimeSetUp");
     }
  
     @AfterClass

@@ -91,7 +91,7 @@ public class AgoleDiscoveryActor extends UntypedActor {
         try {
             lastDiscovered = XmlUtilities.xmlGregorianCalendar();
         } catch (DatatypeConfigurationException ex) {
-            log.error("discoverTopology: Failed to create a lastDiscovered value, id=" + nsa.getId());
+            log.error("discoverTopology: Failed to create a lastDiscovered value, id=" + nsa.getId(), ex);
             return false;
         }
         

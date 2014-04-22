@@ -117,13 +117,13 @@ public class FindPathEvtsSuccessTest extends JerseyTest {
         System.setProperty(DDS_CONFIG_FILE_ARGNAME, DEFAULT_DDS_FILE);
         System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, DEFAULT_TOPOLOGY_FILE);
         try {
-            ConfigurationManager.INSTANCE.initialize("src/test/resources/config/");
+            ConfigurationManager.INSTANCE.initialize(CONFIG_DIR);
         } catch (Exception ex) {
             System.err.println("configure(): Could not initialize test environment." + ex.toString());
             fail("configure(): Could not initialize test environment.");
         }
         
-        return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceConfig().getPackageName());
+        return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceServer().getPackageName());
     }
 
     @Override

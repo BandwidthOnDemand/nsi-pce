@@ -4,12 +4,10 @@
     xmlns:context="http://www.springframework.org/schema/context"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <bean id="restClient" class="net.es.nsi.pce.jersey.RestClient" scope="singleton" />
     
-    <context:annotation-config />
-    
-    <context:component-scan base-package="net.es.nsi.pce.jersey, net.es.nsi.pce.discovery.agole"/>
-    
-    <bean  class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
-    
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+    <bean id="agoleManifestReader" class="net.es.nsi.pce.discovery.agole.AgoleManifestReader" scope="prototype" lazy-init="true">
+        <constructor-arg index="0" ref="restClient"/>
+    </bean>
 </beans>

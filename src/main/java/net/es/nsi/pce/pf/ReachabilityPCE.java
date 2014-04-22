@@ -20,7 +20,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 
-import net.es.nsi.pce.config.nsa.ServiceInfoProvider;
 import net.es.nsi.pce.path.services.Point2Point;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.pf.api.PCEData;

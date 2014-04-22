@@ -13,13 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PCEServer {
+    public static final String PCE_SERVER_CONFIG_NAME = "pce";
     
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private HttpConfigProvider provider;
-    private static HttpServer server = null;
+    private HttpConfig config;
+    private HttpServer server = null;
     
     public PCEServer(HttpConfigProvider provider) {
-        this.provider = provider;
+        this.config = provider.getConfig(PCE_SERVER_CONFIG_NAME);
     }
     
     public static PCEServer getInstance() {
@@ -27,9 +28,7 @@ public class PCEServer {
         return pceProvider;
     }
     
-    public void start(String configuration) throws IllegalStateException, IOException {
-        HttpConfig config = provider.getConfig(configuration);
-        
+    public void start() throws IllegalStateException, IOException {
         synchronized(this) {
             if (server == null) {
                 try {
@@ -74,5 +73,13 @@ public class PCEServer {
                 throw new IllegalStateException();
             }
         }
-    }    
+    }
+    
+    public String getPackageName() {
+        return config.getPackageName();
+    }
+    
+    public String getUrl() {
+        return config.getUrl();
+    }
 }

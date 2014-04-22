@@ -39,6 +39,7 @@ import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.path.services.Point2Point;
 import net.es.nsi.pce.path.services.Service;
+import net.es.nsi.pce.spring.SpringApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,7 +149,7 @@ public class FindPathService {
         resp.setStatus(FindPathStatusType.SUCCESS);
         
         // Invoke the path finder on associated service elements.
-        PathfinderCore pathfinderCore = new PathfinderCore();
+        PathfinderCore pathfinderCore = (PathfinderCore) SpringApplicationContext.getBean("pathfinderCore");
         
         // Inspect each element stored as an ANY to see if it is associated
         // with our serviceType.  At the moment we are invoking these in

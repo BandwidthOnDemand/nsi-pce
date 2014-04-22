@@ -4,13 +4,9 @@
     xmlns:context="http://www.springframework.org/schema/context"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-    <!--
-    <context:annotation-config />
-    
-    <context:component-scan base-package="net.es.nsi.pce"/>
-    
-    <bean  class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
--->
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+
     <bean id="springApplicationContext" class="net.es.nsi.pce.spring.SpringApplicationContext" scope="singleton" />
     
     <bean id="httpConfigProvider" class="net.es.nsi.pce.config.http.JsonHttpConfigProvider" init-method="loadConfig" scope="singleton">
@@ -95,7 +91,17 @@
     <bean id="ddsActorController" class="net.es.nsi.pce.discovery.actors.DdsActorController" init-method="init" scope="singleton" depends-on="remoteSubscriptionCache, pceServer">
         <constructor-arg index="0" ref="ddsActorSystem"/>
         <constructor-arg index="1" ref="discoveryConfiguration"/>
-        <constructor-arg index="2" ref="documentCache"/>
+        <constructor-arg index="2">
+            <list>
+                <bean class="net.es.nsi.pce.discovery.actors.ActorEntry"><property name="actor" value="configurationActor" /><property name="start" value="false" /></bean>
+                <bean class="net.es.nsi.pce.discovery.actors.ActorEntry"><property name="actor" value="localDocumentActor" /><property name="start" value="false" /></bean>
+                <bean class="net.es.nsi.pce.discovery.actors.ActorEntry"><property name="actor" value="documentExpiryActor" /><property name="start" value="false" /></bean>
+                <bean class="net.es.nsi.pce.discovery.actors.ActorEntry"><property name="actor" value="notificationRouter" /><property name="start" value="false" /></bean>
+                <bean class="net.es.nsi.pce.discovery.actors.ActorEntry"><property name="actor" value="registrationRouter" /><property name="start" value="true" /></bean>
+                <bean class="net.es.nsi.pce.discovery.actors.ActorEntry"><property name="actor" value="gof3DiscoveryRouter" /><property name="start" value="true" /></bean>
+                <bean class="net.es.nsi.pce.discovery.actors.ActorEntry"><property name="actor" value="agoleDiscoveryRouter" /><property name="start" value="true" /></bean>
+            </list>
+        </constructor-arg>
     </bean>
     
     <bean id="discoveryProvider" class="net.es.nsi.pce.discovery.provider.DdsProvider" init-method="init" scope="singleton" depends-on="pceServer">
@@ -136,6 +142,10 @@
             </list>
         </property>
     </bean>
-    
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+
+    <bean id="pathfinderCore" class="net.es.nsi.pce.pf.PathfinderCore" scope="prototype">
+        <constructor-arg index="0" ref="topologyProvider"/>
+        <constructor-arg index="1" ref="chainPCE"/>
+        <constructor-arg index="2" ref="treePCE"/>
+    </bean>
 </beans>

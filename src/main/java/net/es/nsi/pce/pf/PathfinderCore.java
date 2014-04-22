@@ -2,13 +2,10 @@ package net.es.nsi.pce.pf;
 
 import java.util.List;
 import java.util.Set;
-import org.springframework.context.ApplicationContext;
-import net.es.nsi.pce.spring.SpringContext;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.path.jaxb.FindPathAlgorithmType;
-import net.es.nsi.pce.path.jaxb.TraceType;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.cons.Constraint;
@@ -23,21 +20,19 @@ import org.slf4j.LoggerFactory;
  */
 public class PathfinderCore {
     private final Logger log = LoggerFactory.getLogger(getClass());
-
-    private ApplicationContext context = null;
-    private TopologyProvider topologyProvider = null;
-
+    private TopologyProvider topologyProvider;
+    private net.es.nsi.pce.pf.SequentialPCE chainPCE;
+    private net.es.nsi.pce.pf.SequentialPCE treePCE;
     /**
      * Default constructor for this class.  Performs lookups on the Spring
      * beans for required services.
      *
      * @throws Exception If Spring cannot resolve the desired beans.
      */
-    public PathfinderCore() {
-        // Load the providers we will need for Path Computation.
-        SpringContext sc  = SpringContext.getInstance();
-        context = sc.getContext();
-        topologyProvider = (TopologyProvider) context.getBean("topologyProvider");
+    public PathfinderCore(TopologyProvider topologyProvider, net.es.nsi.pce.pf.SequentialPCE chainPCE, net.es.nsi.pce.pf.SequentialPCE treePCE) {
+        this.topologyProvider = topologyProvider;
+        this.chainPCE = chainPCE;
+        this.treePCE = treePCE;
     }
 
     /**
@@ -61,16 +56,21 @@ public class PathfinderCore {
         // Add topology
         pceData.setTopology(topologyProvider.getTopology());
         
+        log.debug("******* findPath " + pceData.getTopology().getLocalNsaId());
+        for (String networkId : topologyProvider.getTopology().getNetworkIds()) {
+            log.debug("******* networkId " + networkId);
+        }
+        
         // Add trace.
         pceData.setTrace(trace);
 
         // Determine the path computation module to invoke.
         PCEModule pce;
         if (algorithm != null && algorithm.equals(FindPathAlgorithmType.CHAIN)) {
-            pce = (PCEModule) context.getBean("chainPCE");
+            pce = chainPCE;
         }
         else {
-            pce = (PCEModule) context.getBean("treePCE");
+            pce = treePCE;
         }
 
         // Invoke the path computation sequence on this request.

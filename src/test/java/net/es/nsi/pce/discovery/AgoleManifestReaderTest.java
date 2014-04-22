@@ -6,7 +6,6 @@ package net.es.nsi.pce.discovery;
 
 import java.net.URI;
 import net.es.nsi.pce.spring.SpringContext;
-import net.es.nsi.pce.config.http.HttpConfigProvider;
 import net.es.nsi.pce.discovery.agole.AgoleManifestReader;
 import net.es.nsi.pce.discovery.agole.TopologyManifest;
 import org.glassfish.grizzly.http.server.HttpServer;

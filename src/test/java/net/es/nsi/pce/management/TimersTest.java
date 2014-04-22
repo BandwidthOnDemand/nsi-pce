@@ -54,7 +54,7 @@ public class TimersTest extends JerseyTest {
         }
         Application app = new Application();
         app.getProperties();
-        return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceConfig().getPackageName());
+        return RestServer.getConfig(ConfigurationManager.INSTANCE.getPceServer().getPackageName());
     }
 
     @Override

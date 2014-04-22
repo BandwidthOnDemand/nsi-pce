@@ -8,6 +8,7 @@ import net.es.nsi.pce.discovery.messages.Notification;
 import net.es.nsi.pce.discovery.messages.DocumentEvent;
 import net.es.nsi.pce.discovery.messages.SubscriptionEvent;
 import akka.actor.ActorRef;
+import akka.actor.Cancellable;
 import akka.actor.Props;
 import akka.actor.Terminated;
 import akka.actor.UntypedActor;
@@ -18,6 +19,7 @@ import akka.routing.Router;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
 import net.es.nsi.pce.discovery.jaxb.DocumentEventType;
 import net.es.nsi.pce.discovery.provider.DiscoveryProvider;
@@ -26,6 +28,7 @@ import net.es.nsi.pce.discovery.dao.DocumentCache;
 import net.es.nsi.pce.discovery.provider.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.concurrent.duration.Duration;
 
 /**
  *
@@ -41,12 +44,12 @@ public class NotificationRouter extends UntypedActor {
     private int poolSize;
     private Router router;
 
-    public NotificationRouter(DdsActorSystem ddsActorSystem, 
+    public NotificationRouter(DdsActorSystem ddsActorSystem,
             DiscoveryConfiguration discoveryConfiguration, 
             DiscoveryProvider discoveryProvider, 
             DocumentCache documentCache) {
         this.ddsActorSystem = ddsActorSystem;
-        this.discoveryProvider = discoveryProvider;
+        this.discoveryConfiguration = discoveryConfiguration;
         this.discoveryProvider = discoveryProvider;
         this.documentCache = documentCache;
     }
@@ -84,7 +87,7 @@ public class NotificationRouter extends UntypedActor {
             router = router.addRoutee(new ActorRefRoutee(r));
         }
         else {
-            log.debug("NotificationRouter: unhandled event.");
+            log.debug("NotificationRouter: unhandled event." + msg.getClass().getName());
             unhandled(msg);
         }
     }
@@ -141,5 +144,14 @@ public class NotificationRouter extends UntypedActor {
      */
     public void setPoolSize(int poolSize) {
         this.poolSize = poolSize;
+    }
+
+    public Cancellable scheduleNotification(Object message, long delay) {
+        Cancellable scheduleOnce = ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(delay, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
+        return scheduleOnce;
+    }
+    
+    public void sendNotification(Object message) {
+        this.getSelf().tell(message, null);
     }
 }

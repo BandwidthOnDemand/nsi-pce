@@ -9,11 +9,11 @@ import akka.actor.ActorSystem;
 import akka.actor.Cancellable;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
-import net.es.nsi.pce.discovery.dao.DocumentCache;
 import net.es.nsi.pce.discovery.messages.StartMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,24 +32,15 @@ public class DdsActorController implements ApplicationContextAware {
     // Configuration reader.
     private DdsActorSystem ddsActorSystem;
     private DiscoveryConfiguration configReader;
-    private DocumentCache documentCache;
-
-    private ActorRef notificationRouter;
-    private ActorRef registrationRouter;
-    private ActorRef localDocumentActor;
-    private ActorRef expireDocumentActor;
-    private ActorRef configurationActor;
-    private ActorRef cacheActor;
-    private ActorRef gangOfThreeRouter;
-    private ActorRef agoleRouter;
+    private List<ActorEntry> actorEntries;
     private ApplicationContext applicationContext;
     
     private List<ActorRef> startList = new ArrayList<>();
     
-    public DdsActorController(DdsActorSystem ddsActorSystem, DiscoveryConfiguration configReader, DocumentCache documentCache) {
+    public DdsActorController(DdsActorSystem ddsActorSystem, DiscoveryConfiguration configReader, ActorEntry... entries) {
         this.ddsActorSystem = ddsActorSystem;
         this.configReader = configReader;
-        this.documentCache = documentCache;
+        this.actorEntries = Arrays.asList(entries);
     }
     
     @Override
@@ -73,71 +64,17 @@ public class DdsActorController implements ApplicationContextAware {
         ActorSystem actorSystem = ddsActorSystem.getActorSystem();
         SpringExtProvider.get(actorSystem).initialize(applicationContext);
         
-        // Initialize the configuration refresh actor.
-        try {
-            log.info("DdsActorController: Initializing configuration actor.");
-            configurationActor = actorSystem.actorOf(SpringExtProvider.get(actorSystem).props("configurationActor"), "discovery-configuration-actor");
-            log.info("DdsActorController:... Configuration actor initialized.");
-        } catch (Exception ex) {
-            log.error("DdsActorController: Failed to initialize ConfigurationActor.", ex);
-        }
-
-        // Load our local documents only if a local directory is configured.
-        try {
-            log.info("DdsActorController: Initializing local document repository.");
-            localDocumentActor = actorSystem.actorOf(SpringExtProvider.get(actorSystem).props("localDocumentActor"), "discovery-document-watcher");
-            log.info("DdsActorController:... Local document repository initialized.");
-        } catch (Exception ex) {
-            log.error("DdsActorController: Failed to initialize localDocumentActor.", ex);
-        }
-        
-        // Initialize document expiry actor.
-        try {
-            log.info("DdsActorController: Initializing document expiry actor.");
-            expireDocumentActor = actorSystem.actorOf(SpringExtProvider.get(actorSystem).props("documentExpiryActor"), "discovery-expiry-watcher");
-            log.info("DdsActorController:... Document expiry actor initialized.");
-        } catch (Exception ex) {
-            log.error("DdsActorController: Failed to initialize DocumentExpiryActor.", ex);
-        }
-
-        // Initialize the subscription notification actors.
-        try {
-            log.info("DdsActorController: Initializing notification router.");
-            notificationRouter = actorSystem.actorOf(SpringExtProvider.get(actorSystem).props("notificationRouter"), "discovery-notification-router");
-            startList.add(notificationRouter);
-            log.info("DdsActorController:... Notification router initialized.");
-        } catch (Exception ex) {
-            log.error("DdsActorController: Failed to initialize Notification router.", ex);
-        }
-
-        // Initialize the remote registration actors.  Will need a start message.
-        try {
-            log.info("DdsActorController: Initializing peer registration actor...");
-            registrationRouter = actorSystem.actorOf(SpringExtProvider.get(actorSystem).props("registrationRouter"), "discovery-peer-registration");
-            startList.add(registrationRouter);
-            log.info("DdsActorController:... Peer registration actor initialized.");
-        } catch (Exception ex) {
-            log.error("DdsActorController: Failed to initialize Peer registration actor.", ex);
-        }
-        
-        // Initialize the Gang of Three actors.  Will need a start message.
-        try {
-            log.info("DdsActorController: Initializing Gang of Three actors...");
-            gangOfThreeRouter = actorSystem.actorOf(SpringExtProvider.get(actorSystem).props("gof3DiscoveryRouter"), "discovery-Gof3-registration");
-            startList.add(gangOfThreeRouter);
-            log.info("DdsActorController:... Gang of Three actors initialized.");
-        } catch (Exception ex) {
-            log.error("DdsActorController: Failed to initialize Gang of Three actors.", ex);
-        }
-
-        // Initialize the A-GOLE actors.  Will need a start message.
-        try {
-            log.info("DdsActorController: Initializing A-GOLE actors...");
-            agoleRouter = actorSystem.actorOf(SpringExtProvider.get(actorSystem).props("agoleDiscoveryRouter"), "discovery-AGOLE-registration");
-            startList.add(agoleRouter);
-            log.info("DdsActorController:... A-GOLE actors initialized.");
-        } catch (Exception ex) {
-            log.error("DdsActorController: Failed to initialize A-GOLE actors.", ex);
+        // Initialize the injectes actors.
+        ActorRef actor;
+        for (ActorEntry entry : actorEntries) {
+            try {
+                log.info("DdsActorController: Initializing " + entry.getActor());
+                actor = actorSystem.actorOf(SpringExtProvider.get(actorSystem).props(entry.getActor()), "discovery-" + entry.getActor());
+                startList.add(actor);
+                log.info("DdsActorController: Initialized " + entry.getActor());
+            } catch (Exception ex) {
+                log.error("DdsActorController: Failed to initialize " + entry.getActor(), ex);
+            }
         }
     }
     
@@ -150,12 +87,14 @@ public class DdsActorController implements ApplicationContextAware {
     }
     
     public Cancellable scheduleNotification(Object message, long delay) {
-        Cancellable scheduleOnce = ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(delay, TimeUnit.SECONDS), notificationRouter, message, ddsActorSystem.getActorSystem().dispatcher(), null);
+        NotificationRouter notificationRouter = (NotificationRouter) applicationContext.getBean("notificationRouter");
+        Cancellable scheduleOnce = notificationRouter.scheduleNotification(message, delay);
         return scheduleOnce;
     }
     
     public void sendNotification(Object message) {
-        notificationRouter.tell(message, null);
+        NotificationRouter notificationRouter = (NotificationRouter) applicationContext.getBean("notificationRouter");
+        notificationRouter.sendNotification(message);
     }
     
     public void start() {

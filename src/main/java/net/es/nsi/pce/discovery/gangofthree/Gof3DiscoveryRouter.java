@@ -70,7 +70,6 @@ public class Gof3DiscoveryRouter extends UntypedActor {
         }
 
         if (msg instanceof TimerMsg) {
-            log.debug("onReceive: timer event.");
             routeTimerEvent();
             ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
         }

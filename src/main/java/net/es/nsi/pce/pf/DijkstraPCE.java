@@ -85,6 +85,11 @@ public class DijkstraPCE implements PCEModule {
 
         // Get the topology model used for routing.
         NsiTopology nsiTopology = pceData.getTopology();
+        
+        log.debug("******* localId " + nsiTopology.getLocalNsaId());
+        for (String networkId : nsiTopology.getNetworkIds()) {
+            log.debug("******* networkId " + networkId);
+        }
 
         // Look up the STP within our model matching the request.
         StpType srcStp = nsiTopology.getStp(srcStpId);
