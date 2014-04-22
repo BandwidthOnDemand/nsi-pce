@@ -20,6 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ReachabilityType;
+import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.VectorType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
@@ -41,23 +42,25 @@ public class ReachabilityProcessorTest {
     public void setUp() throws Exception {
         nsiTopology = new NsiTopology();
         nsiTopology.setLocalNetworks(Arrays.asList(OUR_NETWORK_ID));
-
         when(topologyProvider.getTopology()).thenReturn(nsiTopology);
     }
 
     @Test
-    public void no_peers_found_return_only_local_with_cost_1() {
+    public void no_peers_found_returns_empty_result() {
         final Map<String,Integer> result = subject.getCurrentReachabilityInfo();
-        assertTrue(result.size() == 1);
-
-        assertTrue(result.containsKey(OUR_NETWORK_ID));
-        assertTrue(result.get(OUR_NETWORK_ID) == 1);
+        assertTrue(result.size() == 0);
     }
 
     @Test
-    public void one_peer_which_in_turn_has_one_peer() {
+    public void one_direct_peer_which_in_turn_() {
         final String peerNsaId = "peer nsa id";
+        final String peerNetworkId = "peer network id";
+        final String peersPeerNetworkId = "other network id";
+
         NsaType peerNsa = new NsaType();
+        final ResourceRefType network = new ResourceRefType();
+        network.setId(peerNetworkId);
+        peerNsa.getNetwork().add(network);
         peerNsa.setId(peerNsaId);
         nsiTopology.addNsa(peerNsa);
 
@@ -65,41 +68,18 @@ public class ReachabilityProcessorTest {
         reachabilityType.setId(peerNsaId);
 
         final VectorType originalPeerVector = new VectorType();
-        final String peerNetworkId = "peer network id";
-        originalPeerVector.setId(peerNetworkId);
+
+        originalPeerVector.setId(peersPeerNetworkId);
         originalPeerVector.setCost(1);
         reachabilityType.getVector().add(originalPeerVector);
 
         peerNsa.getReachability().add(reachabilityType);
         final Map<String,Integer> result = subject.getCurrentReachabilityInfo();
 
-        assertThat("table must contain our own network, and what is advertised by our peer", result.size(), is(2));
+        assertThat("table must our peer and what is advertised by our peer", result.size(), is(2));
         assertTrue(result.containsKey(peerNetworkId));
-        assertTrue(result.get(peerNetworkId) == originalPeerVector.getCost() + 1);
-    }
-
-    @Test
-    public void dont_re_advertise_own_networks() {
-        final String peerNsaId = "peer nsa id";
-        NsaType peerNsa = new NsaType();
-        peerNsa.setId(peerNsaId);
-        nsiTopology.addNsa(peerNsa);
-
-        final ReachabilityType reachabilityType = new ReachabilityType();
-        reachabilityType.setId(peerNsaId);
-
-        final VectorType originalPeerVector = new VectorType();
-        originalPeerVector.setId(OUR_NETWORK_ID);
-        originalPeerVector.setCost(23);
-        reachabilityType.getVector().add(originalPeerVector);
-
-        peerNsa.getReachability().add(reachabilityType);
-        final Map<String,Integer> result = subject.getCurrentReachabilityInfo();
-        assertThat("table must contain our own network only", result.size(), is(1));
-
-        // must contain vector for our self with cost = 1
-        assertTrue(result.containsKey(OUR_NETWORK_ID));
-        assertTrue(result.get(OUR_NETWORK_ID) == 1);
+        assertTrue(result.get(peerNetworkId) == 1);
+        assertTrue(result.get(peersPeerNetworkId) == originalPeerVector.getCost() + 1);
     }
 
     @Test

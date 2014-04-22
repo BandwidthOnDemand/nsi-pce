@@ -9,6 +9,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ReachabilityType;
+import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.VectorType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
@@ -34,13 +35,15 @@ public class ReachabilityProcessor {
         Map<String, Integer> result = new HashMap<>();
 
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        // put our own networks in with cost 1
-        List<String> localNetworkIds = nsiTopology.getLocalNetworks();
-        for (String localNetworkId: localNetworkIds){
-            result.put(localNetworkId, 1);
+        // put in the networks of out direct peers with cost=1
+        for (NsaType nsa : nsiTopology.getNsas()){
+            for (ResourceRefType network: nsa.getNetwork()) {
+                if (!nsiTopology.getLocalNetworks().contains(network.getId())) {
+                    result.put(network.getId(), 1);
+                }
+            }
         }
-
-        return makeResult(new ArrayList<>(nsiTopology.getNsas()), localNetworkIds, result);
+        return makeResult(new ArrayList<>(nsiTopology.getNsas()), nsiTopology.getLocalNetworks(), result);
     }
 
     @VisibleForTesting
