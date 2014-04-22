@@ -147,7 +147,9 @@ public class Point2Point {
             
             // Set the corresponding serviceType and add out EVTS results.
             ResolvedPathType pathObj = new ResolvedPathType();
-            pathObj.setServiceType(serviceType.getValue());
+            if (serviceType != null) {
+                pathObj.setServiceType(serviceType.getValue());
+            }
             pathObj.getAny().add(factory.createP2Ps(p2psResult));
 
             pathObj.setNsa(segment.getNsaId());
