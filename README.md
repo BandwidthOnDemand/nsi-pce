@@ -197,3 +197,6 @@ java -Xmx512m -XX:MaxPermSize=256m -Djava.net.preferIPv4Stack=true  \
 **[OGF NSI-DS]** John MacAuley, et al. “Network Service Interface NSA Description Document v1.0”, Group Working Draft (GWD), candidate Recommendation Proposed (R-P), February 16, 2014.
 
 **[OGF NML]** OGF GFD.206: Network Markup Language Base Schema version 1, http://www.gridforum.org/documents/GFD.206.pdf
+
+$277.69 + 46.29
+$328 + 18 + 45

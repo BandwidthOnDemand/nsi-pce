@@ -37,10 +37,16 @@ public class RestServer {
                 .register(new MoxyJsonFeature())
                 .registerInstances(new JsonMoxyConfigurationContextResolver());
     }
-    
+
     public static Response getBadRequestError(String resource, String details) {
         ObjectFactory factory = new ObjectFactory();
         FindPathErrorType error = NsiError.getFindPathError(NsiError.MISSING_PARAMETER, resource, details);
-        return Response.status(Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build(); 
+        return Response.status(Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();
+    }
+
+    public static Response getInternalServerError(String resource, String details) {
+        ObjectFactory factory = new ObjectFactory();
+        FindPathErrorType error = NsiError.getFindPathError(NsiError.INTERNAL_SERVER_ERROR, resource, details);
+        return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();
     }
 }

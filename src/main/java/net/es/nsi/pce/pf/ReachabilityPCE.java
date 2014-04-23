@@ -84,7 +84,7 @@ public class ReachabilityPCE implements PCEModule {
         constraints.removeStringAttrConstraint(Point2Point.SOURCESTP);
         constraints.removeStringAttrConstraint(Point2Point.DESTSTP);
         for (PathSegment segment: path.getPathSegments()) {
-            segment.setConstraints(constraints);
+            segment.setConstraints(new Constraints(constraints));
         }
     }
 

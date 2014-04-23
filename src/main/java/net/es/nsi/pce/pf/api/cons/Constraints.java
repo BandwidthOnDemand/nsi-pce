@@ -17,34 +17,37 @@ import net.es.nsi.pce.path.jaxb.TypeValueType;
  * @author hacksaw
  */
 public class Constraints {
-    private Set<Constraint> constraints = new HashSet<>();
+    private Set<Constraint> constraints;
 
-    public Constraints() { }
-    
+    public Constraints() {
+        constraints = new HashSet<>();
+    }
+
     public Constraints(Set<Constraint> constraints) {
+        this.constraints = new HashSet<>();
         for (Constraint constraint : constraints) {
             if (constraint instanceof AttrConstraint) {
                 this.constraints.add((AttrConstraint) constraint);
             }
         }
     }
-    
+
     public Constraints(Constraints constraints) {
         this.constraints = new HashSet<>(constraints.get());
     }
-    
+
     public boolean add(AttrConstraint constraint) {
         return constraints.add(constraint);
     }
-    
+
     public AttrConstraint remove(AttrConstraint constraint) {
         return removeAttrConstraint(constraint.getAttrName());
     }
-    
+
     public Set<Constraint> get() {
         return Collections.unmodifiableSet(constraints);
-    }    
-    
+    }
+
     public AttrConstraint removeAttrConstraint(String name) {
         for (Iterator<Constraint> it = constraints.iterator(); it.hasNext(); ) {
             Constraint constraint = it.next();
@@ -66,7 +69,7 @@ public class Constraints {
         }
         return null;
     }
-    
+
     public NumAttrConstraint removeNumAttrConstraint(String name) {
         for (Iterator<Constraint> it = constraints.iterator(); it.hasNext(); ) {
             Constraint constraint = it.next();
@@ -79,7 +82,7 @@ public class Constraints {
         }
         return null;
     }
-    
+
     public NumAttrConstraint getNumAttrConstraint(String name) {
         for (Constraint constraint : constraints) {
             if (constraint instanceof NumAttrConstraint) {
@@ -90,7 +93,7 @@ public class Constraints {
         }
         return null;
     }
-    
+
     public StringAttrConstraint removeStringAttrConstraint(String name) {
         for (Iterator<Constraint> it = constraints.iterator(); it.hasNext(); ) {
             Constraint constraint = it.next();
@@ -102,7 +105,7 @@ public class Constraints {
         }
         return null;
     }
-    
+
     public StringAttrConstraint getStringAttrConstraint(String name) {
         for (Constraint constraint : constraints) {
             if (constraint instanceof StringAttrConstraint &&
@@ -112,7 +115,7 @@ public class Constraints {
         }
         return null;
     }
-    
+
     public BooleanAttrConstraint removeBooleanAttrConstraint(String name) {
         for (Iterator<Constraint> it = constraints.iterator(); it.hasNext(); ) {
             Constraint constraint = it.next();
@@ -124,7 +127,7 @@ public class Constraints {
         }
         return null;
     }
-    
+
     public BooleanAttrConstraint getBooleanAttrConstraint(String name) {
         for (Constraint constraint : constraints) {
             if (constraint instanceof BooleanAttrConstraint &&
@@ -134,10 +137,10 @@ public class Constraints {
         }
         return null;
     }
-    
+
     public List<TypeValueType> removeStringAttrConstraints() {
         List<TypeValueType> results = new ArrayList<>();
-        
+
         for (Iterator<Constraint> it = constraints.iterator(); it.hasNext(); ) {
             Constraint constraint = it.next();
             if (constraint instanceof StringAttrConstraint) {
@@ -151,10 +154,10 @@ public class Constraints {
         }
         return results;
     }
-    
+
     public List<Constraint> getStringAttrConstraints() {
         List<Constraint> results = new ArrayList<>();
-        
+
         for (Constraint constraint : constraints) {
             if (constraint instanceof StringAttrConstraint) {
                 results.add(constraint);
