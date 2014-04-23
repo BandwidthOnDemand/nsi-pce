@@ -235,6 +235,7 @@ public class DiscoveryTest {
         assertNotNull(documents);
 
         for (DocumentType document : documents.getDocument()) {
+            System.out.println("Local NSA Id compare: localId=" + DiscoveryConfiguration.getInstance().getNsaId() + ", document="+ document.getNsa());
             assertEquals(document.getNsa(), DiscoveryConfiguration.getInstance().getNsaId());
 
             response = discovery.path("local").path(URLEncoder.encode(document.getType(), "UTF-8")).request(MediaType.APPLICATION_XML).get();

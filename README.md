@@ -200,3 +200,28 @@ java -Xmx512m -XX:MaxPermSize=256m -Djava.net.preferIPv4Stack=true  \
 
 $277.69 + 46.29
 $328 + 18 + 45
+
+John,
+Guy,
+Mirasolve
+chin
+Tomohiro
+Henrik
+Hans
+Kostas
+    // Control plane error group.
+
+    // Service specific errors.
+    SERVICE_ERROR("00700", "SERVICE_ERROR", "A service specific error has occurred (%s)."),
+    UNKNOWN_STP("00701", "UNKNOWN_STP", "Could not find STP in topology database (%s)."),
+    ***STP_RESOLUTION_ERROR("00702", "STP_RESOLUTION_ERROR", "Could not resolve STP (%s)."),
+    VLANID_INTERCANGE_NOT_SUPPORTED("00703", "VLANID_INTERCANGE_NOT_SUPPORTED", "VLAN interchange not supported for requested path (%s)."),
+    STP_UNAVALABLE("00704", "STP_UNAVALABLE", "Specified STP already in use (%s)."),
+    CAPACITY_UNAVAILABLE("00705", "CAPACITY_UNAVAILABLE", "Insufficient capacity available for reservation (%s)."),
+    UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST("00706", "UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST", "A unidirectional STP was provided in a bidierctional request (%s)."),
+    BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST("00707", "BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST", "A bidierctional STP was provided in a unidirectional request (%s)."),
+
+    /*
+    NETWORK UNAVAILABLE (bandwidth or authroization)?
+    STP_UNAVALABLE -> Can we send back underspecified STP to exclude?  How about a list of STP?
+    */

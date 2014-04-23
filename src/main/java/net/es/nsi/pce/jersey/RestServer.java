@@ -46,7 +46,7 @@ public class RestServer {
 
     public static Response getInternalServerError(String resource, String details) {
         ObjectFactory factory = new ObjectFactory();
-        FindPathErrorType error = NsiError.getFindPathError(NsiError.INTERNAL_SERVER_ERROR, resource, details);
+        FindPathErrorType error = NsiError.getFindPathError(NsiError.INTERNAL_ERROR, resource, details);
         return Response.status(Status.INTERNAL_SERVER_ERROR).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();
     }
 }

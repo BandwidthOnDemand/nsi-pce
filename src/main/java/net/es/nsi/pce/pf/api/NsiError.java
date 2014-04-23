@@ -3,7 +3,6 @@ package net.es.nsi.pce.pf.api;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.path.jaxb.FindPathErrorType;
 import net.es.nsi.pce.path.jaxb.ObjectFactory;
 import net.es.nsi.pce.schema.PathApiParser;
@@ -15,19 +14,39 @@ import net.es.nsi.pce.schema.PathApiParser;
  */
 public enum NsiError {
     // Message content errors.
-    INTERNAL_SERVER_ERROR("00001", "INTERNAL_SERVER_ERROR", "Internal server error (%s)."),
-
     PAYLOAD_ERROR("00100", "PAYLOAD_ERROR", "Illegal message payload (%s)."),
     MISSING_PARAMETER("00101", "MISSING_PARAMETER", "Invalid or missing parameter (%s)."),
     UNSUPPORTED_PARAMETER("00102", "UNSUPPORTED_PARAMETER", "Parameter provided contains an unsupported value which MUST be processed (%s)."),
     NOT_IMPLEMENTED("00103", "NOT_IMPLEMENTED", "Parameter is for a feature that has not been implemented (%s)."),
     VERSION_NOT_SUPPORTED("00104", "VERSION_NOT_SUPPORTED", "The service version requested is not supported. (%s)."),
 
+    // Connection errors.
+    CONNECTION_ERROR("00200", "CONNECTION_ERROR", "A connection error has occured (%s)."),
+    INVALID_TRANSITION("00201", "INVALID_TRANSITION", "Connection state machine is in invalid state for received message (%s)."),
+    CONNECTION_EXISTS("00202", "CONNECTION_EXISTS", "Schedule already exists for connectionId (%s)."),
+    CONNECTION_NONEXISTENT("00203", "CONNECTION_NONEXISTENT", "Schedule does not exists for connectionId (%s)."),
+    CONNECTION_GONE("00204", "CONNECTION_GONE", "Requested connection does not exist (%s)."),
+    CONNECTION_CREATE_ERROR("00205", "CONNECTION_CREATE_ERROR", "Failed to create connection (payload was ok, something went wrong) (%s)."),
+
+    // Security errors.
+    SECURITY_ERROR("00300", "SECURITY_ERROR", "A security error has occurred (%s)."),
+    AUTHENTICATION_FAILURE("00301", "AUTHENTICATION_FAILURE", "Authentication failure (%s)."),
+    UNAUTHORIZED("00302", "UNAUTHORIZED", "Authorization failure (%s)."),
+
     // Generic topology errors.
     TOPOLOGY_ERROR("00400", "TOPOLOGY_ERROR", "A topology error has occurred (%s)."),
     NO_PATH_FOUND("00403", "NO_PATH_FOUND", "Path computation failed (%s)."),
     UNKNOWN_NETWORK("00405", "UNKNOWN_NETWORK", "Unknown network for requested resource (%s)."),
     INVALID_DISCOVERY_INFORMATION("00406", "INVALID_DISCOVERY_INFORMATION", "Cannot map networkId to service interface (%s)."),
+
+    // Internal server errors.
+    INTERNAL_ERROR("00500", "INTERNAL_ERROR", "An internal error has caused a message processing failure (%s)."),
+    INTERNAL_NRM_ERROR("00501", "INTERNAL_NRM_ERROR", "An internal NRM error has caused a message processing failure (%s)."),
+
+    // Resource availability errors.
+    RESOURCE_UNAVAILABLE("00500", "RESOURCE_UNAVAILABLE", "An internal error has caused a message processing failure (%s)."),
+
+    // Control plane error group.
 
     // Service specific errors.
     SERVICE_ERROR("00700", "SERVICE_ERROR", "A service specific error has occurred (%s)."),
@@ -89,7 +108,7 @@ public enum NsiError {
             return errorElement.getValue();
         }
         catch (Exception ex) {
-            return getFindPathError(NsiError.INTERNAL_SERVER_ERROR, "FindPathErrorType", "Issue parsing internal error message");
+            return getFindPathError(NsiError.INTERNAL_ERROR, "FindPathErrorType", "Issue parsing internal error message");
         }
     }
 
