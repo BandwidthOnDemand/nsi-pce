@@ -132,10 +132,16 @@ public class ReachabilityPCE implements PCEModule {
         }
     }
 
-    private Optional<Path> onlyLocalPath(Stp sourceStp, Stp destStp, NsiTopology topology) {
+    private Optional<Path> onlyLocalPath(final Stp sourceStp, final Stp destStp, final NsiTopology topology) {
         checkArgument(sourceStp.getNetworkId().equals(destStp.getNetworkId()));
 
-        return Optional.of(new Path(new PathSegment(new StpPair(sourceStp.toStpType(), destStp.toStpType())).withNsa(topology.getLocalNsaId(), topology.getLocalProviderUrl())));
+        return topology.getLocalProviderUrl().transform(new Function<String, Path>() {
+            @Override
+            public Path apply(String providerUrl) {
+              return new Path(new PathSegment(new StpPair(sourceStp.toStpType(), destStp.toStpType())).withNsa(topology.getLocalNsaId(), providerUrl));
+            }
+
+        });
     }
 
     @VisibleForTesting
@@ -158,10 +164,17 @@ public class ReachabilityPCE implements PCEModule {
         StpPair localStpPair = new StpPair(localStp.toStpType(), localIntermediateStp.toStpType());
         StpPair remoteStpPair = new StpPair(remoteIntermediateStp.toStpType(), remoteStp.toStpType());
 
-        PathSegment localSegment = new PathSegment(localStpPair).withNsa(topology.getLocalNsaId(), topology.getLocalProviderUrl());
-        PathSegment forwardSegment = new PathSegment(remoteStpPair).withNsa(remoteNsaId, topology.getProviderUrl(remoteNsaId));
+        Optional<String> localProviderUrl = topology.getLocalProviderUrl();
+        Optional<String> remoteProviderUrl = topology.getProviderUrl(remoteNsaId);
 
-        return Optional.of(new Path(localSegment, forwardSegment));
+        if (localProviderUrl.isPresent() && remoteProviderUrl.isPresent()) {
+            PathSegment localSegment = new PathSegment(localStpPair).withNsa(topology.getLocalNsaId(), localProviderUrl.get());
+            PathSegment forwardSegment = new PathSegment(remoteStpPair).withNsa(remoteNsaId, remoteProviderUrl.get());
+
+            return Optional.of(new Path(localSegment, forwardSegment));
+        } else {
+            return Optional.absent();
+        }
     }
 
     private Stp findOtherStpFromSdp(SdpType sdp, Stp stp) {
@@ -205,12 +218,17 @@ public class ReachabilityPCE implements PCEModule {
 
         checkNotIntroducingLoop(forwardNsa, connectionTrace);
 
-        return forwardNsa.transform(new Function<Reachability, Path>() {
+        if (!forwardNsa.isPresent()) {
+            return Optional.absent();
+        }
+
+        final String forwardNsaId = forwardNsa.get().getNsaId();
+
+        return topology.getProviderUrl(forwardNsaId).transform(new Function<String, Path>() {
             @Override
-            public Path apply(Reachability reachability) {
-                String forwardNsaId = forwardNsa.get().getNsaId();
-                PathSegment segment = new PathSegment(new StpPair(sourceStp.toStpType(), destStp.toStpType())).withNsa(forwardNsaId, topology.getProviderUrl(forwardNsaId));
-                return new Path(segment);
+            public Path apply(String providerUrl) {
+              PathSegment segment = new PathSegment(new StpPair(sourceStp.toStpType(), destStp.toStpType())).withNsa(forwardNsaId, providerUrl);
+              return new Path(segment);
             }
         });
     }

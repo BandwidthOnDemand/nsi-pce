@@ -23,7 +23,9 @@ import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
+import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
+import net.es.nsi.pce.topology.jaxb.NsaInterfaceType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
@@ -46,11 +48,11 @@ public class ReachabilityPCETest {
 
         when(topologyMock.getLocalNsaId()).thenReturn(LOCAL_NSA_ID);
         when(topologyMock.getNsa(LOCAL_NSA_ID)).thenReturn(localNsa);
-        when(topologyMock.getLocalProviderUrl()).thenReturn("http://localhost/provider");
+        when(topologyMock.getLocalProviderUrl()).thenReturn(Optional.of("http://localhost/provider"));
         when(topologyMock.getProviderUrl(anyString())).thenCallRealMethod();
         when(topologyMock.getLocalNetworks()).thenReturn(Arrays.asList(LOCAL_NETWORK_ID));
         when(localNsa.getNetwork()).thenReturn(Arrays.asList(localNetwork));
-        when(localNsa.getHref()).thenReturn("http://localhost/provider");
+        //when(localNsa.getInterface()).thenReturn(Arrays.asList(nsaInterface));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -113,14 +115,18 @@ public class ReachabilityPCETest {
         SdpType sdp = createSdpType(LOCAL_NETWORK_ID, peerNetworkId, "surf-intermediate", "peer-intermediate");
 
         NsaType peerNsa = mock(NsaType.class);
+        NsaInterfaceType peerInterface = mock(NsaInterfaceType.class);
         when(topologyMock.getSdps()).thenReturn(Arrays.asList(sdp));
         ResourceRefType network = mock(ResourceRefType.class);
         when(topologyMock.getReachabilityTable()).thenReturn(reachabilityTable);
         when(topologyMock.getNsa(peerNsaId)).thenReturn(peerNsa);
         when(topologyMock.getSdps()).thenReturn(Arrays.asList(sdp));
         when(peerNsa.getNetwork()).thenReturn(Arrays.asList(network));
-        when(peerNsa.getHref()).thenReturn("http://foo.bar/provider");
         when(network.getId()).thenReturn(peerNetworkId);
+
+        when(peerNsa.getInterface()).thenReturn(Arrays.asList(peerInterface));
+        when(peerInterface.getHref()).thenReturn("http://foo.bar/provider");
+        when(peerInterface.getType()).thenReturn(NsiConstants.NSI_CS_PROVIDER_V2);
 
         PCEData pceData = new PCEData(source, destination);
         pceData.setTrace(Collections.<String>emptyList());
@@ -148,9 +154,16 @@ public class ReachabilityPCETest {
         Map<String, Integer> costs = ImmutableMap.of("urn:ogf:network:surfnet.nl:1990:topology", 5, "urn:ogf:network:es.net:2013:topology", 10);
         ImmutableMap<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaId, costs);
 
-        NsiTopology topology = mock(NsiTopology.class);
+        NsaType remoteNsa = mock(NsaType.class);
 
-        Optional<Path> path = subject.findPath(Stp.fromStpId(sourceStp), Stp.fromStpId(destStp), topology, reachabilityTable, Collections.<String>emptyList());
+        NsaInterfaceType nsaInterface = new NsaInterfaceType();
+        nsaInterface.setType(NsiConstants.NSI_CS_PROVIDER_V2);
+        nsaInterface.setHref("http://localhost/provider");
+
+        when(topologyMock.getNsa("urn:ogf:network:foo:2013:nsa")).thenReturn(remoteNsa);
+        when(remoteNsa.getInterface()).thenReturn(Arrays.asList(nsaInterface));
+
+        Optional<Path> path = subject.findPath(Stp.fromStpId(sourceStp), Stp.fromStpId(destStp), topologyMock, reachabilityTable, Collections.<String>emptyList());
 
         assertTrue(path.isPresent());
 
@@ -171,11 +184,15 @@ public class ReachabilityPCETest {
 
         NsaType nsa = mock(NsaType.class);
         ResourceRefType network = mock(ResourceRefType.class);
+        NsaInterfaceType peerInterface = mock(NsaInterfaceType.class);
 
         when(topologyMock.getNsa(peerNsaId)).thenReturn(nsa);
+        when(topologyMock.getSdps()).thenReturn(Arrays.asList(sdp));
         when(nsa.getNetwork()).thenReturn(Arrays.asList(network));
         when(network.getId()).thenReturn(peerNetworkId);
-        when(topologyMock.getSdps()).thenReturn(Arrays.asList(sdp));
+        when(nsa.getInterface()).thenReturn(Arrays.asList(peerInterface));
+        when(peerInterface.getHref()).thenReturn("http://foo.bar/provider");
+        when(peerInterface.getType()).thenReturn(NsiConstants.NSI_CS_PROVIDER_V2);
 
         Map<String, Integer> costs = ImmutableMap.of(esnetNetworkId, 5);
         Map<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaId, costs);
@@ -215,9 +232,15 @@ public class ReachabilityPCETest {
         Map<String, Integer> costs = ImmutableMap.of(surfnetNetworkId, 5, "urn:ogf:network:es.net:2013:topology", 10);
         Map<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaId, costs);
 
-        NsiTopology topology = mock(NsiTopology.class);
+        NsaType peerNsa = mock(NsaType.class);
+        NsaInterfaceType peerInterface = mock(NsaInterfaceType.class);
 
-        Optional<Path> path = subject.findForwardPath(sourceStp, destStp, topology, reachabilityTable, Collections.<String>emptyList());
+        when(topologyMock.getNsa(peerNsaId)).thenReturn(peerNsa);
+        when(peerNsa.getInterface()).thenReturn(Arrays.asList(peerInterface));
+        when(peerInterface.getHref()).thenReturn("http://foo.bar/provider");
+        when(peerInterface.getType()).thenReturn(NsiConstants.NSI_CS_PROVIDER_V2);
+
+        Optional<Path> path = subject.findForwardPath(sourceStp, destStp, topologyMock, reachabilityTable, Collections.<String>emptyList());
 
         assertTrue(path.isPresent());
 
@@ -242,9 +265,14 @@ public class ReachabilityPCETest {
         Map<String, Integer> costsTwo = ImmutableMap.of(destNetworkId, 5);
         ImmutableMap<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaIdOne, costsOne, peerNsaIdTwo, costsTwo);
 
-        NsiTopology topology = mock(NsiTopology.class);
+        NsaType peerNsaOne = mock(NsaType.class);
+        NsaInterfaceType peerInterfaceOne = mock(NsaInterfaceType.class);
+        when(topologyMock.getNsa(peerNsaIdOne)).thenReturn(peerNsaOne);
+        when(peerNsaOne.getInterface()).thenReturn(Arrays.asList(peerInterfaceOne));
+        when(peerInterfaceOne.getType()).thenReturn(NsiConstants.NSI_CS_PROVIDER_V2);
+        when(peerInterfaceOne.getHref()).thenReturn("http://peer/provider");
 
-        Optional<Path> path = subject.findForwardPath(sourceStp, destStp, topology, reachabilityTable, Collections.<String>emptyList());
+        Optional<Path> path = subject.findForwardPath(sourceStp, destStp, topologyMock, reachabilityTable, Collections.<String>emptyList());
 
         assertThat(path.get().getPathSegments().iterator().next().getNsaId(), is(peerNsaIdOne));
     }
