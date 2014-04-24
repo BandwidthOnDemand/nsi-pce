@@ -4,13 +4,13 @@
  */
 package net.es.nsi.pce.topology.model;
 
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import net.es.nsi.pce.topology.model.Orientation;
 import net.es.nsi.pce.topology.jaxb.NmlLabelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NmlPort {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    
+
     private String id;
     private String nsaId;
     private String topologyId;
@@ -94,7 +94,7 @@ public class NmlPort {
      * @return the labels
      */
     public Set<NmlLabelType> getLabels() {
-        return labels;
+        return Collections.unmodifiableSet(labels);
     }
 
     /**
@@ -131,7 +131,7 @@ public class NmlPort {
     public void setDiscovered(XMLGregorianCalendar discovered) {
         this.discovered = discovered;
     }
-    
+
     /**
      * @param discovered the discovered to set
      */
