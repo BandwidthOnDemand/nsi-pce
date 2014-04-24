@@ -32,6 +32,7 @@ import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.Constraints;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
+import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.StpType;
@@ -154,7 +155,8 @@ public class ReachabilityPCE implements PCEModule {
     protected Optional<Path> findSplitPath(Stp localStp, Stp remoteStp, NsiTopology topology, Map<String, Map<String, Integer>> reachabilityTable, List<String> connectionTrace) {
         logger.debug("Trying to find a split (local and remote part) path");
 
-        Optional<Reachability> remoteNsa = findPeerWithLowestCostToReachNetwork(remoteStp.getNetworkId(), reachabilityTable);
+        Optional<Reachability> remoteNsa = findPeerWithLowestCostToReachNetwork(remoteStp.getNetworkId(), topology.getNsaMap(), reachabilityTable);
+        logger.debug("found lowest cost peer: {}", remoteNsa);
 
         checkNotIntroducingLoop(remoteNsa, connectionTrace);
 
@@ -163,11 +165,15 @@ public class ReachabilityPCE implements PCEModule {
             findConnectingSdp(localStp.getNetworkId(), remoteNsaId, topology) : Optional.<SdpType>absent();
 
         if (!connectingSdp.isPresent()) {
+            logger.debug("No connecting sdp found for remoteNsaId {}", remoteNsaId);
             throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, Point2Point.NAMESPACE, Point2Point.DESTSTP));
         }
 
         Stp localIntermediateStp = findStpFromSdp(connectingSdp.get(), localStp.getNetworkId());
+        logger.debug("found local intermediate stp {}", localIntermediateStp.getId());
+
         Stp remoteIntermediateStp = findOtherStpFromSdp(connectingSdp.get(), localIntermediateStp);
+        logger.debug("found remote intermediate stp {}", remoteIntermediateStp.getId());
 
         StpPair localStpPair = new StpPair(localStp.toStpType(), localIntermediateStp.toStpType());
         StpPair remoteStpPair = new StpPair(remoteIntermediateStp.toStpType(), remoteStp.toStpType());
@@ -225,7 +231,7 @@ public class ReachabilityPCE implements PCEModule {
     protected Optional<Path> findForwardPath(final Stp sourceStp, final Stp destStp, final NsiTopology topology, Map<String, Map<String, Integer>> reachabilityTable, List<String> connectionTrace) {
         logger.debug("Trying to find a forward path");
 
-        final Optional<Reachability> forwardNsa = findCheapestForwardNsa(sourceStp, destStp, reachabilityTable);
+        final Optional<Reachability> forwardNsa = findCheapestForwardNsa(sourceStp, destStp, topology.getNsaMap(), reachabilityTable);
 
         checkNotIntroducingLoop(forwardNsa, connectionTrace);
 
@@ -252,9 +258,9 @@ public class ReachabilityPCE implements PCEModule {
         }
     }
 
-    private Optional<Reachability> findCheapestForwardNsa(Stp sourceStp, Stp destStp, Map<String, Map<String, Integer>> reachabilityTable) {
-        Optional<Reachability> sourceCost = findPeerWithLowestCostToReachNetwork(sourceStp.getNetworkId(), reachabilityTable);
-        Optional<Reachability> destCost = findPeerWithLowestCostToReachNetwork(destStp.getNetworkId(), reachabilityTable);
+    private Optional<Reachability> findCheapestForwardNsa(Stp sourceStp, Stp destStp, Map<String, NsaType> directPeerNsas, Map<String, Map<String, Integer>> reachabilityTable) {
+        Optional<Reachability> sourceCost = findPeerWithLowestCostToReachNetwork(sourceStp.getNetworkId(), directPeerNsas, reachabilityTable);
+        Optional<Reachability> destCost = findPeerWithLowestCostToReachNetwork(destStp.getNetworkId(), directPeerNsas, reachabilityTable);
 
         if (sourceCost.isPresent()) {
             if (destCost.isPresent()) {
@@ -272,8 +278,18 @@ public class ReachabilityPCE implements PCEModule {
     }
 
     @VisibleForTesting
-    protected Optional<Reachability> findPeerWithLowestCostToReachNetwork(String networkId, Map<String, Map<String, Integer>> reachabilityTable) {
+    protected Optional<Reachability> findPeerWithLowestCostToReachNetwork(final String networkId, final Map<String, NsaType> directPeerNsas, final Map<String, Map<String, Integer>> reachabilityTable) {
         Optional<Reachability> reachability = Optional.absent();
+
+        // let direct peers take precedence when its one of their networks that we want to route to
+        for (final String nsaId: directPeerNsas.keySet()) {
+            NsaType nsaType = directPeerNsas.get(nsaId);
+            for (ResourceRefType resourceRefType: nsaType.getNetwork()) {
+                if (resourceRefType.getId().equals(networkId)) {
+                    return Optional.of(new Reachability(0, nsaId));
+                }
+            }
+        }
 
         for (Entry<String, Map<String, Integer>> nsaCosts : REACHABILITY_TABLE_ORDERING.sortedCopy(reachabilityTable.entrySet())) {
             if (nsaCosts.getValue().containsKey(networkId)) {
@@ -326,6 +342,14 @@ public class ReachabilityPCE implements PCEModule {
         }
         public String getNsaId() {
             return nsaId;
+        }
+
+        @Override
+        public String toString() {
+            return "Reachability{" +
+                    "cost=" + cost +
+                    ", nsaId='" + nsaId + '\'' +
+                    '}';
         }
     }
 

@@ -58,7 +58,6 @@ public class ReachabilityPCETest {
     public void should_throw_exception_when_missing_source_stp() {
         PCEData pceData = new PCEData();
         pceData.setTrace(Collections.<String>emptyList());
-
         subject.apply(pceData);
     }
 
@@ -299,7 +298,7 @@ public class ReachabilityPCETest {
         Map<String, Integer> nordunetCosts = ImmutableMap.of("urn:ogf:network:es.net:2013:topology", 10, surfnetNetworkId, 5);
         Map<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaId, nordunetCosts);
 
-        Optional<Reachability> reachability = subject.findPeerWithLowestCostToReachNetwork(surfnetNetworkId, reachabilityTable);
+        Optional<Reachability> reachability = subject.findPeerWithLowestCostToReachNetwork(surfnetNetworkId, topologyMock.getNsaMap(), reachabilityTable);
 
         assertTrue(reachability.isPresent());
         assertEquals(new Integer(5), reachability.get().getCost());
@@ -317,7 +316,7 @@ public class ReachabilityPCETest {
         Map<String, Integer> peerCheapCosts = ImmutableMap.of(surfnetNetworkId, 2);
         Map<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaIdExpensive, peerExpensiveCosts, peerNsaIdCheap, peerCheapCosts);
 
-        Optional<Reachability> reachability = subject.findPeerWithLowestCostToReachNetwork(surfnetNetworkId, reachabilityTable);
+        Optional<Reachability> reachability = subject.findPeerWithLowestCostToReachNetwork(surfnetNetworkId, topologyMock.getNsaMap(), reachabilityTable);
 
         assertTrue(reachability.isPresent());
         assertEquals(new Integer(2), reachability.get().getCost());
@@ -333,11 +332,29 @@ public class ReachabilityPCETest {
 
         Map<String, Integer> peerCosts = ImmutableMap.of(surfnetNetworkId, 2);
 
-        Optional<Reachability> reachability = subject.findPeerWithLowestCostToReachNetwork(surfnetNetworkId, ImmutableMap.of(peerNsaIdA, peerCosts, peerNsaIdZ, peerCosts));
+        Optional<Reachability> reachability = subject.findPeerWithLowestCostToReachNetwork(surfnetNetworkId, topologyMock.getNsaMap(), ImmutableMap.of(peerNsaIdA, peerCosts, peerNsaIdZ, peerCosts));
         assertEquals(peerNsaIdA, reachability.get().getNsaId());
 
-        reachability = subject.findPeerWithLowestCostToReachNetwork(surfnetNetworkId, ImmutableMap.of(peerNsaIdZ, peerCosts, peerNsaIdA, peerCosts));
+        reachability = subject.findPeerWithLowestCostToReachNetwork(surfnetNetworkId, topologyMock.getNsaMap(), ImmutableMap.of(peerNsaIdZ, peerCosts, peerNsaIdA, peerCosts));
         assertEquals(peerNsaIdA, reachability.get().getNsaId());
+    }
+
+    @Test
+    public void should_let_nsa_id_of_direct_peer_take_precedence_of_anything_in_reachability_when_network_id_is_maintained_by_a_direct_peer() {
+        NsaType norduPeerNsa = mock(NsaType.class);
+        final String networkId = "urn:ogf:network:nordu.net:2013";
+        final String nsaId = networkId + ":nsa";
+        ResourceRefType network = new ResourceRefType();
+        network.setId(networkId);
+        when(norduPeerNsa.getNetwork()).thenReturn(Arrays.asList(network));
+        when(topologyMock.getNsaMap()).thenReturn(ImmutableMap.of(nsaId, norduPeerNsa));
+
+        Optional<Reachability> reachability = subject.findPeerWithLowestCostToReachNetwork(networkId, topologyMock.getNsaMap(), Collections.<String, Map<String, Integer>>emptyMap());
+
+        assertTrue(reachability.isPresent());
+        assertEquals(reachability.get().getCost().intValue(), 0);
+        assertEquals(reachability.get().getNsaId(), nsaId);
+
     }
 
     @Test
@@ -345,7 +362,7 @@ public class ReachabilityPCETest {
         Map<String, Integer> nordunetCosts = ImmutableMap.of("urn:ogf:network:es.net:2013", 5);
         Map<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of("urn:ogf:network:nordu.net:2013", nordunetCosts);
 
-        Optional<Reachability> reachability = subject.findPeerWithLowestCostToReachNetwork("urn:ogf:network:surfnet.nl:1990", reachabilityTable);
+        Optional<Reachability> reachability = subject.findPeerWithLowestCostToReachNetwork("urn:ogf:network:surfnet.nl:1990", topologyMock.getNsaMap(), reachabilityTable);
 
         assertFalse(reachability.isPresent());
     }
