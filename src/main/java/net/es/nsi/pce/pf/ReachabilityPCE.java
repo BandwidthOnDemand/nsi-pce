@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -19,6 +18,9 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.es.nsi.pce.path.services.Point2Point;
 import net.es.nsi.pce.pf.api.NsiError;
@@ -52,6 +54,8 @@ import net.es.nsi.pce.topology.model.NsiTopology;
  * The networkId is queried from the {@link ServiceInfoProvider} by nsa id.
  */
 public class ReachabilityPCE implements PCEModule {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReachabilityPCE.class);
 
     private final static Ordering<Entry<String, Map<String, Integer>>> REACHABILITY_TABLE_ORDERING = Ordering.from(new Comparator<Entry<String, Map<String, Integer>>>() {
         @Override
@@ -103,7 +107,7 @@ public class ReachabilityPCE implements PCEModule {
     protected Optional<Path> findPath(Stp sourceStp, Stp destStp, NsiTopology topology, Map<String, Map<String, Integer>> reachabilityTable, List<String> connectionTrace) {
         if (isInMyNetwork(sourceStp, topology)) {
             if (isInMyNetwork(destStp, topology)) {
-                return onlyLocalPath(sourceStp, destStp, topology);
+                return findLocalPath(sourceStp, destStp, topology);
             } else {
                 return findSplitPath(sourceStp, destStp, topology, reachabilityTable, connectionTrace);
             }
@@ -132,20 +136,24 @@ public class ReachabilityPCE implements PCEModule {
         }
     }
 
-    private Optional<Path> onlyLocalPath(final Stp sourceStp, final Stp destStp, final NsiTopology topology) {
+    private Optional<Path> findLocalPath(final Stp sourceStp, final Stp destStp, final NsiTopology topology) {
         checkArgument(sourceStp.getNetworkId().equals(destStp.getNetworkId()));
 
-        return topology.getLocalProviderUrl().transform(new Function<String, Path>() {
-            @Override
-            public Path apply(String providerUrl) {
-              return new Path(new PathSegment(new StpPair(sourceStp.toStpType(), destStp.toStpType())).withNsa(topology.getLocalNsaId(), providerUrl));
-            }
+        logger.debug("Trying to find a only local path");
 
-        });
+        Optional<String> localProviderUrl = topology.getLocalProviderUrl();
+        if (localProviderUrl.isPresent()) {
+            return Optional.of(new Path(new PathSegment(new StpPair(sourceStp.toStpType(), destStp.toStpType())).withNsa(topology.getLocalNsaId(), localProviderUrl.get())));
+        } else {
+            logger.warn("Could not find local provider url (nsaId: {})", topology.getLocalNsaId());
+            return Optional.absent();
+        }
     }
 
     @VisibleForTesting
     protected Optional<Path> findSplitPath(Stp localStp, Stp remoteStp, NsiTopology topology, Map<String, Map<String, Integer>> reachabilityTable, List<String> connectionTrace) {
+        logger.debug("Trying to find a split (local and remote part) path");
+
         Optional<Reachability> remoteNsa = findPeerWithLowestCostToReachNetwork(remoteStp.getNetworkId(), reachabilityTable);
 
         checkNotIntroducingLoop(remoteNsa, connectionTrace);
@@ -173,6 +181,7 @@ public class ReachabilityPCE implements PCEModule {
 
             return Optional.of(new Path(localSegment, forwardSegment));
         } else {
+            logger.warn("Could not find provider url local: {}, remote: {}", localProviderUrl, remoteProviderUrl);
             return Optional.absent();
         }
     }
@@ -214,6 +223,8 @@ public class ReachabilityPCE implements PCEModule {
 
     @VisibleForTesting
     protected Optional<Path> findForwardPath(final Stp sourceStp, final Stp destStp, final NsiTopology topology, Map<String, Map<String, Integer>> reachabilityTable, List<String> connectionTrace) {
+        logger.debug("Trying to find a forward path");
+
         final Optional<Reachability> forwardNsa = findCheapestForwardNsa(sourceStp, destStp, reachabilityTable);
 
         checkNotIntroducingLoop(forwardNsa, connectionTrace);
@@ -224,13 +235,15 @@ public class ReachabilityPCE implements PCEModule {
 
         final String forwardNsaId = forwardNsa.get().getNsaId();
 
-        return topology.getProviderUrl(forwardNsaId).transform(new Function<String, Path>() {
-            @Override
-            public Path apply(String providerUrl) {
-              PathSegment segment = new PathSegment(new StpPair(sourceStp.toStpType(), destStp.toStpType())).withNsa(forwardNsaId, providerUrl);
-              return new Path(segment);
-            }
-        });
+        Optional<String> providerUrl = topology.getProviderUrl(forwardNsaId);
+
+        if (!providerUrl.isPresent()) {
+            logger.warn("Could not find provider url for forward nsa {}", forwardNsaId);
+            return Optional.absent();
+        }
+
+        PathSegment segment = new PathSegment(new StpPair(sourceStp.toStpType(), destStp.toStpType())).withNsa(forwardNsaId, providerUrl.get());
+        return Optional.of(new Path(segment));
     }
 
     private void checkNotIntroducingLoop(Optional<Reachability> forwardNsa, List<String> connectionTrace) {

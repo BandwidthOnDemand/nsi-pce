@@ -52,7 +52,6 @@ public class ReachabilityPCETest {
         when(topologyMock.getProviderUrl(anyString())).thenCallRealMethod();
         when(topologyMock.getLocalNetworks()).thenReturn(Arrays.asList(LOCAL_NETWORK_ID));
         when(localNsa.getNetwork()).thenReturn(Arrays.asList(localNetwork));
-        //when(localNsa.getInterface()).thenReturn(Arrays.asList(nsaInterface));
     }
 
     @Test(expected = IllegalArgumentException.class)
