@@ -28,6 +28,7 @@ import net.es.nsi.pce.topology.jaxb.DemarcationType;
 import net.es.nsi.pce.topology.jaxb.NsaInterfaceType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
+import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
@@ -410,12 +411,13 @@ public class ReachabilityPCETest {
 
     private SdpType createSdpType(String networkIdA, String networkIdZ, String portA, String portZ) {
         SdpType sdp = new SdpType();
+
         DemarcationType demarcationA = createDemarcationType(networkIdA, portA);
         DemarcationType demarcationB = createDemarcationType(networkIdZ, portZ);
         sdp.setDemarcationA(demarcationA);
         sdp.setDemarcationZ(demarcationB);
         sdp.setId("sdpId");
-
+        sdp.setType(SdpDirectionalityType.BIDIRECTIONAL);
         return sdp;
     }
 

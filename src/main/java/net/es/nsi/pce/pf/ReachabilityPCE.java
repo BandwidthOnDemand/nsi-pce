@@ -34,6 +34,7 @@ import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
+import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
@@ -218,6 +219,10 @@ public class ReachabilityPCE implements PCEModule {
 
     private Optional<SdpType> findSdp(String networkIdA, String networkIdZ, Collection<SdpType> sdps) {
         for (SdpType sdp : sdps) {
+            if (!sdp.getType().equals(SdpDirectionalityType.BIDIRECTIONAL)) {
+                // we can only use bidirectional ports
+                continue;
+            }
             if (sdp.getDemarcationA().getNetwork().getId().equals(networkIdA) && sdp.getDemarcationZ().getNetwork().getId().equals(networkIdZ)) {
                 return Optional.of(sdp);
             } else if (sdp.getDemarcationA().getNetwork().getId().equals(networkIdZ) && sdp.getDemarcationZ().getNetwork().getId().equals(networkIdA)) {
