@@ -6,15 +6,13 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.glassfish.jersey.test.JerseyTest;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import org.junit.Test;
 
 import net.es.nsi.pce.test.TestConfig;
 import net.es.nsi.pce.topology.jaxb.CollectionType;
-import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
+import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
@@ -266,9 +264,10 @@ public class TopologyTest {
         // We want to run some model consistency checks.  Test at most 50
         // entries otherwise this will take way too long.
         CollectionType collection = response.readEntity(CollectionType.class);
-        List<StpType> stps = collection.getStp();
+        response.close();
+
         int count = 0;
-        for (StpType stp : stps) {
+        for (StpType stp : collection.getStp()) {
             count++;
             if (count > 10) {
                 break;
@@ -280,27 +279,45 @@ public class TopologyTest {
 
             StpType stpGet = response.readEntity(StpType.class);
             assertEquals(stp.getId(), stpGet.getId());
+            response.close();
 
             // Read the direct STP HREF.
             response = topology.path(stpGet.getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            response.close();
 
             // Now verify the linked resources of this STP exist.
             response = topology.path("networks/" + stp.getNetworkId()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            response.close();
 
             response = topology.path(stp.getNetwork().getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            response.close();
+
+            System.out.println("**** stpid: " + stp.getId());
+            System.out.println("**** href: " + stp.getHref());
+            if (stp.getServiceDomain() == null) {
+            System.out.println("**** serviceDomain null");
+            }
+            else {
+                System.out.println("**** serviceDomain: " + stp.getServiceDomain().getId());
+            }
+
+            assertNotNull(stp.getServiceDomain());
 
             response = topology.path(stp.getServiceDomain().getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            response.close();
 
             if (stp.getType() == StpDirectionalityType.BIDIRECTIONAL) {
                 response = topology.path(stp.getInboundStp().getHref()).request(MediaType.APPLICATION_XML).get();
                 assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+                response.close();
 
                 response = topology.path(stp.getOutboundStp().getHref()).request(MediaType.APPLICATION_XML).get();
                 assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+                response.close();
             }
         }
     }

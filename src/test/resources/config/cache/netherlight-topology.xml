@@ -9,7 +9,7 @@
         xmlns:ns9="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" 
     id="urn:ogf:network:netherlight.net:2013:testbed"
     href="/documents/urn%3Aogf%3Anetwork%3Anetherlight.net%3A2013%3Ansa%3Abod/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Anetherlight.net%3A2013%3Atestbed"
-    version="2014-03-12T11:40:53+01:00" expires="2014-04-27T12:34:35.133-04:00">
+    version="2014-03-12T11:40:53+01:00" expires="2016-04-27T12:34:35.133-04:00">
     <nsa>urn:ogf:network:netherlight.net:2013:nsa:bod</nsa>
     <type>vnd.ogf.nsi.topology.v2+xml</type>
     <content>
@@ -275,6 +275,7 @@
                         <PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:282:in"/>
                         <PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:526:in"/>
                         <PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:2514:in"/>
+                        <PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:3263:in"/>
                         <PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:in"/>
                         <PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1:in"/>
                         <PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:in"/>
@@ -290,6 +291,7 @@
                         <PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:282:out"/>
                         <PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:526:out"/>
                         <PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:2514:out"/>
+                        <PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:3263:out"/>
                         <PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:out"/>
                         <PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1:out"/>
                         <PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:out"/>

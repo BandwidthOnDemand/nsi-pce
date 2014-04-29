@@ -4,14 +4,14 @@
  */
 package net.es.nsi.pce.topology.model;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import net.es.nsi.pce.topology.jaxb.NmlLabelType;
+import net.es.nsi.pce.topology.jaxb.TypeValueType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +27,7 @@ public class NmlPort {
     private String topologyId;
     private String name;
     private Orientation orientation;
-    private Set<NmlLabelType> labels = new LinkedHashSet<>();
+    private List<TypeValueType> labels = new ArrayList<>();
     private String connectedTo;
     private XMLGregorianCalendar discovered;
     private XMLGregorianCalendar version;
@@ -93,14 +93,14 @@ public class NmlPort {
     /**
      * @return the labels
      */
-    public Set<NmlLabelType> getLabels() {
-        return Collections.unmodifiableSet(labels);
+    public List<TypeValueType> getLabels() {
+        return Collections.unmodifiableList(labels);
     }
 
     /**
      * @param labels the labels to set
      */
-    public void setLabels(Set<NmlLabelType> labels) {
+    public void setLabels(List<TypeValueType> labels) {
         this.labels = labels;
     }
 

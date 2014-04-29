@@ -26,51 +26,25 @@ import org.glassfish.jersey.client.ClientConfig;
  * @author hacksaw
  */
 public class TopologyClient {
-    
+
     @SuppressWarnings({"ResultOfMethodCallIgnored"})
     public static void main(String[] args) throws Exception {
         ClientConfig clientConfig = new ClientConfig();
         RestClient.configureClient(clientConfig);
         Client client = ClientBuilder.newClient(clientConfig);
-        
+
         final WebTarget webTarget = client.target("http://localhost:8400/topology/");
 
         // Simple ping to determine if interface is available.
         Response response = webTarget.path("ping").request(MediaType.APPLICATION_XML).get();
-        
+
         System.out.println("Ping result " + response.getStatus());
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
             System.out.println("Topology serivce not available.");
             return;
         }
-        
-        // Retrieve topology service status.
-        response = webTarget.path("status").request(MediaType.APPLICATION_XML).get();       
-        System.out.println("Status result " + response.getStatus());
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            StatusType status = response.readEntity(StatusType.class);
-            System.out.println("Summary status " + status.getStatus().value());
-            System.out.println("Last audit " + status.getLastAudit());
-            System.out.println("Last discovered " + status.getLastDiscovered());
-        }
-        
-        // Retrieve topology service status.
-        response = webTarget.path("logs").request(MediaType.APPLICATION_XML).get();       
-        System.out.println("Logs result " + response.getStatus());
-        if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            LogListType logs = response.readEntity(LogListType.class);
-            for (LogType log : logs.getLog()) {
-                System.out.println("Retreiving: " + log.getId());
-                
-                response = webTarget.path("logs/" + log.getId()).request(MediaType.APPLICATION_XML).get();
-                if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-                    System.out.println("Got it: " + log.getId());
-                }
-                else {
-                    System.out.println("Error reading: " + log.getId() + " (" + response.getStatus() + ")");
-                }
-            }
-        }
+
+        response.close();
 
         // Retrieve a full list of STPs within the topology model.
         response = webTarget.path("stps").request(MediaType.APPLICATION_XML).get();
@@ -78,12 +52,28 @@ public class TopologyClient {
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             CollectionType stps = response.readEntity(CollectionType.class);
             System.out.println(stps.getStp().size() + " STPs returned.");
+            response.close();
+
+            for (StpType stp : stps.getStp()) {
+                response = webTarget.path(stp.getHref()).request(MediaType.APPLICATION_XML).get();
+                if (response.getStatus() == Response.Status.OK.getStatusCode()) {
+                    StpType result = response.readEntity(StpType.class);
+                    System.out.println("STP read: id=" + result.getId());
+                }
+                else {
+                    System.err.println("Could not read STP id=" + stp.getId());
+                }
+
+                response.close();
+            }
         }
         else if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
             System.out.println("Resource not found.");
+            response.close();
         }
         else {
             System.err.println("Error reading STPs");
+            response.close();
         }
 
         // Get a list of STP filtered by networkId.
@@ -113,7 +103,7 @@ public class TopologyClient {
         else {
             System.err.println("Error reading STPs");
         }
-        
+
         // Get a specific STP.
         String Target_STP = "stps/urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:526?vlan=1784";
         response = webTarget.path(Target_STP).request(MediaType.APPLICATION_XML).get();
@@ -124,13 +114,13 @@ public class TopologyClient {
         else {
             Date lastMod = response.getLastModified();
             System.out.println("Last-Modified = " + lastMod);
-        
+
             StpType stp = response.readEntity(StpType.class);
             System.out.println(stp.getId());
-        
+
             // Now we do the same query but asking for only changes.
             response = webTarget.path(Target_STP).request(MediaType.APPLICATION_XML) .header("If-Modified-Since", DateUtils.formatDate(lastMod, DateUtils.PATTERN_RFC1123)).get();
-        
+
             // A 304 Not Modified indicates we already have a up-to-date document.
             if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
                 System.out.println("NOT_MODIFIED returned " + Target_STP);
@@ -141,10 +131,10 @@ public class TopologyClient {
             }
             else {
                 stp = response.readEntity(StpType.class);
-                System.out.println("Should not get this: " + stp.getId());            
+                System.out.println("Should not get this: " + stp.getId());
             }
         }
-        
+
         System.out.println("Get list of all Networks.");
 
         // Retrieve a list of all the networks.
@@ -153,15 +143,15 @@ public class TopologyClient {
         for (NetworkType network : networks.getNetwork()) {
             System.out.println(network.getId());
         }
-        
+
         System.out.println("Get a list of networks filtered by NSA Id.");
-        
+
         networks = webTarget.path("networks").queryParam("nsaId", "urn:ogf:network:uvalight.net:2013:nsa").request(MediaType.APPLICATION_XML).get(CollectionType.class);
         System.out.println("Filtered Networks:");
         for (NetworkType network : networks.getNetwork()) {
             System.out.println(network.getId());
         }
-        
+
         System.out.println("Get a specific Network.");
 
         // Get a specific Network.
@@ -183,9 +173,9 @@ public class TopologyClient {
                 throw new NotFoundException("Failed to retrieve Network " + Target_Network_STPS);
             }
         }
-        
+
         System.out.println("Get a list of all available NSA.");
-        
+
         // Get a list of available NSA.
         String Target_NSA = "nsas";
         response = webTarget.path(Target_NSA).request(MediaType.APPLICATION_XML).get();
@@ -193,9 +183,9 @@ public class TopologyClient {
         if (response.getStatus() != Response.Status.OK.getStatusCode()) {
             System.err.println("Failed to retrieve NSAs " + Target_NSA);
         }
-        
+
         System.out.println("Read specific NSA entry.");
-        
+
         // Get specific NSA entry.
         String Target_NSA_Id = "nsas/urn:ogf:network:ampath.net:2013:nsa";
         response = webTarget.path(Target_NSA_Id).request(MediaType.APPLICATION_XML).get();
