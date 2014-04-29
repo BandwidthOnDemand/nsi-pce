@@ -4,11 +4,13 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
@@ -65,6 +67,7 @@ public class ReachabilityPCE implements PCEModule {
             return o1.getKey().compareTo(o2.getKey());
         }
     });
+    private Random random = new Random();
 
     @Override
     public PCEData apply(PCEData pceData) {
@@ -218,18 +221,29 @@ public class ReachabilityPCE implements PCEModule {
     }
 
     private Optional<SdpType> findSdp(String networkIdA, String networkIdZ, Collection<SdpType> sdps) {
+        List<SdpType> candidates = new ArrayList<>();
+
         for (SdpType sdp : sdps) {
             if (!sdp.getType().equals(SdpDirectionalityType.BIDIRECTIONAL)) {
                 // we can only use bidirectional ports
                 continue;
             }
             if (sdp.getDemarcationA().getNetwork().getId().equals(networkIdA) && sdp.getDemarcationZ().getNetwork().getId().equals(networkIdZ)) {
-                return Optional.of(sdp);
+                candidates.add(sdp);
             } else if (sdp.getDemarcationA().getNetwork().getId().equals(networkIdZ) && sdp.getDemarcationZ().getNetwork().getId().equals(networkIdA)) {
-                return Optional.of(sdp);
+                candidates.add(sdp);
             }
         }
-        return Optional.absent();
+        if (candidates.size() == 0) {
+            return Optional.absent();
+        }
+        else {
+            // a different sdp instance exists for each matching vlan value. By picking a random one from the candidates
+            // each time, we diminish the chances of us trying to use a vlan that is already in use
+            // TODO this sucks and /will/ fail at times. Solution is to make safnari (the caller) state-aware and let it supply hints
+            int randomNum = random.nextInt(candidates.size());
+            return Optional.of(candidates.get(randomNum));
+        }
     }
 
     @VisibleForTesting
