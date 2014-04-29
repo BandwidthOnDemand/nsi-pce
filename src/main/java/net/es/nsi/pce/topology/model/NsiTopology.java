@@ -1,5 +1,7 @@
 package net.es.nsi.pce.topology.model;
 
+import static com.google.common.base.Strings.emptyToNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,7 +13,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.google.common.base.Optional;
+
+import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
+import net.es.nsi.pce.topology.jaxb.NsaInterfaceType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ReachabilityType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
@@ -473,12 +479,17 @@ public class NsiTopology {
         this.localNsaId = localNsaId;
     }
 
-    public String getLocalProviderUrl() {
+    public Optional<String> getLocalProviderUrl() {
         return getProviderUrl(getLocalNsaId());
     }
 
-    public String getProviderUrl(String nsaId) {
-        return getNsa(nsaId).getHref();
+    public Optional<String> getProviderUrl(String nsaId) {
+        for (NsaInterfaceType anInteface : getNsa(nsaId).getInterface()) {
+            if (NsiConstants.NSI_CS_PROVIDER_V2.equalsIgnoreCase(anInteface.getType())) {
+                return Optional.fromNullable(emptyToNull(anInteface.getHref().trim()));
+            }
+        }
+        return Optional.absent();
     }
 
     /**
