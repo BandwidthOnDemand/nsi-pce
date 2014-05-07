@@ -313,17 +313,6 @@
                             <goal>one-jar</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>Visualization</id>
-                        <configuration>
-                            <mainClass>net.es.nsi.pce.visualization.TopologyViewer</mainClass>
-                            <classifier>onejar</classifier>
-                            <filename>TopologyViewer.jar</filename>
-                        </configuration>
-                        <goals>
-                            <goal>one-jar</goal>
-                        </goals>
-                    </execution>
                 </executions>
             </plugin>
 

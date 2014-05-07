@@ -55,12 +55,12 @@ public class PathfinderCore {
 
         // Add topology
         pceData.setTopology(topologyProvider.getTopology());
-        
-        log.debug("******* findPath " + pceData.getTopology().getLocalNsaId());
+
+        log.debug("******* findPath - local nsaId=" + pceData.getTopology().getLocalNsaId());
         for (String networkId : topologyProvider.getTopology().getNetworkIds()) {
             log.debug("******* networkId " + networkId);
         }
-        
+
         // Add trace.
         pceData.setTrace(trace);
 

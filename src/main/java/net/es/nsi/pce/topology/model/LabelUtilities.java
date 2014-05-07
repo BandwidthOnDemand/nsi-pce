@@ -14,6 +14,8 @@ import java.util.regex.Pattern;
 import net.es.nsi.pce.topology.jaxb.NmlLabelGroupType;
 import net.es.nsi.pce.topology.jaxb.NmlLabelType;
 import net.es.nsi.pce.topology.jaxb.ObjectFactory;
+import net.es.nsi.pce.topology.jaxb.SdpType;
+import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.TypeValueType;
 
@@ -25,6 +27,11 @@ public class LabelUtilities {
     private final static String VLAN_LABEL = "http://schemas.ogf.org/nml/2012/10/ethernet#vlan";
 
     private static ObjectFactory factory = new ObjectFactory();
+
+    private static Pattern questionPattern = Pattern.compile("\\?");
+    private static Pattern equalsPattern = Pattern.compile("=");
+    private static Pattern commaPattern = Pattern.compile(",");
+    private static Pattern hyphenPattern = Pattern.compile("-");
 
     private static Comparator<TypeValueType> compareTypeValueType = new Comparator<TypeValueType>() {
         @Override
@@ -259,9 +266,9 @@ public class LabelUtilities {
     }
 
     public static boolean containsVLAN(StpType stp, String vlan) {
-        for (TypeValueType lables : stp.getLabels()) {
-            if (VLAN_LABEL.equalsIgnoreCase(lables.getType())) {
-                Set<Integer> stpValues = stringToIntegerSet(lables.getValue());
+        for (TypeValueType labels : stp.getLabels()) {
+            if (VLAN_LABEL.equalsIgnoreCase(labels.getType())) {
+                Set<Integer> stpValues = stringToIntegerSet(labels.getValue());
                 Set<Integer> values = stringToIntegerSet(vlan);
                 if (stpValues.containsAll(values)) {
                     return true;
@@ -270,5 +277,81 @@ public class LabelUtilities {
         }
 
         return false;
+    }
+
+    public static Set<SimpleLabel> getLabelsAsSet(List<TypeValueType> labels) {
+        Set<SimpleLabel> simpleLabels = new HashSet<>();
+
+        for (TypeValueType tvp : labels) {
+            if (!VLAN_LABEL.equalsIgnoreCase(tvp.getType())) {
+                // We do not understand this label so skip it.
+                continue;
+            }
+
+            String value = tvp.getValue();
+            if (value == null || value.isEmpty()) {
+                // At the moment a label must have a value so ignore this.
+                continue;
+            }
+
+            // Split the vlan first by comma, then by hyphen.
+            String[] comma = commaPattern.split(value);
+            for (int i = 0; i < comma.length; i++) {
+                // Now by hyphen.
+                String[] hyphen = hyphenPattern.split(comma[i]);
+
+                // Just a single vlan.
+                if (hyphen.length == 1) {
+                    SimpleLabel label = new SimpleLabel();
+                    label.setType(tvp.getType());
+                    label.setValue(hyphen[0].trim());
+                    simpleLabels.add(label);
+                }
+                // Two vlans in a range.
+                else if (hyphen.length > 1 && hyphen.length < 3) {
+                    int min = Integer.parseInt(hyphen[0].trim());
+                    int max = Integer.parseInt(hyphen[1].trim());
+                    for (int j = min; j < max + 1; j++) {
+                        SimpleLabel label = new SimpleLabel();
+                        label.setType(tvp.getType());
+                        label.setValue(Integer.toString(j));
+                        simpleLabels.add(label);
+                    }
+                }
+                // This is unsupported.
+                else {
+                    throw new IllegalArgumentException("Invalid string format: " + value);
+                }
+            }
+        }
+
+        return simpleLabels;
+    }
+
+    public static String getServiceDomainId(ServiceDomainType serviceDomain, SimpleLabel label) {
+        StringBuilder sb = new StringBuilder(serviceDomain.getId());
+        sb.append("?");
+        sb.append(label.getType());
+        sb.append("=");
+        sb.append(label.getValue());
+        return sb.toString();
+    }
+
+    public static String getStpId(StpType stp, SimpleLabel label) {
+        StringBuilder sb = new StringBuilder(stp.getId());
+        sb.append("?");
+        sb.append(label.getType());
+        sb.append("=");
+        sb.append(label.getValue());
+        return sb.toString();
+    }
+
+    public static String getSdpId(SdpType sdp, SimpleLabel label) {
+        StringBuilder sb = new StringBuilder(sdp.getId());
+        sb.append("?");
+        sb.append(label.getType());
+        sb.append("=");
+        sb.append(label.getValue());
+        return sb.toString();
     }
 }
