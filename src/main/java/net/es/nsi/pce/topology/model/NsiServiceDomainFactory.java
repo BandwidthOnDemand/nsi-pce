@@ -57,8 +57,6 @@ public class NsiServiceDomainFactory {
         // We map the SwitchingService Id to the Service Domain Id.
         nsiServiceDomain.setId(switchingService.getId());
 
-        log.debug("createServiceDomainType: creating service domain for switching service " + switchingService.getId());
-
         // Use the SwitchingService name if provided otherwise the Id.
         String name = switchingService.getName();
         if (name == null || name.isEmpty()) {
@@ -117,7 +115,6 @@ public class NsiServiceDomainFactory {
                     continue;
                 }
 
-                log.debug("createServiceDomainType: adding NML Port id=" + port.getId());
                 mapPortToStp(nmlPort, relation.getType(), nsiServiceDomain, nsiTopology);
             }
 
@@ -130,7 +127,6 @@ public class NsiServiceDomainFactory {
                     continue;
                 }
 
-                log.debug("createServiceDomainType: adding NML PortGroup id=" + portGroup.getId());
                 mapPortToStp(nmlPort, relation.getType(), nsiServiceDomain, nsiTopology);
             }
         }
@@ -141,14 +137,10 @@ public class NsiServiceDomainFactory {
         // Now we add all the bidirectional ports that have unidirectional
         // members of this SwitchingService.  This is slow...
         for (ResourceRefType inboundStp : nsiServiceDomain.getInboundStp()) {
-            log.debug("createServiceDomainType: checking inboundStp stpId=" + inboundStp.getId());
             for (StpType stp : nsiTopology.getStps()) {
-                log.debug("createServiceDomainType: against stpId=" + stp.getId() + ", " + stp.getType().value());
                 if (StpDirectionalityType.BIDIRECTIONAL == stp.getType()) {
-                    log.debug("createServiceDomainType: BIDIRECTIONAL");
                     if (stp.getInboundStp().getId().equalsIgnoreCase(inboundStp.getId())) {
                         // We should check for a matching outbound STP but skip for now.
-                        log.debug("createServiceDomainType: adding BIDIRECTIONAL stpId=" + stp.getId());
                         ResourceRefType stpRef = NsiStpFactory.createResourceRefType(stp);
                         nsiServiceDomain.getBidirectionalStp().add(stpRef);
                         stp.setServiceDomain(serviceDomainRef);
