@@ -32,42 +32,42 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A factory class for generating NSI ServiceDomain resource objects.
- * 
+ *
  * @author hacksaw
  */
 public class NsiServiceDomainFactory {
-    
+
     private static final String NSI_ROOT_SERVICEDOMAINS = "/serviceDomains/";
 
     /**
      * Create a NSI ServiceDomain resource object from an NML JAXB object.
-     * 
+     *
      * @param switchingService The NML SwitchingService JAXB object that defines the NSI ServiceDomain.
      * @param portMap The map of NML ports within this network.
      * @param nsiNetwork The NSI Network resource containing this ServiceDomain.
      * @param nsiTopology The NSI Topology resource object used for looking up service definitions and STPs.
-     * 
+     *
      * @return New ServiceDomain resource object.
      */
     public static ServiceDomainType createServiceDomainType(NmlSwitchingServiceType switchingService, Map<String, NmlPort> portMap, NetworkType nsiNetwork, NsiTopology nsiTopology) {
         Logger log = LoggerFactory.getLogger(NsiServiceDomainFactory.class);
-        
+
         ServiceDomainType nsiServiceDomain = new ServiceDomainType();
-        
+
         // We map the SwitchingService Id to the Service Domain Id.
         nsiServiceDomain.setId(switchingService.getId());
-        
-        // Use the SwitchingService name if provided otherwise the Id. 
+
+        // Use the SwitchingService name if provided otherwise the Id.
         String name = switchingService.getName();
         if (name == null || name.isEmpty()) {
             name = switchingService.getId();
         }
         nsiServiceDomain.setName(name);
-        
+
         // Use the discovered and version info from our Network resource.
         nsiServiceDomain.setDiscovered(nsiNetwork.getDiscovered());
         nsiServiceDomain.setVersion(nsiNetwork.getVersion());
-        
+
         // Href is mapped using the ServiceDomain Id.
         nsiServiceDomain.setHref(NSI_ROOT_SERVICEDOMAINS + nsiServiceDomain.getId());
 
@@ -87,7 +87,7 @@ public class NsiServiceDomainFactory {
                     service = nsiTopology.getService(serviceDefinition.getId());
                     break;
                 }
-            }            
+            }
         }
 
         // Make sure we found a corresponding service before storing.
@@ -98,15 +98,15 @@ public class NsiServiceDomainFactory {
         else {
             log.error("NML SwitchingService " + switchingService.getId() + " does not have a valid ServiceDefinition.");
         }
-        
+
         // Now we add the port references that are stored in Relations.
         for (NmlSwitchingServiceRelationType relation : switchingService.getRelation()) {
             if (!Relationships.hasInboundPort.equals(relation.getType()) &&
                     !Relationships.hasOutboundPort.equals(relation.getType())) {
-                log.error("NML SwitchingService " + switchingService.getId() + " has an unsupported relationship " + relation.getType()); 
+                log.error("NML SwitchingService " + switchingService.getId() + " has an unsupported relationship " + relation.getType());
                 continue;
             }
-            
+
             // First we will do the port relations.
             for (NmlPortType port : relation.getPort()) {
                 NmlPort nmlPort = portMap.get(port.getId());
@@ -114,10 +114,10 @@ public class NsiServiceDomainFactory {
                     log.error("NML SwitchingService " + switchingService.getId() + " has an undefined unidirectional port " + port.getId());
                     continue;
                 }
-                
+
                 mapPortToStp(nmlPort, relation.getType(), nsiServiceDomain, nsiTopology);
             }
-            
+
             // Now the PortGroup relations.
             List<NmlPortGroupType> portGroups = relation.getPortGroup();
             for (NmlPortGroupType portGroup : relation.getPortGroup()) {
@@ -126,14 +126,14 @@ public class NsiServiceDomainFactory {
                     log.error("NML SwitchingService " + switchingService.getId() + " has an undefined unidirectional port group " + portGroup.getId());
                     continue;
                 }
-                
+
                 mapPortToStp(nmlPort, relation.getType(), nsiServiceDomain, nsiTopology);
             }
         }
-        
+
         // Create a ServiceDomain reference for populating STP.
         ResourceRefType serviceDomainRef = NsiServiceDomainFactory.createResourceRefType(nsiServiceDomain);
-        
+
         // Now we add all the bidirectional ports that have unidirectional
         // members of this SwitchingService.  This is slow...
         for (ResourceRefType inboundStp : nsiServiceDomain.getInboundStp()) {
@@ -148,18 +148,18 @@ public class NsiServiceDomainFactory {
                 }
             }
         }
-        
+
         // Add this ServiceDomain to the owning network.
         nsiNetwork.getServiceDomain().add(serviceDomainRef);
-        
+
         return nsiServiceDomain;
     }
 
     /**
      * Create a resource reference for the NSI ServiceDomain resource.
-     * 
+     *
      * @param serviceDomain Create a resource for this NSI ServiceDomain resource object.
-     * 
+     *
      * @return The new resource reference.
      */
     public static ResourceRefType createResourceRefType(ServiceDomainType serviceDomain) {
@@ -174,7 +174,7 @@ public class NsiServiceDomainFactory {
      * This method maps an NML Port to the matching STPs stored in the nsiTopology
      * object, and then adds the associated STP references to the provided
      * Service Domain.
-     * 
+     *
      * @param nmlPort The NML Port to be mapped through to a list of STP.
      * @param relationType Defines whether this is an inbound or outbound port.
      * @param nsiServiceDomain The Service Domain to be populated with matching STP.
@@ -183,7 +183,7 @@ public class NsiServiceDomainFactory {
     private static void mapPortToStp(NmlPort nmlPort, String relationType, ServiceDomainType nsiServiceDomain, NsiTopology nsiTopology) {
         // Create a ServiceDomain reference for populating STP.
         ResourceRefType serviceDomainRef = NsiServiceDomainFactory.createResourceRefType(nsiServiceDomain);
-        
+
         // If there are no labels associated with the port then we have a single STP.
         if (nmlPort.getLabels() == null || nmlPort.getLabels().isEmpty()) {
             String stpId = NsiStpFactory.createStpId(nmlPort.getId(), null);
@@ -219,15 +219,15 @@ public class NsiServiceDomainFactory {
                         break;
                 }
             }
-        }        
+        }
     }
 
     /**
-     * 
+     *
      * @param portId
      * @param portMap
      * @param nsiTopology
-     * @param results 
+     * @param results
      */
     private static void getStpByPortId(String portId, Map<String, NmlPort> portMap, NsiTopology nsiTopology, Map<String, ArrayList<StpType>> results) {
 
@@ -270,18 +270,18 @@ public class NsiServiceDomainFactory {
             }
         }
     }
-    
+
     /**
-     * 
+     *
      * @param id
      * @param portList
      * @param portMap
      * @param nsiTopology
-     * @param results 
+     * @param results
      */
     private static void extractPortsToStp(String id, List<NmlPortType> portList, Map<String, NmlPort> portMap, NsiTopology nsiTopology, Map<String, ArrayList<StpType>> results) {
         Logger log = LoggerFactory.getLogger(NsiServiceDomainFactory.class);
-        
+
         for (NmlPortType port : portList) {
             try {
                 getStpByPortId(port.getId(), portMap, nsiTopology, results);
@@ -291,18 +291,18 @@ public class NsiServiceDomainFactory {
             }
         }
     }
-    
+
     /**
-     * 
+     *
      * @param id
      * @param portGroupList
      * @param portMap
      * @param nsiTopology
-     * @param results 
+     * @param results
      */
     private static void extractPortGroupsToStp(String id, List<NmlPortGroupType> portGroupList, Map<String, NmlPort> portMap, NsiTopology nsiTopology, Map<String, ArrayList<StpType>> results) {
         Logger log = LoggerFactory.getLogger(NsiServiceDomainFactory.class);
-        
+
         for (NmlPortGroupType port : portGroupList) {
             try {
                 getStpByPortId(port.getId(), portMap, nsiTopology, results);
@@ -312,26 +312,26 @@ public class NsiServiceDomainFactory {
             }
         }
     }
-    
+
     /**
-     * 
+     *
      * @param switchingService
      * @param portMap
      * @param nsiNetwork
      * @param nsiTopology
-     * @return 
+     * @return
      */
     public static Collection<ServiceDomainType> createServiceDomains(NmlSwitchingServiceType switchingService, Map<String, NmlPort> portMap, NetworkType nsiNetwork, NsiTopology nsiTopology) {
         Logger log = LoggerFactory.getLogger(NsiServiceDomainFactory.class);
         Collection<ServiceDomainType> results = new ArrayList<>();
-        
+
         // If we do not need to expand then return existing SwitchingService.
         if (switchingService.isLabelSwapping() != null &&
                     switchingService.isLabelSwapping() == Boolean.TRUE) {
             results.add(createServiceDomainType(switchingService, portMap, nsiNetwork, nsiTopology));
             return results;
         }
-        
+
         // Parse out ports and port groups.  Map to STP and sort based on label
         // value.
         HashMap<String, ArrayList<StpType>> inboundStps = new HashMap<>();
@@ -347,7 +347,7 @@ public class NsiServiceDomainFactory {
                 extractPortGroupsToStp(switchingService.getId(), relation.getPortGroup(), portMap, nsiTopology, outboundStps);
             }
         }
-        
+
         // We need references to the containing Network.
         ResourceRefType nsiNetworkRef = NsiNetworkFactory.createResourceRefType(nsiNetwork);
 
@@ -363,7 +363,7 @@ public class NsiServiceDomainFactory {
                     service = nsiTopology.getService(serviceDefinition.getId());
                     break;
                 }
-            }            
+            }
         }
 
         // Make sure we found a corresponding service before storing.
@@ -374,7 +374,7 @@ public class NsiServiceDomainFactory {
         else {
             log.error("NML SwitchingService " + switchingService.getId() + " does not have a valid ServiceDefinition.");
         }
-        
+
         // Make a copy of the Bidirectional STP and remove them as we
         // populate their member unidirectional ports.
         Map<String, StpType> biStp = new HashMap<>();
@@ -384,11 +384,11 @@ public class NsiServiceDomainFactory {
                 biStp.put(stp.getOutboundStp().getId(), stp);
             }
         }
-        
+
         // Now for each key we create a new ServiceDomain.
         for (String key : inboundStps.keySet()) {
             ServiceDomainType nsiServiceDomain = new ServiceDomainType();
-            
+
             // Build a unique identifier for this SwitchingService.
             StringBuilder identifier = new StringBuilder(switchingService.getId());
             identifier.append("?");
@@ -400,21 +400,21 @@ public class NsiServiceDomainFactory {
             else {
                 identifier.append(key);
             }
-            
+
             // We map the SwitchingService Id to the Service Domain Id.
             nsiServiceDomain.setId(identifier.toString());
-        
-            // Use the SwitchingService name if provided otherwise the Id. 
+
+            // Use the SwitchingService name if provided otherwise the Id.
             String name = switchingService.getName();
             if (name == null || name.isEmpty()) {
                 name = switchingService.getId();
             }
             nsiServiceDomain.setName(name);
-        
+
             // Use the discovered and version info from our Network resource.
             nsiServiceDomain.setDiscovered(nsiNetwork.getDiscovered());
             nsiServiceDomain.setVersion(nsiNetwork.getVersion());
-        
+
             // Href is mapped using the ServiceDomain Id.
             nsiServiceDomain.setHref(NSI_ROOT_SERVICEDOMAINS + nsiServiceDomain.getId());
 
@@ -422,51 +422,51 @@ public class NsiServiceDomainFactory {
             nsiServiceDomain.setNetwork(nsiNetworkRef);
 
             // Make sure we found a corresponding service before storing.
-            nsiServiceDomain.setService(nsiServiceRef);   
-            
+            nsiServiceDomain.setService(nsiServiceRef);
+
             // Make a reference for this ServiceDomain and add to each member STP.
             ResourceRefType nsiServiceDomainRef = NsiServiceDomainFactory.createResourceRefType(nsiServiceDomain);
-            
+
 
             // Add the inbound STP references to this ServiceDomain.
             List<StpType> inStps = inboundStps.get(key);
             for (StpType inStp : inStps) {
                 nsiServiceDomain.getInboundStp().add(NsiStpFactory.createResourceRefType(inStp));
                 inStp.setServiceDomain(nsiServiceDomainRef);
-                
+
                 // Check to see if there is a corresponding bidirectional STP.
                 StpType inBiStp = biStp.remove(inStp.getId());
                 if (inBiStp != null) {
                     nsiServiceDomain.getBidirectionalStp().add(NsiStpFactory.createResourceRefType(inBiStp));
                     inBiStp.setServiceDomain(nsiServiceDomainRef);
-                    
+
                     // Remove the outbound entry for this bidirectional STP.
                     biStp.remove(inBiStp.getOutboundStp().getId());
                 }
             }
-            
+
             // Add the outbound STP references to this ServiceDomain.
             List<StpType> outStps = outboundStps.get(key);
             for (StpType outStp : outStps) {
                 nsiServiceDomain.getOutboundStp().add(NsiStpFactory.createResourceRefType(outStp));
                 outStp.setServiceDomain(nsiServiceDomainRef);
-                
-                // Inbound unidirectional STP members would have already removed 
+
+                // Inbound unidirectional STP members would have already removed
                 // their corresponding bidrectional STP, however, there maybe
                 // a mismatch that needs to be handled.
                 StpType outBiStp = biStp.remove(outStp.getId());
                 if (outBiStp != null) {
                     nsiServiceDomain.getBidirectionalStp().add(NsiStpFactory.createResourceRefType(outBiStp));
                     outBiStp.setServiceDomain(nsiServiceDomainRef);
-                }                
+                }
             }
 
             results.add(nsiServiceDomain);
         }
-        
+
         return results;
     }
-    
+
     public static List<ServiceDomainType> ifModifiedSince(String ifModifiedSince, List<ServiceDomainType> serviceDomainList) throws DatatypeConfigurationException {
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             GregorianCalendar cal = new GregorianCalendar();
@@ -479,7 +479,7 @@ public class NsiServiceDomainFactory {
                 }
             }
         }
-        
+
         return serviceDomainList;
     }
 }
