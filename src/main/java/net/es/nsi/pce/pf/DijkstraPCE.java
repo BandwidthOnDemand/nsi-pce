@@ -85,7 +85,7 @@ public class DijkstraPCE implements PCEModule {
 
         // Get the topology model used for routing.
         NsiTopology nsiTopology = pceData.getTopology();
-        
+
         log.debug("******* localId " + nsiTopology.getLocalNsaId());
         for (String networkId : nsiTopology.getNetworkIds()) {
             log.debug("******* networkId " + networkId);
@@ -130,12 +130,12 @@ public class DijkstraPCE implements PCEModule {
         Constraints segmentConstraints = new Constraints(pceData.getConstraints());
         segmentConstraints.removeStringAttrConstraint(Point2Point.SOURCESTP);
         segmentConstraints.removeStringAttrConstraint(Point2Point.DESTSTP);
-        
+
         // We can save time by handling the special case of A and Z STP in same
         // network.
         String srcNetwork = srcStp.getNetworkId();
         String dstNetwork = dstStp.getNetworkId();
-        
+
         if (srcNetwork.equals(dstNetwork)) {
             StpPair pathPair = new StpPair(srcStp, dstStp);
             PathSegment pathSegment = new PathSegment(pathPair);
@@ -157,10 +157,17 @@ public class DijkstraPCE implements PCEModule {
         // Add bidirectional SDP as edges.
         for (SdpType sdp : nsiTopology.getSdps()) {
             if (sdp.getType() == SdpDirectionalityType.BIDIRECTIONAL) {
-                ServiceDomainType aServiceDomain = nsiTopology.getServiceDomain(sdp.getDemarcationA().getServiceDomain().getId());
-                ServiceDomainType bServiceDomain = nsiTopology.getServiceDomain(sdp.getDemarcationZ().getServiceDomain().getId());
-
-                graph.addEdge(sdp, aServiceDomain, bServiceDomain);
+                if (sdp.getDemarcationA().getServiceDomain() == null) {
+                    log.error("Missing service domain for demarcationA sdpId=" + sdp.getId() + " and stpId=" + sdp.getDemarcationA().getStp().getId());
+                }
+                else if (sdp.getDemarcationZ().getServiceDomain() == null) {
+                    log.error("Missing service domain for demarcationZ sdpId=" + sdp.getId() + " and stpId=" + sdp.getDemarcationZ().getStp().getId());
+                }
+                else {
+                    ServiceDomainType aServiceDomain = nsiTopology.getServiceDomain(sdp.getDemarcationA().getServiceDomain().getId());
+                    ServiceDomainType bServiceDomain = nsiTopology.getServiceDomain(sdp.getDemarcationZ().getServiceDomain().getId());
+                    graph.addEdge(sdp, aServiceDomain, bServiceDomain);
+                }
             }
         }
 
@@ -190,7 +197,7 @@ public class DijkstraPCE implements PCEModule {
             StpPair pair = segments.get(i);
 
             log.debug("Pair: " + pair.getA().getId() + " -- " + pair.getZ().getId());
-            
+
             Constraints cons = new Constraints(segmentConstraints);
             PathSegment pathSegment = new PathSegment(pair);
             pathSegment.setConstraints(cons);
