@@ -83,9 +83,6 @@ public class ReachabilityPCE implements PCEModule {
         Stp sourceStp = findSourceStp(constraints);
         Stp destStp = findDestinationStp(constraints);
 
-        if (forceIdenticalVlans && sourceStp.getVlan().isPresent() && destStp.getVlan().isPresent()) {
-            checkArgument(sourceStp.getVlan().get().equals(destStp.getVlan().get()), "Source and dst vlans must be identical but they are not.");
-        }
         Optional<Path> path = findPath(sourceStp, destStp, pceData.getTopology(), pceData.getTopology().getReachabilityTable(), pceData.getTrace());
 
         if (path.isPresent()) {
