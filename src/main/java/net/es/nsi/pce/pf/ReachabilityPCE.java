@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
@@ -69,6 +71,9 @@ public class ReachabilityPCE implements PCEModule {
     });
     private Random random = new Random();
 
+    // TODO make this configurable at startup
+    private final boolean forceIdenticalVlans = true;
+
     @Override
     public PCEData apply(PCEData pceData) {
         checkNotNull(pceData.getTrace(), "No trace was provided");
@@ -78,6 +83,9 @@ public class ReachabilityPCE implements PCEModule {
         Stp sourceStp = findSourceStp(constraints);
         Stp destStp = findDestinationStp(constraints);
 
+        if (forceIdenticalVlans && sourceStp.getVlan().isPresent() && destStp.getVlan().isPresent()) {
+            checkArgument(sourceStp.getVlan().get().equals(destStp.getVlan().get()), "Source and dst vlans must be identical but they are not.");
+        }
         Optional<Path> path = findPath(sourceStp, destStp, pceData.getTopology(), pceData.getTopology().getReachabilityTable(), pceData.getTrace());
 
         if (path.isPresent()) {
@@ -166,7 +174,7 @@ public class ReachabilityPCE implements PCEModule {
 
         String remoteNsaId = remoteNsa.get().getNsaId();
         Optional<SdpType> connectingSdp = remoteNsa.isPresent() ?
-            findConnectingSdp(localStp.getNetworkId(), remoteNsaId, topology) : Optional.<SdpType>absent();
+            findConnectingSdp(localStp.getNetworkId(), remoteNsaId, topology, localStp.getVlan()) : Optional.<SdpType>absent();
 
         if (!connectingSdp.isPresent()) {
             logger.debug("No connecting sdp found for remoteNsaId {}", remoteNsaId);
@@ -208,10 +216,10 @@ public class ReachabilityPCE implements PCEModule {
         return sdp.getDemarcationA().getNetwork().getId().equals(networkId) ? Stp.fromDemarcation(sdp.getDemarcationA()) : Stp.fromDemarcation(sdp.getDemarcationZ());
     }
 
-    private Optional<SdpType> findConnectingSdp(String networkId, String nsaId, NsiTopology topology) {
+    private Optional<SdpType> findConnectingSdp(String networkId, String nsaId, NsiTopology topology, Optional<Integer> vlan) {
         List<ResourceRefType> remoteNetworks = topology.getNsa(nsaId).getNetwork();
         for (ResourceRefType network : remoteNetworks) {
-            Optional<SdpType> sdp = findSdp(networkId, network.getId(), topology.getSdps());
+            Optional<SdpType> sdp = findSdp(networkId, network.getId(), topology.getSdps(), vlan);
             if (sdp.isPresent()) {
                 return sdp;
             }
@@ -220,7 +228,7 @@ public class ReachabilityPCE implements PCEModule {
         return Optional.absent();
     }
 
-    private Optional<SdpType> findSdp(String networkIdA, String networkIdZ, Collection<SdpType> sdps) {
+    private Optional<SdpType> findSdp(String networkIdA, String networkIdZ, Collection<SdpType> sdps, final Optional<Integer> vlan) {
         List<SdpType> candidates = new ArrayList<>();
 
         for (SdpType sdp : sdps) {
@@ -237,10 +245,25 @@ public class ReachabilityPCE implements PCEModule {
         if (candidates.size() == 0) {
             return Optional.absent();
         }
+        else if (forceIdenticalVlans && vlan.isPresent()) {
+            logger.debug("identical vlans enforced, and vlan specified, asessing {} candidates", candidates.size());
+            // underlying NMS probably doesn't support Vlan switching,
+            // we must find a path that has the same vlan value in each segment's endpoints
+
+            final String needle = "vlan=" + vlan.get();
+            for (SdpType candidate: candidates) {
+                if (candidate.getDemarcationA().getStp().getId().contains(needle)
+                      && candidate.getDemarcationZ().getStp().getId().contains(needle)) {
+                    return Optional.of(candidate);
+                }
+            }
+            logger.warn("no matching vlan found between networks {} and {}", networkIdA, networkIdZ);
+            return Optional.absent();
+        }
         else {
             // a different sdp instance exists for each matching vlan value. By picking a random one from the candidates
             // each time, we diminish the chances of us trying to use a vlan that is already in use
-            // TODO this sucks and /will/ fail at times. Solution is to make safnari (the caller) state-aware and let it supply hints
+            // TODO this /will/ fail at times. Solution is to make safnari (the caller) state-aware and let it supply hints
             int randomNum = random.nextInt(candidates.size());
             return Optional.of(candidates.get(randomNum));
         }
@@ -375,9 +398,12 @@ public class ReachabilityPCE implements PCEModule {
     public static class Stp {
         private static final Splitter STP_SPLITTER = Splitter.on(":");
         private static final Joiner STP_JOINER = Joiner.on(":");
+        private static Pattern VLAN_PATTERN = Pattern.compile("[?&]vlan=([^&]+)$");
 
         private final String id;
         private final String networkId;
+        private final Optional<Integer> vlan;
+
 
         public static Stp fromDemarcation(DemarcationType demarcation) {
             checkNotNull(demarcation);
@@ -392,17 +418,27 @@ public class ReachabilityPCE implements PCEModule {
                 throw new IllegalArgumentException(String.format("Could not extract network id from '%s'", id));
             }
 
-            return new Stp(id, networkId.get());
+            Optional<Integer> vlan = extractVlan(id);
+            return new Stp(id, networkId.get(), vlan);
         }
 
-        private Stp(String id, String networkId) {
+        private Stp(String id, String networkId, Optional<Integer> vlan) {
             this.id = id;
             this.networkId = networkId;
+            this.vlan = vlan;
         }
 
         protected static Optional<String> extractNetworkId(String stpId) {
             Iterable<String> parts = Iterables.limit(STP_SPLITTER.split(stpId), 6);
             return Iterables.size(parts) == 6 ? Optional.of(STP_JOINER.join(parts)) : Optional.<String>absent();
+        }
+
+        private static Optional<Integer> extractVlan(final String id) {
+            Matcher matcher = VLAN_PATTERN.matcher(id);
+            if (matcher.find()) {
+                return Optional.of(Integer.parseInt(matcher.group(1)));
+            }
+            return Optional.absent();
         }
 
         public String getId() {
@@ -412,11 +448,24 @@ public class ReachabilityPCE implements PCEModule {
             return networkId;
         }
 
+        public Optional<Integer> getVlan() {
+            return vlan;
+        }
+
         public StpType toStpType() {
             StpType stpType = new StpType();
             stpType.setId(id);
             stpType.setNetworkId(networkId);
             return stpType;
+        }
+
+        @Override
+        public String toString() {
+            return "Stp{" +
+                    "id='" + id + '\'' +
+                    ", networkId='" + networkId + '\'' +
+                    ", vlan=" + vlan +
+                    '}';
         }
     }
 }
