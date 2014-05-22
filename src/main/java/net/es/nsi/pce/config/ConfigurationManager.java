@@ -97,7 +97,12 @@ public enum ConfigurationManager {
 
             // Start the NIS network topology build.
             topologyProvider = (TopologyProvider) context.getBean("topologyProvider");
-            topologyProvider.loadTopology();
+            try {
+                topologyProvider.loadTopology();
+            }
+            catch (Exception ex) {
+                log.error("Failed to load topology.", ex);
+            }
 
             pceScheduler = (PCEScheduler) context.getBean("pceScheduler");
             pceScheduler.add(TopologyAudit.JOBNAME, TopologyAudit.JOBGROUP, TopologyAudit.class, getTopologyProvider().getAuditInterval()*1000);

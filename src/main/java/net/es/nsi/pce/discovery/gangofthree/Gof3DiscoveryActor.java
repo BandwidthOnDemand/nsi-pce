@@ -6,6 +6,8 @@ package net.es.nsi.pce.discovery.gangofthree;
 
 import akka.actor.UntypedActor;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -36,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * @author hacksaw
  */
 public class Gof3DiscoveryActor extends UntypedActor {
-   
+
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ObjectFactory factory = new ObjectFactory();
     private ClientConfig clientConfig;
@@ -51,27 +53,32 @@ public class Gof3DiscoveryActor extends UntypedActor {
     public void onReceive(Object msg) {
         if (msg instanceof Gof3DiscoveryMsg) {
             Gof3DiscoveryMsg message = (Gof3DiscoveryMsg) msg;
-            
+
             // Read the NSA discovery document.
             if (discoverNSA(message) == false) {
                 // No update so return.
                 return;
             }
-            
+
             // Read the associated Topology document.
-            discoverTopology(message);
-            
+            for (Map.Entry<String, Long> entry : message.getTopology().entrySet()) {
+                Long result = discoverTopology(message.getNsaId(), entry.getKey(), entry.getValue());
+                if (result != null) {
+                    message.setTopologyLastModified(entry.getKey(), result);
+                }
+            }
+
             // Send an updated discovery message back to the router.
             getSender().tell(message, getSelf());
         } else {
             unhandled(msg);
         }
     }
-    
+
     private boolean discoverNSA(Gof3DiscoveryMsg message) {
         log.debug("discover: nsa=" + message.getNsaURL());
         Client client = ClientBuilder.newClient(clientConfig);
-        
+
         WebTarget nsaTarget = client.target(message.getNsaURL());
 
         Response response;
@@ -99,19 +106,30 @@ public class Gof3DiscoveryActor extends UntypedActor {
                 response.close();
                 return false;
             }
-            
+
             client.close();
             response.close();
-            
+
             message.setNsaId(nsa.getId());
-            
+
             // Find the topology endpoint for the next step.
+            Map<String, Long> oldTopologyRefs = new HashMap<>(message.getTopology());
             for (InterfaceType inf : nsa.getInterface()) {
                 if (NsiConstants.NSI_TOPOLOGY_V2.equalsIgnoreCase(inf.getType().trim())) {
-                    message.setTopologyURL(inf.getHref());
-                    break;
+                    String url = inf.getHref().trim();
+                    Long previous = oldTopologyRefs.remove(url);
+                    if (previous == null) {
+                        message.addTopology(url, 0L);
+                    }
                 }
             }
+
+            // Now we clean up the topology URL that are no longer in the
+            // NSA description document.
+            for (String url : oldTopologyRefs.keySet()) {
+                message.removeTopologyURL(url);
+            }
+
             // Add the document.
             long time = 0;
             if (response.getLastModified() != null) {
@@ -144,33 +162,28 @@ public class Gof3DiscoveryActor extends UntypedActor {
             response.close();
             return false;
         }
-        
+
         if (response.getLastModified() != null) {
             message.setNsaLastModifiedTime(response.getLastModified().getTime());
         }
 
         // Now we retrieve the associated topology document.
         log.debug("discover: exiting.");
-        
+
         return true;
     }
-    
-    private boolean discoverTopology(Gof3DiscoveryMsg message) {
-        String url = message.getTopologyURL();
+
+    private Long discoverTopology(String nsaId, String url, Long lastModifiedTime) {
         log.debug("discover: topology=" + url);
-        
+
         Client client = ClientBuilder.newClient(clientConfig);
-        
-        if (url == null || url.isEmpty()) {
-            return false;
-        }
-        
+
         WebTarget topologyTarget = client.target(url);
 
         Response response;
         try {
             response = topologyTarget.request("*/*") // MediaTypes.NSI_TOPOLOGY_V2
-                    .header("If-Modified-Since", DateUtils.formatDate(new Date(message.getTopologyLastModifiedTime()), DateUtils.PATTERN_RFC1123))
+                    .header("If-Modified-Since", DateUtils.formatDate(new Date(lastModifiedTime), DateUtils.PATTERN_RFC1123))
                     .get();
         }
         catch (Exception ex) {
@@ -178,9 +191,9 @@ public class Gof3DiscoveryActor extends UntypedActor {
             // dates for errors and route back?
             log.error("discoverTopology: failed to retrieve Topology document from endpoint " + url, ex);
             client.close();
-            return false;
+            return 0L;
         }
-        
+
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             NmlTopologyType topology = null;
             try (ChunkedInput<NmlTopologyType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<NmlTopologyType>>() {})) {
@@ -189,7 +202,7 @@ public class Gof3DiscoveryActor extends UntypedActor {
                     topology = chunk;
                 }
             }
-            
+
             client.close();
             response.close();
 
@@ -197,7 +210,7 @@ public class Gof3DiscoveryActor extends UntypedActor {
                 // TODO: Should we clear the topology URL and lastModified
                 // dates for errors and route back?
                 log.error("discoverTopology: Topology document is empty from endpoint " + url);
-                return false;
+                return 0L;
             }
 
             // Add the document.
@@ -211,38 +224,38 @@ public class Gof3DiscoveryActor extends UntypedActor {
                 cal = XmlUtilities.longToXMLGregorianCalendar(time);
             } catch (DatatypeConfigurationException ex) {
                 log.error("discoverTopology: Topology document failed to create lastModified " + url);
-                return false;
+                return 0L;
             }
 
-            if (addTopologyDocument(topology, cal, message.getNsaId()) == false) {
-                return false;
+            if (addTopologyDocument(topology, cal, nsaId) == false) {
+                return 0L;
             }
         }
         else if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
             // We did not get an updated document.
-            log.debug("discoverTopology: Topology document not modified " + message.getNsaURL());
+            log.debug("discoverTopology: Topology document not modified " + url);
             client.close();
             response.close();
         }
         else {
-            log.error("discoverTopology: get of Topology document failed " + response.getStatus() + ", url=" + message.getNsaURL());
+            log.error("discoverTopology: get of Topology document failed " + response.getStatus() + ", url=" + url);
             // TODO: Should we clear the topology URL and lastModified
             // dates for errors and route back?
             client.close();
             response.close();
-            return false;
-        }
-        
-        if (response.getLastModified() != null) {
-            message.setTopologyLastModifiedTime(response.getLastModified().getTime());
+            return 0L;
         }
 
         // Now we retrieve the associated topology document.
-        log.debug("discoverTopology: existing.");
-        
-        return true;
+        log.debug("discoverTopology: exiting.");
+
+        if (response.getLastModified() == null) {
+            return 0L;
+        }
+
+        return response.getLastModified().getTime();
     }
-    
+
     private boolean addNsaDocument(NsaType nsa, XMLGregorianCalendar discovered) {
         // Now we add the NSA document into the DDS.
         DocumentType document = factory.createDocumentType();
@@ -277,20 +290,20 @@ public class Gof3DiscoveryActor extends UntypedActor {
         AnyType any = factory.createAnyType();
         any.getAny().add(factory.createNsa(nsa));
         document.setContent(any);
-        
+
         // Try to add the document as a notification of document change.
         NotificationType notify = factory.createNotificationType();
         notify.setEvent(DocumentEventType.ALL);
         notify.setDiscovered(discovered);
         notify.setDocument(document);
-        
+
         DdsProvider.getInstance().processNotification(notify);
-        
+
         return true;
     }
-    
+
     private boolean addTopologyDocument(NmlTopologyType topology, XMLGregorianCalendar discovered, String nsaId) {
-        
+
         // Now we add the NSA document into the DDS.
         DocumentType document = factory.createDocumentType();
 
@@ -298,7 +311,7 @@ public class Gof3DiscoveryActor extends UntypedActor {
         document.setId(topology.getId());
         document.setType(NsiConstants.NSI_DOC_TYPE_TOPOLOGY_V2);
         document.setNsa(nsaId);
-        
+
         // If there is no version specified then we add one.
         if (topology.getVersion() == null || !topology.getVersion().isValid()) {
             // No expire value provided so make one.
@@ -338,15 +351,15 @@ public class Gof3DiscoveryActor extends UntypedActor {
         AnyType any = factory.createAnyType();
         any.getAny().add(factory.createTopology(topology));
         document.setContent(any);
-        
+
         // Try to add the document as a notification of document change.
         NotificationType notify = factory.createNotificationType();
         notify.setEvent(DocumentEventType.ALL);
         notify.setDiscovered(discovered);
         notify.setDocument(document);
-        
+
         DdsProvider.getInstance().processNotification(notify);
-        
+
         return true;
     }
 }

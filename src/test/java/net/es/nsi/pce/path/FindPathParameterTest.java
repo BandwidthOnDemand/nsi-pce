@@ -25,6 +25,7 @@ import net.es.nsi.pce.client.TestServer;
 import net.es.nsi.pce.test.TestConfig;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -38,7 +39,7 @@ public class FindPathParameterTest {
     private static WebTarget target;
 
     private final static HttpConfig testServer = new HttpConfig() {
-        { setUrl("http://localhost:9801/"); setPackageName("net.es.nsi.pce.client"); }
+        { setUrl("http://localhost:8401/"); setPackageName("net.es.nsi.pce.client"); }
     };
 
     private final static String callbackURL = testServer.getUrl() + "aggregator/path";
@@ -51,7 +52,13 @@ public class FindPathParameterTest {
     public static void oneTimeSetUp() {
         System.out.println("*************************************** FindPathParameterTest oneTimeSetUp ***********************************");
         // Configure the local test client callback server.
-        TestServer.INSTANCE.start(testServer);
+        try {
+            TestServer.INSTANCE.start(testServer);
+        }
+        catch (Exception ex) {
+            System.err.println("oneTimeSetUp: failed to start HTTP server " + ex.getLocalizedMessage());
+            fail();
+        }
         testConfig = new TestConfig();
         target = testConfig.getTarget();
         System.out.println("*************************************** FindPathParameterTest oneTimeSetUp done ***********************************");
@@ -61,6 +68,13 @@ public class FindPathParameterTest {
     public static void oneTimeTearDown() {
         System.out.println("*************************************** FindPathParameterTest oneTimeTearDown ***********************************");
         testConfig.shutdown();
+        try {
+            TestServer.INSTANCE.shutdown();
+        }
+        catch (Exception ex) {
+            System.err.println("oneTimeTearDown: test server shutdown failed." + ex.getLocalizedMessage());
+            fail();
+        }
         System.out.println("*************************************** FindPathParameterTest oneTimeTearDown done ***********************************");
     }
 

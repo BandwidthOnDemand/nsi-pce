@@ -47,7 +47,7 @@ public class DiscoveryTest {
 
     private final static HttpConfig testServer = new HttpConfig() {
         {
-            setUrl("http://localhost:9801/");
+            setUrl("http://localhost:8401/");
             setPackageName("net.es.nsi.pce.client");
         }
     };
@@ -63,7 +63,13 @@ public class DiscoveryTest {
     public static void oneTimeSetUp() {
         System.out.println("*************************************** DiscoveryTest oneTimeSetUp ***********************************");
         // Configure the local test client callback server.
-        TestServer.INSTANCE.start(testServer);
+        try {
+            TestServer.INSTANCE.start(testServer);
+        }
+        catch (Exception ex) {
+            System.err.println("oneTimeSetUp: failed to start HTTP server " + ex.getLocalizedMessage());
+            fail();
+        }
         testConfig = new TestConfig();
         target = testConfig.getTarget();
         discovery = target.path("discovery");
@@ -74,6 +80,13 @@ public class DiscoveryTest {
     public static void oneTimeTearDown() {
         System.out.println("*************************************** DiscoveryTest oneTimeTearDown ***********************************");
         testConfig.shutdown();
+        try {
+            TestServer.INSTANCE.shutdown();
+        }
+        catch (Exception ex) {
+            System.err.println("oneTimeTearDown: test server shutdown failed." + ex.getLocalizedMessage());
+            fail();
+        }
         System.out.println("*************************************** DiscoveryTest oneTimeTearDown done ***********************************");
     }
 

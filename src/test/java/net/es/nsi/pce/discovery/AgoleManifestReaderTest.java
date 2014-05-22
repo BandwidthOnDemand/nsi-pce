@@ -39,9 +39,9 @@ public class AgoleManifestReaderTest {
         SpringContext sc = SpringContext.getInstance();
         ApplicationContext context = sc.initContext("src/test/resources/config/AgoleManifestReaderTest.xml");
         AgoleManifestReader reader = (AgoleManifestReader) context.getBean("agoleManifestReader");
-        reader.setTarget("http://localhost:8400/www/master.xml");
+        reader.setTarget("http://localhost:8401/www/master.xml");
 
-        HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:8400"));
+        HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create("http://localhost:8401"));
         StaticHttpHandler staticHttpHandler = new StaticHttpHandler("src/test/resources/config/www/");
         server.getServerConfiguration().addHttpHandler(staticHttpHandler, "/www");
 

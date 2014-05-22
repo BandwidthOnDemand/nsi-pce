@@ -5,6 +5,10 @@
 package net.es.nsi.pce.discovery.gangofthree;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -14,10 +18,11 @@ public class Gof3DiscoveryMsg implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String nsaURL;
-    private String topologyURL;
+    // private String topologyURL;
     private long nsaLastModifiedTime = 0;
-    private long topologyLastModifiedTime = 0;
+    // private long topologyLastModifiedTime = 0;
     private String nsaId;
+    private Map<String, Long> topology = new HashMap<>(); // key = topologyURL, Long == topologyLastModifiedTime
 
     /**
      * @return the nsaURL
@@ -33,18 +38,28 @@ public class Gof3DiscoveryMsg implements Serializable {
         this.nsaURL = nsaURL;
     }
 
-    /**
-     * @return the topologyURL
-     */
-    public String getTopologyURL() {
-        return topologyURL;
+    public void addTopology(String topologyURL, Long topologyLastModifiedTime) {
+        this.topology.put(topologyURL, topologyLastModifiedTime);
     }
 
-    /**
-     * @param topologyURL the topologyURL to set
-     */
-    public void setTopologyURL(String topologyURL) {
-        this.topologyURL = topologyURL;
+    public Set<String> getTopologyURL() {
+        return this.topology.keySet();
+    }
+
+    public Long removeTopologyURL(String url) {
+        return this.topology.remove(url);
+    }
+
+    public Map<String, Long> getTopology() {
+        return Collections.unmodifiableMap(this.topology);
+    }
+
+    public Long getTopologyLastModified(String url) {
+        return topology.get(url);
+    }
+
+    public Long setTopologyLastModified(String url, Long lastModifiedTime) {
+        return topology.put(url, lastModifiedTime);
     }
 
     /**
@@ -59,20 +74,6 @@ public class Gof3DiscoveryMsg implements Serializable {
      */
     public void setNsaLastModifiedTime(long nsaLastModifiedTime) {
         this.nsaLastModifiedTime = nsaLastModifiedTime;
-    }
-
-    /**
-     * @return the topologyLastModifiedTime
-     */
-    public long getTopologyLastModifiedTime() {
-        return topologyLastModifiedTime;
-    }
-
-    /**
-     * @param topologyLastModifiedTime the topologyLastModifiedTime to set
-     */
-    public void setTopologyLastModifiedTime(long topologyLastModifiedTime) {
-        this.topologyLastModifiedTime = topologyLastModifiedTime;
     }
 
     /**

@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.common.base.Optional;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
@@ -36,7 +37,7 @@ public class NsiTopology {
     // The NSI Topology model.
     private String localNsaId;
     private List<String> localNetworks = new CopyOnWriteArrayList<>();
-    private ConcurrentHashMap<String, StpType> stps = new ConcurrentHashMap<>();
+    private ConcurrentSkipListMap<String, StpType> stps = new ConcurrentSkipListMap<>();
     private ConcurrentHashMap<String, SdpType> sdps = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, ServiceAdaptationType> serviceAdaptations = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, ServiceDomainType> serviceDomains = new ConcurrentHashMap<>();
@@ -297,7 +298,7 @@ public class NsiTopology {
     }
 
     public Map<String, StpType> getStpMap() {
-        return Collections.unmodifiableMap(stps);
+        return Collections.unmodifiableSortedMap(stps);
     }
 
     public Collection<StpType> getStpsByNetworkId(String networkId) {

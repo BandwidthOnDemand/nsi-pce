@@ -27,19 +27,19 @@ public class PceLogger {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private static final String NSI_ROOT_LOGS = "/logs/";
     private static final int MAX_LOG_SIZE = 2000;
-    
+
     private ObjectFactory logFactory = new ObjectFactory();
-    
+
     private long logId = 0;
     private long subLogId = 0;
-    
+
     private long lastlogTime = 0;
-    
+
     private XMLGregorianCalendar auditTimeStamp = null;
-    
+
     private Map<String, LogType> logsMap = new ConcurrentHashMap<>();
     private AbstractQueue<LogType> logsQueue = new ConcurrentLinkedQueue<>();
-    
+
     /**
      * Private constructor prevents instantiation from other classes.
      */
@@ -49,7 +49,7 @@ public class PceLogger {
         }
         catch (DatatypeConfigurationException ex) {
             // Ignore for now.
-        }    
+        }
     }
 
     /**
@@ -58,7 +58,7 @@ public class PceLogger {
     public long getLastlogTime() {
         return lastlogTime;
     }
-    
+
     /**
      * An internal static class that invokes our private constructor on object
      * creation.
@@ -69,22 +69,22 @@ public class PceLogger {
 
     /**
      * Returns an instance of this singleton class.
-     * 
+     *
      * @return An NsiTopologyLogger object.
      */
     public static PceLogger getInstance() {
             return SingletonHolder.INSTANCE;
     }
-    
+
     /**
      * Returns an instance of this singleton class.
-     * 
+     *
      * @return An NmlParser object of the NSAType.
      */
     public static PceLogger getLogger() {
             return SingletonHolder.INSTANCE;
     }
-    
+
     /**
      * Allocate a new unique log identifier.
      */
@@ -97,12 +97,12 @@ public class PceLogger {
         else {
             subLogId++;
         }
-        
+
         String id = String.format("%d%02d", logId, subLogId);
-        
+
         return id;
     }
-    
+
     public void setAuditTimeStamp() {
         try {
             auditTimeStamp = XmlUtilities.longToXMLGregorianCalendar(System.currentTimeMillis());
@@ -111,11 +111,11 @@ public class PceLogger {
             // Ignore for now.
         }
     }
-    
+
     public void clearAuditTimeStamp() {
         auditTimeStamp = null;
     }
-    
+
     public void setAuditTimeStamp(long time) {
         if (time == 0) {
             auditTimeStamp = null;
@@ -132,7 +132,7 @@ public class PceLogger {
 
     /**
      * Create a new log resource and populate the attributes.
-     * 
+     *
      * @return new LogType with shell attributes populated.
      */
     private LogType createEntry() {
@@ -141,27 +141,27 @@ public class PceLogger {
         LogType entry = logFactory.createLogType();
         entry.setId(createId());
         entry.setHref(NSI_ROOT_LOGS + entry.getId());
-        
+
         try {
             entry.setDate(XmlUtilities.longToXMLGregorianCalendar(time));
         } catch (DatatypeConfigurationException ex) {
             // Ignore for now.
         }
-        
+
         logsMap.put(entry.getId(), entry);
         logsQueue.add(entry);
-        
+
         if (logsQueue.size() >= MAX_LOG_SIZE) {
             LogType out = logsQueue.remove();
             logsMap.remove(out.getId());
         }
-        
+
         return entry;
     }
-    
+
     /**
      * Create a topology error with the provided error information.
-     * 
+     *
      * @param tError The type of error being generated.
      * @param resource The resource the error is impacting.
      * @param description A description of the log.
@@ -178,10 +178,10 @@ public class PceLogger {
         logLog(log);
         return log;
     }
-    
+
     /**
      * Create a topology error with the provided error information.
-     * 
+     *
      * @param tError The type of error being generated.
      * @param resource The resource the error is impacting.
      * @return new error fully populated.
@@ -197,7 +197,7 @@ public class PceLogger {
         logLog(log);
         return log;
     }
-    
+
     public LogType error(PceErrors tError, String resource) {
         LogType error = createEntry();
         error.setType(LogEnumType.ERROR);
@@ -219,7 +219,70 @@ public class PceLogger {
         logError(error);
         return error;
     }
-    
+
+    private PceErrors lastError;
+    private String lastRootResource;
+    private int count = 0;
+
+    public void errorSummary(PceErrors tError, String rootResource, String primaryResource, String secondaryResource) {
+        if (tError == lastError && rootResource.contains(lastRootResource)) {
+            count++;
+            return;
+        }
+        else {
+            if (count > 1) {
+                LogType error = createEntry();
+                error.setType(LogEnumType.ERROR);
+                error.setCode(lastError.getCode());
+                error.setLabel(lastError.getLabel());
+                error.setDescription(String.format(lastError.getDescription(), "Repeated " + count + " times"));
+                error.setResource(lastRootResource);
+                logError(error);
+            }
+
+            lastError = tError;
+            lastRootResource = rootResource;
+            count = 1;
+        }
+
+        LogType error = createEntry();
+        error.setType(LogEnumType.ERROR);
+        error.setCode(tError.getCode());
+        error.setLabel(tError.getLabel());
+        error.setDescription(String.format(tError.getDescription(), secondaryResource));
+        error.setResource(primaryResource);
+        logError(error);
+    }
+
+    public void errorSummary(PceErrors tError, String rootResource, String primaryResource) {
+        if (tError == lastError && rootResource.contains(lastRootResource)) {
+            count++;
+            return;
+        }
+        else {
+            if (count > 1) {
+                LogType error = createEntry();
+                error.setType(LogEnumType.ERROR);
+                error.setCode(lastError.getCode());
+                error.setLabel(lastError.getLabel());
+                error.setDescription(lastError.getDescription() + "(Repeated " + count + " times)");
+                error.setResource(lastRootResource);
+                logError(error);
+            }
+
+            lastError = tError;
+            lastRootResource = rootResource;
+            count = 1;
+        }
+
+        LogType error = createEntry();
+        error.setType(LogEnumType.ERROR);
+        error.setCode(tError.getCode());
+        error.setLabel(tError.getLabel());
+        error.setDescription(tError.getDescription());
+        error.setResource(primaryResource);
+        logError(error);
+    }
 
     public LogType logAudit(PceLogs tLog, String resource, String description) {
         LogType log = createEntry();
@@ -244,7 +307,7 @@ public class PceLogger {
         logLog(log);
         return log;
     }
-    
+
     public LogType errorAudit(PceErrors tError, String resource) {
         LogType error = createEntry();
         error.setType(LogEnumType.ERROR);
@@ -275,21 +338,21 @@ public class PceLogger {
     public Map<String, LogType> getLogMap() {
         return Collections.unmodifiableMap(logsMap);
     }
-    
+
     /**
      * @return the topologyLogs
      */
     public Collection<LogType> getLogs() {
         return Collections.unmodifiableCollection(logsQueue);
     }
-    
+
     /**
      * @return the topologyLog
      */
     public LogType getLog(String id) {
         return logsMap.get(id);
     }
-    
+
     private void logError(LogType tError) {
         StringBuilder sb = new StringBuilder("code: ");
         sb.append(tError.getCode());
@@ -299,14 +362,14 @@ public class PceLogger {
         sb.append(tError.getResource());
         sb.append(", description: ");
         sb.append(tError.getDescription());
-        
+
         if (tError.getAudit() != null) {
             sb.append(", audit: ");
             sb.append(tError.getAudit().toString());
         }
         logger.error(sb.toString());
     }
-    
+
     private void logLog(LogType tLog) {
         StringBuilder sb = new StringBuilder("code: ");
         sb.append(tLog.getCode());
@@ -316,7 +379,7 @@ public class PceLogger {
         sb.append(tLog.getResource());
         sb.append(", description: ");
         sb.append(tLog.getDescription());
-        
+
         if (tLog.getAudit() != null) {
             sb.append(", audit: ");
             sb.append(tLog.getAudit().toString());

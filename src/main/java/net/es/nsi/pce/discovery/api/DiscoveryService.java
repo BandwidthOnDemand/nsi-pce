@@ -5,6 +5,7 @@
 package net.es.nsi.pce.discovery.api;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import javax.persistence.EntityExistsException;
@@ -60,24 +61,26 @@ public class DiscoveryService {
         log.debug("ping: PING!");
         return Response.ok().build();
     }
-    
+
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
     public Response getAll(
             @DefaultValue("false") @QueryParam("summary") boolean summary,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
+        log.debug("getAll: summary=" + summary);
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
-        
+
         Date lastDiscovered = null;
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             lastDiscovered = DateUtils.parseDate(ifModifiedSince);
         }
-        
+
         // Get all the applicable documents.
         Collection<Document> documents = discoveryProvider.getDocuments(null, null, null, lastDiscovered);
-        
-        Date discovered = new Date(0); 
+
+        Date discovered = new Date(0);
         DocumentListType documentResults = factory.createDocumentListType();
         if (documents.size() > 0) {
             // Only the document meta data is required and not the document
@@ -86,20 +89,30 @@ public class DiscoveryService {
                 if (discovered.before(document.getLastDiscovered())) {
                     discovered = document.getLastDiscovered();
                 }
-                
+
                 if (summary) {
                     documentResults.getDocument().add(document.getDocumentSummary());
                 }
                 else {
                     documentResults.getDocument().add(document.getDocument());
                 }
-            }                
+            }
         }
 
         // Get the local documents.  There may be duplicates with the full
         // document list.
-        Collection<Document> local = discoveryProvider.getLocalDocuments(null, null, lastDiscovered);
-        
+        Collection<Document> local;
+        try {
+            local = discoveryProvider.getLocalDocuments(null, null, lastDiscovered);
+        }
+        catch (NotFoundException nf) {
+            local = new ArrayList<>();
+        }
+        catch (Exception ex) {
+            log.error("getLocalDocuments: failed ", ex);
+            throw ex;
+        }
+
         DocumentListType localResults = factory.createDocumentListType();
         if (local.size() > 0) {
             // Only the document meta data is required and not the document
@@ -108,14 +121,14 @@ public class DiscoveryService {
                 if (discovered.before(document.getLastDiscovered())) {
                     discovered = document.getLastDiscovered();
                 }
-                
+
                 if (summary) {
                     localResults.getDocument().add(document.getDocumentSummary());
                 }
                 else {
                     localResults.getDocument().add(document.getDocument());
                 }
-            }                
+            }
         }
 
         Collection<Subscription> subscriptions = discoveryProvider.getSubscriptions(null, lastDiscovered);
@@ -128,17 +141,17 @@ public class DiscoveryService {
                 if (discovered.before(subscription.getLastModified())) {
                     discovered = subscription.getLastModified();
                 }
-                
+
                 subscriptionsResults.getSubscription().add(subscription.getSubscription());
-            }                
+            }
         }
-        
+
         if (documentResults.getDocument().isEmpty() &&
                 localResults.getDocument().isEmpty() &&
                 subscriptionsResults.getSubscription().isEmpty()) {
             return Response.notModified().build();
         }
-        
+
         CollectionType all = factory.createCollectionType();
         all.setDocuments(documentResults);
         all.setLocal(localResults);
@@ -156,7 +169,7 @@ public class DiscoveryService {
             @QueryParam("type") String type,
             @DefaultValue("false") @QueryParam("summary") boolean summary,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) {
-        
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
 
         Date lastDiscovered = null;
@@ -165,8 +178,8 @@ public class DiscoveryService {
         }
 
         Collection<Document> documents = discoveryProvider.getDocuments(nsa, type, id, lastDiscovered);
-        
-        Date discovered = new Date(0); 
+
+        Date discovered = new Date(0);
         DocumentListType results = factory.createDocumentListType();
         if (documents.size() > 0) {
             // Only the document meta data is required and not the document
@@ -175,19 +188,19 @@ public class DiscoveryService {
                 if (discovered.before(document.getLastDiscovered())) {
                     discovered = document.getLastDiscovered();
                 }
-                
+
                 if (summary) {
                     results.getDocument().add(document.getDocumentSummary());
                 }
                 else {
                     results.getDocument().add(document.getDocument());
                 }
-            }                
+            }
         }
         else {
             log.debug("getDocuments: zero results to query nsa=" + nsa + ", type=" + type + ", id=" + id + ", summary=" + summary);
         }
-        
+
         // Now we need to determine what "Last-Modified" date we send back.
         JAXBElement<DocumentListType> jaxb = factory.createDocuments(results);
         if (results.getDocument().size() > 0) {
@@ -207,7 +220,7 @@ public class DiscoveryService {
             @QueryParam("id") String id,
             @DefaultValue("false") @QueryParam("summary") boolean summary,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) {
-        
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
 
         Date lastDiscovered = null;
@@ -222,31 +235,31 @@ public class DiscoveryService {
         catch (IllegalArgumentException ex) {
             log.error("getDocumentsByNsa: illegal arument.\n", ex);
             ErrorType errorType = DiscoveryError.getErrorType(ex.getMessage());
-            return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();            
+            return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
         catch (NotFoundException nf) {
             log.error("getDocumentsByNsa: resource not found.\n ", nf);
             ErrorType errorType = DiscoveryError.getErrorType(nf.getMessage());
-            return Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();               
+            return Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
-  
-        Date discovered = new Date(0); 
+
+        Date discovered = new Date(0);
         DocumentListType results = factory.createDocumentListType();
         if (documents.size() > 0) {
             for (Document document : documents) {
                 if (discovered.before(document.getLastDiscovered())) {
                     discovered = document.getLastDiscovered();
                 }
-                
+
                 if (summary) {
                     results.getDocument().add(document.getDocumentSummary());
                 }
                 else {
                     results.getDocument().add(document.getDocument());
                 }
-            }                
+            }
         }
-        
+
         // Now we need to determine what "Last-Modified" date we send back.
         JAXBElement<DocumentListType> jaxb = factory.createDocuments(results);
         if (results.getDocument().size() > 0) {
@@ -254,7 +267,7 @@ public class DiscoveryService {
             return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<DocumentListType>>(jaxb){}).build();
         }
 
-        return Response.ok().entity(new GenericEntity<JAXBElement<DocumentListType>>(jaxb){}).build();        
+        return Response.ok().entity(new GenericEntity<JAXBElement<DocumentListType>>(jaxb){}).build();
     }
 
     @GET
@@ -268,14 +281,14 @@ public class DiscoveryService {
             @HeaderParam("If-Modified-Since") String ifModifiedSince) {
 
         log.debug("getDocumentsByNsaAndType: " + nsa + ", " + type + ", " + id + ", " + summary + ", " + ifModifiedSince);
-        
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
 
         Date lastDiscovered = null;
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             lastDiscovered = DateUtils.parseDate(ifModifiedSince);
         }
-        
+
         Collection<Document> documents;
         try {
             documents = discoveryProvider.getDocumentsByNsaAndType(nsa.trim(), type.trim(), id, lastDiscovered);
@@ -284,26 +297,26 @@ public class DiscoveryService {
             // 400 bad request
             log.error("getDocumentsByNsaAndType: illegal arument", ex);
             ErrorType errorType = DiscoveryError.getErrorType(ex.getMessage());
-            return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();            
+            return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
 
-        Date discovered = new Date(0); 
+        Date discovered = new Date(0);
         DocumentListType results = factory.createDocumentListType();
         if (documents.size() > 0) {
             for (Document document : documents) {
                 if (discovered.before(document.getLastDiscovered())) {
                     discovered = document.getLastDiscovered();
                 }
-                
+
                 if (summary) {
                     results.getDocument().add(document.getDocumentSummary());
                 }
                 else {
                     results.getDocument().add(document.getDocument());
                 }
-            }                
+            }
         }
-        
+
         // Now we need to determine what "Last-Modified" date we send back.
         JAXBElement<DocumentListType> jaxb = factory.createDocuments(results);
         if (results.getDocument().size() > 0) {
@@ -311,17 +324,17 @@ public class DiscoveryService {
             return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<DocumentListType>>(jaxb){}).build();
         }
 
-        return Response.ok().entity(new GenericEntity<JAXBElement<DocumentListType>>(jaxb){}).build();  
+        return Response.ok().entity(new GenericEntity<JAXBElement<DocumentListType>>(jaxb){}).build();
     }
-  
+
     @POST
     @Path("/documents")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
     public Response addDocument(DocumentType request) throws Exception {
-        
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
-        
+
         Document document;
         try {
             document = discoveryProvider.addDocument(request);
@@ -335,18 +348,18 @@ public class DiscoveryService {
             log.debug("addDocument: illegal arument\n" + ia.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ia.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
-        }        
+        }
         catch (Exception ex) {
             log.error("addDocument: internal server error\n", ex);
             ErrorType errorType = DiscoveryError.getErrorType(ex.getMessage());
             return Response.serverError().entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
-        
+
         String date = DateUtils.formatDate(document.getLastDiscovered(), DateUtils.PATTERN_RFC1123);
         JAXBElement<DocumentType> jaxb = factory.createDocument(document.getDocument());
         return Response.created(URI.create(document.getDocument().getHref())).header("Last-Modified", date).entity(new GenericEntity<JAXBElement<DocumentType>>(jaxb){}).build();
     }
-    
+
     @POST
     @Path("/local")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
@@ -380,10 +393,10 @@ public class DiscoveryService {
             // 400 bad request
             log.debug("getDocumentsByNsa: illegal arugment\n" + ex.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ex.getMessage());
-            return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();            
+            return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
-  
-        Date discovered = new Date(0); 
+
+        Date discovered = new Date(0);
         DocumentListType results = factory.createDocumentListType();
         if (documents.size() > 0) {
             // Only the document meta data is required and not the document
@@ -392,16 +405,16 @@ public class DiscoveryService {
                 if (discovered.before(document.getLastDiscovered())) {
                     discovered = document.getLastDiscovered();
                 }
-                
+
                 if (summary) {
                     results.getDocument().add(document.getDocumentSummary());
                 }
                 else {
                     results.getDocument().add(document.getDocument());
                 }
-            }                
+            }
         }
-        
+
         // Now we need to determine what "Last-Modified" date we send back.
         JAXBElement<DocumentListType> jaxb = factory.createDocuments(results);
         if (results.getDocument().size() > 0) {
@@ -409,9 +422,9 @@ public class DiscoveryService {
             return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<DocumentListType>>(jaxb){}).build();
         }
 
-        return Response.ok().entity(new GenericEntity<JAXBElement<DocumentListType>>(jaxb){}).build(); 
+        return Response.ok().entity(new GenericEntity<JAXBElement<DocumentListType>>(jaxb){}).build();
     }
-    
+
     @GET
     @Path("/local/{type}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
@@ -427,7 +440,7 @@ public class DiscoveryService {
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             lastDiscovered = DateUtils.parseDate(ifModifiedSince);
         }
-        
+
         Collection<Document> documents;
         try {
             documents = discoveryProvider.getLocalDocumentsByType(type.trim(), id, lastDiscovered);
@@ -436,10 +449,10 @@ public class DiscoveryService {
             // 400 bad request
             log.debug("getDocumentsByNsaAndType: illegal arument\n" + ex.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ex.getMessage());
-            return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();            
+            return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
 
-        Date discovered = new Date(0); 
+        Date discovered = new Date(0);
         DocumentListType results = factory.createDocumentListType();
         if (documents.size() > 0) {
             // Only the document meta data is required and not the document
@@ -448,16 +461,16 @@ public class DiscoveryService {
                 if (discovered.before(document.getLastDiscovered())) {
                     discovered = document.getLastDiscovered();
                 }
-                
+
                 if (summary) {
                     results.getDocument().add(document.getDocumentSummary());
                 }
                 else {
                     results.getDocument().add(document.getDocument());
                 }
-            }                
+            }
         }
-        
+
         // Now we need to determine what "Last-Modified" date we send back.
         JAXBElement<DocumentListType> jaxb = factory.createDocuments(results);
         if (results.getDocument().size() > 0) {
@@ -465,9 +478,9 @@ public class DiscoveryService {
             return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<DocumentListType>>(jaxb){}).build();
         }
 
-        return Response.ok().entity(new GenericEntity<JAXBElement<DocumentListType>>(jaxb){}).build();  
+        return Response.ok().entity(new GenericEntity<JAXBElement<DocumentListType>>(jaxb){}).build();
     }
-    
+
     @GET
     @Path("/local/{type}/{id}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
@@ -500,12 +513,12 @@ public class DiscoveryService {
             ErrorType errorType = DiscoveryError.getErrorType(nf.getMessage());
             return Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
-        
+
         if (document == null) {
             // We found matching but it was not modified.
             return Response.notModified().build();
         }
-        
+
         JAXBElement<DocumentType> jaxb;
         if (summary) {
             jaxb = factory.createDocument(document.getDocumentSummary());
@@ -513,7 +526,7 @@ public class DiscoveryService {
         else {
             jaxb = factory.createDocument(document.getDocument());
         }
-                        
+
         String date = DateUtils.formatDate(document.getLastDiscovered(), DateUtils.PATTERN_RFC1123);
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<DocumentType>>(jaxb){}).build();
     }
@@ -551,12 +564,12 @@ public class DiscoveryService {
             ErrorType errorType = DiscoveryError.getErrorType(nf.getMessage());
             return Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
-        
+
         if (document == null) {
             // We found matching but it was not modified.
             return Response.notModified().build();
         }
-        
+
         JAXBElement<DocumentType> jaxb;
         if (summary) {
             jaxb = factory.createDocument(document.getDocumentSummary());
@@ -564,7 +577,7 @@ public class DiscoveryService {
         else {
             jaxb = factory.createDocument(document.getDocument());
         }
-                        
+
         String date = DateUtils.formatDate(document.getLastDiscovered(), DateUtils.PATTERN_RFC1123);
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<DocumentType>>(jaxb){}).build();
     }
@@ -578,9 +591,9 @@ public class DiscoveryService {
             @PathParam("type") String type,
             @PathParam("id") String id,
             DocumentType request) throws Exception {
-        
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
-        
+
         Document document;
         try {
             document = discoveryProvider.updateDocument(nsa, type, id, request);
@@ -598,7 +611,7 @@ public class DiscoveryService {
         catch (InvalidVersionException vr) {
             log.debug("updateDocument: invalid version\n" + vr.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(vr.getMessage());
-            return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();            
+            return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
         catch (Exception ex) {
             log.debug("updateDocument: internal server error\n" + ex.getMessage());
@@ -610,7 +623,7 @@ public class DiscoveryService {
         JAXBElement<DocumentType> jaxb = factory.createDocument(document.getDocument());
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<DocumentType>>(jaxb){}).build();
     }
-    
+
     @GET
     @Path("/subscriptions")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
@@ -619,7 +632,7 @@ public class DiscoveryService {
             @HeaderParam("If-Modified-Since") String ifModifiedSince) {
 
         log.debug("getSubscriptions: " + requesterId + ", " + ifModifiedSince);
-        
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
 
         Date lastModified = null;
@@ -635,21 +648,21 @@ public class DiscoveryService {
             // 400 bad request
             log.debug("getSubscriptions: illegal arument\n" + ex.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ex.getMessage());
-            return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();            
+            return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
-  
-        Date modified = new Date(0); 
+
+        Date modified = new Date(0);
         SubscriptionListType results = factory.createSubscriptionListType();
         if (subscriptions.size() > 0) {
             for (Subscription subscription : subscriptions) {
                 if (modified.before(subscription.getLastModified())) {
                     modified = subscription.getLastModified();
                 }
-                
+
                 results.getSubscription().add(subscription.getSubscription());
-            }                
+            }
         }
-        
+
         // Now we need to determine what "Last-Modified" date we send back.
         JAXBElement<SubscriptionListType> jaxb = factory.createSubscriptions(results);
         if (results.getSubscription().size() > 0) {
@@ -657,9 +670,9 @@ public class DiscoveryService {
             return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<SubscriptionListType>>(jaxb){}).build();
         }
 
-        return Response.ok().entity(new GenericEntity<JAXBElement<SubscriptionListType>>(jaxb){}).build(); 
+        return Response.ok().entity(new GenericEntity<JAXBElement<SubscriptionListType>>(jaxb){}).build();
     }
-    
+
     @POST
     @Path("/subscriptions")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
@@ -667,7 +680,7 @@ public class DiscoveryService {
     public Response addSubscription(
             @HeaderParam("Accept") String accept,
             SubscriptionRequestType subscriptionRequest) {
-        
+
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
         Subscription subscription;
         try {
@@ -678,7 +691,7 @@ public class DiscoveryService {
             log.debug("addSubscription: illegal arument\n" + ia.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ia.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
-        }        
+        }
         catch (Exception ex) {
             //500 - Internal server error (Catchall)
             log.debug("addSubscription: internal server error\n" + ex.getMessage());
@@ -690,7 +703,7 @@ public class DiscoveryService {
         JAXBElement<SubscriptionType> jaxb = factory.createSubscription(subscription.getSubscription());
         return Response.created(URI.create(subscription.getSubscription().getHref())).header("Last-Modified", date).entity(new GenericEntity<JAXBElement<SubscriptionType>>(jaxb){}).build();
     }
-    
+
     @GET
     @Path("/subscriptions/{id}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
@@ -721,19 +734,19 @@ public class DiscoveryService {
             ErrorType errorType = DiscoveryError.getErrorType(nf.getMessage());
             return Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
         }
-        
+
         if (subscription == null) {
             // We found matching but it was not modified.
             return Response.notModified().build();
         }
-        
+
         JAXBElement<SubscriptionType> jaxb = factory.createSubscription(subscription.getSubscription());
 
-                        
+
         String date = DateUtils.formatDate(subscription.getLastModified(), DateUtils.PATTERN_RFC1123);
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<SubscriptionType>>(jaxb){}).build();
     }
-    
+
     @PUT
     @Path("/subscriptions/{id}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
@@ -753,7 +766,7 @@ public class DiscoveryService {
             log.debug("editSubscription: illegal arument\n" + ia.getMessage());
             ErrorType errorType = DiscoveryError.getErrorType(ia.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(errorType)){}).build();
-        }        
+        }
         catch (NotFoundException nf) {
             // 404 Not Found
             log.debug("editSubscription: requested subscription resource not found, id=" + id + "\n" + nf.getMessage());
@@ -765,7 +778,7 @@ public class DiscoveryService {
         JAXBElement<SubscriptionType> jaxb = factory.createSubscription(subscription.getSubscription());
         return Response.ok(URI.create(subscription.getSubscription().getHref())).header("Last-Modified", date).entity(new GenericEntity<JAXBElement<SubscriptionType>>(jaxb){}).build();
     }
-    
+
     @DELETE
     @Path("/subscriptions/{id}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
@@ -792,7 +805,7 @@ public class DiscoveryService {
 
         return Response.noContent().build();
     }
-    
+
     @POST
     @Path("/notifications")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, NsiConstants.NSI_DDS_V1_JSON, NsiConstants.NSI_DDS_V1_XML })
@@ -800,7 +813,7 @@ public class DiscoveryService {
     public Response notifications(NotificationListType notifications) throws Exception {
 
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
-        
+
         if (notifications != null) {
             log.debug("notifications: provider=" + notifications.getProviderId() + ", subscriptionId=" + notifications.getId() + ", href=" + notifications.getHref() + ", discovered=" + notifications.getDiscovered());
             for (NotificationType notification : notifications.getNotification()) {

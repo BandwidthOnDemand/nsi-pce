@@ -12,6 +12,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -209,16 +210,25 @@ public class FindPathService {
        JAXBElement<FindPathResponseType> jaxbRequest = factory.createFindPathResponse(resp);
 
         Client client = RestClient.getInstance().get();
+        Response response;
         WebTarget webTarget = client.target(replyTo.getUrl());
-        Response response = webTarget.request(mediaType).post(Entity.entity(new GenericEntity<JAXBElement<FindPathResponseType>>(jaxbRequest) {}, mediaType));
-        //client.close();
+        try {
+            response = webTarget.request(mediaType).post(Entity.entity(new GenericEntity<JAXBElement<FindPathResponseType>>(jaxbRequest) {}, mediaType));
 
-        if (log.isDebugEnabled()) {
-            log.debug("FindPathService: sent response " + resp.getStatus().name() + " to client " + replyTo.getUrl() + ", result = " + response.getStatusInfo().getReasonPhrase());
+            if (log.isDebugEnabled()) {
+                log.debug("FindPathService: sent response " + resp.getStatus().name() + " to client " + replyTo.getUrl() + ", result = " + response.getStatusInfo().getReasonPhrase());
+            }
+        }
+        catch (WebApplicationException wex) {
+            log.error("Send of path results failed", wex);
+            return RestServer.getBadRequestError("findPathRequest", "Send of path results to endpoint " + replyTo.getUrl() + "failed with status " + wex.getResponse().getStatus());
+        }
+        catch (Exception ex) {
+            log.error("Send of path results failed", ex);
+            return RestServer.getBadRequestError("findPathRequest", "Send of path results to endpoint " + replyTo.getUrl() + "failed with " + ex.getLocalizedMessage());
         }
 
         response.close();
-
         return Response.accepted().build();
     }
 

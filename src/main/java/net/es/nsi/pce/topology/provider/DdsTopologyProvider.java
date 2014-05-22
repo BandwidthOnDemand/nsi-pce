@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import net.es.nsi.pce.management.logs.PceLogs;
 import net.es.nsi.pce.management.logs.PceErrors;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.topology.model.NsiTopology;
@@ -24,55 +25,55 @@ import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
  * dynamic download of topology is specified in the XML bootstrap document
  * loaded from the location specified in the TopologyProvider configuration
  * file.
- * 
+ *
  * @author hacksaw
  */
 public class DdsTopologyProvider implements TopologyProvider {
     private final Logger log = LoggerFactory.getLogger(getClass());
-      
+
     // Location of configuration file.
     private TopologyConfiguration configuration;
-    
+
     // List of discovered NSA documents published in the DDS.
     private DdsDocumentReader nsaDocumentReader;
     private Map<String, DdsWrapper> nsaDocuments;
     private DdsDocumentListType localNsaDocuments;
-    
+
     // List of discovered topology documents published in the DDS.
     private DdsDocumentReader topologyDocumentReader;
-    private Map<String, DdsWrapper> topologyDocuments;
+    private Map<String, DdsWrapper> topologyDocuments = new ConcurrentHashMap<>();
     private DdsDocumentListType localTopologyDocuments;
 
     // The NSI Topology model used by path finding.
     private NsiTopology nsiTopology = new NsiTopology();
-    
+
     // The last time an NML object was discovered.
     private long lastDiscovered = 0L;
-    
+
     private long lastAudit = 0L;
-    
-    // Overall discovery status. 
+
+    // Overall discovery status.
     private TopologyStatusType summaryStatus = TopologyStatusType.INITIALIZING;
-    
-    // The status of this provider. 
+
+    // The status of this provider.
     private TopologyProviderStatus providerStatus = null;
-    
+
     private PceLogger pceLogger = PceLogger.getLogger();
-    
+
     /**
      * Class constructor takes the remote location URL from which to load the
      * NSA's associated NML topology.
-     * 
+     *
      * @param target Location of the NSA's XML based NML topology.
      */
     public DdsTopologyProvider(TopologyConfiguration configuration) {
         this.configuration = configuration;
     }
-    
+
      /**
      * For this provider we read the topology source from an XML configuration
      * file.
-     * 
+     *
      * @param source Path to the XML configuration file.
      */
     @Override
@@ -91,7 +92,7 @@ public class DdsTopologyProvider implements TopologyProvider {
 
         // Identify that we have started an audit.
         ddsAuditStart();
-        
+
         // Get an updated copy of the NSA discovery documents.
         Map<String, DdsWrapper> newNsadocs;
         try {
@@ -103,7 +104,7 @@ public class DdsTopologyProvider implements TopologyProvider {
             log.error("loadNetworkTopology: Failed to load NSA discovery documents from DDS.", ex);
             throw ex;
         }
-        
+
         // See if the NSA document list has changed.
         if (newNsadocs != null) {
             nsaDocuments = newNsadocs;
@@ -115,9 +116,9 @@ public class DdsTopologyProvider implements TopologyProvider {
         if (nsaDocuments == null) {
             ddsAuditError();
             log.error("loadNetworkTopology: No NSA discovery documents found in DDS.");
-            return;            
+            return;
         }
-        
+
         // Get an updated copy of the Topology documents.
         Map<String, DdsWrapper> newTopologyDocs;
         try {
@@ -129,7 +130,7 @@ public class DdsTopologyProvider implements TopologyProvider {
             log.error("loadNetworkTopology: Failed to load topology documents.", ex);
             throw ex;
         }
-        
+
         // See if the topology document list has changed.
         if (newTopologyDocs != null) {
             topologyDocuments = newTopologyDocs;
@@ -142,9 +143,9 @@ public class DdsTopologyProvider implements TopologyProvider {
             // Identify that we have failed the audit.
             ddsAuditError();
             log.error("loadNetworkTopology: Failed to load Topology documents.");
-            throw new NotFoundException("Failed to load topology documents.");               
+            throw new NotFoundException("Failed to load topology documents.");
         }
-        
+
         // If no change then get out of here.
         if (!changed) {
             log.debug("loadNetworkTopology: no change in topology.");
@@ -161,26 +162,26 @@ public class DdsTopologyProvider implements TopologyProvider {
 
         // Identify a successful audit.
         ddsAuditSuccess();
-        
-        // We are done so update the map with the new view.   
+
+        // We are done so update the map with the new view.
         nsiTopology = newTopology;
     }
-    
+
     private NsiTopology consolidateGlobalTopology(NsiTopology topology) {
         topology.addAllSdp(NsiSdpFactory.createUnidirectionalSdpTopology(topology.getStpMap()));
         topology.addAllSdp(NsiSdpFactory.createBidirectionalSdps(topology.getStpMap()));
         return topology;
     }
-    
+
     @Override
     public NsiTopology getTopology() {
         return nsiTopology;
     }
-    
+
     /**
      * For this provider we read the topology source from an XML configuration
      * file.
-     * 
+     *
      * @param source Path to the XML configuration file.
      */
     @Override
@@ -190,13 +191,13 @@ public class DdsTopologyProvider implements TopologyProvider {
 
     /**
      * Get the source file of the topology configuration.
-     * 
-     * @return The path to the XML configuration file. 
+     *
+     * @return The path to the XML configuration file.
      */
     @Override
     public TopologyConfiguration getConfiguration() {
         return configuration;
-    }    
+    }
 
     /**
      * @return the lastModified
@@ -228,14 +229,14 @@ public class DdsTopologyProvider implements TopologyProvider {
     public TopologyStatusType getAuditStatus() {
         return summaryStatus;
     }
-    
+
     private void ddsAuditStart() {
         long auditTime = System.currentTimeMillis();
-        
+
         // Let the logger know we are starting another topology discovery run.
         pceLogger.setAuditTimeStamp(auditTime);
         pceLogger.logAudit(PceLogs.AUDIT_START, "DdsTopologyProvider", "Full topology audit starting.");
-        
+
         // Set the provider status if this is not our first time.
         if (summaryStatus != TopologyStatusType.INITIALIZING) {
             summaryStatus = TopologyStatusType.AUDITING;
@@ -251,15 +252,15 @@ public class DdsTopologyProvider implements TopologyProvider {
         providerStatus.setStatus(TopologyStatusType.ERROR);
         pceLogger.clearAuditTimeStamp();
     }
-    
+
     private void ddsAuditSuccess() {
         summaryStatus = TopologyStatusType.COMPLETED;
-        
+
         providerStatus.setStatus(TopologyStatusType.COMPLETED);
         providerStatus.setLastSuccessfulAudit(providerStatus.getLastAudit());
         providerStatus.setLastDiscovered(lastDiscovered);
-        
-        pceLogger.logAudit(PceLogs.AUDIT_SUCCESSFUL, "DdsTopologyProvider", "Topology audit completed successfully.");        
+
+        pceLogger.logAudit(PceLogs.AUDIT_SUCCESSFUL, "DdsTopologyProvider", "Topology audit completed successfully.");
         pceLogger.clearAuditTimeStamp();
     }
 
