@@ -75,8 +75,8 @@ public enum ConfigurationManager {
     public synchronized void initialize(String configPath) throws Exception {
         if (!isInitialized()) {
             // Build paths for configuration files.
-            String log4jConfig = new StringBuilder(configPath).append("log4j.xml").toString().replace("/", File.separator);
-            String beanConfig = new StringBuilder(configPath).append("beans.xml").toString().replace("/", File.separator);
+            String log4jConfig = new StringBuilder(configPath).append("log4j.xml").toString();
+            String beanConfig = new StringBuilder(configPath).append("beans.xml").toString();
 
             // Load and watch the log4j configuration file for changes.
             DOMConfigurator.configureAndWatch(log4jConfig, 45 * 1000);
