@@ -98,9 +98,6 @@ public class Main {
         }
         else {
             configPath = configPath.trim();
-            if (configPath.startsWith("/")) {
-                configPath = "file:" + configPath;
-            }
 
             if (!configPath.endsWith("/")) {
                 configPath = configPath + "/";

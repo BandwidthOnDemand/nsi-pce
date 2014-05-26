@@ -76,12 +76,18 @@ public enum ConfigurationManager {
         if (!isInitialized()) {
             // Build paths for configuration files.
             String log4jConfig = new StringBuilder(configPath).append("log4j.xml").toString();
-            String beanConfig = new StringBuilder(configPath).append("beans.xml").toString();
 
             // Load and watch the log4j configuration file for changes.
             DOMConfigurator.configureAndWatch(log4jConfig, 45 * 1000);
 
             final org.slf4j.Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
+
+            // If absolute path then add "file:" so this will load properly.
+            if (configPath.startsWith("/")) {
+                configPath = "file:" + configPath;
+            }
+
+            String beanConfig = new StringBuilder(configPath).append("beans.xml").toString();
 
             // Initialize the Spring context to load our dependencies.
             SpringContext sc = SpringContext.getInstance();
