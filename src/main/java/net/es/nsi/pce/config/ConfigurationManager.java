@@ -1,7 +1,6 @@
 package net.es.nsi.pce.config;
 
 import net.es.nsi.pce.spring.SpringContext;
-import java.io.File;
 import net.es.nsi.pce.discovery.provider.DiscoveryProvider;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.sched.PCEScheduler;

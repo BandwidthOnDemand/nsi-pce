@@ -209,14 +209,10 @@ public class FindPathService {
             }
         }
 
-       // Now sent a response back for fun.
-       JAXBElement<FindPathResponseType> jaxbRequest = factory.createFindPathResponse(resp);
+        // Now sent a response back for fun.
+        JAXBElement<FindPathResponseType> jaxbRequest = factory.createFindPathResponse(resp);
 
-        // Client client = RestClient.getInstance().get();
-
-        ClientConfig clientConfig = new ClientConfig();
-        RestClient.configureClient(clientConfig);
-        Client client = ClientBuilder.newClient(clientConfig);
+        Client client = RestClient.getInstance().get();
 
         Response response;
         WebTarget webTarget = client.target(replyTo.getUrl());
@@ -229,17 +225,14 @@ public class FindPathService {
         }
         catch (WebApplicationException wex) {
             log.error("Send of path results failed", wex);
-            client.close();
             return RestServer.getBadRequestError("findPathRequest", "Send of path results to endpoint " + replyTo.getUrl() + "failed with status " + wex.getResponse().getStatus());
         }
         catch (Exception ex) {
             log.error("Send of path results failed", ex);
-            client.close();
             return RestServer.getBadRequestError("findPathRequest", "Send of path results to endpoint " + replyTo.getUrl() + "failed with " + ex.getLocalizedMessage());
         }
 
         response.close();
-        client.close();
         return Response.accepted().build();
     }
 
