@@ -53,18 +53,18 @@ public class TopologyService {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
     public Response getAllTopology(
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // Check to see if there was any change in consolidated topology before
         // looking at individual entries.  This should save some processing.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty() &&
             DateUtils.parseDate(ifModifiedSince).getTime() >= nsiTopology.getLastDiscovered()) {
             return Response.notModified().header("Last-Modified", ifModifiedSince).build();
         }
-        
+
         // We are stuffing the results into a collection object.
         ObjectFactory nsiFactory = new ObjectFactory();
         CollectionType collection = nsiFactory.createCollectionType();
@@ -78,9 +78,9 @@ public class TopologyService {
         collection.getServiceAdaptation().addAll(nsiTopology.getServiceAdaptations());
         collection.getServiceDomain().addAll(nsiTopology.getServiceDomains());
         collection.getStp().addAll(nsiTopology.getStps());
-        
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
-                
+
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             NsiNetworkFactory.ifModifiedSince(ifModifiedSince, collection.getNetwork());
@@ -90,7 +90,7 @@ public class TopologyService {
             NsiServiceAdaptationFactory.ifModifiedSince(ifModifiedSince, collection.getServiceAdaptation());
             NsiServiceDomainFactory.ifModifiedSince(ifModifiedSince, collection.getServiceDomain());
             NsiStpFactory.ifModifiedSince(ifModifiedSince, collection.getStp());
-            
+
             // If no STP then return a 304 to indicate no modifications.
             if (collection.getNetwork().isEmpty() &&
                     collection.getNsa().isEmpty() &&
@@ -103,7 +103,7 @@ public class TopologyService {
                 return Response.notModified().header("Last-Modified", date).build();
             }
         }
-        
+
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<CollectionType>>(nsiFactory.createCollection(collection)) {}).build();
     }
@@ -117,11 +117,11 @@ public class TopologyService {
             @QueryParam("labelType") String labelType,
             @QueryParam("labelValue") String labelValue,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // We are stuffing the results into a collection object.
         ObjectFactory nsiFactory = new ObjectFactory();
         CollectionType stps = nsiFactory.createCollectionType();
@@ -138,21 +138,21 @@ public class TopologyService {
         if (serviceDomain != null && !serviceDomain.isEmpty()) {
             for (Iterator<StpType> iter = stps.getStp().iterator(); iter.hasNext();) {
                 StpType stp = iter.next();
-                
+
                 // Check each STP in the result set to see if it matches the serviceType.
                 boolean found = false;
                 if (stp.getServiceDomain() != null && stp.getServiceDomain().getId() != null &&
                         serviceDomain.contentEquals(stp.getServiceDomain().getId())) {
                     found = true;
                 }
-                
+
                 // If we didn't find a matching serviceType in this STP we do not return it.
                 if (!found) {
                     iter.remove();
                 }
-            } 
+            }
         }
-        
+
         if (labelType != null && !labelType.isEmpty()) {
             for (Iterator<StpType> iter = stps.getStp().iterator(); iter.hasNext();) {
                 StpType stp = iter.next();
@@ -169,11 +169,11 @@ public class TopologyService {
         else if (labelValue != null && !labelValue.isEmpty()) {
             // We do not allow a filter of label value without a label type.
             log.error("getStps: Query filter on labelValue must first contain labelType.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.BAD_REQUEST).entity("Query filter on labelValue must contain labelType.").build()); 
+            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.BAD_REQUEST).entity("Query filter on labelValue must contain labelType.").build());
         }
-        
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
-                
+
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             GregorianCalendar cal = new GregorianCalendar();
@@ -185,7 +185,7 @@ public class TopologyService {
                     iter.remove();
                 }
             }
-            
+
             // If no STP then return a 304 to indicate no modifications.
             if (stps.getStp().isEmpty()) {
                 // Send back a 304
@@ -196,14 +196,14 @@ public class TopologyService {
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<CollectionType>>(nsiFactory.createCollection(stps)) {}).build();
     }
-    
+
     @GET
     @Path("/stps/{stpId}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
     public Response getStp(
             @PathParam("stpId") String stpId,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Verify we have the stpId from the request path.  Not sure if this
         // would ever happen.
         if (stpId == null || stpId.isEmpty()) {
@@ -213,14 +213,14 @@ public class TopologyService {
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // Try to locate the requested STP.
         StpType stp = nsiTopology.getStp(stpId);
         if (stp == null) {
             log.error("getStp: Requested stpId does not exist.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested stpId does not exist.").build());            
+            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested stpId does not exist.").build());
         }
-        
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
 
         // Now filter by the If-Modified-Since header.
@@ -232,13 +232,13 @@ public class TopologyService {
                 return Response.notModified().header("Last-Modified", date).build();
             }
         }
-        
+
         ObjectFactory nsiFactory = new ObjectFactory();
-        
+
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<StpType>>(nsiFactory.createStp(stp)) {}).build();
     }
-    
+
     @GET
     @Path("/networks")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
@@ -246,11 +246,11 @@ public class TopologyService {
             @QueryParam("nsaId") String nsaId,
             @QueryParam("serviceType") String serviceType,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // We are stuffing the results into a collection object.
         ObjectFactory nsiFactory = new ObjectFactory();
         CollectionType networks = nsiFactory.createCollectionType();
@@ -258,7 +258,7 @@ public class TopologyService {
         // Do initial population of results based on NSA filter.
         if (nsaId != null && !nsaId.isEmpty()) {
             Collection<NetworkType> networksByNsaId = nsiTopology.getNetworksByNsaId(nsaId);
-            
+
             if (networksByNsaId != null && !networksByNsaId.isEmpty()) {
                 networks.getNetwork().addAll(nsiTopology.getNetworksByNsaId(nsaId));
             }
@@ -267,11 +267,13 @@ public class TopologyService {
             networks.getNetwork().addAll(nsiTopology.getNetworks());
         }
 
+        log.debug("getNetworks: networks after initial filter = " + networks.getNetwork().size());
+
         // Now we remove based on the remaining filters.
         if (serviceType != null && !serviceType.isEmpty()) {
             for (Iterator<NetworkType> iter = networks.getNetwork().iterator(); iter.hasNext();) {
                 NetworkType network = iter.next();
-                
+
                 // Check each STP in the result set to see if it matches the serviceType.
                 boolean found = false;
                 for (ResourceRefType serviceRef : network.getService()) {
@@ -279,16 +281,16 @@ public class TopologyService {
                         found = true;
                     }
                 }
-                
+
                 // If we didn't find a matching serviceType in this STP we do not return it.
                 if (!found) {
                     iter.remove();
                 }
-            } 
+            }
         }
-        
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
-                
+
         // Now filter by the If-Modified-Since header.  TODO: Validate the Network discovered value is populated.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             GregorianCalendar cal = new GregorianCalendar();
@@ -300,7 +302,7 @@ public class TopologyService {
                     iter.remove();
                 }
             }
-            
+
             // If no Networks then return a 304 to indicate no modifications.
             if (networks.getNetwork().isEmpty()) {
                 // Send back a 304
@@ -308,35 +310,37 @@ public class TopologyService {
             }
         }
 
+        log.debug("getNetworks: networks returning = " + networks.getNetwork().size());
+
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<CollectionType>>(nsiFactory.createCollection(networks)){}).build();
     }
-    
+
     @GET
     @Path("/networks/{networkId}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
     public Response getNetwork(
             @PathParam("networkId") String networkId,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Verify we have the networkId from the request path.  Not sure if this
         // would ever happen.
         if (networkId == null || networkId.isEmpty()) {
             log.error("getNetwork: Path parameter networkId must be provided.");
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
         }
-        
+
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // Try to locate the requested Network.
         NetworkType network = nsiTopology.getNetwork(networkId);
         if (network == null) {
             log.error("getNetwork: Requested networkId does not exist.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested networkId does not exist.").build());            
+            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested networkId does not exist.").build());
         }
-        
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
 
         // Now filter by the If-Modified-Since header.
@@ -348,13 +352,13 @@ public class TopologyService {
                 return Response.notModified().header("Last-Modified", date).build();
             }
         }
-        
+
         ObjectFactory nsiFactory = new ObjectFactory();
-        
+
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<NetworkType>>(nsiFactory.createNetwork(network)) {}).build();
     }
-    
+
     @GET
     @Path("/networks/{networkId}/stps")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
@@ -364,36 +368,36 @@ public class TopologyService {
             @QueryParam("labelType") String labelType,
             @QueryParam("labelValue") String labelValue,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Verify we have the networkId from the request path.  Not sure if this
         // would ever happen.
         if (networkId == null || networkId.isEmpty()) {
             log.error("getStpsByNetwork: Path parameter networkId must be provided.");
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
         }
-        
+
         return getStps(networkId, serviceType, labelType, labelValue, ifModifiedSince);
     }
-    
+
     @GET
     @Path("/nsas")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
     public Response getNsas(
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // We are stuffing the results into a collection object.
         ObjectFactory nsiFactory = new ObjectFactory();
         CollectionType nsas = nsiFactory.createCollectionType();
 
         // Do initial population of all NSA.
         nsas.getNsa().addAll(nsiTopology.getNsas());
-              
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
-                
+
         // Now filter by the If-Modified-Since header.  TODO: Validate the Network discovered value is populated.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             GregorianCalendar cal = new GregorianCalendar();
@@ -405,7 +409,7 @@ public class TopologyService {
                     iter.remove();
                 }
             }
-            
+
             // If no NSA then return a 304 to indicate no modifications.
             if (nsas.getNsa().isEmpty()) {
                 // Send back a 304
@@ -416,32 +420,32 @@ public class TopologyService {
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<CollectionType>>(nsiFactory.createCollection(nsas)){}).build();
     }
-    
+
     @GET
     @Path("/nsas/{nsaId}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
     public Response getNsa(
             @PathParam("nsaId") String nsaId,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Verify we have the networkId from the request path.  Not sure if this
         // would ever happen.
         if (nsaId == null || nsaId.isEmpty()) {
             log.error("getNsa: Path parameter nsaId must be provided.");
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter nsaId must be provided.").build());
         }
-        
+
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // Try to locate the requested Network.
         NsaType nsa = nsiTopology.getNsa(nsaId);
         if (nsa == null) {
             log.error("getNsa: Requested nsaId does not exist.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested nsaId does not exist.").build());            
+            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested nsaId does not exist.").build());
         }
-              
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
 
         // Now filter by the If-Modified-Since header.
@@ -453,13 +457,13 @@ public class TopologyService {
                 return Response.notModified().header("Last-Modified", date).build();
             }
         }
-        
+
         ObjectFactory nsiFactory = new ObjectFactory();
-        
+
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<NsaType>>(nsiFactory.createNsa(nsa)) {}).build();
     }
-    
+
     @GET
     @Path("/serviceDomains")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
@@ -467,11 +471,11 @@ public class TopologyService {
             @QueryParam("networkId") String networkId,
             @QueryParam("serviceType") String serviceType,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // We are stuffing the results into a collection object.
         ObjectFactory nsiFactory = new ObjectFactory();
         CollectionType serviceDomains = nsiFactory.createCollectionType();
@@ -483,43 +487,43 @@ public class TopologyService {
         if (networkId != null && !networkId.isEmpty()) {
             for (Iterator<ServiceDomainType> iter = serviceDomains.getServiceDomain().iterator(); iter.hasNext();) {
                 ServiceDomainType serviceDomain = iter.next();
-                
+
                 // Check each serviceDomain in the result set to see if it
                 // matches the serviceType.
                 boolean found = false;
                 if (networkId.contentEquals(serviceDomain.getNetwork().getId())) {
                     found = true;
                 }
-                
+
                 // If we didn't find a matching networkId in this serviceDomain
                 // we do not return it.
                 if (!found) {
                     iter.remove();
                 }
-            } 
+            }
         }
-        
+
         // Now we remove based on the remaining filters.
         if (serviceType != null && !serviceType.isEmpty()) {
             for (Iterator<ServiceDomainType> iter = serviceDomains.getServiceDomain().iterator(); iter.hasNext();) {
                 ServiceDomainType serviceDomain = iter.next();
-                
+
                 // Check each serviceDomain in the result set to see if it matches the serviceType.
                 boolean found = false;
                 if (serviceType.contentEquals(serviceDomain.getService().getType())) {
                     found = true;
                 }
-                
+
                 // If we didn't find a matching serviceType in this serviceDomain
                 // we do not return it.
                 if (!found) {
                     iter.remove();
                 }
-            } 
+            }
         }
-              
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
-                
+
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             GregorianCalendar cal = new GregorianCalendar();
@@ -531,7 +535,7 @@ public class TopologyService {
                     iter.remove();
                 }
             }
-            
+
             // If no serviceDomain then return a 304 to indicate no modifications.
             if (serviceDomains.getServiceDomain().isEmpty()) {
                 // Send back a 304
@@ -542,32 +546,32 @@ public class TopologyService {
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<CollectionType>>(nsiFactory.createCollection(serviceDomains)){}).build();
     }
-    
+
     @GET
     @Path("/serviceDomains/{id}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
     public Response getServiceDomain(
             @PathParam("id") String id,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Verify we have the networkId from the request path.  Not sure if this
         // would ever happen.
         if (id == null || id.isEmpty()) {
             log.error("getServiceDomain: Path parameter serviceDomain Id must be provided.");
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter serviceDomain Id must be provided.").build());
         }
-        
+
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // Try to locate the requested Network.
         ServiceDomainType serviceDomain = nsiTopology.getServiceDomain(id);
         if (serviceDomain == null) {
             log.error("getServiceDomain: Requested serviceDomain id does not exist.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested serviceDomain id does not exist.").build());            
+            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested serviceDomain id does not exist.").build());
         }
-              
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
 
         // Now filter by the If-Modified-Since header.
@@ -579,13 +583,13 @@ public class TopologyService {
                 return Response.notModified().header("Last-Modified", date).build();
             }
         }
-        
+
         ObjectFactory nsiFactory = new ObjectFactory();
-        
+
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<ServiceDomainType>>(nsiFactory.createServiceDomain(serviceDomain)) {}).build();
     }
-    
+
     @GET
     @Path("/networks/{networkId}/serviceDomains")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
@@ -593,14 +597,14 @@ public class TopologyService {
             @PathParam("networkId") String networkId,
             @QueryParam("serviceType") String serviceType,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Verify we have the networkId from the request path.  Not sure if this
         // would ever happen.
         if (networkId == null || networkId.isEmpty()) {
             log.error("getServiceDomainsByNetwork: Path parameter networkId must be provided.");
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
         }
-        
+
         return getServiceDomains(networkId, serviceType, ifModifiedSince);
     }
 
@@ -611,11 +615,11 @@ public class TopologyService {
             @QueryParam("networkId") String networkId,
             @QueryParam("serviceType") String serviceType,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // We are stuffing the results into a collection object.
         ObjectFactory nsiFactory = new ObjectFactory();
         CollectionType serviceAdaptations = nsiFactory.createCollectionType();
@@ -627,44 +631,44 @@ public class TopologyService {
         if (networkId != null && !networkId.isEmpty()) {
             for (Iterator<ServiceAdaptationType> iter = serviceAdaptations.getServiceAdaptation().iterator(); iter.hasNext();) {
                 ServiceAdaptationType serviceAdaptation = iter.next();
-                
+
                 // Check each serviceAdaptation in the result set to see if it
                 // matches the networkId.
                 boolean found = false;
                 if (networkId.contentEquals(serviceAdaptation.getNetwork().getId())) {
                     found = true;
                 }
-                
+
                 // If we did not find a matching networkId in this serviceAdaptation
                 // we remove it from the result set.
                 if (!found) {
                     iter.remove();
                 }
-            } 
+            }
         }
-        
+
         // Now we remove based on the remaining filters.
         if (serviceType != null && !serviceType.isEmpty()) {
             for (Iterator<ServiceAdaptationType> iter = serviceAdaptations.getServiceAdaptation().iterator(); iter.hasNext();) {
                 ServiceAdaptationType serviceAdaptation = iter.next();
-                
+
                 // Check each serviceAdaptation in the result set to see if it
                 // matches the serviceType.
                 boolean found = false;
                 if (serviceType.contentEquals(serviceAdaptation.getService().getType())) {
                     found = true;
                 }
-                
+
                 // If we did not find a matching serviceType in this serviceAdaptation
                 // we remove it from the result set.
                 if (!found) {
                     iter.remove();
                 }
-            } 
+            }
         }
-              
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
-                
+
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             GregorianCalendar cal = new GregorianCalendar();
@@ -676,7 +680,7 @@ public class TopologyService {
                     iter.remove();
                 }
             }
-            
+
             // If no serviceDomain then return a 304 to indicate no modifications.
             if (serviceAdaptations.getServiceDomain().isEmpty()) {
                 // Send back a 304
@@ -694,25 +698,25 @@ public class TopologyService {
     public Response getServiceAdaptation(
             @PathParam("id") String id,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
-        // Verify we have the serviceAdaptation Id from the request path.  Not 
+
+        // Verify we have the serviceAdaptation Id from the request path.  Not
         // sure if this would ever happen.
         if (id == null || id.isEmpty()) {
             log.error("getServiceAdaptation: Path parameter serviceAdaptation Id must be provided.");
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter serviceAdaptation Id must be provided.").build());
         }
-        
+
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // Try to locate the requested serviceAdaptation.
         ServiceAdaptationType serviceAdaptation = nsiTopology.getServiceAdaptation(id);
         if (serviceAdaptation == null) {
             log.error("getServiceAdaptation: Requested serviceAdaptation id does not exist.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested serviceAdaptation id does not exist.").build());            
+            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested serviceAdaptation id does not exist.").build());
         }
-              
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
 
         // Now filter by the If-Modified-Since header.
@@ -724,13 +728,13 @@ public class TopologyService {
                 return Response.notModified().header("Last-Modified", date).build();
             }
         }
-        
+
         ObjectFactory nsiFactory = new ObjectFactory();
-        
+
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<ServiceAdaptationType>>(nsiFactory.createServiceAdaptation(serviceAdaptation)) {}).build();
     }
-    
+
     @GET
     @Path("/networks/{networkId}/serviceAdaptations")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
@@ -738,14 +742,14 @@ public class TopologyService {
             @PathParam("networkId") String networkId,
             @QueryParam("serviceType") String serviceType,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Verify we have the networkId from the request path.  Not sure if this
         // would ever happen.
         if (networkId == null || networkId.isEmpty()) {
             log.error("getServiceAdaptationsByNetwork: Path parameter networkId must be provided.");
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
         }
-        
+
         return getServiceAdaptations(networkId, serviceType, ifModifiedSince);
     }
 
@@ -756,11 +760,11 @@ public class TopologyService {
             @QueryParam("networkId") String networkId,
             @QueryParam("serviceType") String serviceType,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // We are stuffing the results into a collection object.
         ObjectFactory nsiFactory = new ObjectFactory();
         CollectionType services = nsiFactory.createCollectionType();
@@ -772,44 +776,44 @@ public class TopologyService {
         if (networkId != null && !networkId.isEmpty()) {
             for (Iterator<ServiceType> iter = services.getService().iterator(); iter.hasNext();) {
                 ServiceType service = iter.next();
-                
+
                 // Check each service in the result set to see if it matches
                 // the networkiId.
                 boolean found = false;
                 if (networkId.contentEquals(service.getNetwork().getId())) {
                     found = true;
                 }
-                
+
                 // If we didn't find a matching networkId in this service
                 // we do not return it.
                 if (!found) {
                     iter.remove();
                 }
-            } 
+            }
         }
-        
+
         // Now we remove based on the remaining filters.
         if (serviceType != null && !serviceType.isEmpty()) {
             for (Iterator<ServiceType> iter = services.getService().iterator(); iter.hasNext();) {
                 ServiceType service = iter.next();
-                
+
                 // Check each service in the result set to see if it matches
                 // the serviceType.
                 boolean found = false;
                 if (serviceType.contentEquals(service.getType())) {
                     found = true;
                 }
-                
+
                 // If we didn't find a matching serviceType in this service
                 // we do not return it.
                 if (!found) {
                     iter.remove();
                 }
-            } 
+            }
         }
-              
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
-                
+
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             GregorianCalendar cal = new GregorianCalendar();
@@ -821,7 +825,7 @@ public class TopologyService {
                     iter.remove();
                 }
             }
-            
+
             // If no serviceDomain then return a 304 to indicate no modifications.
             if (services.getService().isEmpty()) {
                 // Send back a 304
@@ -839,25 +843,25 @@ public class TopologyService {
     public Response getService(
             @PathParam("id") String id,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Verify we have the service Id from the request path.  Not sure if
         // this would ever happen.
         if (id == null || id.isEmpty()) {
             log.error("getService: Path parameter service Id must be provided.");
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter service Id must be provided.").build());
         }
-        
+
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // Try to locate the requested Network.
         ServiceType service = nsiTopology.getService(id);
         if (service == null) {
             log.error("getService: Requested service id does not exist.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested service id does not exist.").build());            
+            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested service id does not exist.").build());
         }
-              
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
 
         // Now filter by the If-Modified-Since header.
@@ -869,9 +873,9 @@ public class TopologyService {
                 return Response.notModified().header("Last-Modified", date).build();
             }
         }
-        
+
         ObjectFactory nsiFactory = new ObjectFactory();
-        
+
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<ServiceType>>(nsiFactory.createService(service)) {}).build();
     }
@@ -883,17 +887,17 @@ public class TopologyService {
             @PathParam("networkId") String networkId,
             @QueryParam("serviceType") String serviceType,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Verify we have the networkId from the request path.  Not sure if this
         // would ever happen.
         if (networkId == null || networkId.isEmpty()) {
             log.error("getServiceDomainsByNetwork: Path parameter networkId must be provided.");
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
         }
-        
+
         return getServices(networkId, serviceType, ifModifiedSince);
     }
-    
+
     @GET
     @Path("/sdps")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
@@ -903,11 +907,11 @@ public class TopologyService {
             @QueryParam("serviceType") String serviceType,
             @QueryParam("stpId") String stpId,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // We are stuffing the results into a collection object.
         ObjectFactory nsiFactory = new ObjectFactory();
         CollectionType sdps = nsiFactory.createCollectionType();
@@ -924,7 +928,7 @@ public class TopologyService {
         if (networkId != null && !networkId.isEmpty()) {
             for (Iterator<SdpType> iter = sdps.getSdp().iterator(); iter.hasNext();) {
                 SdpType sdp = iter.next();
-                
+
                 // Check each sdp in the result set to see if it matches
                 // the networkId.
                 boolean found = false;
@@ -932,20 +936,20 @@ public class TopologyService {
                         networkId.contentEquals(sdp.getDemarcationZ().getNetwork().getId())) {
                     found = true;
                 }
-                
+
                 // If we didn't find a matching networkId in this service
                 // we do not return it.
                 if (!found) {
                     iter.remove();
                 }
-            } 
+            }
         }
-        
+
         // Now we remove based on ServiceDomain identifier.
         if (serviceDomainId != null && !serviceDomainId.isEmpty()) {
             for (Iterator<SdpType> iter = sdps.getSdp().iterator(); iter.hasNext();) {
                 SdpType sdp = iter.next();
-                
+
                 // Check each sdp in the result set to see if it matches
                 // the networkId.
                 boolean found = false;
@@ -953,37 +957,37 @@ public class TopologyService {
                         serviceDomainId.contentEquals(sdp.getDemarcationZ().getServiceDomain().getId())) {
                     found = true;
                 }
-                
+
                 // If we didn't find a matching networkId in this service
                 // we do not return it.
                 if (!found) {
                     iter.remove();
                 }
-            } 
+            }
         }
-        
+
         // Now we remove based on ServiceType.
         if (serviceType != null && !serviceType.isEmpty()) {
             for (Iterator<SdpType> iter = sdps.getSdp().iterator(); iter.hasNext();) {
                 SdpType sdp = iter.next();
-                
+
                 // Check each SDP in the result set to see if it matches
                 // the serviceType.
                 boolean found = false;
                 if (serviceType.contentEquals(sdp.getDemarcationA().getServiceDomain().getType())) {
                     found = true;
                 }
-                
+
                 // If we didn't find a matching serviceType in this SDP
                 // we do not return it.
                 if (!found) {
                     iter.remove();
                 }
-            } 
+            }
         }
-              
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
-                
+
         // Now filter by the If-Modified-Since header.
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             GregorianCalendar cal = new GregorianCalendar();
@@ -995,7 +999,7 @@ public class TopologyService {
                     iter.remove();
                 }
             }
-            
+
             // If no serviceDomain then return a 304 to indicate no modifications.
             if (sdps.getSdp().isEmpty()) {
                 // Send back a 304
@@ -1006,32 +1010,32 @@ public class TopologyService {
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<CollectionType>>(nsiFactory.createCollection(sdps)){}).build();
     }
-    
+
     @GET
     @Path("/sdps/{id}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
     public Response getSdp(
             @PathParam("id") String id,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
-        
+
         // Verify we have the service Id from the request path.  Not sure if
         // this would ever happen.
         if (id == null || id.isEmpty()) {
             log.error("getService: Path parameter SDP Id must be provided.");
             throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter SDP Id must be provided.").build());
         }
-        
+
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
         NsiTopology nsiTopology = topologyProvider.getTopology();
-        
+
         // Try to locate the requested Network.
         SdpType sdp = nsiTopology.getSdp(id);
         if (sdp == null) {
             log.error("getSdp: Requested SDP id does not exist.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested SDP id does not exist.").build());            
+            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested SDP id does not exist.").build());
         }
-              
+
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
 
         // Now filter by the If-Modified-Since header.
@@ -1043,21 +1047,21 @@ public class TopologyService {
                 return Response.notModified().header("Last-Modified", date).build();
             }
         }
-        
+
         ObjectFactory nsiFactory = new ObjectFactory();
-        
+
         // Just a 200 response.
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<SdpType>>(nsiFactory.createSdp(sdp)) {}).build();
     }
-    
+
     /*****************************************************
      * OAM related REST interfaces for Topology service.
      *****************************************************/
-    
+
     /**
-     * 
+     *
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     @GET
     @Path("/ping")
