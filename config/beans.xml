@@ -71,7 +71,7 @@
         <constructor-arg index="0" ref="ddsActorSystem"/>
         <constructor-arg index="1" ref="discoveryConfiguration"/>
         <property name="poolSize" value="5"/>
-        <property name="interval" value="600"/>
+        <property name="interval" value="1200"/>
     </bean>
     
     <bean id="registrationRouter" class="net.es.nsi.pce.discovery.actors.RegistrationRouter" scope="singleton" lazy-init="true">
