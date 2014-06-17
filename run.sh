@@ -16,7 +16,7 @@ done
 PRGDIR=`dirname "$PRG"`
 BASEDIR=`cd "$PRGDIR" >/dev/null; pwd`
 
-java -Xmx1024m -XX:MaxPermSize=256m -Djava.net.preferIPv4Stack=true  \
+java -Xmx1536m -XX:MaxPermSize=256m -Djava.net.preferIPv4Stack=true  \
 	-Dapp.home="$BASEDIR" \
 	-Dbasedir="$BASEDIR" \
 	-Djava.util.logging.config.file="$BASEDIR/config/logging.properties" \

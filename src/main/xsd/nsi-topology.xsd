@@ -59,6 +59,8 @@
                     <xsd:element name="connectedTo"   type="xsd:anyURI" minOccurs="0" />
                     <xsd:element name="network"       type="tns:ResourceRefType" minOccurs="0" />
                     <xsd:element name="serviceDomain" type="tns:ResourceRefType" minOccurs="0" />
+                    <xsd:element name="referencedBy"  type="tns:ResourceRefType" minOccurs="0" />
+                    <xsd:element name="sdp"           type="tns:ResourceRefType" minOccurs="0" />
                     <xsd:element name="property"      type="tns:TypeValueType" minOccurs="0" maxOccurs="unbounded" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:sequence>

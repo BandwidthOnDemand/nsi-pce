@@ -11,8 +11,6 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
@@ -83,6 +81,7 @@ public class NsiSdpFactory {
     public static Collection<SdpType> createUnidirectionalSdpTopology(Map<String, StpType> stpMap) {
         Logger log = LoggerFactory.getLogger(NsiSdpFactory.class);
         PceLogger topologyLogger = PceLogger.getLogger();
+        log.debug("createUnidirectionalSdpTopology: **** START CONSOLIDATE UNIDIRECTIONAL SDPs ****");
 
         // Validate that an inbound STP is connected to an oubound STP on
         // the remote end, and likewise, and outbound STP is connected to
@@ -118,6 +117,10 @@ public class NsiSdpFactory {
                 // Create a unidirectional SDP for each Outbound/Inbound pair.
                 SdpType sdp = NsiSdpFactory.createSdpType(stp, remoteStp);
                 sdpList.add(sdp);
+
+                ResourceRefType sdpRef = createResourceRefType(sdp);
+                remoteStp.setSdp(sdpRef);
+                stp.setSdp(sdpRef);
             }
             else if (stp.getType() == StpDirectionalityType.INBOUND) {
                 // For inbound STP we check the remote references only.  The
@@ -135,6 +138,8 @@ public class NsiSdpFactory {
             }
         }
 
+        log.debug("createUnidirectionalSdpTopology: **** COMPLETED CONSOLIDATING UNIDIRECTIONAL SDPs ****");
+
         return sdpList;
     }
 
@@ -142,18 +147,18 @@ public class NsiSdpFactory {
     public static Collection<SdpType> createBidirectionalSdps(Map<String, StpType> stpMap) {
         Logger log = LoggerFactory.getLogger(NsiSdpFactory.class);
         PceLogger topologyLogger = PceLogger.getLogger();
+        log.debug("createBidirectionalSdps: **** START CONSOLIDATE BIDIRECTIONAL SDPs ****");
 
         // Validate that an inbound STP is connected to an oubound STP on
         // the remote end, and likewise, and outbound STP is connected to
         // an inbound STP.
         Collection<SdpType> sdpList = new ArrayList<>();
 
-        Map<String, StpType> workingMap = new ConcurrentSkipListMap<>(stpMap);
+        //Map<String, StpType> workingMap = new ConcurrentSkipListMap<>(stpMap);
 
-        for (String key : workingMap.keySet()) {
+        for (StpType stp : stpMap.values()) {
             // We may have already processed this STP as a remote connected STP.
-            StpType stp = workingMap.remove(key);
-            if (stp == null) {
+            if (stp.getSdp() != null) {
                 continue;
             }
 
@@ -210,27 +215,29 @@ public class NsiSdpFactory {
                     continue;
                 }
 
-                // Now find the remote bidirectional STP using the remote
-                // inbound and outbound STP.
-                for (String remoteKey : workingMap.keySet()) {
-                    StpType remoteStp = workingMap.get(remoteKey);
-
-                    if (remoteStp.getType() == StpDirectionalityType.BIDIRECTIONAL) {
-                        if (remoteStp.getInboundStp() != null &&
-                                remoteStp.getOutboundStp() != null) {
-                            if (remoteStp.getInboundStp().getId().equalsIgnoreCase(remoteInboundStp.getId()) &&
-                                    remoteStp.getOutboundStp().getId().equalsIgnoreCase(remoteOutboundStp.getId())) {
-                                workingMap.remove(remoteKey);
-                                SdpType biSdp = NsiSdpFactory.createSdpType(stp, remoteStp);
-                                sdpList.add(biSdp);
-                                break;
-                            }
-                        }
-                    }
-
+                // Now we access the remote bidirectional port.
+                if (remoteInboundStp.getReferencedBy() == null || remoteOutboundStp.getReferencedBy() == null ||
+                        !remoteInboundStp.getReferencedBy().getId().equalsIgnoreCase(remoteOutboundStp.getReferencedBy().getId())) {
+                    topologyLogger.errorSummary(PceErrors.BIDIRECTIONAL_STP_REMOTE_REFERNCE_MISMATCH, stp.getLocalId(), stp.getId(), inboundStp.getConnectedTo());
+                    continue;
                 }
+
+                StpType remoteBiStp = stpMap.get(remoteInboundStp.getReferencedBy().getId());
+                if (remoteBiStp == null || remoteBiStp.getType() != StpDirectionalityType.BIDIRECTIONAL) {
+                    topologyLogger.errorSummary(PceErrors.BIDIRECTIONAL_STP_REMOTE_REFERNCE_MISMATCH, stp.getLocalId(), stp.getId(), inboundStp.getConnectedTo());
+                    continue;
+                }
+
+                SdpType biSdp = NsiSdpFactory.createSdpType(stp, remoteBiStp);
+                sdpList.add(biSdp);
+
+                ResourceRefType sdpRef = createResourceRefType(biSdp);
+                remoteBiStp.setSdp(sdpRef);
+                stp.setSdp(sdpRef);
             }
         }
+
+        log.debug("createBidirectionalSdps: **** COMPLETED CONSOLIDATING BIDIRECTIONAL SDPs ****");
 
         return sdpList;
     }
@@ -249,5 +256,18 @@ public class NsiSdpFactory {
         }
 
         return sdpList;
+    }
+
+    /**
+     *
+     * @param sdp
+     * @return
+     */
+    public static ResourceRefType createResourceRefType(SdpType sdp) {
+        ResourceRefType sdpRef = new ResourceRefType();
+        sdpRef.setId(sdp.getId());
+        sdpRef.setHref(sdp.getHref());
+
+        return sdpRef;
     }
 }

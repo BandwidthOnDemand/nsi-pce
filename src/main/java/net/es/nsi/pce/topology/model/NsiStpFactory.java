@@ -26,22 +26,20 @@ import org.slf4j.LoggerFactory;
  */
 public class NsiStpFactory {
     private final static Logger log = LoggerFactory.getLogger(NsiStpFactory.class);
-    
+
     private final static String NML_LABEL_VLAN = "http://schemas.ogf.org/nml/2012/10/ethernet#vlan";
 
     // REST interface URL for each resource type.
     private static final String NSI_ROOT_STPS = "/stps/";
 
     /**
-     * 
+     *
      * @param port
      * @param label
      * @param nsiTopology
-     * @return 
+     * @return
      */
     public static StpType createStpType(NmlPort port, NmlLabelType label, NsiTopology nsiTopology) {
-        Logger log = LoggerFactory.getLogger(NsiStpFactory.class);
-        
         // We want a new NSI STP resource.
         StpType stp = new StpType();
 
@@ -72,28 +70,32 @@ public class NsiStpFactory {
         if (port.getConnectedTo() != null && !port.getConnectedTo().isEmpty()) {
             stp.setConnectedTo(createStpId(port.getConnectedTo(), label));
         }
-        
+
         // For bidirectional connections we need to include references to the
         // member unidirectional STP which need to be populated in topology
         // before we process the bidirectional STP.
         if (bidirectional) {
+            ResourceRefType stpRef = NsiStpFactory.createResourceRefType(stp);
+
             // Look up the inbound STP.
             NmlPort inboundPort = port.getInboundPort();
             String inboundStpId = createStpId(inboundPort.getId(), label);
             StpType inboundStp = nsiTopology.getStp(inboundStpId);
             if (inboundStp != null) {
                 stp.setInboundStp(NsiStpFactory.createResourceRefType(inboundStp));
+                inboundStp.setReferencedBy(stpRef);
             }
             else {
                 log.error("Bidirectional port " + stp.getId() + " has invalid inbound unidirectional member " + inboundStpId);
             }
-            
+
             // Look up the outbound STP.
             NmlPort outboundPort = port.getOutboundPort();
             String outboundStpId = createStpId(outboundPort.getId(), label);
             StpType outboundStp = nsiTopology.getStp(outboundStpId);
             if (outboundStp != null) {
                 stp.setOutboundStp(NsiStpFactory.createResourceRefType(outboundStp));
+                outboundStp.setReferencedBy(stpRef);
             }
             else {
                 log.error("Bidirectional port " + stp.getId() + " has invalid outbound unidirectional member " + outboundStpId);
@@ -111,19 +113,19 @@ public class NsiStpFactory {
         // Finally, link this back into the containing Network resource.
         NetworkType network = nsiTopology.getNetworkById(stp.getNetworkId());
         stp.setNetwork(NsiNetworkFactory.createResourceRefType(network));
-        
+
         return stp;
     }
 
     /**
-     * 
+     *
      * @param port
      * @param nsiTopology
-     * @return 
+     * @return
      */
     public static Collection<StpType> createStps(NmlPort port, NsiTopology nsiTopology) {
         ArrayList<StpType> stpList = new ArrayList<>();
-        
+
         if (port.getLabels().isEmpty()) {
             StpType stp = createStpType(port, null, nsiTopology);
             stpList.add(stp);
@@ -137,10 +139,10 @@ public class NsiStpFactory {
                 stpList.add(stp);
             }
         }
-        
+
         return stpList;
     }
-    
+
     /**
      * <STP identifier> ::= "urn:ogf:network:" <networkId> “:” <localId> <label>
      * <label> ::= “?” <labelType> “=” <labelValue> | “?”<labelType> | “”
@@ -149,7 +151,7 @@ public class NsiStpFactory {
      *
      * @param localId
      * @param label
-     * @return 
+     * @return
      */
     public static String createStpId(String localId, NmlLabelType label) {
         // We need to build a label component for the STP Id.  NML uses label
@@ -164,7 +166,7 @@ public class NsiStpFactory {
                 if (type != null && !type.isEmpty()) {
                     identifier.append("?");
                     identifier.append(type);
-                    
+
                     if (label.getValue() != null && !label.getValue().isEmpty()) {
                         identifier.append("=");
                         identifier.append(label.getValue());
@@ -172,14 +174,14 @@ public class NsiStpFactory {
                 }
             }
         }
-        
+
         return identifier.toString();
     }
-    
+
     /**
-     * 
+     *
      * @param stp
-     * @return 
+     * @return
      */
     public static ResourceRefType createResourceRefType(StpType stp) {
         ResourceRefType stpRef = new ResourceRefType();
@@ -188,12 +190,12 @@ public class NsiStpFactory {
 
         return stpRef;
     }
-    
+
     /**
-     * 
+     *
      * @param a
      * @param b
-     * @return 
+     * @return
      */
     public static boolean labelEquals(TypeValueType a, TypeValueType b) {
         if (a == null && b == null) {
@@ -208,7 +210,7 @@ public class NsiStpFactory {
         else if (!a.getType().equalsIgnoreCase(b.getType())) {
             return false;
         }
-        
+
         if (a.getValue() == null && b.getValue() == null) {
             return true;
         }
@@ -220,16 +222,16 @@ public class NsiStpFactory {
         }
         else if (!a.getValue().equalsIgnoreCase(b.getValue())) {
             return false;
-        }        
-        
+        }
+
         return true;
     }
-    
+
     /**
-     * 
+     *
      * @param a
      * @param b
-     * @return 
+     * @return
      */
     public static boolean labelEquals(NmlLabelType a, NmlLabelType b) {
         if (a == null && b == null) {
@@ -244,7 +246,7 @@ public class NsiStpFactory {
         else if (!a.getLabeltype().equalsIgnoreCase(b.getLabeltype())) {
             return false;
         }
-        
+
         if (a.getValue() == null && b.getValue() == null) {
             return true;
         }
@@ -256,50 +258,50 @@ public class NsiStpFactory {
         }
         else if (!a.getValue().equalsIgnoreCase(b.getValue())) {
             return false;
-        }        
-        
+        }
+
         return true;
     }
-    
+
     /**
-     * 
+     *
      * @param stp
-     * @return 
+     * @return
      */
     public static int getVlanId(StpType stp) {
         return getVlanId(stp.getLabel());
     }
 
     /**
-     * 
+     *
      * @param label
-     * @return 
+     * @return
      */
     public static int getVlanId(TypeValueType label) {
         int vlanId = -1;
-        
+
         if (NML_LABEL_VLAN.equalsIgnoreCase(label.getType()) &&
                 label.getValue() != null && !label.getValue().isEmpty()) {
             vlanId = Integer.parseInt(label.getValue());
         }
-        
+
         return vlanId;
     }
 
     /**
-     * 
+     *
      * @param label
-     * @return 
+     * @return
      */
     public static String getStringVlanId(TypeValueType label) {
         if (NML_LABEL_VLAN.equalsIgnoreCase(label.getType()) &&
                 label.getValue() != null && !label.getValue().isEmpty()) {
             return label.getValue();
         }
-        
+
         return null;
     }
-    
+
     public static List<StpType> ifModifiedSince(String ifModifiedSince, List<StpType> stpList) throws DatatypeConfigurationException {
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             GregorianCalendar cal = new GregorianCalendar();
@@ -312,7 +314,7 @@ public class NsiStpFactory {
                 }
             }
         }
-        
+
         return stpList;
     }
 }

@@ -73,6 +73,8 @@ public class NsiTopologyFactory {
     }
 
     public NsiTopology createNsiTopology(DdsDocumentListType localNsaDocuments, Map<String, DdsWrapper> nsaDocuments, DdsDocumentListType localTopologyDocuments, Map<String, DdsWrapper> topologyDocuments) throws Exception {
+        log.debug("createNsiTopology: **** STARTING NML TOPOLOGY PROCESSING ****");
+
         // Create the NSI topology.
         NsiTopology newNsiTopology = new NsiTopology();
 
@@ -91,7 +93,7 @@ public class NsiTopologyFactory {
 
         // For each NSA document we found...
         for (DdsWrapper documentWrapper : nsaDocuments.values()) {
-            log.debug("createNsiTopology: processing NSA " + documentWrapper.getDocument().getId());
+            log.debug("createNsiTopology: processing NSA document " + documentWrapper.getDocument().getId());
             NsaNsaType nsa = getNsaDocument(documentWrapper.getDocument());
 
             if (nsa == null) {
@@ -114,11 +116,14 @@ public class NsiTopologyFactory {
             // Parse each topology document corresponding to the networks listed
             // in the NSA document.
             for (String networkId : nsa.getNetworkId()) {
+                log.debug("createNsiTopology: processing networkId " + networkId);
                 DdsWrapper topologyWrapper = topologyDocuments.get(networkId);
                 if (topologyWrapper == null) {
                     log.debug("createNsiTopology: Could not find topology document for network " + networkId);
                     continue;
                 }
+
+                log.debug("createNsiTopology: networkId " + networkId + " maps to document " + topologyWrapper.getDocument().getId());
 
                 NmlTopologyType nmlTopology = getTopologyDocument(topologyWrapper.getDocument());
 
@@ -133,6 +138,7 @@ public class NsiTopologyFactory {
                 }
 
                 // Create a new NSI Network resource.
+                log.debug("createNsiTopology: Create a new NSI Network resource for " + networkId);
                 NetworkType nsiNetwork = NsiNetworkFactory.createNetworkType(nmlTopology, nsiNsa);
 
                 // Add this network resource to our NSI topology.
@@ -146,20 +152,24 @@ public class NsiTopologyFactory {
                 // Convert all Service Definitions to NSI Service resources.  The
                 // Service Definitions elements are held in an ANY within the NML
                 // document.
+                log.debug("createNsiTopology: Get service definitions for " + networkId);
                 Collection<ServiceType> nsiServices = getNsiServicesFromServiceDefinitions(nmlTopology.getAny(), nsiNetwork);
                 newNsiTopology.addAllServices(nsiServices);
 
                 // Add the Service references to the Network resource.
                 for (ServiceType service : nsiServices) {
+                    log.debug("createNsiTopology: Adding service definition " + service.getId());
                     ResourceRefType serviceRef = NsiServiceFactory.createResourceRefType(service);
                     nsiNetwork.getService().add(serviceRef);
                 }
 
                 // Unidirectional ports are modelled using Relations.
+                log.debug("createNsiTopology: Get unidirectional ports for " + networkId);
                 Map<String, NmlPort> uniPortMap = getNmlPortsFromRelations(nmlTopology, nsiNsa);
 
                 // Bidirectional ports are stored in separate group element and
                 // reference individual undirection Ports or PortGroups.
+                log.debug("createNsiTopology: Get bidierctional ports for " + networkId);
                 Map<String, NmlPort> biPortMap = getNmlPortsFromBidirectionalPorts(nmlTopology, uniPortMap, nsiNsa);
 
                 Map<String, NmlPort> portMap = new HashMap<>();
@@ -167,36 +177,46 @@ public class NsiTopologyFactory {
                 portMap.putAll(biPortMap);
 
                 // Now we convert the unidirectional NML Ports to STP.
+                log.debug("createNsiTopology: Convert unidierctional ports to STP for " + networkId);
                 for (NmlPort port : uniPortMap.values()) {
                     Collection<StpType> newStps = NsiStpFactory.createStps(port, newNsiTopology);
                     newNsiTopology.addAllStp(newStps);
                 }
 
                 // Now we convert the bidirectional NML Ports to STP.
+                log.debug("createNsiTopology: Convert bidirectional ports to STP for " + networkId);
                 for (NmlPort port : biPortMap.values()) {
                     Collection<StpType> newStps = NsiStpFactory.createStps(port, newNsiTopology);
                     newNsiTopology.addAllStp(newStps);
                 }
 
                 // Add the port references to the Network resource.
+                log.debug("createNsiTopology: Add port references to network resource " + networkId);
                 for (StpType stp : newNsiTopology.getStps()) {
                     ResourceRefType stpRef = NsiStpFactory.createResourceRefType(stp);
                     nsiNetwork.getStp().add(stpRef);
                 }
 
                 // SwitchingServices are modelled using Relations.
+                log.debug("createNsiTopology: Convert SwitchingService to NSI ServiceDomains for " + networkId);
                 Collection<ServiceDomainType> nsiServiceDomains = getServiceDomainsFromSwitchingServices(nmlTopology, portMap, nsiNetwork, newNsiTopology);
                 newNsiTopology.addAllServiceDomains(nsiServiceDomains);
 
                 // Add the ServiceDomain references to the Network resource.
+                log.debug("createNsiTopology: Add ServiceDomains references to " + networkId);
                 for (ServiceDomainType sd : nsiServiceDomains) {
                     ResourceRefType sdRef = NsiServiceDomainFactory.createResourceRefType(sd);
                     nsiNetwork.getServiceDomain().add(sdRef);
                 }
+
+                log.debug("createNsiTopology: completed processing networkId " + networkId);
             }
+
+            log.debug("createNsiTopology: completed processing NSA document " + documentWrapper.getDocument().getId());
         }
 
         // We are done so update the existing topology with this new one.
+        log.debug("createNsiTopology: **** COMPLETED NML TOPOLOGY PROCESSING ****");
         return newNsiTopology;
     }
 

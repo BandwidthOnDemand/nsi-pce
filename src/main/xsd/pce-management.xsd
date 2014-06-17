@@ -8,11 +8,12 @@
     
     <xsd:complexType name="StatusType">
         <xsd:sequence>
-            <xsd:element name="status"          type="tns:TopologyStatusType" />
-            <xsd:element name="auditInterval"   type="xsd:long" />
-            <xsd:element name="lastAudit"       type="xsd:dateTime" />
-            <xsd:element name="lastDiscovered"  type="xsd:dateTime" minOccurs="0" />
-            <xsd:element name="provider"        type="tns:TopologyProviderType" minOccurs="0" />
+            <xsd:element name="status"            type="tns:TopologyStatusType" />
+            <xsd:element name="auditInterval"     type="xsd:long" />
+            <xsd:element name="lastAudit"         type="xsd:dateTime" />
+            <xsd:element name="lastAuditDuration" type="xsd:long" minOccurs="0" />
+            <xsd:element name="lastDiscovered"    type="xsd:dateTime" minOccurs="0" />
+            <xsd:element name="provider"          type="tns:TopologyProviderType" minOccurs="0" />
             <!-- <xsd:element name="provider"      type="tns:TopologyProviderType" minOccurs="0" maxOccurs="unbounded" /> -->
         </xsd:sequence>
     </xsd:complexType>

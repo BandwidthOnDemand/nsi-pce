@@ -168,8 +168,10 @@ public class DdsTopologyProvider implements TopologyProvider {
     }
 
     private NsiTopology consolidateGlobalTopology(NsiTopology topology) {
+        log.debug("consolidateGlobalTopology: **** START CONSOLIDATING SDPs ****");
         topology.addAllSdp(NsiSdpFactory.createUnidirectionalSdpTopology(topology.getStpMap()));
         topology.addAllSdp(NsiSdpFactory.createBidirectionalSdps(topology.getStpMap()));
+        log.debug("consolidateGlobalTopology: **** COMPLETED CONSOLIDATING SDPs ****");
         return topology;
     }
 
