@@ -50,13 +50,9 @@ public class DdsTopologyProvider implements TopologyProvider {
     // The last time an NML object was discovered.
     private long lastDiscovered = 0L;
 
-    private long lastAudit = 0L;
-
-    // Overall discovery status.
-    private TopologyStatusType summaryStatus = TopologyStatusType.INITIALIZING;
-
     // The status of this provider.
     private TopologyProviderStatus providerStatus = null;
+    private long auditTime = 0;
 
     private PceLogger pceLogger = PceLogger.getLogger();
 
@@ -68,6 +64,10 @@ public class DdsTopologyProvider implements TopologyProvider {
      */
     public DdsTopologyProvider(TopologyConfiguration configuration) {
         this.configuration = configuration;
+        providerStatus = new TopologyProviderStatus();
+        providerStatus.setId(getClass().getName());
+        providerStatus.setHref(configuration.getLocation());
+        providerStatus.setStatus(TopologyStatusType.INITIALIZING);
     }
 
      /**
@@ -80,10 +80,6 @@ public class DdsTopologyProvider implements TopologyProvider {
     public void init() throws Exception {
         nsaDocumentReader = new DdsDocumentReader(configuration.getLocation(), NsiConstants.NSI_DOC_TYPE_NSA_V1);
         topologyDocumentReader = new DdsDocumentReader(configuration.getLocation(), NsiConstants.NSI_DOC_TYPE_TOPOLOGY_V2);
-        providerStatus = new TopologyProviderStatus();
-        providerStatus.setId(getClass().getName());
-        providerStatus.setHref(configuration.getLocation());
-        providerStatus.setStatus(TopologyStatusType.INITIALIZING);
     }
 
     @Override
@@ -201,47 +197,15 @@ public class DdsTopologyProvider implements TopologyProvider {
         return configuration;
     }
 
-    /**
-     * @return the lastModified
-     */
-    @Override
-    public long getLastDiscovered() {
-        return lastDiscovered;
-    }
-
-    /**
-     * @return the lastAudit
-     */
-    @Override
-    public long getLastAudit() {
-        return lastAudit;
-    }
-
-    /**
-     * @param lastAudit the lastAudit to set
-     */
-    public void setLastAudit(long lastAudit) {
-        this.lastAudit = lastAudit;
-    }
-
-    /**
-     * @return the summaryStatus
-     */
-    @Override
-    public TopologyStatusType getAuditStatus() {
-        return summaryStatus;
-    }
-
     private void ddsAuditStart() {
-        long auditTime = System.currentTimeMillis();
+        auditTime = System.currentTimeMillis();
 
         // Let the logger know we are starting another topology discovery run.
         pceLogger.setAuditTimeStamp(auditTime);
         pceLogger.logAudit(PceLogs.AUDIT_START, "DdsTopologyProvider", "Full topology audit starting.");
 
         // Set the provider status if this is not our first time.
-        if (summaryStatus != TopologyStatusType.INITIALIZING) {
-            summaryStatus = TopologyStatusType.AUDITING;
+        if (providerStatus.getStatus() != TopologyStatusType.INITIALIZING) {
             providerStatus.setStatus(TopologyStatusType.AUDITING);
         }
 
@@ -250,17 +214,16 @@ public class DdsTopologyProvider implements TopologyProvider {
 
     private void ddsAuditError() {
         pceLogger.errorAudit(PceErrors.AUDIT, "DdsTopologyProvider");
-        summaryStatus = TopologyStatusType.ERROR;
         providerStatus.setStatus(TopologyStatusType.ERROR);
+        providerStatus.setLastAuditDuration(System.currentTimeMillis() - auditTime);
         pceLogger.clearAuditTimeStamp();
     }
 
     private void ddsAuditSuccess() {
-        summaryStatus = TopologyStatusType.COMPLETED;
-
         providerStatus.setStatus(TopologyStatusType.COMPLETED);
         providerStatus.setLastSuccessfulAudit(providerStatus.getLastAudit());
         providerStatus.setLastDiscovered(lastDiscovered);
+        providerStatus.setLastAuditDuration(System.currentTimeMillis() - auditTime);
 
         pceLogger.logAudit(PceLogs.AUDIT_SUCCESSFUL, "DdsTopologyProvider", "Topology audit completed successfully.");
         pceLogger.clearAuditTimeStamp();

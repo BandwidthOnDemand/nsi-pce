@@ -13,9 +13,10 @@ import net.es.nsi.pce.management.jaxb.TopologyStatusType;
 public class TopologyProviderStatus {
     private String id;
     private String href;
-    
+
     private TopologyStatusType status = TopologyStatusType.INITIALIZING;
     private long lastAudit = System.currentTimeMillis();
+    private long lastAuditDuration = -1;
     private long lastSuccessfulAudit = 0;
     private long lastDiscovered = 0;
 
@@ -101,5 +102,19 @@ public class TopologyProviderStatus {
      */
     public void setLastDiscovered(long lastDiscovered) {
         this.lastDiscovered = lastDiscovered;
+    }
+
+    /**
+     * @return the lastAuditDuration
+     */
+    public long getLastAuditDuration() {
+        return lastAuditDuration;
+    }
+
+    /**
+     * @param lastAuditDuration the lastAuditDuration to set
+     */
+    public void setLastAuditDuration(long lastAuditDuration) {
+        this.lastAuditDuration = lastAuditDuration;
     }
 }

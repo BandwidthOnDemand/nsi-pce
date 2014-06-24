@@ -14,7 +14,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericEntity;
@@ -30,7 +29,6 @@ import net.es.nsi.pce.path.jaxb.ObjectFactory;
 import net.es.nsi.pce.path.jaxb.ReplyToType;
 import net.es.nsi.pce.path.jaxb.ResolvedPathType;
 import net.es.nsi.pce.jersey.RestClient;
-import static net.es.nsi.pce.jersey.RestClient.configureClient;
 import net.es.nsi.pce.jersey.RestServer;
 import net.es.nsi.pce.jersey.Utilities;
 import net.es.nsi.pce.path.jaxb.TraceType;
@@ -42,8 +40,8 @@ import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.path.services.Point2Point;
 import net.es.nsi.pce.path.services.Service;
+import net.es.nsi.pce.schema.PathApiParser;
 import net.es.nsi.pce.spring.SpringApplicationContext;
-import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -221,6 +219,8 @@ public class FindPathService {
 
             if (log.isDebugEnabled()) {
                 log.debug("FindPathService: sent response " + resp.getStatus().name() + " to client " + replyTo.getUrl() + ", result = " + response.getStatusInfo().getReasonPhrase());
+                String element = PathApiParser.getInstance().jaxbToString(jaxbRequest);
+                log.debug(element);
             }
         }
         catch (WebApplicationException wex) {
