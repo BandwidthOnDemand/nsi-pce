@@ -7,6 +7,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.es.nsi.pce.path.jaxb.FindPathResponseType;
+import net.es.nsi.pce.path.jaxb.FindPathStatusType;
 
 @Path("/aggregator/")
 public class FindPathResponseService {
@@ -17,6 +18,10 @@ public class FindPathResponseService {
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/vnd.net.es.pce.v1+json", "application/vnd.net.es.pce.v1+xml" })
     public Response findPathResponse(FindPathResponseType response) {
         System.out.println("findPathResponse: " + response.getCorrelationId() + ", " + response.getStatus().name());
+
+        if (response.getStatus() == FindPathStatusType.FAILED) {
+            System.out.println("findPathResponse: error code=" + response.getFindPathError().getCode() + ", description=" + response.getFindPathError().getDescription());
+        }
 
         try {
             TestServer.INSTANCE.setFindPathResponse(response);
