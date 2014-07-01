@@ -15,7 +15,7 @@ import org.junit.Test;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
-import net.es.nsi.pce.path.services.Point2Point;
+import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.ReachabilityPCE.Reachability;
 import net.es.nsi.pce.pf.ReachabilityPCE.Stp;
 import net.es.nsi.pce.pf.api.PCEConstraints;
@@ -67,8 +67,8 @@ public class ReachabilityPCETest {
         String sourceStp = LOCAL_NETWORK_ID + ":start";
         String destStp = LOCAL_NETWORK_ID + ":end";
 
-        StringAttrConstraint source = createStringConstraint(Point2Point.SOURCESTP, sourceStp);
-        StringAttrConstraint destination = createStringConstraint(Point2Point.DESTSTP, destStp);
+        StringAttrConstraint source = createStringConstraint(Point2PointTypes.SOURCESTP, sourceStp);
+        StringAttrConstraint destination = createStringConstraint(Point2PointTypes.DESTSTP, destStp);
 
         PCEData pceData = new PCEData(source, destination);
         subject.apply(pceData);
@@ -79,8 +79,8 @@ public class ReachabilityPCETest {
         String sourceStp = LOCAL_NETWORK_ID + ":start";
         String destStp = LOCAL_NETWORK_ID + ":end";
 
-        StringAttrConstraint source = createStringConstraint(Point2Point.SOURCESTP, sourceStp);
-        StringAttrConstraint destination = createStringConstraint(Point2Point.DESTSTP, destStp);
+        StringAttrConstraint source = createStringConstraint(Point2PointTypes.SOURCESTP, sourceStp);
+        StringAttrConstraint destination = createStringConstraint(Point2PointTypes.DESTSTP, destStp);
         StringAttrConstraint serviceType = createStringConstraint(PCEConstraints.SERVICETYPE, "ServiceType");
 
         PCEData pceData = new PCEData(source, destination, serviceType);
@@ -105,8 +105,8 @@ public class ReachabilityPCETest {
         String peerNsaId = "urn:ogf:network:foo:2013:nsa";
         String peerNetworkId = "urn:ogf:network:foo:2013:topology";
 
-        StringAttrConstraint source = createStringConstraint(Point2Point.SOURCESTP, sourceStp);
-        StringAttrConstraint destination = createStringConstraint(Point2Point.DESTSTP, destStp);
+        StringAttrConstraint source = createStringConstraint(Point2PointTypes.SOURCESTP, sourceStp);
+        StringAttrConstraint destination = createStringConstraint(Point2PointTypes.DESTSTP, destStp);
 
         Map<String, Integer> costs = ImmutableMap.of(destNetworkId, 5, "urn:ogf:network:es.net:2013:topology", 10);
         ImmutableMap<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaId, costs);

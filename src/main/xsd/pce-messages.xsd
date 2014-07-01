@@ -141,7 +141,7 @@
             <xsd:element name="code"        type="xsd:string" />
             <xsd:element name="label"       type="xsd:string" />
             <xsd:element name="description" type="xsd:string" />
-            <xsd:element name="resource"    type="xsd:string" />
+            <xsd:element name="variable"    type="tns:VariableType" minOccurs="0" />
         </xsd:sequence>
     </xsd:complexType>
     
@@ -271,6 +271,31 @@
         <xsd:simpleContent>
             <xsd:extension  base="xsd:string">
                 <xsd:attribute  name="index"  type="xsd:int"  use="required"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+    
+    <xsd:complexType name="VariableType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                Definition for a simple string type/value pair.  Includes a
+                namespace attribute is included to provide context where
+                needed.
+                
+                Elements:
+                value - A string value corresponding to type.
+                
+                Attributes:
+                type - A string representing the name of the type.
+                
+                namespace - An optional URL to qualify the name space of the
+                capability. 
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleContent>
+            <xsd:extension  base="xsd:string">
+                <xsd:attribute name="type" type="xsd:string" use="optional" />
+                <xsd:attribute name="namespace" type="xsd:anyURI" use="optional" />
             </xsd:extension>
         </xsd:simpleContent>
     </xsd:complexType>

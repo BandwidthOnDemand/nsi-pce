@@ -10,7 +10,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import net.es.nsi.pce.discovery.jaxb.NmlTopologyType;
-import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
 import net.es.nsi.pce.jersey.JsonMoxyConfigurationContextResolver;
 import net.es.nsi.pce.jersey.Utilities;
 import org.eclipse.persistence.jaxb.MarshallerProperties;
@@ -30,9 +29,8 @@ import org.junit.Test;
  * @author hacksaw
  */
 public class ConnectionTest extends JerseyTest {
-    private final static ObjectFactory factory = new ObjectFactory();
     private final static String url = "https://bod.acc.dlp.surfnet.nl/nsi-topology";
-    
+
     @Override
     protected Application configure() {
         enable(TestProperties.LOG_TRAFFIC);
@@ -41,7 +39,7 @@ public class ConnectionTest extends JerseyTest {
         app.getProperties();
         return getConfig();
     }
-    
+
     @Override
     protected void configureClient(ClientConfig clientConfig) {
         // Configure the JerseyTest client for communciations with PCE.
@@ -52,7 +50,7 @@ public class ConnectionTest extends JerseyTest {
         clientConfig.property(MarshallerProperties.JSON_ATTRIBUTE_PREFIX, "@");
         clientConfig.property(MarshallerProperties.JSON_NAMESPACE_SEPARATOR, '.');
     }
-    
+
     public static ResourceConfig getConfig() {
         return new ResourceConfig()
                 .register(new MoxyXmlFeature())
@@ -69,10 +67,10 @@ public class ConnectionTest extends JerseyTest {
         WebTarget nmlTarget = client.target(url);
         Response response = nmlTarget.request("*/*").get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        
+
         NmlTopologyType documents = response.readEntity(NmlTopologyType.class);
         client.close();
-        
+
         /*
         final ChunkedInput<NmlTopologyType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<NmlTopologyType>>() {});
         NmlTopologyType chunk;

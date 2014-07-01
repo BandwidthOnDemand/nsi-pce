@@ -55,12 +55,12 @@ public class PathfinderCore {
 
         // Add topology
         pceData.setTopology(topologyProvider.getTopology());
-        
+
         log.debug("******* findPath " + pceData.getTopology().getLocalNsaId());
         for (String networkId : topologyProvider.getTopology().getNetworkIds()) {
             log.debug("******* networkId " + networkId);
         }
-        
+
         // Add trace.
         pceData.setTrace(trace);
 
@@ -78,7 +78,7 @@ public class PathfinderCore {
 
         // TODO: I don't think this can ever occur.
         if (result == null || result.getPath() == null) {
-            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "PCECore", "No path found using provided criteria");
+            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "No path found using provided criteria");
             throw new Exception(error);
         }
 

@@ -5,6 +5,8 @@ import java.util.Set;
 import net.es.nsi.pce.path.jaxb.DirectionalityType;
 import net.es.nsi.pce.path.jaxb.ObjectFactory;
 import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
+import net.es.nsi.pce.path.services.EthernetTypes;
+import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.api.cons.BooleanAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.Constraints;
 import net.es.nsi.pce.pf.api.cons.Constraint;
@@ -17,7 +19,7 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * A simple test to verify correct operation of the Service mappings.
- * 
+ *
  * @author hacksaw
  */
 public class Point2PointTest {
@@ -30,33 +32,33 @@ public class Point2PointTest {
         p2ps.setSymmetricPath(Boolean.TRUE);
         p2ps.setSourceSTP("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:uva:1?vlan=1784");
         p2ps.setDestSTP("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:pionier:1?vlan=1784");
-        
+
         Point2Point p2p = new Point2Point();
         Set<Constraint> constraints = p2p.addConstraints(p2ps);
-        
+
         Constraints attr = new Constraints(constraints);
-        
-        NumAttrConstraint capacity = attr.removeNumAttrConstraint(Point2Point.CAPACITY);
+
+        NumAttrConstraint capacity = attr.removeNumAttrConstraint(Point2PointTypes.CAPACITY);
         assertNotNull(capacity);
         assertEquals(new Long(100L), capacity.getValue());
-        
-        StringAttrConstraint directionality = attr.getStringAttrConstraint(Point2Point.DIRECTIONALITY);
+
+        StringAttrConstraint directionality = attr.getStringAttrConstraint(Point2PointTypes.DIRECTIONALITY);
         assertNotNull(directionality);
         assertEquals(DirectionalityType.BIDIRECTIONAL, DirectionalityType.valueOf(directionality.getValue()));
-        
-        BooleanAttrConstraint symmetricPath = attr.getBooleanAttrConstraint(Point2Point.SYMMETRICPATH);
+
+        BooleanAttrConstraint symmetricPath = attr.getBooleanAttrConstraint(Point2PointTypes.SYMMETRICPATH);
         assertNotNull(symmetricPath);
         assertEquals(Boolean.TRUE, symmetricPath.getValue());
-        
-        StringAttrConstraint sourceSTP = attr.getStringAttrConstraint(Point2Point.SOURCESTP);
+
+        StringAttrConstraint sourceSTP = attr.getStringAttrConstraint(Point2PointTypes.SOURCESTP);
         assertNotNull(sourceSTP);
         assertEquals("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:uva:1?vlan=1784", sourceSTP.getValue());
-        
-        StringAttrConstraint destSTP = attr.getStringAttrConstraint(Point2Point.DESTSTP);
+
+        StringAttrConstraint destSTP = attr.getStringAttrConstraint(Point2PointTypes.DESTSTP);
         assertNotNull(destSTP);
-        assertEquals("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:pionier:1?vlan=1784", destSTP.getValue());        
-    
-        StringAttrConstraint vlan = attr.getStringAttrConstraint(Point2Point.VLAN);
+        assertEquals("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:pionier:1?vlan=1784", destSTP.getValue());
+
+        StringAttrConstraint vlan = attr.getStringAttrConstraint(EthernetTypes.VLAN);
         assertNull(vlan);
     }
 }

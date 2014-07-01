@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.xml.bind.JAXBElement;
 import net.es.nsi.pce.path.jaxb.FindPathErrorType;
 import net.es.nsi.pce.path.jaxb.ObjectFactory;
+import net.es.nsi.pce.path.jaxb.VariableType;
 import net.es.nsi.pce.schema.PathApiParser;
 
 /**
@@ -92,12 +93,24 @@ public enum NsiError {
         return codeToStatusMapping.get(i);
     }
 
-    public static FindPathErrorType getFindPathError(NsiError error, String resource, String info) {
+    public static FindPathErrorType getFindPathError(NsiError error, String namespace, String type, String value) {
         FindPathErrorType fp = factory.createFindPathErrorType();
         fp.setCode(error.getCode());
         fp.setLabel(error.getLabel());
-        fp.setResource(resource);
-        fp.setDescription(String.format(error.getDescription(), info));
+        fp.setDescription(String.format(error.getDescription(), value));
+        VariableType variable = new VariableType();
+        variable.setNamespace(namespace);
+        variable.setType(type);
+        variable.setValue(value);
+        fp.setVariable(variable);
+        return fp;
+    }
+
+    public static FindPathErrorType getFindPathError(NsiError error, String description) {
+        FindPathErrorType fp = factory.createFindPathErrorType();
+        fp.setCode(error.getCode());
+        fp.setLabel(error.getLabel());
+        fp.setDescription(String.format(error.getDescription(), description));
         return fp;
     }
 
@@ -108,12 +121,19 @@ public enum NsiError {
             return errorElement.getValue();
         }
         catch (Exception ex) {
-            return getFindPathError(NsiError.INTERNAL_ERROR, "FindPathErrorType", "Issue parsing internal error message");
+            return getFindPathError(NsiError.INTERNAL_ERROR, "Issue parsing FindPathErrorType error message");
         }
     }
 
-    public static String getFindPathErrorString(NsiError error, String resource, String info) {
-        FindPathErrorType fp = getFindPathError(error, resource, info);
+    public static String getFindPathErrorString(NsiError error, String namespace, String type, String value) {
+        FindPathErrorType fp = getFindPathError(error, namespace, type, value);
+        JAXBElement<FindPathErrorType> errorElement = factory.createFindPathError(fp);
+        String xml = PathApiParser.getInstance().jaxbToString(errorElement);
+        return xml;
+    }
+
+    public static String getFindPathErrorString(NsiError error, String description) {
+        FindPathErrorType fp = getFindPathError(error, description);
         JAXBElement<FindPathErrorType> errorElement = factory.createFindPathError(fp);
         String xml = PathApiParser.getInstance().jaxbToString(errorElement);
         return xml;

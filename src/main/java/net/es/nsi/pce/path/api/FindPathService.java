@@ -89,7 +89,7 @@ public class FindPathService {
         // Verify we have a request body.
         if (request == null) {
             log.error("findPath: empty request received.");
-            return RestServer.getBadRequestError("findPathRequest", "request is empty");
+            return RestServer.getBadRequestError("request is empty");
         }
 
         // Log the incoming request.
@@ -101,7 +101,7 @@ public class FindPathService {
         String correlationId = request.getCorrelationId();
         if (correlationId == null || correlationId.isEmpty()) {
             log.error("findPath: invalid correlationId element received.");
-            return RestServer.getBadRequestError("findPathRequest", "correlationId");
+            return RestServer.getBadRequestError("correlationId");
         }
 
         // ReplyTo is needed to send back a path response.
@@ -109,7 +109,7 @@ public class FindPathService {
         if (replyTo == null ||
                 replyTo.getUrl() == null || replyTo.getUrl().isEmpty()) {
             log.error("findPath: invalid replyTo element received.");
-            return RestServer.getBadRequestError("findPathRequest", "replyTo");
+            return RestServer.getBadRequestError("replyTo");
         }
 
         String mediaType = replyTo.getMediaType();
@@ -120,7 +120,7 @@ public class FindPathService {
         }
         if (!Utilities.validMediaType(mediaType)) {
             log.error("findPath: Unsupported mediaType element received.");
-            return RestServer.getBadRequestError("findPathRequest", "mediaType");
+            return RestServer.getBadRequestError("mediaType");
         }
 
         // We need to have a valid algorithm to start processing.
@@ -130,7 +130,7 @@ public class FindPathService {
         }
         else if (!Algorithms.contains(algorithm)) {
             log.error("findPath: Unsupported algorithm element received.");
-            return RestServer.getBadRequestError("findPathRequest", "algorithm");
+            return RestServer.getBadRequestError("algorithm");
         }
 
         // Deterine if the specified serviceType is supported.
@@ -138,7 +138,7 @@ public class FindPathService {
         List<Service> services = Service.getServiceByType(serviceType);
         if (services.isEmpty()) {
             log.error("findPath: Unsupported serviceType element received.");
-            return RestServer.getBadRequestError("findPathRequest", "serviceType");
+            return RestServer.getBadRequestError("serviceType");
         }
 
         //
@@ -157,7 +157,7 @@ public class FindPathService {
         }
         catch (BeansException be) {
             log.error("findPath: Cannot find pathfinderCore bean.", be);
-            return RestServer.getInternalServerError("findPathRequest", "pathfinderCore");
+            return RestServer.getInternalServerError("pathfinderCore");
         }
 
         // Inspect each element stored as an ANY to see if it is associated
@@ -202,7 +202,7 @@ public class FindPathService {
                 }
                 else {
                     log.error("Found element " + jaxb.getName().toString() + " that is not part of service definition " + request.getServiceType());
-                    return RestServer.getBadRequestError("findPathRequest", jaxb.getName().toString() + " not in " + request.getServiceType());
+                    return RestServer.getBadRequestError(jaxb.getName().toString() + " not in " + request.getServiceType());
                 }
             }
         }
@@ -225,11 +225,11 @@ public class FindPathService {
         }
         catch (WebApplicationException wex) {
             log.error("Send of path results failed", wex);
-            return RestServer.getBadRequestError("findPathRequest", "Send of path results to endpoint " + replyTo.getUrl() + "failed with status " + wex.getResponse().getStatus());
+            return RestServer.getBadRequestError("Send of path results to endpoint " + replyTo.getUrl() + "failed with status " + wex.getResponse().getStatus());
         }
         catch (Exception ex) {
             log.error("Send of path results failed", ex);
-            return RestServer.getBadRequestError("findPathRequest", "Send of path results to endpoint " + replyTo.getUrl() + "failed with " + ex.getLocalizedMessage());
+            return RestServer.getBadRequestError("Send of path results to endpoint " + replyTo.getUrl() + "failed with " + ex.getLocalizedMessage());
         }
 
         response.close();

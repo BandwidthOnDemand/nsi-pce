@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.es.nsi.pce.path.services.Point2Point;
+import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
@@ -95,8 +96,8 @@ public class ReachabilityPCE implements PCEModule {
     }
 
     private void addConstraints(Path path, Constraints constraints) {
-        constraints.removeStringAttrConstraint(Point2Point.SOURCESTP);
-        constraints.removeStringAttrConstraint(Point2Point.DESTSTP);
+        constraints.removeStringAttrConstraint(Point2PointTypes.SOURCESTP);
+        constraints.removeStringAttrConstraint(Point2PointTypes.DESTSTP);
         for (PathSegment segment: path.getPathSegments()) {
             segment.setConstraints(new Constraints(constraints));
         }
@@ -133,7 +134,7 @@ public class ReachabilityPCE implements PCEModule {
         try {
             return Stp.fromStpId(sourceStp);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2Point.NAMESPACE, Point2Point.SOURCESTP));
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), sourceStp));
         }
     }
 
@@ -142,7 +143,7 @@ public class ReachabilityPCE implements PCEModule {
         try {
             return Stp.fromStpId(destStp);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2Point.NAMESPACE, Point2Point.DESTSTP));
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), destStp));
         }
     }
 
@@ -175,7 +176,7 @@ public class ReachabilityPCE implements PCEModule {
 
         if (!connectingSdp.isPresent()) {
             logger.debug("No connecting sdp found for remoteNsaId {}", remoteNsaId);
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, Point2Point.NAMESPACE, Point2Point.DESTSTP));
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), remoteStp.getId()));
         }
 
         Stp localIntermediateStp = findStpFromSdp(connectingSdp.get(), localStp.getNetworkId());
@@ -343,11 +344,11 @@ public class ReachabilityPCE implements PCEModule {
     }
 
     private String getSourceStpOrFail(Constraints constraints) {
-        return getStringValue(Point2Point.SOURCESTP, constraints);
+        return getStringValue(Point2PointTypes.SOURCESTP, constraints);
     }
 
     private String getDestinationStpOrFail(Constraints constraints) {
-        return getStringValue(Point2Point.DESTSTP, constraints);
+        return getStringValue(Point2PointTypes.DESTSTP, constraints);
     }
 
     private String getStringValue(String attributeName, Constraints constraints) {
@@ -357,7 +358,7 @@ public class ReachabilityPCE implements PCEModule {
             return value.get();
         }
 
-        throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2Point.NAMESPACE, attributeName));
+        throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2PointTypes.P2PS, attributeName, null));
     }
 
     private Optional<String> getValue(StringAttrConstraint constraint) {

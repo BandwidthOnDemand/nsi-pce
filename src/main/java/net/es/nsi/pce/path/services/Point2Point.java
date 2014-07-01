@@ -29,77 +29,61 @@ import net.es.nsi.pce.pf.api.cons.Constraints;
  * @author hacksaw
  */
 public class Point2Point {
-  
-    public static final String NAMESPACE = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps";
-
-    // These are fixed element definitions within the P2P schema.
-    public static final String CAPACITY = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps/capacity";
-    public static final String DIRECTIONALITY = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps/directionality";
-    public static final String SYMMETRICPATH = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps/symmetricPath";
-    public static final String SOURCESTP = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps/sourceSTP";
-    public static final String DESTSTP = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps/destSTP";
-    public static final String ERO = "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps/ero";
-    
-    // Parameters relating to the EVTS service.
-    public static final String BURSTSIZE = "http://schemas.ogf.org/nml/2012/10/ethernet#burstsize";
-    public static final String MTU = "http://schemas.ogf.org/nml/2012/10/ethernet#mtu";
-    public static final String VLAN = "http://schemas.ogf.org/nml/2012/10/ethernet#vlan";
-
     private ObjectFactory factory = new ObjectFactory();
     private Constraints constraints = new Constraints();
 
     public Set<Constraint> addConstraints(P2PServiceBaseType service) {
         // Add requested capacity.
         NumAttrConstraint capacity = new NumAttrConstraint();
-        capacity.setAttrName(CAPACITY);
+        capacity.setAttrName(Point2PointTypes.CAPACITY);
         capacity.setValue(service.getCapacity());
         constraints.add((AttrConstraint) capacity);
-         
+
         // Add directionality.
         StringAttrConstraint directionality = new StringAttrConstraint();
-        directionality.setAttrName(DIRECTIONALITY);
+        directionality.setAttrName(Point2PointTypes.DIRECTIONALITY);
         directionality.setValue(DirectionalityType.BIDIRECTIONAL.name());
         if (service.getDirectionality() != null) {
             directionality.setValue(service.getDirectionality().name());
         }
         constraints.add(directionality);
-      
+
         // Add symmetric path if service is bidirectional.
         if (service.getDirectionality() != null && service.getDirectionality() == DirectionalityType.BIDIRECTIONAL) {
             BooleanAttrConstraint symmetricPath = new BooleanAttrConstraint();
-            symmetricPath.setAttrName(SYMMETRICPATH);
+            symmetricPath.setAttrName(Point2PointTypes.SYMMETRICPATH);
             symmetricPath.setValue(false);
             if (service.isSymmetricPath() != null) {
                 symmetricPath.setValue(service.isSymmetricPath());
             }
             constraints.add(symmetricPath);
         }
-          
+
         // Add the source STP.
         if (service.getSourceSTP() != null && !service.getSourceSTP().isEmpty()) {
             StringAttrConstraint srcStp = new StringAttrConstraint();
-            srcStp.setAttrName(SOURCESTP);
+            srcStp.setAttrName(Point2PointTypes.SOURCESTP);
             srcStp.setValue(service.getSourceSTP());
             constraints.add(srcStp);
         }
         else {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, "p2ps", SOURCESTP));
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), "null"));
         }
-          
+
         // Add the destination STP.
         if (service.getDestSTP() != null && !service.getDestSTP().isEmpty()) {
             StringAttrConstraint dstStp = new StringAttrConstraint();
-            dstStp.setAttrName(DESTSTP);
+            dstStp.setAttrName(Point2PointTypes.DESTSTP);
             dstStp.setValue(service.getDestSTP());
             constraints.add(dstStp);
         }
         else {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, "p2ps", DESTSTP));
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), "null"));
         }
-  
+
         // TODO: Still need to add these....
         //service.getEro();
-        
+
         // Now add all the generic parameters as string attributes.
         for (TypeValueType parameter : service.getParameter()) {
             StringAttrConstraint generic = new StringAttrConstraint();
@@ -107,10 +91,10 @@ public class Point2Point {
             generic.setValue(parameter.getValue());
             constraints.add(generic);
         }
-     
+
         return constraints.get();
     }
-    
+
     public List<ResolvedPathType> resolvePath(Path path) {
         List<ResolvedPathType> resolvedPath = new ArrayList<>();
 
@@ -119,11 +103,11 @@ public class Point2Point {
             // Convert the constraints.
             Constraints pathConstraints = segment.getConstraints();
             StringAttrConstraint serviceType = pathConstraints.removeStringAttrConstraint(PCEConstraints.SERVICETYPE);
-            NumAttrConstraint capacity = pathConstraints.removeNumAttrConstraint(CAPACITY);
-            StringAttrConstraint directionality = pathConstraints.removeStringAttrConstraint(DIRECTIONALITY);
-            BooleanAttrConstraint symmetric = pathConstraints.removeBooleanAttrConstraint(SYMMETRICPATH);
+            NumAttrConstraint capacity = pathConstraints.removeNumAttrConstraint(Point2PointTypes.CAPACITY);
+            StringAttrConstraint directionality = pathConstraints.removeStringAttrConstraint(Point2PointTypes.DIRECTIONALITY);
+            BooleanAttrConstraint symmetric = pathConstraints.removeBooleanAttrConstraint(Point2PointTypes.SYMMETRICPATH);
             List<TypeValueType> attrConstraints = pathConstraints.removeStringAttrConstraints();
-            
+
             StpPair stpPair = segment.getStpPair();
 
             // Build our path finding results into an P2PS service.
@@ -134,7 +118,7 @@ public class Point2Point {
             if (capacity != null) {
                 p2psResult.setCapacity(capacity.getValue());
             }
-            
+
             if (directionality != null) {
                 p2psResult.setDirectionality(DirectionalityType.valueOf(directionality.getValue()));
             }
@@ -142,9 +126,9 @@ public class Point2Point {
             if (symmetric != null) {
                 p2psResult.setSymmetricPath(symmetric.getValue());
             }
-            
+
             p2psResult.getParameter().addAll(attrConstraints);
-            
+
             // Set the corresponding serviceType and add out EVTS results.
             ResolvedPathType pathObj = new ResolvedPathType();
             if (serviceType != null) {
