@@ -4,24 +4,25 @@
  */
 package net.es.nsi.pce.discovery.provider;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
  *
  * @author hacksaw
  */
-public class InvalidVersionException extends Exception {
+public class InvalidVersionException extends WebApplicationException {
     private static final long serialVersionUID = 1L;
-    
     private final XMLGregorianCalendar version;
     private final XMLGregorianCalendar actual;
-    
-    public InvalidVersionException(final String msg, final XMLGregorianCalendar version, final XMLGregorianCalendar actual) {
-        super( msg );
+
+    public InvalidVersionException(Response response, final XMLGregorianCalendar version, final XMLGregorianCalendar actual) {
+        super(response);
         this.version = version;
         this.actual = actual;
     }
-    
+
     public XMLGregorianCalendar getVersion() {
         return version;
     }

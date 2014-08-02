@@ -11,23 +11,28 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.persistence.EntityExistsException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
-import net.es.nsi.pce.discovery.dao.DocumentCache;
-import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
 import net.es.nsi.pce.discovery.actors.DdsActorController;
-import net.es.nsi.pce.discovery.messages.DocumentEvent;
-import net.es.nsi.pce.discovery.messages.SubscriptionEvent;
 import net.es.nsi.pce.discovery.api.DiscoveryError;
+import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
+import net.es.nsi.pce.discovery.dao.DocumentCache;
 import net.es.nsi.pce.discovery.jaxb.DocumentEventType;
 import net.es.nsi.pce.discovery.jaxb.DocumentType;
+import net.es.nsi.pce.discovery.jaxb.ErrorType;
 import net.es.nsi.pce.discovery.jaxb.FilterType;
 import net.es.nsi.pce.discovery.jaxb.NotificationType;
+import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionType;
+import net.es.nsi.pce.discovery.messages.DocumentEvent;
+import net.es.nsi.pce.discovery.messages.SubscriptionEvent;
 import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.spring.SpringApplicationContext;
 import org.slf4j.Logger;
@@ -40,6 +45,7 @@ import org.slf4j.LoggerFactory;
 public class DdsProvider implements DiscoveryProvider {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private final ObjectFactory factory = new ObjectFactory();
 
     // Configuration reader.
     private DiscoveryConfiguration configReader;
@@ -81,6 +87,7 @@ public class DdsProvider implements DiscoveryProvider {
 
         // Save the subscription.
         subscriptions.put(subscription.getId(), subscription);
+
         // Now we need to schedule the send of the initail set of matching
         // documents in a notification to this subscription.  We delay the
         // send so that the requester has time to return and store the
@@ -95,16 +102,16 @@ public class DdsProvider implements DiscoveryProvider {
     }
 
     @Override
-    public Subscription deleteSubscription(String id) throws IllegalArgumentException, NotFoundException {
+    public Subscription deleteSubscription(String id) throws WebApplicationException {
         if (id == null || id.isEmpty()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "subscription", "id");
-            throw new IllegalArgumentException(error);
+            throw missingParameterException("subscription", "id");
         }
 
         Subscription subscription = subscriptions.remove(id);
         if (subscription == null) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.SUBCRIPTION_DOES_NOT_EXIST, "id", id);
-            throw new NotFoundException(error);
+            ErrorType error = DiscoveryError.getErrorType(DiscoveryError.SUBCRIPTION_DOES_NOT_EXIST, "id", id);
+            Response ex = Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(error)){}).build();
+            throw doesNotExistException(DiscoveryError.SUBCRIPTION_DOES_NOT_EXIST, "id", id);
         }
 
         if (subscription.getAction() != null) {
@@ -116,17 +123,15 @@ public class DdsProvider implements DiscoveryProvider {
     }
 
     @Override
-    public Subscription editSubscription(String id, SubscriptionRequestType request, String encoding) throws IllegalArgumentException, NotFoundException {
+    public Subscription editSubscription(String id, SubscriptionRequestType request, String encoding) throws WebApplicationException {
         // Make sure we have all needed parameters.
         if (id == null || id.isEmpty()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "subscription", "id");
-            throw new IllegalArgumentException(error);
+            throw missingParameterException("subscription", "id");
         }
 
         Subscription subscription = subscriptions.get(id);
         if (subscription == null) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.SUBCRIPTION_DOES_NOT_EXIST, "id", id);
-            throw new NotFoundException(error);
+            throw doesNotExistException(DiscoveryError.SUBCRIPTION_DOES_NOT_EXIST, "id", id);
         }
 
         subscription.setEncoding(encoding);
@@ -147,16 +152,14 @@ public class DdsProvider implements DiscoveryProvider {
     }
 
     @Override
-    public Subscription getSubscription(String id, Date lastModified) throws IllegalArgumentException, NotFoundException {
+    public Subscription getSubscription(String id, Date lastModified) throws WebApplicationException {
         if (id == null || id.isEmpty()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "subscription", "id");
-            throw new IllegalArgumentException(error);
+            throw missingParameterException("subscription", "id");
         }
 
         Subscription subscription = subscriptions.get(id);
         if (subscription == null) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.SUBCRIPTION_DOES_NOT_EXIST, "id", id);
-            throw new NotFoundException(error);
+            throw doesNotExistException(DiscoveryError.SUBCRIPTION_DOES_NOT_EXIST, "id", id);
         }
 
         // Check to see if the document was modified after provided date.
@@ -210,7 +213,7 @@ public class DdsProvider implements DiscoveryProvider {
     }
 
     @Override
-    public void processNotification(NotificationType notification) throws IllegalArgumentException, EntityExistsException, NotFoundException {
+    public void processNotification(NotificationType notification) {
         log.debug("processNotification: event=" + notification.getEvent() + ", discovered=" + notification.getDiscovered());
 
         // TODO: We discard the event type and discovered time, however, the
@@ -246,41 +249,35 @@ public class DdsProvider implements DiscoveryProvider {
     }
 
     @Override
-    public Document addDocument(DocumentType request) throws IllegalArgumentException, EntityExistsException {
+    public Document addDocument(DocumentType request) throws WebApplicationException {
         // Create and populate our internal document.
         Document document = new Document(request);
 
         // See if we already have a document under this id.
         Document get = documentCache.get(document.getId());
         if (get != null) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.DOCUMENT_EXISTS, "document", document.getId());
-            throw new EntityExistsException(error);
+            throw resourceExistsException(DiscoveryError.DOCUMENT_EXISTS, "document", document.getId());
         }
 
         // Validate basic fields.
         if (request.getNsa() == null || request.getNsa().isEmpty()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, document.getId(), "nsa");
-            throw new IllegalArgumentException(error);
+            throw missingParameterException(document.getId(), "nsa");
         }
 
         if (request.getType() == null || request.getType().isEmpty()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, document.getId(), "type");
-            throw new IllegalArgumentException(error);
+            throw missingParameterException(document.getId(), "type");
         }
 
         if (request.getId() == null || request.getId().isEmpty()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, document.getId(), "id");
-            throw new IllegalArgumentException(error);
+            throw missingParameterException(document.getId(), "id");
         }
 
         if (request.getVersion() == null || !request.getVersion().isValid()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, document.getId(), "version");
-            throw new IllegalArgumentException(error);
+            throw missingParameterException(document.getId(), "version");
         }
 
         if (request.getExpires() == null || !request.getExpires().isValid()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, document.getId(), "expires");
-            throw new IllegalArgumentException(error);
+            throw missingParameterException(document.getId(), "expires");
         }
 
         // This is a new document so add it into the document space.
@@ -289,8 +286,7 @@ public class DdsProvider implements DiscoveryProvider {
         }
         catch (JAXBException | IOException ex) {
             log.error("addDocument: failed to add document to document store", ex);
-            String error = DiscoveryError.getErrorString(DiscoveryError.DOCUMENT_INVALID, "document", document.getId());
-            throw new IllegalArgumentException(error);
+            throw illegalArgumentException(DiscoveryError.DOCUMENT_INVALID, "document", document.getId());
         }
 
         // Route a new document event.
@@ -302,7 +298,7 @@ public class DdsProvider implements DiscoveryProvider {
     }
 
     @Override
-    public Document updateDocument(String nsa, String type, String id, DocumentType request) throws IllegalArgumentException, NotFoundException, InvalidVersionException {
+    public Document updateDocument(String nsa, String type, String id, DocumentType request) throws WebApplicationException, InvalidVersionException {
         // Create a document identifier to look up in our documet table.
         String documentId = Document.documentId(nsa, type, id);
 
@@ -319,35 +315,28 @@ public class DdsProvider implements DiscoveryProvider {
 
         // Validate basic fields.
         if (request.getNsa() == null || request.getNsa().isEmpty() || !request.getNsa().equalsIgnoreCase(document.getDocument().getNsa())) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, documentId, "nsa");
-            throw new IllegalArgumentException(error);
+            throw missingParameterException(documentId, "nsa");
         }
 
         if (request.getType() == null || request.getType().isEmpty() || !request.getType().equalsIgnoreCase(document.getDocument().getType())) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, documentId, "type");
-            throw new IllegalArgumentException(error);
+            throw missingParameterException(documentId, "type");
         }
 
         if (request.getId() == null || request.getId().isEmpty() || !request.getId().equalsIgnoreCase(document.getDocument().getId())) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, documentId, "id");
-            throw new IllegalArgumentException(error);
+            throw missingParameterException(documentId, "id");
         }
 
         if (request.getVersion() == null || !request.getVersion().isValid()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, documentId, "version");
-            throw new IllegalArgumentException(error);
+            throw missingParameterException(documentId, "version");
         }
 
         if (request.getExpires() == null || !request.getExpires().isValid()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, documentId, "expires");
-            throw new IllegalArgumentException(error);
+            throw missingParameterException(documentId, "expires");
         }
 
         // Make sure this is a new version of the document.
         if (request.getVersion().compare(document.getDocument().getVersion()) != DatatypeConstants.GREATER) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.DOCUMENT_VERSION, request.getId(), "request=" + request.getVersion().toString() + ", actual=" + document.getDocument().getVersion().toString());
-
-            throw new InvalidVersionException(error, request.getVersion(), document.getDocument().getVersion());
+            throw invalidVersionException(DiscoveryError.DOCUMENT_VERSION, request.getId(), request.getVersion(), document.getDocument().getVersion());
         }
 
         log.debug("updateDocument: received update is good=" + documentId);
@@ -408,7 +397,7 @@ public class DdsProvider implements DiscoveryProvider {
     }
 
     @Override
-    public Collection<Document> getDocumentsByNsa(String nsa, String type, String id, Date lastDiscovered) throws IllegalArgumentException, NotFoundException {
+    public Collection<Document> getDocumentsByNsa(String nsa, String type, String id, Date lastDiscovered) throws WebApplicationException {
         // Seed the results.
         Collection<Document> results = documentCache.values();
 
@@ -416,13 +405,11 @@ public class DdsProvider implements DiscoveryProvider {
         if (nsa != null && !nsa.isEmpty()) {
             results = getDocumentsByNsa(nsa, results);
             if (results == null || results.isEmpty()) {
-                String error = DiscoveryError.getErrorString(DiscoveryError.NOT_FOUND, "nsa", nsa);
-                throw new NotFoundException(error);
+                throw doesNotExistException(DiscoveryError.NOT_FOUND, "nsa", nsa);
             }
         }
         else {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "document", "nsa");
-            throw new IllegalArgumentException(error);
+            throw illegalArgumentException(DiscoveryError.MISSING_PARAMETER, "document", "nsa");
         }
 
         // The rest are additional filters.
@@ -442,7 +429,7 @@ public class DdsProvider implements DiscoveryProvider {
     }
 
     @Override
-    public Collection<Document> getDocumentsByNsaAndType(String nsa, String type, String id, Date lastDiscovered) throws IllegalArgumentException {
+    public Collection<Document> getDocumentsByNsaAndType(String nsa, String type, String id, Date lastDiscovered) throws WebApplicationException {
         // Seed the results.
         Collection<Document> results = documentCache.values();
 
@@ -450,13 +437,11 @@ public class DdsProvider implements DiscoveryProvider {
 
         // This is the primary search value.  Make sure it is present.
         if (nsa == null || nsa.isEmpty()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "document", "nsa");
-            throw new IllegalArgumentException(error);
+            throw illegalArgumentException(DiscoveryError.MISSING_PARAMETER, "document", "nsa");
         }
 
         if (type == null || type.isEmpty()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "document", "type");
-            throw new IllegalArgumentException(error);
+            throw illegalArgumentException(DiscoveryError.MISSING_PARAMETER, "document", "type");
         }
 
         results = getDocumentsByNsa(nsa, results);
@@ -475,13 +460,12 @@ public class DdsProvider implements DiscoveryProvider {
     }
 
     @Override
-    public Document getDocument(String nsa, String type, String id, Date lastDiscovered) throws IllegalArgumentException, NotFoundException {
+    public Document getDocument(String nsa, String type, String id, Date lastDiscovered) throws WebApplicationException {
         String documentId = Document.documentId(nsa, type, id);
         Document document = documentCache.get(documentId);
 
         if (document == null) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.DOCUMENT_DOES_NOT_EXIST, "document", "nsa=" + nsa + ", type=" + type + ", id=" + id);
-            throw new NotFoundException(error);
+            throw doesNotExistException(DiscoveryError.DOCUMENT_DOES_NOT_EXIST, "document", "nsa=" + nsa + ", type=" + type + ", id=" + id);
         }
 
         // Check to see if the document was modified after provided date.
@@ -630,7 +614,7 @@ public class DdsProvider implements DiscoveryProvider {
                 try {
                     this.addDocument(document);
                 }
-                catch (IllegalArgumentException| EntityExistsException ex) {
+                catch (WebApplicationException ex) {
                     log.error("loadDocuments: Could not add document " + filename, ex);
                     continue;
                 }
@@ -647,12 +631,42 @@ public class DdsProvider implements DiscoveryProvider {
                         this.updateDocument(document);
                         log.debug("loadDocuments: updated document " + filename);
                     }
-                    catch (IllegalArgumentException | NotFoundException | InvalidVersionException ex) {
+                    catch (WebApplicationException ex) {
                         log.error("loadDocuments: Could not update document " + filename, ex);
-                        continue;
                     }
                 }
             }
         }
+    }
+
+
+    private WebApplicationException missingParameterException(String resource, String parameter) {
+        ErrorType error = DiscoveryError.getErrorType(DiscoveryError.MISSING_PARAMETER, resource, parameter);
+        Response ex = Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(error)){}).build();
+        return new WebApplicationException(ex);
+    }
+
+    private WebApplicationException doesNotExistException(DiscoveryError errorEnum, String resource, String id) {
+        ErrorType error = DiscoveryError.getErrorType(errorEnum, resource, id);
+        Response ex = Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(error)){}).build();
+        return new WebApplicationException(ex);
+    }
+
+    private WebApplicationException illegalArgumentException(DiscoveryError errorEnum, String resource, String parameter) {
+        ErrorType error = DiscoveryError.getErrorType(errorEnum, resource, parameter);
+        Response ex = Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(error)){}).build();
+        return new WebApplicationException(ex);
+    }
+
+     private WebApplicationException resourceExistsException(DiscoveryError errorEnum, String resource, String parameter) {
+        ErrorType error = DiscoveryError.getErrorType(errorEnum, resource, parameter);
+        Response ex = Response.status(Response.Status.CONFLICT).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(error)){}).build();
+        return new WebApplicationException(ex);
+    }
+
+     private InvalidVersionException invalidVersionException(DiscoveryError errorEnum, String resource, XMLGregorianCalendar request, XMLGregorianCalendar actual) {
+        ErrorType error = DiscoveryError.getErrorType(errorEnum, resource, "request=" + request.toString() + ", actual=" + actual.toString());
+        Response ex = Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<ErrorType>>(factory.createError(error)){}).build();
+        return new InvalidVersionException(ex, request, actual);
     }
 }
