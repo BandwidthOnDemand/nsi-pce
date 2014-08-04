@@ -49,9 +49,9 @@ public class LocalDocumentActor extends UntypedActor {
             if (directory == null || directory.isEmpty()) {
                 return;
             }
-            
-            DdsProvider.getInstance().loadDocuments(discoveryConfiguration.getDocuments());
-            ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);        
+
+            DdsProvider.getInstance().loadDocuments(directory);
+            ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
 
         } else {
             unhandled(msg);

@@ -11,6 +11,7 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.moxy.json.MoxyJsonFeature;
 import org.glassfish.jersey.moxy.xml.MoxyXmlFeature;
 import net.es.nsi.pce.jersey.JsonMoxyConfigurationContextResolver;
+import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.server.ResourceConfig;
 
 public enum TestServer {
@@ -95,6 +96,7 @@ public enum TestServer {
                 .register(FindPathResponseService.class) // Remove this if packages gets fixed.
                 .register(new MoxyXmlFeature())
                 .register(new MoxyJsonFeature())
+                .register(new LoggingFilter(java.util.logging.Logger.getGlobal(), true))
                 .registerInstances(new JsonMoxyConfigurationContextResolver());
     }
 }
