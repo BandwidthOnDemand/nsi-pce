@@ -20,7 +20,7 @@
   <!-- Append messages to log file -->
   <!-- ============================== -->
   <appender name="ERR_FILE" class="org.apache.log4j.RollingFileAppender">
-    <param name="MaxFileSize" value="250MB" />
+    <param name="MaxFileSize" value="100MB" />
     <param name="MaxBackupIndex" value="20"/>
     <param name="encoding" value="UTF-8" />
     <param name="File" value="${basedir}/var/log/nsi-pce.err.log" />
@@ -38,7 +38,7 @@
   <!-- Append messages to log file -->
   <!-- ============================== -->
   <appender name="INFO_FILE" class="org.apache.log4j.RollingFileAppender">
-    <param name="MaxFileSize" value="250MB" />
+    <param name="MaxFileSize" value="100MB" />
     <param name="MaxBackupIndex" value="20"/>
     <param name="encoding" value="UTF-8" />
     <param name="File" value="${basedir}/var/log/nsi-pce.info.log" />
@@ -55,7 +55,7 @@
   <!-- Append messages to log file -->
   <!-- ============================== -->
   <appender name="DEBUG_FILE" class="org.apache.log4j.RollingFileAppender">
-    <param name="MaxFileSize" value="250MB" />
+    <param name="MaxFileSize" value="100MB" />
     <param name="MaxBackupIndex" value="20"/>
     <param name="encoding" value="UTF-8" />
     <param name="File" value="${basedir}/var/log/nsi-pce.debug.log" />
