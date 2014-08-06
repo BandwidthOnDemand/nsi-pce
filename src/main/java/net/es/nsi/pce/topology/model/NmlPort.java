@@ -23,6 +23,7 @@ public class NmlPort {
     private String topologyId;
     private String name;
     private Optional<String> encoding = Optional.absent();
+    private Optional<String> labelType = Optional.absent();
     private Orientation orientation;
     private Set<NmlLabelType> labels = new LinkedHashSet<>();
     private String connectedTo;
@@ -211,6 +212,20 @@ public class NmlPort {
      */
     public void setEncoding(Optional<String> encoding) {
         this.encoding = encoding;
+    }
+
+    /**
+     * @return the labelType
+     */
+    public Optional<String> getLabelType() {
+        return labelType;
+    }
+
+    /**
+     * @param labelType the labelType to set
+     */
+    public void setLabelType(Optional<String> labelType) {
+        this.labelType = labelType;
     }
 
 }

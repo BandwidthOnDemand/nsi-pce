@@ -287,9 +287,11 @@ public class NsiTopologyFactory {
                     // Extract the labels associated with this port.  We
                     // currently expect a single labelType with a range of
                     // values.  VLAN labels is all we currently know about.
+                    Optional<String> labelType = Optional.absent();
                     Set<NmlLabelType> labels = new LinkedHashSet<>();
                     for (NmlLabelGroupType labelGroup : portGroup.getLabelGroup()) {
                         // We break out the vlan specific label.
+                        labelType = Optional.fromNullable(labelGroup.getLabeltype());
                         if (NmlEthernet.isVlanLabel(labelGroup.getLabeltype())) {
                             labels.addAll(NmlEthernet.labelGroupToLabels(labelGroup));
 
@@ -321,6 +323,7 @@ public class NsiTopologyFactory {
                     nmlPort.setId(portGroup.getId());
                     nmlPort.setName(portGroup.getName());
                     nmlPort.setEncoding(Optional.fromNullable(portGroup.getEncoding()));
+                    nmlPort.setLabelType(labelType);
                     nmlPort.setOrientation(orientation);
                     nmlPort.setVersion(nsa.getVersion());
                     nmlPort.setDiscovered(getLastDiscovered());
@@ -531,17 +534,44 @@ public class NsiTopologyFactory {
                 }
             }
         }
+        else {
+            // NML Default Behavior #2: If we have a SwitchingService with no port
+            // members then we must add all ports of matching label and encoding
+            // type.  We use a boolean here to tell us if the SwitchingService
+            // held a port.
+            for (NmlSwitchingServiceType switchingService : newSwitchingServices.values()) {
+                boolean foundPort = false;
+                for (NmlSwitchingServiceRelationType relation : switchingService.getRelation()) {
+                    if (Relationships.hasInboundPort.equalsIgnoreCase(relation.getType())) {
+                        foundPort = true;
+                        break;
+                    }
+                    else if (Relationships.hasOutboundPort.equalsIgnoreCase(relation.getType())) {
+                        foundPort = true;
+                        break;
+                    }
+                }
+
+                if (!foundPort) {
+                    // Treat this as a wildcard SwitchingService buy adding all
+                    // unidirectional ports with maching attributes.
+                    populateWildcardSwitchingService(switchingService, portMap);
+                }
+            }
+        }
 
         // Process SwitchingService elements and create the equivalent NSI
         // Service Domain.
         for (NmlSwitchingServiceType switchingService : newSwitchingServices.values()) {
             if (Objects.equals(switchingService.isLabelSwapping(), Boolean.TRUE)) {
+                log.debug("Processing SwitchingService with labelSwapping == true, id=" + switchingService.getId());
                 ServiceDomainType serviceDomain = NsiServiceDomainFactory.createServiceDomainType(switchingService, portMap, nsiNetwork, nsiTopology);
                 serviceDomains.add(serviceDomain);
             }
             else {
                 // We need a Service Domain per STP label so expand the
                 // SwitchingService to hold only like labels.
+                log.debug("Processing SwitchingService with labelSwapping == false, id=" + switchingService.getId());
                 Collection<ServiceDomainType> sd = NsiServiceDomainFactory.createServiceDomains(switchingService, portMap, nsiNetwork, nsiTopology);
                 serviceDomains.addAll(sd);
             }
@@ -587,6 +617,43 @@ public class NsiTopologyFactory {
         serviceDefinition.setId(nmlTopology.getId() + ":ServiceDefinition:default");
         serviceDefinition.setServiceType(defaultServiceType);
         switchingService.getAny().add(factory.createServiceDefinition(serviceDefinition));
+
+        return switchingService;
+    }
+
+    private NmlSwitchingServiceType populateWildcardSwitchingService(NmlSwitchingServiceType switchingService, Map<String, NmlPort> portMap) {
+        log.debug("Found empty SwitchingService, id=" + switchingService.getId() + ", populating based on wildcard rules.");
+        Optional<String> encoding = Optional.fromNullable(switchingService.getEncoding());
+        Optional<String> labelType = Optional.fromNullable(switchingService.getLabelType());
+
+        log.debug("encoding = " + encoding);
+        log.debug("labelType = " + labelType);
+
+        // Add the unidirectional port references.
+        NmlSwitchingServiceRelationType hasInboundPort = new NmlSwitchingServiceRelationType();
+        hasInboundPort.setType(Relationships.hasInboundPort);
+
+        NmlSwitchingServiceRelationType hasOutboundPort = new NmlSwitchingServiceRelationType();
+        hasOutboundPort.setType(Relationships.hasOutboundPort);
+
+        for (NmlPort port : portMap.values()) {
+            if (port.getEncoding().equals(encoding) && port.getLabelType().equals(labelType)) {
+                // Ignore the bidirectional ports.
+                if (port.getOrientation() == Orientation.inbound) {
+                    NmlPortGroupType pg = new NmlPortGroupType();
+                    pg.setId(port.getId());
+                    hasInboundPort.getPortGroup().add(pg);
+                }
+                else if (port.getOrientation() == Orientation.outbound) {
+                    NmlPortGroupType pg = new NmlPortGroupType();
+                    pg.setId(port.getId());
+                    hasOutboundPort.getPortGroup().add(pg);
+                }
+            }
+        }
+
+        switchingService.getRelation().add(hasInboundPort);
+        switchingService.getRelation().add(hasOutboundPort);
 
         return switchingService;
     }
