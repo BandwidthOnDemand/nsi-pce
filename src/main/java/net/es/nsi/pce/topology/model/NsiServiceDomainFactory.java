@@ -104,7 +104,6 @@ public class NsiServiceDomainFactory {
         }
 
         // Now we add the port references that are stored in Relations.
-        boolean foundPort = false;
         for (NmlSwitchingServiceRelationType relation : switchingService.getRelation()) {
             if (!Relationships.hasInboundPort.equals(relation.getType()) &&
                     !Relationships.hasOutboundPort.equals(relation.getType())) {
@@ -121,7 +120,6 @@ public class NsiServiceDomainFactory {
                 }
 
                 mapPortToStp(nmlPort, relation.getType(), nsiServiceDomain, nsiTopology);
-                foundPort = true;
             }
 
             // Now the PortGroup relations.
@@ -133,7 +131,6 @@ public class NsiServiceDomainFactory {
                 }
 
                 mapPortToStp(nmlPort, relation.getType(), nsiServiceDomain, nsiTopology);
-                foundPort = true;
             }
         }
 
@@ -148,7 +145,6 @@ public class NsiServiceDomainFactory {
             Optional<ResourceRefType> biStpRef = Optional.fromNullable(inboundStp.getReferencedBy());
             if (biStpRef.isPresent()) {
                 StpType biStp = nsiTopology.getStp(biStpRef.get().getId());
-                log.debug("Adding BIDIRECTIONAL STP to SwitchingService stpId=" + biStp.getId());
                 nsiServiceDomain.getBidirectionalStp().add(biStpRef.get());
                 biStp.setServiceDomain(serviceDomainRef);
             }
