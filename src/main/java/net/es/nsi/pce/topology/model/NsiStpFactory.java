@@ -53,6 +53,15 @@ public class NsiStpFactory {
         stp.setDiscovered(port.getDiscovered());
         stp.setVersion(port.getVersion());
 
+        // Map the port encoding into additional parameters for later use in
+        // ServiceDomain creation.
+        if (port.getEncoding().isPresent()) {
+            TypeValueType encoding = new TypeValueType();
+            encoding.setType("encoding");
+            encoding.setValue(port.getEncoding().get());
+            stp.getProperty().add(encoding);
+        }
+
         // We need to handle Bidirectional STP differently.
         boolean bidirectional = false;
         if (port.getOrientation() == Orientation.inbound) {
@@ -108,6 +117,12 @@ public class NsiStpFactory {
             stpLabel.setType(label.getLabeltype());
             stpLabel.setValue(label.getValue());
             stp.setLabel(stpLabel);
+
+            // Store the label type for later use in ServiceDomain creation.
+            TypeValueType labeltype = new TypeValueType();
+            labeltype.setType("labelType");
+            labeltype.setValue(stpLabel.getType());
+            stp.getProperty().add(labeltype);
         }
 
         // Finally, link this back into the containing Network resource.

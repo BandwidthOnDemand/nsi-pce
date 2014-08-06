@@ -27,6 +27,10 @@ import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import org.apache.http.client.utils.DateUtils;
+import com.google.common.base.Optional;
+import net.es.nsi.pce.topology.jaxb.DemarcationType;
+import net.es.nsi.pce.topology.jaxb.SdpType;
+import net.es.nsi.pce.topology.jaxb.TypeValueType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,6 +104,7 @@ public class NsiServiceDomainFactory {
         }
 
         // Now we add the port references that are stored in Relations.
+        boolean foundPort = false;
         for (NmlSwitchingServiceRelationType relation : switchingService.getRelation()) {
             if (!Relationships.hasInboundPort.equals(relation.getType()) &&
                     !Relationships.hasOutboundPort.equals(relation.getType())) {
@@ -116,6 +121,7 @@ public class NsiServiceDomainFactory {
                 }
 
                 mapPortToStp(nmlPort, relation.getType(), nsiServiceDomain, nsiTopology);
+                foundPort = true;
             }
 
             // Now the PortGroup relations.
@@ -128,6 +134,7 @@ public class NsiServiceDomainFactory {
                 }
 
                 mapPortToStp(nmlPort, relation.getType(), nsiServiceDomain, nsiTopology);
+                foundPort = true;
             }
         }
 
@@ -151,6 +158,70 @@ public class NsiServiceDomainFactory {
 
         // Add this ServiceDomain to the owning network.
         nsiNetwork.getServiceDomain().add(serviceDomainRef);
+
+
+        // NML Default Behavior #2: If we have a SwitchingService with no port
+        // members then we must add all ports of matching label and encoding
+        // type.  We use a boolean here to tell us if the original SwitchingService
+        // held a port and not whether the resulting ServiceDomain does since
+        // the meaning is different.
+        if (foundPort == false) {
+            log.debug("Found empty SwitchingService, id=" + switchingService.getId() + ", populating based on wildcard rules.");
+            Optional<String> encoding = Optional.fromNullable(switchingService.getEncoding());
+            Optional<String> labelType = Optional.fromNullable(switchingService.getLabelType());
+
+            log.debug("encoding = " + encoding);
+            log.debug("labelType = " + labelType);
+
+            for (ResourceRefType stpRef : nsiNetwork.getStp()) {
+                Optional<StpType> stp = Optional.fromNullable(nsiTopology.getStp(stpRef.getId()));
+                if (stp.isPresent()) {
+                    Optional<String> stpEncoding = Optional.absent();
+                    Optional<String> stpLabelType = Optional.absent();
+
+                    for (TypeValueType tvt : stp.get().getProperty()) {
+                        if ("encoding".equalsIgnoreCase(tvt.getType())) {
+                            stpEncoding = Optional.fromNullable(tvt.getValue());
+                        }
+                        else if ("labelType".equalsIgnoreCase(tvt.getType())) {
+                            stpLabelType = Optional.fromNullable(tvt.getValue());
+                        }
+                    }
+
+                    if (encoding.equals(stpEncoding) && labelType.equals(stpLabelType)) {
+                        StpType stpType = stp.get();
+                        Optional<ResourceRefType> sdpRef= Optional.fromNullable(stpType.getSdp());
+
+                        if (stpType.getType() == StpDirectionalityType.BIDIRECTIONAL) {
+                            // Add this STP to the wildcard service domain.
+                            nsiServiceDomain.getBidirectionalStp().add(stpRef);
+                        }
+                        else if (stpType.getType() == StpDirectionalityType.INBOUND) {
+                            nsiServiceDomain.getInboundStp().add(stpRef);
+                        }
+                        else if (stpType.getType() == StpDirectionalityType.OUTBOUND) {
+                            nsiServiceDomain.getOutboundStp().add(stpRef);
+                        }
+
+                        // Add the ServiceDomain reference to this STP.
+                        stpType.setServiceDomain(serviceDomainRef);
+
+                        // Add the ServiceDomain reference to the associated SDP.
+                        if (sdpRef.isPresent()) {
+                            SdpType sdp = nsiTopology.getSdp(sdpRef.get().getId());
+                            DemarcationType demarcationA = sdp.getDemarcationA();
+                            DemarcationType demarcationZ = sdp.getDemarcationZ();
+                            if (stpType.getId().equalsIgnoreCase(demarcationA.getStp().getId())) {
+                                demarcationA.setServiceDomain(serviceDomainRef);
+                            }
+                            else {
+                                demarcationZ.setServiceDomain(serviceDomainRef);
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         return nsiServiceDomain;
     }
@@ -188,7 +259,7 @@ public class NsiServiceDomainFactory {
         if (nmlPort.getLabels() == null || nmlPort.getLabels().isEmpty()) {
             String stpId = NsiStpFactory.createStpId(nmlPort.getId(), null);
 
-            // Retrieve the STP so re can build a reference.
+            // Retrieve the STP so we can build a reference.
             StpType stp = nsiTopology.getStp(stpId);
             stp.setServiceDomain(serviceDomainRef);
             ResourceRefType stpRef = NsiStpFactory.createResourceRefType(stp);

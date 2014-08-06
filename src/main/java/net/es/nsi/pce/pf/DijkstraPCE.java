@@ -6,6 +6,9 @@ import java.util.List;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
+import java.util.HashMap;
+import java.util.Map;
+import com.google.common.base.Optional;
 import net.es.nsi.pce.path.jaxb.DirectionalityType;
 import net.es.nsi.pce.pf.api.NsiError;
 
@@ -20,12 +23,14 @@ import net.es.nsi.pce.pf.api.cons.BooleanAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.api.PathSegment;
+import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
+import org.apache.commons.collections15.Transformer;
 
 /**
  * Main path computation class using Dijkstra's shortest path on an NSI
@@ -35,6 +40,7 @@ import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
  */
 public class DijkstraPCE implements PCEModule {
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private Map<String, DijkstraVertex> verticies = new HashMap<>();
 
     /**
      * This path computation module supports pathfinding for the P2PS service
@@ -131,53 +137,87 @@ public class DijkstraPCE implements PCEModule {
         segmentConstraints.removeStringAttrConstraint(Point2PointTypes.SOURCESTP);
         segmentConstraints.removeStringAttrConstraint(Point2PointTypes.DESTSTP);
 
-        // We can save time by handling the special case of A and Z STP in same
-        // network.
-        String srcNetwork = srcStp.getNetworkId();
-        String dstNetwork = dstStp.getNetworkId();
-
-        if (srcNetwork.equals(dstNetwork)) {
-            StpPair pathPair = new StpPair(srcStp, dstStp);
-            PathSegment pathSegment = new PathSegment(pathPair);
-            Constraints cons = new Constraints(segmentConstraints);
-            pathSegment.setConstraints(cons);
-            pceData.getPath().getPathSegments().add(pathSegment);
-            return pceData;
+        // The source and destination STP need to belong to a service domain
+        // otherwise a path will not be found.
+        if (srcStp.getServiceDomain() == null) {
+            log.error("Missing ServiceDomain for source sdpId=" + srcStp.getId());
+            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "Missing ServiceDomain for source sdpId=" + srcStp.getId());
+            throw new RuntimeException(error);
+        }
+        else if (dstStp.getServiceDomain() == null) {
+            log.error("Missing ServiceDomain for destination sdpId=" + dstStp.getId());
+            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "Missing ServiceDomain for destination sdpId=" + dstStp.getId());
+            throw new RuntimeException(error);
         }
 
-        // Graph<V, E> where V is the type of the vertices and E is the type of the edges.
-        Graph<ServiceDomainType, SdpType> graph = new SparseMultigraph<>();
+        ServiceDomainType sourceServiceDomain = nsiTopology.getServiceDomain(srcStp.getServiceDomain().getId());
+        ServiceDomainType destinationServiceDomain = nsiTopology.getServiceDomain(dstStp.getServiceDomain().getId());
+
+        // We build a graph consisting of source STP, destination STP, and all
+        // service domains as verticies.  The SDP are added as edges between
+        // service domains.  A special edge is added between the edge STP and
+        // the first service domain to allow for path finding between the source
+        // and destination STP.  We will need to remove any SDP that are
+        // associated with the source or destination STP.
+        Graph<DijkstraVertex, DijkstraEdge> graph = new SparseMultigraph<>();
+        Transformer<DijkstraEdge,Number> trans = new DijkstraTrasnsformer(pceData);
+
+        // Add the source and destination STP as verticies.
+        DijkstraVertex srcVertex = new DijkstraVertex(srcStp.getId(), srcStp);
+        graph.addVertex(srcVertex);
+        verticies.put(srcVertex.getId(), srcVertex);
+
+        DijkstraVertex dstVertex = new DijkstraVertex(dstStp.getId(), dstStp);
+        graph.addVertex(dstVertex);
+        verticies.put(dstVertex.getId(), dstVertex);
 
         // Add ServiceDomains as verticies.
         for (ServiceDomainType serviceDomain : nsiTopology.getServiceDomains()) {
-            //log.debug("Adding Vertex: " + serviceDomain.getId());
-            graph.addVertex(serviceDomain);
+            DijkstraVertex vertex = new DijkstraVertex(serviceDomain.getId(), serviceDomain);
+            graph.addVertex(vertex);
+            verticies.put(vertex.getId(), vertex);
         }
+
+        // Connect the source and destination STP verticies to their associated
+        // service domains.
+        DijkstraEdge sourceEdge = new DijkstraEdge(srcStp.getId(), srcStp, sourceServiceDomain);
+        graph.addEdge(sourceEdge, srcVertex, verticies.get(sourceServiceDomain.getId()));
+        DijkstraEdge destinationEdge = new DijkstraEdge(dstStp.getId(), dstStp, destinationServiceDomain);
+        graph.addEdge(destinationEdge, dstVertex, verticies.get(destinationServiceDomain.getId()));
 
         // Add bidirectional SDP as edges.
         for (SdpType sdp : nsiTopology.getSdps()) {
             if (sdp.getType() == SdpDirectionalityType.BIDIRECTIONAL) {
-                if (sdp.getDemarcationA().getServiceDomain() == null) {
+                Optional<ResourceRefType> aServiceDomainRef = Optional.fromNullable(sdp.getDemarcationA().getServiceDomain());
+                Optional<ResourceRefType> zServiceDomainRef = Optional.fromNullable(sdp.getDemarcationZ().getServiceDomain());
+                Optional<ResourceRefType> srcSdp = Optional.fromNullable(srcStp.getSdp());
+                Optional<ResourceRefType> dstSdp = Optional.fromNullable(dstStp.getSdp());
+
+                if (!aServiceDomainRef.isPresent()) {
                     log.error("Missing service domain for demarcationA sdpId=" + sdp.getId() + " and stpId=" + sdp.getDemarcationA().getStp().getId());
                 }
-                else if (sdp.getDemarcationZ().getServiceDomain() == null) {
+                else if (!zServiceDomainRef.isPresent()) {
                     log.error("Missing service domain for demarcationZ sdpId=" + sdp.getId() + " and stpId=" + sdp.getDemarcationZ().getStp().getId());
                 }
+                else if (srcSdp.isPresent() && srcSdp.get().getId().equalsIgnoreCase(sdp.getId())) {
+                    log.debug("Omitting SDP sdpId=" + sdp.getId() + ", due to source stpId=" + srcStp.getId());
+                }
+                else if (dstSdp.isPresent() && dstSdp.get().getId().equalsIgnoreCase(sdp.getId())) {
+                    log.debug("Omitting SDP sdpId=" + sdp.getId() + ", due to destination stpId=" + dstStp.getId());
+                }
                 else {
-                    ServiceDomainType aServiceDomain = nsiTopology.getServiceDomain(sdp.getDemarcationA().getServiceDomain().getId());
-                    ServiceDomainType bServiceDomain = nsiTopology.getServiceDomain(sdp.getDemarcationZ().getServiceDomain().getId());
-                    graph.addEdge(sdp, aServiceDomain, bServiceDomain);
+                    DijkstraEdge sdpEdge = new DijkstraEdge(sdp.getId(), sdp);
+                    graph.addEdge(sdpEdge, verticies.get(aServiceDomainRef.get().getId()), verticies.get(zServiceDomainRef.get().getId()));
                 }
             }
         }
 
-        DijkstraShortestPath<ServiceDomainType, SdpType> alg = new DijkstraShortestPath<>(graph);
+        DijkstraShortestPath<DijkstraVertex, DijkstraEdge> alg = new DijkstraShortestPath<>(graph);
 
-        List<SdpType> path;
+        List<DijkstraEdge> path;
         try {
-            ServiceDomainType sourceServiceDomain = nsiTopology.getServiceDomain(srcStp.getServiceDomain().getId());
-            ServiceDomainType destinationServiceDomain = nsiTopology.getServiceDomain(dstStp.getServiceDomain().getId());
-            path = alg.getPath(sourceServiceDomain, destinationServiceDomain);
+
+            path = alg.getPath(srcVertex, dstVertex);
         } catch (IllegalArgumentException ex) {
             String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, ex.getMessage());
             log.error(error, ex);
@@ -192,7 +232,7 @@ public class DijkstraPCE implements PCEModule {
             throw new RuntimeException(error);
         }
 
-        List<StpPair> segments = pullIndividualSegmentsOut(srcStp, dstStp, path, nsiTopology);
+        List<StpPair> segments = pullIndividualSegmentsOut(path, nsiTopology);
         for (int i = 0; i < segments.size(); i++) {
             StpPair pair = segments.get(i);
 
@@ -207,28 +247,40 @@ public class DijkstraPCE implements PCEModule {
         return pceData;
     }
 
-    protected List<StpPair> pullIndividualSegmentsOut(StpType srcStp, StpType dstStp, List<SdpType> path, NsiTopology nsiTopology) {
+    protected List<StpPair> pullIndividualSegmentsOut(List<DijkstraEdge> path, NsiTopology nsiTopology) {
         List<StpPair> segments = new ArrayList<>();
 
-        StpType start = srcStp;
-        for (SdpType edge: path) {
+        Optional<StpType> start = Optional.absent();
+        for (DijkstraEdge edge: path) {
             log.debug("--- Edge: " + edge.getId());
-            StpType stpA = nsiTopology.getStp(edge.getDemarcationA().getStp().getId());
-            StpType stpZ = nsiTopology.getStp(edge.getDemarcationZ().getStp().getId());
 
-            StpPair pathPair;
-            if (start.getNetworkId().equalsIgnoreCase(stpA.getNetworkId())) {
-                pathPair = new StpPair(start, stpA);
-                start = stpZ;
+            if (edge.getType() == DijkstraEdgeType.STP_SERVICEDOMAIN) {
+                if (!start.isPresent()) {
+                    // Source STP in the path.
+                    start = Optional.of(edge.getStp());
+                }
+                else {
+                    // Destimnation STP in the path.
+                    segments.add(new StpPair(start.get(), edge.getStp()));
+                }
             }
-            else {
-                pathPair = new StpPair(start, stpZ);
-                start = stpA;
+            else if (edge.getType() == DijkstraEdgeType.SDP) {
+                // SDP along the path.
+                StpType stpA = nsiTopology.getStp(edge.getSdp().getDemarcationA().getStp().getId());
+                StpType stpZ = nsiTopology.getStp(edge.getSdp().getDemarcationZ().getStp().getId());
+
+                StpPair pathPair;
+                if (start.get().getNetworkId().equalsIgnoreCase(stpA.getNetworkId())) {
+                    pathPair = new StpPair(start.get(), stpA);
+                    start = Optional.of(stpZ);
+                }
+                else {
+                    pathPair = new StpPair(start.get(), stpZ);
+                    start = Optional.of(stpA);
+                }
+                segments.add(pathPair);
             }
-            segments.add(pathPair);
         }
-
-        segments.add(new StpPair(start, dstStp));
 
         return segments;
     }

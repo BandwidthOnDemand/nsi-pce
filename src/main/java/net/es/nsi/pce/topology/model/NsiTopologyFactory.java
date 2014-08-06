@@ -1,5 +1,6 @@
 package net.es.nsi.pce.topology.model;
 
+import com.google.common.base.Optional;
 import net.es.nsi.pce.management.logs.PceErrors;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.xml.bind.JAXBElement;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
@@ -287,9 +289,10 @@ public class NsiTopologyFactory {
                     // values.  VLAN labels is all we currently know about.
                     Set<NmlLabelType> labels = new LinkedHashSet<>();
                     for (NmlLabelGroupType labelGroup : portGroup.getLabelGroup()) {
-                        // We break out the vlan specific lable.
+                        // We break out the vlan specific label.
                         if (NmlEthernet.isVlanLabel(labelGroup.getLabeltype())) {
                             labels.addAll(NmlEthernet.labelGroupToLabels(labelGroup));
+
                         }
                     }
 
@@ -317,6 +320,7 @@ public class NsiTopologyFactory {
                     nmlPort.setTopologyId(nmlTopology.getId());
                     nmlPort.setId(portGroup.getId());
                     nmlPort.setName(portGroup.getName());
+                    nmlPort.setEncoding(Optional.fromNullable(portGroup.getEncoding()));
                     nmlPort.setOrientation(orientation);
                     nmlPort.setVersion(nsa.getVersion());
                     nmlPort.setDiscovered(getLastDiscovered());
@@ -351,6 +355,7 @@ public class NsiTopologyFactory {
                     nmlPort.setTopologyId(nmlTopology.getId());
                     nmlPort.setId(port.getId());
                     nmlPort.setName(port.getName());
+                    nmlPort.setEncoding(Optional.fromNullable(port.getEncoding()));
                     nmlPort.setOrientation(orientation);
                     nmlPort.setVersion(nsa.getVersion());
                     nmlPort.setDiscovered(getLastDiscovered());
@@ -474,6 +479,7 @@ public class NsiTopologyFactory {
                 nmlPort.setTopologyId(nmlTopology.getId());
                 nmlPort.setId(port.getId());
                 nmlPort.setName(port.getName());
+                nmlPort.setEncoding(inbound.getEncoding());
                 nmlPort.setOrientation(Orientation.inboundOutbound);
                 nmlPort.setVersion(nsa.getVersion());
                 nmlPort.setDiscovered(getLastDiscovered());
@@ -503,8 +509,9 @@ public class NsiTopologyFactory {
             }
         }
 
-        // Check to see if we have a SwitchingService defined, and if not,
-        // create the default one with all ports and no labelSwapping.
+        // NML Default Behavior #1: Check to see if we have a SwitchingService
+        // defined, and if not, create the default one with all ports and
+        // labelSwapping set to false.
         if (newSwitchingServices.isEmpty()) {
             NmlSwitchingServiceType switchingService = newNmlSwitchingService(nmlTopology, portMap);
             newSwitchingServices.put(switchingService.getId(), switchingService);
@@ -525,19 +532,18 @@ public class NsiTopologyFactory {
             }
         }
 
-        // Process SwitchingService elements and created the equivalent NSI
+        // Process SwitchingService elements and create the equivalent NSI
         // Service Domain.
         for (NmlSwitchingServiceType switchingService : newSwitchingServices.values()) {
-            if (switchingService.isLabelSwapping() == null ||
-                    switchingService.isLabelSwapping() == Boolean.FALSE) {
+            if (Objects.equals(switchingService.isLabelSwapping(), Boolean.TRUE)) {
+                ServiceDomainType serviceDomain = NsiServiceDomainFactory.createServiceDomainType(switchingService, portMap, nsiNetwork, nsiTopology);
+                serviceDomains.add(serviceDomain);
+            }
+            else {
                 // We need a Service Domain per STP label so expand the
                 // SwitchingService to hold only like labels.
                 Collection<ServiceDomainType> sd = NsiServiceDomainFactory.createServiceDomains(switchingService, portMap, nsiNetwork, nsiTopology);
                 serviceDomains.addAll(sd);
-            }
-            else {
-                ServiceDomainType serviceDomain = NsiServiceDomainFactory.createServiceDomainType(switchingService, portMap, nsiNetwork, nsiTopology);
-                serviceDomains.add(serviceDomain);
             }
         }
 

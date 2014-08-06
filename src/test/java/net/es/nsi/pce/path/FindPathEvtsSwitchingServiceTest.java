@@ -61,11 +61,18 @@ public class FindPathEvtsSwitchingServiceTest {
         }
     };
 
+    // Test creation of wild card SwitchingService in GEANT network.
+    private final static StpTestData test3 = new StpTestData() {
+        { this.setStpA("urn:ogf:network:geant.net:2013:bi-geant-grnet?vlan=1779");
+          this.setStpZ("urn:ogf:network:geant.net:2013:bi-geant-netherlight?vlan=1780");
+        }
+    };
+
     private final static List<StpTestData> testData = new ArrayList<StpTestData>() {
         private static final long serialVersionUID = 1L;
         {
             this.add(test1);
-            //this.add(test2);
+            this.add(test3);
         }
     };
 

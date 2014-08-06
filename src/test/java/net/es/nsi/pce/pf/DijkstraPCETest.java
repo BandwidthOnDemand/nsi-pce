@@ -7,6 +7,7 @@ import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
+import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
@@ -22,43 +23,69 @@ public class DijkstraPCETest {
 
     @Test
     public void should_pull_out_individual_segments() {
-        StpType srcStp = new StpType();
-        srcStp.setNetworkId("urn:ogf:network:surfnet.nl:1990:testbed");
-        srcStp.setId("urn:ogf:network:surfnet.nl:1990:testbed:start");
+        StpType srcStp1 = new StpType();
+        srcStp1.setNetworkId("urn:ogf:network:surfnet.nl:1990:src-testbed");
+        srcStp1.setId("urn:ogf:network:surfnet.nl:1990:src-testbed:start");
 
-        StpType dstStp = new StpType();
-        dstStp.setNetworkId("urn:ogf:network:surfnet.nl:1990:testbed");
-        dstStp.setId("urn:ogf:network:surfnet.nl:1990:testbed:end");
+        ServiceDomainType srcServiceDomain = new ServiceDomainType();
+        srcServiceDomain.setId("urn:ogf:network:surfnet.nl:1990:src-testbed:ServiceDomain");
 
-        StpType intermediateStp = new StpType();
-        intermediateStp.setNetworkId("urn:ogf:network:surfnet.nl:1990:testbed");
-        intermediateStp.setId("urn:ogf:network:surfnet.nl:1990:testbed:1");
+        DijkstraEdge srcEdge = new DijkstraEdge(srcStp1.getId(), srcStp1, srcServiceDomain);
 
-        List<SdpType> path = Arrays.asList(
-            createEdge("urn:ogf:network:surfnet.nl:1990:testbed:start", "urn:ogf:network:surfnet.nl:1990:testbed:1"),
-            createEdge("urn:ogf:network:surfnet.nl:1990:testbed:1", "urn:ogf:network:surfnet.nl:1990:testbed:end"));
+        StpType srcStp2 = new StpType();
+        srcStp2.setNetworkId("urn:ogf:network:surfnet.nl:1990:src-testbed");
+        srcStp2.setId("urn:ogf:network:surfnet.nl:1990:src-testbed:stp-out");
+
+        StpType intermediateStp1 = new StpType();
+        intermediateStp1.setNetworkId("urn:ogf:network:surfnet.nl:1990:inter-testbed");
+        intermediateStp1.setId("urn:ogf:network:surfnet.nl:1990:inter-testbed:in");
+
+        SdpType interSdp1 = createSdp(srcStp2, intermediateStp1);
+        DijkstraEdge interEdge1 = new DijkstraEdge(interSdp1.getId(), interSdp1);
+
+        StpType intermediateStp2 = new StpType();
+        intermediateStp2.setNetworkId("urn:ogf:network:surfnet.nl:1990:inter-testbed");
+        intermediateStp2.setId("urn:ogf:network:surfnet.nl:1990:inter-testbed:out");
+
+        StpType dstStp2 = new StpType();
+        dstStp2.setNetworkId("urn:ogf:network:surfnet.nl:1990:dst-testbed");
+        dstStp2.setId("urn:ogf:network:surfnet.nl:1990:dst-testbed:stp-in");
+
+        SdpType interSdp2 = createSdp(intermediateStp2, dstStp2);
+        DijkstraEdge interEdge2 = new DijkstraEdge(interSdp2.getId(), interSdp2);
+
+        StpType dstStp1 = new StpType();
+        dstStp1.setNetworkId("urn:ogf:network:surfnet.nl:1990:dst-testbed");
+        dstStp1.setId("urn:ogf:network:surfnet.nl:1990:dst-testbed:end");
+
+        ServiceDomainType dstServiceDomain = new ServiceDomainType();
+        dstServiceDomain.setId("urn:ogf:network:surfnet.nl:1990:dst-testbed:ServiceDomain");
+
+        DijkstraEdge dstEdge = new DijkstraEdge(dstStp1.getId(), dstStp1, dstServiceDomain);
+
+        List<DijkstraEdge> path = Arrays.asList(srcEdge, interEdge1, interEdge2, dstEdge);
 
         NsiTopology nsiTopology = new NsiTopology();
-        nsiTopology.addAllStp(Arrays.asList(srcStp, dstStp, intermediateStp));
+        nsiTopology.addAllStp(Arrays.asList(srcStp1, srcStp2, dstStp1, dstStp2, intermediateStp1, intermediateStp2));
 
-        List<StpPair> segments = subject.pullIndividualSegmentsOut(srcStp, dstStp, path, nsiTopology);
+        List<StpPair> segments = subject.pullIndividualSegmentsOut(path, nsiTopology);
 
         assertThat(segments.size(), is(3));
-        assertThat(segments.get(0).getA().getId(), is("urn:ogf:network:surfnet.nl:1990:testbed:start"));
-        assertThat(segments.get(2).getZ().getId(), is("urn:ogf:network:surfnet.nl:1990:testbed:end"));
+        assertThat(segments.get(0).getA().getId(), is("urn:ogf:network:surfnet.nl:1990:src-testbed:start"));
+        assertThat(segments.get(2).getZ().getId(), is("urn:ogf:network:surfnet.nl:1990:dst-testbed:end"));
     }
 
-    private SdpType createEdge(String start, String end) {
+    private SdpType createSdp(StpType start, StpType end) {
         SdpType edge = new SdpType();
+        edge.setId(start.getId() + "::" + end.getId());
         ResourceRefType resourceRefA = new ResourceRefType();
-        resourceRefA.setId(start);
+        resourceRefA.setId(start.getId());
         DemarcationType demarcationA = new DemarcationType();
         demarcationA.setStp(resourceRefA);
         ResourceRefType resourceRefB = new ResourceRefType();
-        resourceRefB.setId(end);
+        resourceRefB.setId(end.getId());
         DemarcationType demarcationB = new DemarcationType();
         demarcationB.setStp(resourceRefB);
-
         edge.setDemarcationA(demarcationA);
         edge.setDemarcationZ(demarcationB);
 

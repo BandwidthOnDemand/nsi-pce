@@ -5,16 +5,16 @@
     xmlns:nsa="http://schemas.ogf.org/nsi/2014/02/discovery/nsa"
     xmlns:xcard="urn:ietf:params:xml:ns:vcard-4.0"
     xmlns:tns="http://schemas.es.net/nsi/2013/07/topology/types">
-    
+
     <xsd:import namespace="http://schemas.ogf.org/nsi/2013/12/services/definition"
         schemaLocation="ogf_nsi_services_definition_v2_0.xsd"/>
-    
+
     <xsd:import namespace="http://schemas.ogf.org/nsi/2014/02/discovery/nsa"
         schemaLocation="ogf_nsi_discovery_nsa_v1_0.xsd"/>
-    
+
     <xsd:import namespace="urn:ietf:params:xml:ns:vcard-4.0" schemaLocation="xCard.xsd"/>
-    
-    <xsd:element name="stp"               type="tns:StpType" />    
+
+    <xsd:element name="stp"               type="tns:StpType" />
     <xsd:element name="sdp"               type="tns:SdpType" />
     <xsd:element name="serviceAdaptation" type="tns:ServiceAdaptationType" />
     <xsd:element name="serviceDomain"     type="tns:ServiceDomainType" />
@@ -37,7 +37,7 @@
         <xsd:attribute name="discovered" use="required" type="xsd:dateTime" />
         <xsd:anyAttribute namespace="##other" processContents="lax" />
     </xsd:complexType>
-    
+
     <xsd:complexType name="NsiResourceType">
         <xsd:attribute    name="id"         type="xsd:anyURI"    use="optional"/>
         <xsd:attribute    name="name"       type="xsd:string"    use="optional"/>
@@ -68,7 +68,7 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
-    
+
     <xsd:complexType name="SdpType">
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
@@ -89,7 +89,7 @@
             <xsd:element name="network"       type="tns:ResourceRefType" />
         </xsd:sequence>
     </xsd:complexType>
-    
+
     <xsd:complexType name="ServiceAdaptationType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
@@ -98,7 +98,7 @@
                 two Transfer Functions together allowing a path finder to
                 determine if it was possible to “enter” an STP in one Transfer
                 Function and “exit” an STP on a different Transfer Function.
-                
+
                 An Adaptation is defined through a Service Definition
             </xsd:documentation>
         </xsd:annotation>
@@ -115,14 +115,12 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
-    
+
     <xsd:complexType name="ServiceDomainType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
                 Transfer Functions contain a set of STP of the same Service Type
                 that are capable of being interconnected without restriction.
-                
-                
             </xsd:documentation>
         </xsd:annotation>
         <xsd:complexContent>
@@ -138,7 +136,7 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
-    
+
     <xsd:complexType name="ServiceType">
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
@@ -151,7 +149,7 @@
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
-    
+
     <xsd:complexType name="NetworkType">
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
@@ -165,8 +163,8 @@
                 </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
-    </xsd:complexType>   
-    
+    </xsd:complexType>
+
     <xsd:complexType name="NsaType">
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
@@ -197,13 +195,13 @@
         <xsd:attribute name="id"    use="required" type="xsd:anyURI" />
         <xsd:attribute name="cost"  use="required" type="xsd:int" />
     </xsd:complexType>
-    
+
     <xsd:complexType name="ResourceRefType">
         <xsd:attribute name="id"   type="xsd:anyURI" />
         <xsd:attribute name="href" type="xsd:anyURI" />
         <xsd:attribute name="type" type="xsd:anyURI" use="optional"/>
     </xsd:complexType>
-    
+
     <xsd:complexType name="TypeValueType">
         <xsd:simpleContent>
             <xsd:extension  base="xsd:string">
@@ -211,7 +209,7 @@
             </xsd:extension>
         </xsd:simpleContent>
     </xsd:complexType>
-    
+
     <xsd:simpleType name="StpDirectionalityType">
         <xsd:restriction base="xsd:string">
             <xsd:enumeration  value="Inbound"/>
@@ -228,7 +226,7 @@
             <xsd:enumeration  value="Undefined"/>
         </xsd:restriction>
     </xsd:simpleType>
-    
+
     <xsd:simpleType name="AdaptationDirectionalityType">
         <xsd:restriction base="xsd:string">
             <xsd:enumeration  value="Unidirectional"/>

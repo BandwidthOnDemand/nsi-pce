@@ -1,16 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.topology.model;
 
+import com.google.common.base.Optional;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import net.es.nsi.pce.topology.model.Orientation;
 import net.es.nsi.pce.topology.jaxb.NmlLabelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +17,12 @@ import org.slf4j.LoggerFactory;
  */
 public class NmlPort {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    
+
     private String id;
     private String nsaId;
     private String topologyId;
     private String name;
+    private Optional<String> encoding = Optional.absent();
     private Orientation orientation;
     private Set<NmlLabelType> labels = new LinkedHashSet<>();
     private String connectedTo;
@@ -131,7 +128,7 @@ public class NmlPort {
     public void setDiscovered(XMLGregorianCalendar discovered) {
         this.discovered = discovered;
     }
-    
+
     /**
      * @param discovered the discovered to set
      */
@@ -201,4 +198,19 @@ public class NmlPort {
     public void setOutboundPort(NmlPort outboundStpId) {
         this.outboundPort = outboundStpId;
     }
+
+    /**
+     * @return the encoding
+     */
+    public Optional<String> getEncoding() {
+        return encoding;
+    }
+
+    /**
+     * @param encoding the encoding to set
+     */
+    public void setEncoding(Optional<String> encoding) {
+        this.encoding = encoding;
+    }
+
 }
