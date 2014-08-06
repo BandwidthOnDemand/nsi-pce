@@ -125,7 +125,6 @@ public class NsiServiceDomainFactory {
             }
 
             // Now the PortGroup relations.
-            List<NmlPortGroupType> portGroups = relation.getPortGroup();
             for (NmlPortGroupType portGroup : relation.getPortGroup()) {
                 NmlPort nmlPort = portMap.get(portGroup.getId());
                 if (nmlPort == null) {
@@ -444,16 +443,6 @@ public class NsiServiceDomainFactory {
             log.error("NML SwitchingService " + switchingService.getId() + " does not have a valid ServiceDefinition.");
         }
 
-        // Make a copy of the Bidirectional STP and remove them as we
-        // populate their member unidirectional ports.
-        Map<String, StpType> biStp = new HashMap<>();
-        for (StpType stp : nsiTopology.getStps()) {
-            if (stp.getType() == StpDirectionalityType.BIDIRECTIONAL) {
-                biStp.put(stp.getInboundStp().getId(), stp);
-                biStp.put(stp.getOutboundStp().getId(), stp);
-            }
-        }
-
         // Now for each key we create a new ServiceDomain.
         for (String key : inboundStps.keySet()) {
             ServiceDomainType nsiServiceDomain = new ServiceDomainType();
@@ -497,20 +486,20 @@ public class NsiServiceDomainFactory {
             ResourceRefType nsiServiceDomainRef = NsiServiceDomainFactory.createResourceRefType(nsiServiceDomain);
 
 
-            // Add the inbound STP references to this ServiceDomain.
+            // Add the inbound STP references to this ServiceDomain.  Use the
+            // inbound STP as a reference for the bidirectional STP.
             List<StpType> inStps = inboundStps.get(key);
             for (StpType inStp : inStps) {
                 nsiServiceDomain.getInboundStp().add(NsiStpFactory.createResourceRefType(inStp));
                 inStp.setServiceDomain(nsiServiceDomainRef);
 
                 // Check to see if there is a corresponding bidirectional STP.
-                StpType inBiStp = biStp.remove(inStp.getId());
-                if (inBiStp != null) {
-                    nsiServiceDomain.getBidirectionalStp().add(NsiStpFactory.createResourceRefType(inBiStp));
-                    inBiStp.setServiceDomain(nsiServiceDomainRef);
+                Optional<ResourceRefType> biStpRef = Optional.fromNullable(inStp.getReferencedBy());
+                if (biStpRef.isPresent()) {
+                    StpType biStp = nsiTopology.getStp(biStpRef.get().getId());
 
-                    // Remove the outbound entry for this bidirectional STP.
-                    biStp.remove(inBiStp.getOutboundStp().getId());
+                    nsiServiceDomain.getBidirectionalStp().add(NsiStpFactory.createResourceRefType(biStp));
+                    biStp.setServiceDomain(nsiServiceDomainRef);
                 }
             }
 
@@ -519,15 +508,6 @@ public class NsiServiceDomainFactory {
             for (StpType outStp : outStps) {
                 nsiServiceDomain.getOutboundStp().add(NsiStpFactory.createResourceRefType(outStp));
                 outStp.setServiceDomain(nsiServiceDomainRef);
-
-                // Inbound unidirectional STP members would have already removed
-                // their corresponding bidrectional STP, however, there maybe
-                // a mismatch that needs to be handled.
-                StpType outBiStp = biStp.remove(outStp.getId());
-                if (outBiStp != null) {
-                    nsiServiceDomain.getBidirectionalStp().add(NsiStpFactory.createResourceRefType(outBiStp));
-                    outBiStp.setServiceDomain(nsiServiceDomainRef);
-                }
             }
 
             results.add(nsiServiceDomain);

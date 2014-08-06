@@ -19,7 +19,6 @@ public final class DijkstraTrasnsformer implements Transformer<DijkstraEdge, Num
 
     @Override
     public Number transform(DijkstraEdge e) {
-        log.debug("DijkstraTrasnsformer: " + e.getId());
         return 1;
     }
 

@@ -212,7 +212,7 @@ public class DijkstraPCE implements PCEModule {
             }
         }
 
-        DijkstraShortestPath<DijkstraVertex, DijkstraEdge> alg = new DijkstraShortestPath<>(graph);
+        DijkstraShortestPath<DijkstraVertex, DijkstraEdge> alg = new DijkstraShortestPath<>(graph, trans);
 
         List<DijkstraEdge> path;
         try {
