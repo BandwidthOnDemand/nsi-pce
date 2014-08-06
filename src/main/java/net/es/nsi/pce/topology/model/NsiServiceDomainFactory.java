@@ -142,23 +142,21 @@ public class NsiServiceDomainFactory {
         ResourceRefType serviceDomainRef = NsiServiceDomainFactory.createResourceRefType(nsiServiceDomain);
 
         // Now we add all the bidirectional ports that have unidirectional
-        // members of this SwitchingService.  This is slow...
-        for (ResourceRefType inboundStp : nsiServiceDomain.getInboundStp()) {
-            for (StpType stp : nsiTopology.getStps()) {
-                if (StpDirectionalityType.BIDIRECTIONAL == stp.getType()) {
-                    if (stp.getInboundStp().getId().equalsIgnoreCase(inboundStp.getId())) {
-                        // We should check for a matching outbound STP but skip for now.
-                        ResourceRefType stpRef = NsiStpFactory.createResourceRefType(stp);
-                        nsiServiceDomain.getBidirectionalStp().add(stpRef);
-                        stp.setServiceDomain(serviceDomainRef);
-                    }
-                }
+        // members of this SwitchingService.  We will use the inbound port as
+        // the reference point.
+        for (ResourceRefType inboundStpRef : nsiServiceDomain.getInboundStp()) {
+            StpType inboundStp = nsiTopology.getStp(inboundStpRef.getId());
+            Optional<ResourceRefType> biStpRef = Optional.fromNullable(inboundStp.getReferencedBy());
+            if (biStpRef.isPresent()) {
+                StpType biStp = nsiTopology.getStp(biStpRef.get().getId());
+                log.debug("Adding BIDIRECTIONAL STP to SwitchingService stpId=" + biStp.getId());
+                nsiServiceDomain.getBidirectionalStp().add(biStpRef.get());
+                biStp.setServiceDomain(serviceDomainRef);
             }
         }
 
         // Add this ServiceDomain to the owning network.
         nsiNetwork.getServiceDomain().add(serviceDomainRef);
-
 
         // NML Default Behavior #2: If we have a SwitchingService with no port
         // members then we must add all ports of matching label and encoding
