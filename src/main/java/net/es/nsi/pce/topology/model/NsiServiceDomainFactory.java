@@ -24,13 +24,9 @@ import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.ServiceDefinitionType;
 import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.ServiceType;
-import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import org.apache.http.client.utils.DateUtils;
 import com.google.common.base.Optional;
-import net.es.nsi.pce.topology.jaxb.DemarcationType;
-import net.es.nsi.pce.topology.jaxb.SdpType;
-import net.es.nsi.pce.topology.jaxb.TypeValueType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

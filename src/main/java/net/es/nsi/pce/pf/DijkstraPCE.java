@@ -40,7 +40,6 @@ import org.apache.commons.collections15.Transformer;
  */
 public class DijkstraPCE implements PCEModule {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private Map<String, DijkstraVertex> verticies = new HashMap<>();
 
     /**
      * This path computation module supports pathfinding for the P2PS service
@@ -110,55 +109,68 @@ public class DijkstraPCE implements PCEModule {
             throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), dstStpId));
         }
 
-        // Verify the specified STP are of the correct type for the request.
-        if (directionality == DirectionalityType.UNIDIRECTIONAL) {
-             if (srcStp.getType() != StpDirectionalityType.INBOUND &&
-                     srcStp.getType() != StpDirectionalityType.OUTBOUND) {
-                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), srcStpId));
-            }
-
-            if (dstStp.getType() != StpDirectionalityType.INBOUND &&
-                     dstStp.getType() != StpDirectionalityType.OUTBOUND) {
-                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), dstStpId));
-            }
-        }
-        else {
-            if (srcStp.getType() != StpDirectionalityType.BIDIRECTIONAL) {
-                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), srcStpId));
-            }
-
-            if (dstStp.getType() != StpDirectionalityType.BIDIRECTIONAL) {
-                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), dstStpId));
-            }
-        }
+        validateDirectionality(srcStp, dstStp, directionality);
 
         // These will be applied to individual path segment results.
         Constraints segmentConstraints = new Constraints(pceData.getConstraints());
         segmentConstraints.removeStringAttrConstraint(Point2PointTypes.SOURCESTP);
         segmentConstraints.removeStringAttrConstraint(Point2PointTypes.DESTSTP);
 
-        // The source and destination STP need to belong to a service domain
-        // otherwise a path will not be found.
-        if (srcStp.getServiceDomain() == null) {
-            log.error("Missing ServiceDomain for source sdpId=" + srcStp.getId());
-            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "Missing ServiceDomain for source sdpId=" + srcStp.getId());
-            throw new RuntimeException(error);
-        }
-        else if (dstStp.getServiceDomain() == null) {
-            log.error("Missing ServiceDomain for destination sdpId=" + dstStp.getId());
-            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "Missing ServiceDomain for destination sdpId=" + dstStp.getId());
+        List<DijkstraEdge> path = getPath(srcStp, dstStp, pceData, nsiTopology);
+
+        // Check to see if there is a valid path.
+        if (path.isEmpty()) {
+            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "No path found using provided criteria");
             throw new RuntimeException(error);
         }
 
-        ServiceDomainType sourceServiceDomain = nsiTopology.getServiceDomain(srcStp.getServiceDomain().getId());
-        ServiceDomainType destinationServiceDomain = nsiTopology.getServiceDomain(dstStp.getServiceDomain().getId());
+        List<StpPair> segments = pullIndividualSegmentsOut(path, nsiTopology);
+        for (int i = 0; i < segments.size(); i++) {
+            StpPair pair = segments.get(i);
 
+            log.debug("Pair: " + pair.getA().getId() + " -- " + pair.getZ().getId());
+
+            Constraints cons = new Constraints(segmentConstraints);
+            PathSegment pathSegment = new PathSegment(pair);
+            pathSegment.setConstraints(cons);
+            pceData.getPath().getPathSegments().add(i, pathSegment);
+        }
+
+        return pceData;
+    }
+
+    private void validateDirectionality(StpType srcStp, StpType dstStp, DirectionalityType directionality) throws IllegalArgumentException {
+        // Verify the specified STP are of the correct type for the request.
+        if (directionality == DirectionalityType.UNIDIRECTIONAL) {
+             if (srcStp.getType() != StpDirectionalityType.INBOUND &&
+                     srcStp.getType() != StpDirectionalityType.OUTBOUND) {
+                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), srcStp.getId()));
+            }
+
+            if (dstStp.getType() != StpDirectionalityType.INBOUND &&
+                     dstStp.getType() != StpDirectionalityType.OUTBOUND) {
+                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), dstStp.getId()));
+            }
+        }
+        else {
+            if (srcStp.getType() != StpDirectionalityType.BIDIRECTIONAL) {
+                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), srcStp.getId()));
+            }
+
+            if (dstStp.getType() != StpDirectionalityType.BIDIRECTIONAL) {
+                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), dstStp.getId()));
+            }
+        }
+    }
+
+    private List<DijkstraEdge> getPath(StpType srcStp, StpType dstStp, PCEData pceData, NsiTopology nsiTopology) throws IllegalArgumentException, RuntimeException {
         // We build a graph consisting of source STP, destination STP, and all
         // service domains as verticies.  The SDP are added as edges between
         // service domains.  A special edge is added between the edge STP and
         // the first service domain to allow for path finding between the source
         // and destination STP.  We will need to remove any SDP that are
         // associated with the source or destination STP.
+        Map<String, DijkstraVertex> verticies = new HashMap<>();
         Graph<DijkstraVertex, DijkstraEdge> graph = new SparseMultigraph<>();
         Transformer<DijkstraEdge,Number> trans = new DijkstraTrasnsformer(pceData);
 
@@ -177,6 +189,22 @@ public class DijkstraPCE implements PCEModule {
             graph.addVertex(vertex);
             verticies.put(vertex.getId(), vertex);
         }
+
+        // The source and destination STP need to belong to a service domain
+        // otherwise a path will not be found.
+        if (srcStp.getServiceDomain() == null) {
+            log.error("Missing ServiceDomain for source sdpId=" + srcStp.getId());
+            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "Missing ServiceDomain for source sdpId=" + srcStp.getId());
+            throw new RuntimeException(error);
+        }
+        else if (dstStp.getServiceDomain() == null) {
+            log.error("Missing ServiceDomain for destination sdpId=" + dstStp.getId());
+            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "Missing ServiceDomain for destination sdpId=" + dstStp.getId());
+            throw new RuntimeException(error);
+        }
+
+        ServiceDomainType sourceServiceDomain = nsiTopology.getServiceDomain(srcStp.getServiceDomain().getId());
+        ServiceDomainType destinationServiceDomain = nsiTopology.getServiceDomain(dstStp.getServiceDomain().getId());
 
         // Connect the source and destination STP verticies to their associated
         // service domains.
@@ -212,11 +240,10 @@ public class DijkstraPCE implements PCEModule {
             }
         }
 
-        DijkstraShortestPath<DijkstraVertex, DijkstraEdge> alg = new DijkstraShortestPath<>(graph, trans);
+        DijkstraShortestPath<DijkstraVertex, DijkstraEdge> alg = new DijkstraShortestPath<>(graph, trans, true);
 
         List<DijkstraEdge> path;
         try {
-
             path = alg.getPath(srcVertex, dstVertex);
         } catch (IllegalArgumentException ex) {
             String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, ex.getMessage());
@@ -226,25 +253,7 @@ public class DijkstraPCE implements PCEModule {
 
         log.debug("Path computation completed with " + path.size() + " SDP returned.");
 
-        // Check to see if there is a valid path.
-        if (path.isEmpty()) {
-            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "No path found using provided criteria");
-            throw new RuntimeException(error);
-        }
-
-        List<StpPair> segments = pullIndividualSegmentsOut(path, nsiTopology);
-        for (int i = 0; i < segments.size(); i++) {
-            StpPair pair = segments.get(i);
-
-            log.debug("Pair: " + pair.getA().getId() + " -- " + pair.getZ().getId());
-
-            Constraints cons = new Constraints(segmentConstraints);
-            PathSegment pathSegment = new PathSegment(pair);
-            pathSegment.setConstraints(cons);
-            pceData.getPath().getPathSegments().add(i, pathSegment);
-        }
-
-        return pceData;
+        return path;
     }
 
     protected List<StpPair> pullIndividualSegmentsOut(List<DijkstraEdge> path, NsiTopology nsiTopology) {
