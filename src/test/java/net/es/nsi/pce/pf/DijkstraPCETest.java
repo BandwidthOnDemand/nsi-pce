@@ -30,7 +30,7 @@ public class DijkstraPCETest {
         ServiceDomainType srcServiceDomain = new ServiceDomainType();
         srcServiceDomain.setId("urn:ogf:network:surfnet.nl:1990:src-testbed:ServiceDomain");
 
-        DijkstraEdge srcEdge = new DijkstraEdge(srcStp1.getId(), srcStp1, srcServiceDomain);
+        StpEdge srcEdge = new StpEdge(srcStp1.getId(), srcStp1, srcServiceDomain);
 
         StpType srcStp2 = new StpType();
         srcStp2.setNetworkId("urn:ogf:network:surfnet.nl:1990:src-testbed");
@@ -41,7 +41,7 @@ public class DijkstraPCETest {
         intermediateStp1.setId("urn:ogf:network:surfnet.nl:1990:inter-testbed:in");
 
         SdpType interSdp1 = createSdp(srcStp2, intermediateStp1);
-        DijkstraEdge interEdge1 = new DijkstraEdge(interSdp1.getId(), interSdp1);
+        SdpEdge interEdge1 = new SdpEdge(interSdp1.getId(), interSdp1);
 
         StpType intermediateStp2 = new StpType();
         intermediateStp2.setNetworkId("urn:ogf:network:surfnet.nl:1990:inter-testbed");
@@ -52,7 +52,7 @@ public class DijkstraPCETest {
         dstStp2.setId("urn:ogf:network:surfnet.nl:1990:dst-testbed:stp-in");
 
         SdpType interSdp2 = createSdp(intermediateStp2, dstStp2);
-        DijkstraEdge interEdge2 = new DijkstraEdge(interSdp2.getId(), interSdp2);
+        SdpEdge interEdge2 = new SdpEdge(interSdp2.getId(), interSdp2);
 
         StpType dstStp1 = new StpType();
         dstStp1.setNetworkId("urn:ogf:network:surfnet.nl:1990:dst-testbed");
@@ -60,10 +60,9 @@ public class DijkstraPCETest {
 
         ServiceDomainType dstServiceDomain = new ServiceDomainType();
         dstServiceDomain.setId("urn:ogf:network:surfnet.nl:1990:dst-testbed:ServiceDomain");
+        StpEdge dstEdge = new StpEdge(dstStp1.getId(), dstStp1, dstServiceDomain);
 
-        DijkstraEdge dstEdge = new DijkstraEdge(dstStp1.getId(), dstStp1, dstServiceDomain);
-
-        List<DijkstraEdge> path = Arrays.asList(srcEdge, interEdge1, interEdge2, dstEdge);
+        List<GraphEdge> path = Arrays.asList(srcEdge, interEdge1, interEdge2, dstEdge);
 
         NsiTopology nsiTopology = new NsiTopology();
         nsiTopology.addAllStp(Arrays.asList(srcStp1, srcStp2, dstStp1, dstStp2, intermediateStp1, intermediateStp2));

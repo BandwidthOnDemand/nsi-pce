@@ -36,13 +36,13 @@ import org.slf4j.LoggerFactory;
  */
 public class RegistrationActor extends UntypedActor {
     private static final String NOTIFICATIONS_URL = "/discovery/notifications";
-    
+
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ObjectFactory factory = new ObjectFactory();
     private DiscoveryConfiguration discoveryConfiguration;
     private RemoteSubscriptionCache remoteSubscriptionCache;
     private RestClient restClient;
-    
+
     public RegistrationActor(DiscoveryConfiguration discoveryConfiguration) {
         this.discoveryConfiguration = discoveryConfiguration;
         this.remoteSubscriptionCache = RemoteSubscriptionCache.getInstance();
@@ -58,7 +58,7 @@ public class RegistrationActor extends UntypedActor {
         if (msg instanceof RegistrationEvent) {
             RegistrationEvent event = (RegistrationEvent) msg;
             log.debug("RegistrationActor: event=" + event.getEvent().name());
-            
+
             if (event.getEvent() == RegistrationEvent.Event.Register) {
                 register(event);
             }
@@ -72,13 +72,13 @@ public class RegistrationActor extends UntypedActor {
             unhandled(msg);
         }
     }
-    
+
     private String getNotificationURL() throws MalformedURLException {
         URL url = new URL(discoveryConfiguration.getBaseURL());
         url = new URL(url, NOTIFICATIONS_URL);
         return url.toString();
     }
-    
+
     private void register(RegistrationEvent event) {
         // We will register for all events on all documents.
         FilterCriteriaType criteria = factory.createFilterCriteriaType();
@@ -88,7 +88,7 @@ public class RegistrationActor extends UntypedActor {
         SubscriptionRequestType request = factory.createSubscriptionRequestType();
         request.setFilter(filter);
         request.setRequesterId(discoveryConfiguration.getNsaId());
-        
+
         try {
             request.setCallback(getNotificationURL());
         }
@@ -99,7 +99,7 @@ public class RegistrationActor extends UntypedActor {
         }
 
         Client client = restClient.get();
-        
+
         WebTarget webTarget = client.target(event.getSubscription().getDdsURL()).path("subscriptions");
         JAXBElement<SubscriptionRequestType> jaxb = factory.createSubscriptionRequest(request);
         Response response;
@@ -123,21 +123,21 @@ public class RegistrationActor extends UntypedActor {
             //client.close();
             return;
         }
-        
+
         // Looks like we were successful so save the subscription information.
         SubscriptionType subscription = response.readEntity(SubscriptionType.class);
         response.close();
         //client.close();
         log.debug("RegistrationActor.register: created subscription " + subscription.getId() + ", href=" + subscription.getHref());
-        
+
         event.getSubscription().setSubscription(subscription);
         event.getSubscription().setLastModified(response.getLastModified());
         remoteSubscriptionCache.add(event.getSubscription());
     }
-    
-    private void update(RegistrationEvent event) {        
+
+    private void update(RegistrationEvent event) {
         Client client = restClient.get();
-        
+
         // First we retrieve the remote subscription to see if it is still
         // valid.  If it is not then we register again, otherwise we leave it
         // alone for now.
@@ -155,7 +155,7 @@ public class RegistrationActor extends UntypedActor {
             }
             return;
         }
-        
+
         if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
             // The subscription exists and has not been modified.
             log.debug("RegistrationActor.update: subscription " + subscription.getSubscription().getHref() + " not modified.");
@@ -168,7 +168,7 @@ public class RegistrationActor extends UntypedActor {
         else if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
             // Looks like our subscription was removed. We need to add it back in.
             log.debug("RegistrationActor.update: subscription " + subscription.getSubscription().getHref() + " does not exists and will be recreated.");
-            
+
             // Remove the stored subscription since a new one will be created.
             remoteSubscriptionCache.remove(event.getSubscription().getDdsURL());
             register(event);
@@ -184,11 +184,11 @@ public class RegistrationActor extends UntypedActor {
         //client.close();
         response.close();
     }
-    
+
     private void delete(RegistrationEvent event) {
         Client client = restClient.get();
         WebTarget webTarget = client.target(event.getSubscription().getSubscription().getHref());
-        
+
         Response response = null;
         try {
             response = webTarget.request(NsiConstants.NSI_DDS_V1_XML).delete();
@@ -215,13 +215,15 @@ public class RegistrationActor extends UntypedActor {
             if (error != null) {
                 log.error("RegistrationActor.delete: id=" + error.getId() + ", label=" + error.getLabel() + ", resource=" + error.getResource() + ", description=" + error.getDescription());
             }
-            //client.close();
+
             response.close();
+            //client.close();
             return;
         }
-        
-        //client.close();
+
         response.close();
-        remoteSubscriptionCache.remove(event.getSubscription().getDdsURL());        
+        //client.close();
+
+        remoteSubscriptionCache.remove(event.getSubscription().getDdsURL());
     }
 }

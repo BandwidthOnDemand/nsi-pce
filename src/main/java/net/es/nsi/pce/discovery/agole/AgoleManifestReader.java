@@ -25,29 +25,29 @@ import org.apache.http.client.utils.DateUtils;
  * This class reads a remote XML formatted NML topology containing the list of
  * network topologies and their NSA.  Each instance of the class
  * models a single NSA in NML.
- * 
+ *
  * @author hacksaw
  */
 public class AgoleManifestReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private PceLogger topologyLogger = PceLogger.getLogger();
-    
+
     private final static QName _isReference_QNAME = new QName("http://schemas.ogf.org/nsi/2013/09/topology#", "isReference");
 
     // The remote location of the file to read.
     private String id = getClass().getName();
-    
+
     // The remote location of the file to read.
     private String target = null;
-    
+
     // Time we last read the master topology.
     private long lastModified = 0;
-    
+
     // The version of the last read master topology.
     private TopologyManifest manifest = null;
-    
+
     private RestClient restClient;
-    
+
     /**
      * Default class constructor.
      */
@@ -57,16 +57,16 @@ public class AgoleManifestReader {
 
     /**
      * Returns the identifier of this manifest reader.
-     * 
+     *
      * @return the identifier of the manifest reader.
      */
     public String getId() {
         return id;
     }
-    
+
     /**
      * Returns the configured remote topology endpoint.
-     * 
+     *
      * @return the target
      */
     public String getTarget() {
@@ -75,17 +75,17 @@ public class AgoleManifestReader {
 
     /**
      * Sets the remote topology endpoint.
-     * 
+     *
      * @param target the target to set
      */
     public void setTarget(String target) {
         this.target = target;
     }
-    
+
     /**
      * Get the date the remote topology endpoint reported as the last time the
      * topology document was modified.
-     * 
+     *
      * @return the lastModified date of the remote topology document.
      */
     public long getLastModified() {
@@ -94,27 +94,27 @@ public class AgoleManifestReader {
 
     /**
      * Set the last modified date of the cached remote topology document.
-     * 
+     *
      * @param lastModified the lastModified to set
      */
     public void setLastModified(long lastModified) {
         this.lastModified = lastModified;
     }
-    
+
     /**
      * Read the NML topology from target location using HTTP GET operation.
      * This method will return a list of target topology endpoints if the
      * master topology document was retrieved.  NULL is returned if the
      * topology endpoint reports no modifications since last retrieval.  An
      * exception is thrown for any errors.
-     * 
+     *
      * @return The list of topology endpoints from the remote NML topology.
      */
     private TopologyManifest readManifest() throws NotFoundException, JAXBException {
         // Use the REST client to retrieve the master topology as a string.
         Client client = restClient.get();
         WebTarget webGet = client.target(getTarget());
-        
+
         Response response = null;
         try {
             response = webGet.request(MediaType.APPLICATION_XML) .header("If-Modified-Since", DateUtils.formatDate(new Date(getLastModified()), DateUtils.PATTERN_RFC1123)).get();
@@ -124,21 +124,21 @@ public class AgoleManifestReader {
             //client.close();
             throw ex;
         }
-        
+
         // A 304 Not Modified indicates we already have a up-to-date document.
         if (response.getStatus() == Status.NOT_MODIFIED.getStatusCode()) {
-            //client.close();
             response.close();
+            //client.close();
             return null;
         }
-        
+
         if (response.getStatus() != Status.OK.getStatusCode()) {
             topologyLogger.errorAudit(PceErrors.AUDIT_MANIFEST_COMMS, getTarget(), Integer.toString(response.getStatus()));
-            //client.close();
             response.close();
+            //client.close();
             throw new NotFoundException("Failed to retrieve master topology " + getTarget());
         }
-        
+
         // We want to store the last modified date as viewed from the HTTP server.
         Date lastMod = response.getLastModified();
         if (lastMod != null) {
@@ -148,9 +148,9 @@ public class AgoleManifestReader {
 
         // Now we want the NML XML document.
         String xml = response.readEntity(String.class);
-        
-        //client.close();
+
         response.close();
+        //client.close();
         
         // Parse the master topology.
         NmlTopologyType topology;
@@ -167,7 +167,7 @@ public class AgoleManifestReader {
         if (topology.getVersion() != null) {
             newManifest.setVersion(topology.getVersion().toGregorianCalendar().getTimeInMillis());
         }
-        
+
         // Pull out the indivdual network entries.
         List<NmlNetworkObject> networkObjects = topology.getGroup();
         for (NmlNetworkObject networkObject : networkObjects) {
@@ -191,12 +191,12 @@ public class AgoleManifestReader {
     /**
      * Returns a current version of the master topology, retrieving a new
      * version from the remote endpoint if available.
-     * 
+     *
      * @return Master topology.
      * @throws Exception If an error occurs when reading remote topology.
      */
     public synchronized void loadManifest() throws NotFoundException, JAXBException {
-        
+
         TopologyManifest newManifest = this.readManifest();
         if (newManifest != null && manifest == null) {
             // We don't have a previous version so update with this version.
@@ -213,11 +213,11 @@ public class AgoleManifestReader {
             }
         }
     }
-    
+
     /**
      * Returns a current version of the master topology.  The masterTopology
      * will be loaded only if there has yet to be a successful load.
-     * 
+     *
      * @return Master topology.
      * @throws Exception If an error occurs when reading remote topology.
      */
@@ -225,16 +225,16 @@ public class AgoleManifestReader {
         if (manifest == null) {
             loadManifest();
         }
-        
+
         return manifest;
     }
-    
+
     /**
      * Returns a current version of the master topology only if a new version
      * was available from the remote endpoint if available.
-     * 
+     *
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public TopologyManifest getManifestIfModified() throws NotFoundException, JAXBException {
         TopologyManifest oldMasterTopology = manifest;
@@ -251,7 +251,7 @@ public class AgoleManifestReader {
                 return manifest;
             }
         }
-        
+
         // There must not have been a change.
         return null;
     }

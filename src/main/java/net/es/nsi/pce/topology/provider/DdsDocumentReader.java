@@ -30,28 +30,28 @@ import org.glassfish.jersey.client.ChunkedInput;
 public class DdsDocumentReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private PceLogger topologyLogger = PceLogger.getLogger();
-  
+
     // The remote location of the file to read.
     private String target;
-    
+
     // The type of document to read.
     private String type;
-    
+
     // Time we last read the master topology.
     private long lastModified = 0;
-    
+
     // A list of full documents matching the specified type.
     private Map<String, DdsWrapper> ddsDocuments = new ConcurrentHashMap<>();
-    
+
     // Documents of the specified type discovered as local to this DDS service.
     private DdsDocumentListType localDocuments = new DdsDocumentListType();
-    
+
     private RestClient restClient;
-    
+
     /**
      * Class constructor takes the remote location URL from which to load the
      * NSA's associated NML topology.
-     * 
+     *
      * @param target Location of the NSA's XML based NML topology.
      */
     public DdsDocumentReader(String target, String type) {
@@ -59,11 +59,11 @@ public class DdsDocumentReader {
         this.type = type;
         this.restClient = RestClient.getInstance();
     }
-    
+
     /**
      * Get the date the remote topology endpoint reported as the last time the
      * topology document was modified.
-     * 
+     *
      * @return the lastModified date of the remote topology document.
      */
     public long getLastModified() {
@@ -72,28 +72,28 @@ public class DdsDocumentReader {
 
     /**
      * Set the last modified date of the cached remote topology document.
-     * 
+     *
      * @param lastModified the lastModified to set
      */
     public void setLastModified(long lastModified) {
         this.lastModified = lastModified;
     }
-    
+
     private boolean read() throws NotFoundException, JAXBException, UnsupportedEncodingException {
         boolean isChanged = false;
-        
+
         // Read and store local documents.
         localDocuments = readLocal();
-        
-        
+
+
         DdsDocumentListType documents = readSummary();
-        
+
         // If we did not get back any documents then clear previous results.
         if (documents == null || documents.getDocument() == null || documents.getDocument().isEmpty()) {
             if (!ddsDocuments.isEmpty()) {
                 isChanged = true;
             }
-            
+
             ddsDocuments.clear();
             return isChanged;
         }
@@ -103,14 +103,14 @@ public class DdsDocumentReader {
         HashSet<String> delete = Sets.newHashSet(ddsDocuments.keySet());
 
         for (DdsDocumentType discovered : documents.getDocument()) {
-            
+
             DdsWrapper current = ddsDocuments.get(discovered.getId());
             long currentTime = System.currentTimeMillis();
-            
+
             // Have we seen a version of this document before?
             if (current == null) {
                 log.debug("read: new document " + discovered.getId());
-                
+
                 // This is a new entry so we need to retrieve the full entry.
                 DdsDocumentType entry;
                 try {
@@ -135,7 +135,7 @@ public class DdsDocumentReader {
             }
             else if (current.getDocument().getVersion().compare(discovered.getVersion()) == DatatypeConstants.LESSER) {
                 log.debug("read: new version of existing document " + discovered.getId());
-                
+
                 // This is a newer version so replace the current one.
                 DdsDocumentType entry;
                 try {
@@ -143,7 +143,7 @@ public class DdsDocumentReader {
                 }
                 catch (NotFoundException | JAXBException | UnsupportedEncodingException ex) {
                     log.error("read: error reading updated resource details for " + discovered.getHref(), ex);
-                    
+
                     // TODO: Verify we shoudl not delete the old entry on
                     // failure to read new entry.
                     continue;
@@ -163,7 +163,7 @@ public class DdsDocumentReader {
                 delete.remove(current.getDocument().getId());
             }
         }
-        
+
         // Delete any old documents no longer in the DDS.
         if (!delete.isEmpty()) {
             isChanged = true;
@@ -172,17 +172,17 @@ public class DdsDocumentReader {
                 ddsDocuments.remove(id);
             }
         }
-        
+
         log.debug("read: isChanged=" + isChanged + ", ddsDocuments=" + ddsDocuments.size());
-        
+
         return isChanged;
     }
-    
+
     private DdsDocumentListType readSummary() throws NotFoundException, JAXBException, UnsupportedEncodingException {
-        // Use the REST client to retrieve the master topology as a string. 
+        // Use the REST client to retrieve the master topology as a string.
         Client client = restClient.get();
         final WebTarget webGet = client.target(target).path("documents");
-        
+
         Response response = null;
         try {
             log.debug("readSummary: reading document type=" + type);
@@ -191,20 +191,21 @@ public class DdsDocumentReader {
         }
         catch (Exception ex) {
             topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, ex.getMessage());
-            //client.close();
+
             if (response != null) {
                 response.close();
             }
+            //client.close();
             throw ex;
         }
-        
+
         if (response.getStatus() != Status.OK.getStatusCode()) {
             topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, Integer.toString(response.getStatus()));
-            //client.close();
             response.close();
+            //client.close();
             throw new NotFoundException("Failed to retrieve document summary (" + response.getStatus() + ") from target=" + target);
         }
-        
+
         // We want to store the last modified date as viewed from the HTTP server.
         Date lastMod = response.getLastModified();
         if (lastMod != null) {
@@ -219,37 +220,38 @@ public class DdsDocumentReader {
                 documents = chunk;
             }
         }
-        
-        //client.close();
+
         response.close();
+        //client.close();
         return documents;
     }
-    
+
     private DdsDocumentType readDetails(String href) throws NotFoundException, JAXBException, UnsupportedEncodingException {
          // Use the REST client to retrieve the master topology as a string.
         Client client = restClient.get();
         final WebTarget webGet = client.target(target).path(href);
-        
+
         Response response = null;
         try {
             response = webGet.request(NsiConstants.NSI_DDS_V1_XML).get();
         }
         catch (Exception ex) {
             topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, ex.getMessage());
-            //client.close();
+
             if (response != null) {
                 response.close();
             }
+            //client.close();
             throw ex;
         }
-        
+
         if (response.getStatus() != Status.OK.getStatusCode()) {
             topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, Integer.toString(response.getStatus()));
-            //client.close();
             response.close();
+            //client.close();
             throw new NotFoundException("Failed to retrieve document (" + response.getStatus() + ") from target=" + target + ", path=" + href);
         }
-        
+
         // We want to store the last modified date as viewed from the HTTP server.
         Date lastMod = response.getLastModified();
         if (lastMod != null) {
@@ -264,21 +266,21 @@ public class DdsDocumentReader {
                 document = chunk;
             }
         }
-        
-        //client.close();
+
         response.close();
+        //client.close();
         return document;
     }
-    
+
     private DdsDocumentListType readLocal() throws NotFoundException, JAXBException, UnsupportedEncodingException {
          // Use the REST client to retrieve the document.
         Client client = restClient.get();
 
         String encode = URLEncoder.encode(type, "UTF-8");
         final WebTarget webGet = client.target(target).path("local").path(encode);
-        
+
         boolean isChanged = false;
-        
+
         Response response = null;
         try {
             response = webGet.request(NsiConstants.NSI_DDS_V1_XML).get();
@@ -291,7 +293,7 @@ public class DdsDocumentReader {
             //client.close();
             throw ex;
         }
-        
+
         if (response.getStatus() != Status.OK.getStatusCode()) {
             topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, Integer.toString(response.getStatus()));
             response.close();
@@ -306,7 +308,7 @@ public class DdsDocumentReader {
                 documents = chunk;
             }
         }
-        
+
         response.close();
         //client.close();
         return documents;

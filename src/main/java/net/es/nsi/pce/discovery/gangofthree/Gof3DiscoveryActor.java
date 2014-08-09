@@ -107,8 +107,8 @@ public class Gof3DiscoveryActor extends UntypedActor {
                 return false;
             }
 
-            client.close();
             response.close();
+            client.close();
 
             message.setNsaId(nsa.getId());
 
@@ -203,8 +203,8 @@ public class Gof3DiscoveryActor extends UntypedActor {
                 }
             }
 
-            client.close();
             response.close();
+            client.close();
 
             if (topology == null) {
                 // TODO: Should we clear the topology URL and lastModified
