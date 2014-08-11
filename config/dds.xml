@@ -41,19 +41,25 @@
 <tns:discovery xmlns:tns="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <!-- we need to set this to the uPA's NSA ID so that the local networks are discovered correctly -->
-    <nsaId>urn:ogf:network:es.net:2013:nsa:nsi-aggr-west</nsaId>
+    <nsaId>urn:ogf:network:surfnet.nl:1990:nsa:bod7</nsaId>
     <documents>config/documents</documents>
     <cache>config/cache</cache>
-    <auditInterval>1200</auditInterval>
+    <auditInterval>1800</auditInterval>
     <expiryInterval>600</expiryInterval>
     <actorPool>10</actorPool>
     <baseURL>http://localhost:8400/discovery</baseURL>
-    <!--<peerURL type="application/vnd.ogf.nsi.dds.v1+xml">http://localhost:8400/discovery</peerURL>-->
-    <!-- <peerURL type="application/vnd.ogf.nsi.nsa.v1+xml">https://bod2.surfnet.nl/nsa-discovery</peerURL>
+    <!--
+	<peerURL type="application/vnd.ogf.nsi.dds.v1+xml">http://localhost:8400/discovery</peerURL>
+    -->
+
+    <peerURL type="application/vnd.ogf.nsi.nsa.v1+xml">https://bod2.surfnet.nl/nsa-discovery</peerURL>
     <peerURL type="application/vnd.ogf.nsi.nsa.v1+xml">https://nsi.nordu.net:9443/NSI/discovery.xml</peerURL>
-    <peerURL type="application/vnd.ogf.nsi.nsa.v1+xml">http://62.217.127.133:8080/nsi_discovery_geant.xml</peerURL> -->
+    <peerURL type="application/vnd.ogf.nsi.nsa.v1+xml">http://62.217.127.133:8080/nsi_discovery_geant.xml</peerURL>
 
-    <peerURL type="application/vnd.ogf.nsi.nsa.v1+xml">http://62.217.124.244:8080/nsi_discovery_geant_all.xml</peerURL>
-
-    <!--<peerURL type="application/vnd.ogf.nsi.topology.v1+xml">https://raw.github.com/jeroenh/AutoGOLE-Topologies/master/master.xml</peerURL>-->
+    <!--
+    	<peerURL type="application/vnd.ogf.nsi.nsa.v1+xml">http://62.217.124.244:8080/nsi_discovery_geant_all.xml</peerURL>
+    -->
+    <!--
+	<peerURL type="application/vnd.ogf.nsi.topology.v1+xml">https://raw.github.com/jeroenh/AutoGOLE-Topologies/master/master.xml</peerURL>
+    -->
 </tns:discovery>
