@@ -28,6 +28,8 @@ import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.jaxb.ReplyToType;
 import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.jersey.RestClient;
+import net.es.nsi.pce.path.jaxb.ConstraintListType;
+import net.es.nsi.pce.path.jaxb.ConstraintType;
 import net.es.nsi.pce.path.jaxb.TypeValueType;
 import net.es.nsi.pce.path.services.EthernetTypes;
 import org.glassfish.jersey.client.ClientConfig;
@@ -79,6 +81,19 @@ public class Main {
         req.setEndTime(DatatypeFactory.newInstance().newXMLGregorianCalendar(endTime));
 
         req.setServiceType("http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE");
+
+        ConstraintType constraint1 = new ConstraintType();
+        constraint1.setType("http://schemas.ogf.org/nsi/2013/12/services/types#stpId");
+        constraint1.setValue("urn:ogf:network:manlan.internet2.edu:2013:es?vlan=3400");
+
+        ConstraintType constraint2 = new ConstraintType();
+        constraint2.setType("http://schemas.ogf.org/nsi/2013/12/services/types#stpId");
+        constraint2.setValue("urn:ogf:network:manlan.internet2.edu:2013:es?vlan=3488-3499");
+
+        ConstraintListType list = new ConstraintListType();
+        list.getExclude().add(constraint1);
+        list.getExclude().add(constraint2);
+        req.setConstraints(list);
 
         // We want an EVTS service for this test.
         P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();

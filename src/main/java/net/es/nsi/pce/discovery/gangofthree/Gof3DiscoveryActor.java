@@ -102,8 +102,8 @@ public class Gof3DiscoveryActor extends UntypedActor {
                 // TODO: Should we clear the topology URL and lastModified
                 // dates for errors and route back?
                 log.error("discover: NSA document is empty from endpoint " + message.getNsaURL());
-                client.close();
                 response.close();
+                client.close();
                 return false;
             }
 
@@ -151,15 +151,15 @@ public class Gof3DiscoveryActor extends UntypedActor {
         else if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
             // We did not get an updated document.
             log.debug("discover: NSA document not modified " + message.getNsaURL());
-            client.close();
             response.close();
+            client.close();
         }
         else {
             log.error("discover: get of NSA document failed " + response.getStatus() + ", url=" + message.getNsaURL());
             // TODO: Should we clear the topology URL and lastModified
             // dates for errors and route back?
-            client.close();
             response.close();
+            client.close();
             return false;
         }
 
@@ -234,15 +234,15 @@ public class Gof3DiscoveryActor extends UntypedActor {
         else if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
             // We did not get an updated document.
             log.debug("discoverTopology: Topology document not modified " + url);
-            client.close();
             response.close();
+            client.close();
         }
         else {
             log.error("discoverTopology: get of Topology document failed " + response.getStatus() + ", url=" + url);
             // TODO: Should we clear the topology URL and lastModified
             // dates for errors and route back?
-            client.close();
             response.close();
+            client.close();
             return 0L;
         }
 
