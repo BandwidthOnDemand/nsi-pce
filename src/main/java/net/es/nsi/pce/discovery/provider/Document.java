@@ -6,12 +6,15 @@ package net.es.nsi.pce.discovery.provider;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Date;
+import javax.ws.rs.WebApplicationException;
 import net.es.nsi.pce.discovery.api.DiscoveryError;
+import net.es.nsi.pce.discovery.api.Exceptions;
 import net.es.nsi.pce.discovery.jaxb.DocumentType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
-import org.glassfish.jersey.uri.UriComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,53 +26,64 @@ public class Document implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private static final String DOCUMENTS_URL = "/documents/";
+    private static final String DOCUMENTS_URL = "documents";
     private static ObjectFactory factory = new ObjectFactory();
-    
+
     private String id;
     private String filename;
     private DocumentType document;
     private Date lastDiscovered = new Date();
-    
-    public Document(DocumentType document) throws IllegalArgumentException {
+
+    public Document(DocumentType document, String baseURL) throws WebApplicationException {
         this.id = documentId(document.getNsa(), document.getType(), document.getId());
         this.document = document;
         this.document.setNsa(this.document.getNsa().trim());
         this.document.setType(this.document.getType().trim());
         this.document.setId(this.document.getId().trim());
-        this.document.setHref(DOCUMENTS_URL + this.id);
+        this.document.setHref(getDocumentURL(baseURL));
     }
 
-    public static String documentId(String nsa, String type, String id) throws IllegalArgumentException {
+    public static String documentId(String nsa, String type, String id) throws WebApplicationException {
         if (nsa == null || nsa.trim().isEmpty()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "document", "nsa");
-            throw new IllegalArgumentException(error);
+            throw Exceptions.missingParameterException("document", "nsa");
         }
         else if (type == null || type.trim().isEmpty()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "document", "type");
-            throw new IllegalArgumentException(error);
+            throw Exceptions.missingParameterException("document", "type");
         }
         else if (id == null || id.trim().isEmpty()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "document", "id");
-            throw new IllegalArgumentException(error);
+            throw Exceptions.missingParameterException("document", "id");
         }
-        
+
         StringBuilder sb = new StringBuilder();
-        
+
         try {
             sb.append(URLEncoder.encode(nsa.trim(), "UTF-8"));
             sb.append("/").append(URLEncoder.encode(type.trim(), "UTF-8"));
             sb.append("/").append(URLEncoder.encode(id.trim(), "UTF-8"));
         }
         catch (UnsupportedEncodingException ex) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.DOCUMENT_INVALID, "document", "id");
-            throw new IllegalArgumentException(error);            
+            throw Exceptions.illegalArgumentException(DiscoveryError.DOCUMENT_INVALID, "document", "id");
         }
         return sb.toString();
     }
-    
+
     public static String documentId(DocumentType document) throws IllegalArgumentException {
         return documentId(document.getNsa(), document.getType(), document.getId());
+    }
+
+    private String getDocumentURL(String baseURL) throws WebApplicationException {
+        URL url;
+        try {
+            if (!baseURL.endsWith("/")) {
+                baseURL = baseURL + "/";
+            }
+            url = new URL(baseURL);
+            url = new URL(url, DOCUMENTS_URL + "/" + this.id);
+        } catch (MalformedURLException ex) {
+            throw Exceptions.illegalArgumentException(DiscoveryError.INVALID_PARAMETER, "document", "href");
+        }
+
+        return url.toExternalForm();
     }
 
     /**
@@ -92,7 +106,7 @@ public class Document implements Serializable {
     public DocumentType getDocument() {
         return document;
     }
-    
+
     /**
      * @return the document
      */

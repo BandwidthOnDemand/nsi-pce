@@ -66,7 +66,7 @@ public class DdsTopologyProvider implements TopologyProvider {
         this.configuration = configuration;
         providerStatus = new TopologyProviderStatus();
         providerStatus.setId(getClass().getName());
-        providerStatus.setHref(configuration.getLocation());
+        providerStatus.setHref(configuration.getDdsURL());
         providerStatus.setStatus(TopologyStatusType.INITIALIZING);
     }
 
@@ -78,8 +78,8 @@ public class DdsTopologyProvider implements TopologyProvider {
      */
     @Override
     public void init() throws Exception {
-        nsaDocumentReader = new DdsDocumentReader(configuration.getLocation(), NsiConstants.NSI_DOC_TYPE_NSA_V1);
-        topologyDocumentReader = new DdsDocumentReader(configuration.getLocation(), NsiConstants.NSI_DOC_TYPE_TOPOLOGY_V2);
+        nsaDocumentReader = new DdsDocumentReader(configuration.getDdsURL(), NsiConstants.NSI_DOC_TYPE_NSA_V1);
+        topologyDocumentReader = new DdsDocumentReader(configuration.getDdsURL(), NsiConstants.NSI_DOC_TYPE_TOPOLOGY_V2);
     }
 
     @Override

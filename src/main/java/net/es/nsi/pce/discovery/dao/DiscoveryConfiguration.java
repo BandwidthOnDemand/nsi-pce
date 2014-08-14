@@ -1,4 +1,3 @@
-
 package net.es.nsi.pce.discovery.dao;
 
 import java.io.File;
@@ -21,21 +20,21 @@ import net.es.nsi.pce.spring.SpringApplicationContext;
  */
 public class DiscoveryConfiguration {
     private final PceLogger pceLogger = PceLogger.getLogger();
-    
+
     public static final long MAX_AUDIT_INTERVAL = 86400L; // 24 hours in seconds
     public static final long DEFAULT_AUDIT_INTERVAL = 1200L; // 20 minutes in seconds
     public static final long MIN_AUDIT_INTERVAL = 300L; // 5 mins in seconds
-    
+
     public static final long EXPIRE_INTERVAL_MAX = 2592000L; // 30 days in seconds
     public static final long EXPIRE_INTERVAL_DEFAULT = 86400L; // 24 hours in seconds
     public static final long EXPIRE_INTERVAL_MIN = 600L; // 10 minutes in seconds
-    
+
     public static final int ACTORPOOL_MAX_SIZE = 100;
     public static final int ACTORPOOL_DEFAULT_SIZE = 20;
     public static final int ACTORPOOL_MIN_SIZE = 5;
 
     private String filename = null;
-    
+
     private long lastModified = 0;
     private String nsaId = null;
     private String baseURL = null;
@@ -57,7 +56,7 @@ public class DiscoveryConfiguration {
     public String getFilename() {
         return filename;
     }
-    
+
     public void setFilename(String filename) {
         this.filename = filename;
     }
@@ -68,7 +67,7 @@ public class DiscoveryConfiguration {
             pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "filename", getFilename());
             throw new IllegalArgumentException();
         }
-        
+
         File file = null;
         try {
             file = new File(getFilename());
@@ -77,16 +76,16 @@ public class DiscoveryConfiguration {
             pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_FILENAME, "filename", getFilename());
             throw ex;
         }
-        
+
         long lastMod = file.lastModified();
-        
+
         // If file was not modified since out last load then return.
         if (lastMod <= lastModified) {
             return;
         }
 
         DiscoveryConfigurationType config;
-        
+
         try {
             config = DiscoveryParser.getInstance().parse(getFilename());
         }
@@ -98,26 +97,26 @@ public class DiscoveryConfiguration {
             pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_XML, "filename", getFilename());
             throw jaxb;
         }
-        
+
         if (config.getNsaId() == null || config.getNsaId().isEmpty()) {
             pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_PARAMETER, "nsaId", config.getNsaId());
             throw new FileNotFoundException("Invalid nsaId: " + config.getNsaId());
         }
-        
+
         setNsaId(config.getNsaId());
 
         if (config.getBaseURL() == null || config.getBaseURL().isEmpty()) {
             pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_PARAMETER, "baseURL", config.getBaseURL());
             throw new FileNotFoundException("Invalid baseURL: " + config.getBaseURL());
         }
-        
+
         setBaseURL(config.getBaseURL());
 
         // The DocumentCache will created the directoy if not present.
         if (config.getDocuments() != null && !config.getDocuments().isEmpty()) {
             setDocuments(config.getDocuments());
         }
-        
+
         // The DocumentCache will created the directoy if not present.
         if (config.getCache() != null && !config.getCache().isEmpty()) {
             setCache(config.getCache());
@@ -136,14 +135,14 @@ public class DiscoveryConfiguration {
         }
 
         setExpiryInterval(config.getExpiryInterval());
-        
+
         if (config.getActorPool() < ACTORPOOL_MIN_SIZE || config.getActorPool() > ACTORPOOL_MAX_SIZE) {
             pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_PARAMETER, "actorPool", Integer.toString(config.getActorPool()));
             setActorPool(ACTORPOOL_DEFAULT_SIZE);
         }
 
         setActorPool(config.getActorPool());
-        
+
         if (config.getBaseURL() == null || config.getBaseURL().isEmpty()) {
             pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_PARAMETER, "baseURL=" + config.getBaseURL());
             throw new FileNotFoundException("Invalid base URL: " + config.getBaseURL());
@@ -152,7 +151,7 @@ public class DiscoveryConfiguration {
         for (PeerURLType url : config.getPeerURL()) {
             discoveryURL.add(url);
         }
-        
+
         lastModified = lastMod;
     }
 

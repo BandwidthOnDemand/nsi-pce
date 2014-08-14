@@ -2,16 +2,17 @@
 <xsd:schema targetNamespace="http://schemas.es.net/nsi/2013/08/pce/topology/configuration"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:tns="http://schemas.es.net/nsi/2013/08/pce/topology/configuration">
-    
+
     <xsd:element name="topology" type="tns:TopologyConfigurationType" />
-    
+
     <xsd:complexType name="TopologyConfigurationType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:element name="location" type="xsd:string"/>
+            <xsd:element name="baseURL" type="xsd:string"/>
+            <xsd:element name="ddsURL" type="xsd:string"/>
             <xsd:element name="auditInterval" type="xsd:long"/>
             <xsd:element name="defaultServiceType" type="xsd:string" minOccurs="0" />
         </xsd:sequence>

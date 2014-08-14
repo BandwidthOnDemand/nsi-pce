@@ -162,7 +162,7 @@ public class DiscoveryTest {
             System.out.println("cDocumentsFull: " + document.getNsa() + ", " + document.getType() + ", " + document.getId() + ", href=" + document.getHref());
             assertFalse(document.getContent().getAny().isEmpty());
 
-            response = discovery.path(document.getHref()).request(MediaType.APPLICATION_XML).get();
+            response = testConfig.getClient().target(document.getHref()).request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
             DocumentType doc = response.readEntity(DocumentType.class);
             assertNotNull(doc);
@@ -207,7 +207,7 @@ public class DiscoveryTest {
             assertNull(document.getContent());
 
             // Read the direct href and get summary contents.
-            response = discovery.path(document.getHref()).queryParam("summary", "true").request(MediaType.APPLICATION_XML).get();
+            response = testConfig.getClient().target(document.getHref()).queryParam("summary", "true").request(MediaType.APPLICATION_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
             DocumentType doc = response.readEntity(DocumentType.class);
             assertNotNull(doc);
@@ -337,13 +337,13 @@ public class DiscoveryTest {
         String id = result.getId();
         response.close();
 
-        response = discovery.path(result.getHref()).request(MediaType.APPLICATION_XML).get();
+        response = testConfig.getClient().target(result.getHref()).request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         result = response.readEntity(SubscriptionType.class);
         response.close();
         assertEquals(id, result.getId());
 
-        response = discovery.path(result.getHref()).request(MediaType.APPLICATION_XML).delete();
+        response = testConfig.getClient().target(result.getHref()).request(MediaType.APPLICATION_XML).delete();
         response.close();
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
     }
@@ -368,7 +368,7 @@ public class DiscoveryTest {
         SubscriptionType result = response.readEntity(SubscriptionType.class);
         response.close();
 
-        response = discovery.path(result.getHref()).request(MediaType.APPLICATION_XML).get();
+        response = testConfig.getClient().target(result.getHref()).request(MediaType.APPLICATION_XML).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         response.close();
 
@@ -439,7 +439,7 @@ public class DiscoveryTest {
 
         for (DocumentType document : documents.getDocument()) {
             System.out.println("readDocumentType: reaading document " + document.getId());
-            response = discovery.path(document.getHref()).request(NsiConstants.NSI_DDS_V1_XML).get();
+            response = testConfig.getClient().target(document.getHref()).request(NsiConstants.NSI_DDS_V1_XML).get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         }
     }

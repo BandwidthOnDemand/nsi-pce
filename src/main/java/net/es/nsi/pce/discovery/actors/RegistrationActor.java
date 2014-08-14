@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * @author hacksaw
  */
 public class RegistrationActor extends UntypedActor {
-    private static final String NOTIFICATIONS_URL = "/discovery/notifications";
+    private static final String NOTIFICATIONS_URL = "/notifications";
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ObjectFactory factory = new ObjectFactory();
@@ -149,10 +149,10 @@ public class RegistrationActor extends UntypedActor {
         }
         catch (Exception ex) {
             log.error("RegistrationActor.update: failed to update subscription " + subscription.getSubscription().getHref(), ex);
-            //client.close();
             if (response != null) {
                 response.close();
             }
+            //client.close();
             return;
         }
 

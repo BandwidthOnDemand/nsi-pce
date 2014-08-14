@@ -2,6 +2,7 @@ package net.es.nsi.pce.topology.provider;
 
 import com.google.common.collect.Sets;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Collections;
 import net.es.nsi.pce.management.logs.PceErrors;
@@ -227,9 +228,18 @@ public class DdsDocumentReader {
     }
 
     private DdsDocumentType readDetails(String href) throws NotFoundException, JAXBException, UnsupportedEncodingException {
-         // Use the REST client to retrieve the master topology as a string.
+        // Determine of the provided URL is a fully qualified (absolute) URI,
+        // or if it is relative and required appending of host information.
         Client client = restClient.get();
-        final WebTarget webGet = client.target(target).path(href);
+        final WebTarget webGet;
+        if (isAbsolute(href)) {
+            log.debug("readDetails: absolute URI " + href);
+            webGet = client.target(href);
+        }
+        else {
+            log.debug("readDetails: relative URI " + href);
+            webGet = client.target(target).path(href);
+        }
 
         Response response = null;
         try {
@@ -278,8 +288,6 @@ public class DdsDocumentReader {
 
         String encode = URLEncoder.encode(type, "UTF-8");
         final WebTarget webGet = client.target(target).path("local").path(encode);
-
-        boolean isChanged = false;
 
         Response response = null;
         try {
@@ -332,5 +340,19 @@ public class DdsDocumentReader {
      */
     public DdsDocumentListType getLocalDocuments() {
         return localDocuments;
+    }
+
+    private boolean isAbsolute(String uri) {
+        try {
+            final URI u = new URI(uri);
+            if(u.isAbsolute())
+            {
+              return true;
+            }
+        } catch (Exception ex) {
+            log.debug("isAbsolute: invalid URI " + uri);
+        }
+
+        return false;
     }
 }

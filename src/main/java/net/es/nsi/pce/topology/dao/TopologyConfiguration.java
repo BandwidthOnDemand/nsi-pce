@@ -21,8 +21,10 @@ public class TopologyConfiguration {
 
     private long lastModified = 0;
 
-    // topology manifest enpoint.
-    private String location = null;
+    private String baseURL = null;
+
+    // Document Discovery Service endpoint.
+    private String ddsURL = null;
 
     // Time between topology refreshes.
     private long auditInterval = 30*60*1000;  // Default 30 minute polling time.
@@ -89,12 +91,19 @@ public class TopologyConfiguration {
             throw jaxb;
         }
 
-        if (config.getLocation() == null || config.getLocation().isEmpty()) {
-            pceLogger.errorAudit(PceErrors.CONFIGURATION_MISSING_MANIFEST_LOCATION, "location");
-            throw new FileNotFoundException("Topology manifest location was not provided.");
+        if (config.getBaseURL() == null || config.getBaseURL().isEmpty()) {
+            pceLogger.errorAudit(PceErrors.CONFIGURATION_MISSING_BASE_URL, "baseURL");
+            throw new FileNotFoundException(PceErrors.CONFIGURATION_MISSING_BASE_URL.getDescription());
         }
 
-        setLocation(config.getLocation());
+        setBaseURL(config.getBaseURL());
+
+        if (config.getDdsURL() == null || config.getDdsURL().isEmpty()) {
+            pceLogger.errorAudit(PceErrors.CONFIGURATION_MISSING_DDS_URL, "ddsURL");
+            throw new FileNotFoundException(PceErrors.CONFIGURATION_MISSING_DDS_URL.getDescription());
+        }
+
+        setDdsURL(config.getDdsURL());
 
         if (config.getAuditInterval() > 0) {
             setAuditInterval(config.getAuditInterval());
@@ -117,15 +126,15 @@ public class TopologyConfiguration {
     /**
      * @return the location
      */
-    public String getLocation() {
-        return location;
+    public String getDdsURL() {
+        return ddsURL;
     }
 
     /**
      * @param location the location to set
      */
-    public void setLocation(String location) {
-        this.location = location;
+    public void setDdsURL(String ddsURL) {
+        this.ddsURL = ddsURL;
     }
 
     /**
@@ -168,5 +177,19 @@ public class TopologyConfiguration {
      */
     public void setDefaultServiceType(String defaultServiceType) {
         this.defaultServiceType = defaultServiceType;
+    }
+
+    /**
+     * @return the baseURL
+     */
+    public String getBaseURL() {
+        return baseURL;
+    }
+
+    /**
+     * @param baseURL the baseURL to set
+     */
+    public void setBaseURL(String baseURL) {
+        this.baseURL = baseURL;
     }
 }

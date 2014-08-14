@@ -6,8 +6,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.UUID;
+import javax.ws.rs.WebApplicationException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import net.es.nsi.pce.discovery.api.DiscoveryError;
+import net.es.nsi.pce.discovery.api.Exceptions;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionType;
@@ -23,32 +25,29 @@ public class Subscription implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private static final String SUBSCRIPTIONS_URL = "/subscriptions/";
-    private ObjectFactory factory;
+    private static final String SUBSCRIPTIONS_URL = "subscriptions";
+    private static ObjectFactory factory = new ObjectFactory();
     private String id;
     private String encoding;
     private SubscriptionType subscription;
     private Date lastModified = new Date();
     private Cancellable action;
 
-    public Subscription(SubscriptionRequestType request, String encoding) throws IllegalArgumentException {
-        // Create a Dsicovery JAXB factory.
-        factory = new ObjectFactory();
-        
+    public Subscription(SubscriptionRequestType request, String encoding, String baseURL) throws WebApplicationException {
         // The unique subcription id is defined on the server side.
         id = UUID.randomUUID().toString();
-        
+
         // This is the encoding in which the client would like notifications sent.
         this.encoding = encoding;
-        
+
         // We take the subscription request parameters passed and complete the
         // subscription resource.
         subscription = factory.createSubscriptionType();
         subscription.setId(id);
-        
+
         // This is the direct URL to the subscription resource.
-        subscription.setHref(SUBSCRIPTIONS_URL + id);
-        
+        subscription.setHref(getSubscriptionURL(baseURL));
+
         // We manage the version of subscription resources.
         try {
             subscription.setVersion(XmlUtilities.xmlGregorianCalendar());
@@ -59,32 +58,44 @@ public class Subscription implements Serializable {
 
         // Validate the callback parameter was provided.
         if (request.getCallback() == null || request.getCallback().isEmpty()) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "subscription", "callback");
-            throw new IllegalArgumentException(error);            
+            throw Exceptions.missingParameterException("subscription", "callback");
         }
-        
+
         // Make sure it can be parsed into a URL.
         try {
             URL url = new URL(request.getCallback());
         }
         catch (MalformedURLException ex) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "subscription", "callback");
-            throw new IllegalArgumentException(error);   
+            throw Exceptions.illegalArgumentException(DiscoveryError.INVALID_PARAMETER, "subscription", "callback");
         }
 
         subscription.setCallback(request.getCallback());
-        
+
         // Will need to revisit what is valid later.
         subscription.setFilter(request.getFilter());
-        
-        if (request.getRequesterId() == null || request.getRequesterId().isEmpty()) {        
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "subscription", "callback");
-            throw new IllegalArgumentException(error);   
+
+        if (request.getRequesterId() == null || request.getRequesterId().isEmpty()) {
+            throw Exceptions.missingParameterException("subscription", "requesterId");
         }
         subscription.setRequesterId(request.getRequesterId());
-        
+
         subscription.getAny().addAll(request.getAny());
         subscription.getOtherAttributes().putAll(request.getOtherAttributes());
+    }
+
+    private String getSubscriptionURL(String baseURL) throws WebApplicationException {
+        URL url;
+        try {
+            if (!baseURL.endsWith("/")) {
+                baseURL = baseURL + "/";
+            }
+            url = new URL(baseURL);
+            url = new URL(url, SUBSCRIPTIONS_URL + "/" + this.id);
+        } catch (MalformedURLException ex) {
+            throw Exceptions.illegalArgumentException(DiscoveryError.INVALID_PARAMETER, "subscription", "href");
+        }
+
+        return url.toString();
     }
 
     /**
@@ -156,16 +167,15 @@ public class Subscription implements Serializable {
     public void setAction(Cancellable event) {
         this.action = event;
     }
-    
-    public void update(SubscriptionRequestType request, String encoding) throws IllegalArgumentException {
+
+    public void update(SubscriptionRequestType request, String encoding) throws WebApplicationException {
         if (request == null) {
-            String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "subscription", "subscriptionRequest");
-            throw new IllegalArgumentException(error);            
+            throw Exceptions.missingParameterException("subscription", "subscriptionRequest");
         }
-        
+
         if (encoding == null) {
             String error = DiscoveryError.getErrorString(DiscoveryError.MISSING_PARAMETER, "PUT", "encoding");
-            throw new IllegalArgumentException(error);            
+            throw Exceptions.missingParameterException("PUT", "encoding");
         }
 
         this.encoding = encoding;

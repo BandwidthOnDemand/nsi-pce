@@ -23,8 +23,8 @@ public class TestConfig {
     private static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
     private static final String DDS_CONFIG_FILE_ARGNAME = "ddsConfigFile";
 
-    private static Client client;
-    private static WebTarget target;
+    private Client client;
+    private WebTarget target;
 
     public TestConfig() {
         System.setProperty(CONFIG_PATH, CONFIG_DIR);
@@ -52,6 +52,10 @@ public class TestConfig {
     public void shutdown() {
         ConfigurationManager.INSTANCE.shutdown();
         client.close();
+    }
+
+    public Client getClient() {
+        return client;
     }
 
     /**

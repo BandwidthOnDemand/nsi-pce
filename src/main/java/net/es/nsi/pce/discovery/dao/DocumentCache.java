@@ -31,22 +31,22 @@ import org.slf4j.LoggerFactory;
  */
 public class DocumentCache {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    
+
     // The holder of our configuration.
     private DiscoveryConfiguration configReader;
-    
+
     // In-memory document cache indexed by nsa/type/id.
     private Map<String, Document> documents = new ConcurrentHashMap<>();
-    
+
     private boolean useCache = false;
     private String cachePath;
-    
+
     private boolean useDocuments = false;
     private String documentPath;
 
     public DocumentCache(DiscoveryConfiguration configReader) throws FileNotFoundException {
         this.configReader = configReader;
-        
+
         // Check to see if we have a local cache to utilize.
         if (configReader.getCache() != null && !configReader.getCache().isEmpty()) {
             File dir = new File(configReader.getCache());
@@ -54,14 +54,14 @@ public class DocumentCache {
             log.debug("load: cache directory configured " + cachePath);
             if (!dir.exists()) {
                 if (!dir.mkdir()) {
-                    throw new FileNotFoundException("Cannot create directory: " + cachePath);                
-                }  
+                    throw new FileNotFoundException("Cannot create directory: " + cachePath);
+                }
             }
 
             // We will be using the cache for this deployment.
             useCache = true;
         }
-        
+
         // Check to see if we have a local document directyory to monitor to utilize.
         if (configReader.getDocuments() != null && !configReader.getDocuments().isEmpty()) {
             File dir = new File(configReader.getDocuments());
@@ -69,10 +69,10 @@ public class DocumentCache {
             log.debug("load: local document directory configured " + documentPath);
             if (!dir.exists()) {
                 if (!dir.mkdir()) {
-                    throw new FileNotFoundException("Cannot create directory: " + documentPath);                
-                }  
+                    throw new FileNotFoundException("Cannot create directory: " + documentPath);
+                }
             }
-        
+
             useDocuments = true;
         }
     }
@@ -81,20 +81,20 @@ public class DocumentCache {
         loadCache();
         loadDocuments();
     }
-    
+
     public static DocumentCache getInstance() {
         DocumentCache documentCache = SpringApplicationContext.getBean("documentCache", DocumentCache.class);
         return documentCache;
     }
-    
+
     public Document get(String id) {
         return documents.get(id);
     }
-    
+
     public Document put(String id, Document doc) throws JAXBException, IOException {
         // Store the document.
         Document result = documents.put(id, doc);
-        
+
         // We need to write this new document to disk.
         if (useCache) {
             String filename = Paths.get(cachePath, UUID.randomUUID().toString() + ".xml").toString();
@@ -105,11 +105,11 @@ public class DocumentCache {
         }
         return result;
     }
-    
-    public Document update(String id, Document doc) throws JAXBException, IOException {   
+
+    public Document update(String id, Document doc) throws JAXBException, IOException {
         // Store the document.
         Document result = documents.put(id, doc);
-        
+
         // We need to write this new document to disk.
         if (useCache) {
             String filename = doc.getFilename();
@@ -118,7 +118,7 @@ public class DocumentCache {
                 doc.setFilename(filename);
                 log.debug("update: reusing old filename " + filename);
             }
-            
+
             if (filename == null || filename.isEmpty()) {
                 filename = Paths.get(cachePath, UUID.randomUUID().toString() + ".xml").toString();
                 doc.setFilename(filename);
@@ -126,10 +126,10 @@ public class DocumentCache {
             log.debug("update: updating " + filename);
             DiscoveryParser.getInstance().writeDocument(filename, doc.getDocument());
         }
-        
+
         return result;
     }
-    
+
     public Document remove(String id) {
         Document doc = documents.remove(id);
         if (doc != null && isUseCache()) {
@@ -142,34 +142,34 @@ public class DocumentCache {
 
         return doc;
     }
-    
+
     public Collection<Document> values() {
         return documents.values();
     }
 
     private void loadCache() {
         log.debug("loadCache: entering");
-        
+
         if (!useCache) {
             log.debug("loadCache: cache directory not configured so exiting.");
             return;
         }
-        
+
         loadDirectory(cachePath, true);
     }
-    
+
     private void loadDocuments() {
         log.debug("loadDocuments: entering");
-        
+
         if (!useDocuments) {
             log.debug("loadDocuments: local document directory not configured so exiting.");
             return;
         }
-        
+
         loadDirectory(documentPath, false);
     }
-    
-    
+
+
     private void loadDirectory(String path, boolean delete) {
         Collection<String> xmlFilenames = XmlUtilities.getXmlFilenames(path);
 
@@ -220,7 +220,7 @@ public class DocumentCache {
                 document.setExpires(xmlGregorianCalendar);
             }
 
-            Document entry = new Document(document);
+            Document entry = new Document(document, configReader.getBaseURL());
             entry.setFilename(filename);
 
             // Make sure the file we are loading does not overwrite a newer
@@ -230,7 +230,7 @@ public class DocumentCache {
 
             if (result == null) {
                 documents.put(entry.getId(), entry);
-                log.debug("loadDirectory: added document id=" + entry.getId() + ", filename=" + filename);                
+                log.debug("loadDirectory: added document id=" + entry.getId() + ", filename=" + filename);
             }
             else if (entry.getDocument().getVersion().compare(result.getDocument().getVersion()) == DatatypeConstants.GREATER) {
                 log.debug("loadDirectory: new document found so removing old cached document id=" + result.getId() + ", filename="+ result.getFilename());
@@ -244,10 +244,10 @@ public class DocumentCache {
                 deleteFile(filename, delete);
             }
         }
-        
+
         log.debug("loadDirectory: exiting");
     }
-    
+
     public void expire() {
         for (Document document : documents.values()) {
             // We need to determine if this document is still valid
@@ -282,7 +282,7 @@ public class DocumentCache {
     public boolean isUseDocuments() {
         return useDocuments;
     }
-    
+
     public void deleteFile(String filename, boolean delete) {
         if (delete) {
             File file = new File(filename);
