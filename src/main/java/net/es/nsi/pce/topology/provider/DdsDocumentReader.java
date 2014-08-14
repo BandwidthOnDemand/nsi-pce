@@ -2,7 +2,6 @@ package net.es.nsi.pce.topology.provider;
 
 import com.google.common.collect.Sets;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Collections;
 import net.es.nsi.pce.management.logs.PceErrors;
@@ -18,6 +17,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConstants;
+import net.es.nsi.pce.discovery.util.UrlHelper;
 import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.management.logs.PceLogger;
@@ -232,7 +232,7 @@ public class DdsDocumentReader {
         // or if it is relative and required appending of host information.
         Client client = restClient.get();
         final WebTarget webGet;
-        if (isAbsolute(href)) {
+        if (UrlHelper.isAbsolute(href)) {
             log.debug("readDetails: absolute URI " + href);
             webGet = client.target(href);
         }
@@ -340,19 +340,5 @@ public class DdsDocumentReader {
      */
     public DdsDocumentListType getLocalDocuments() {
         return localDocuments;
-    }
-
-    private boolean isAbsolute(String uri) {
-        try {
-            final URI u = new URI(uri);
-            if(u.isAbsolute())
-            {
-              return true;
-            }
-        } catch (Exception ex) {
-            log.debug("isAbsolute: invalid URI " + uri);
-        }
-
-        return false;
     }
 }

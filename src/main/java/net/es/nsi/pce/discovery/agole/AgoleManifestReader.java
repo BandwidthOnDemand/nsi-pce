@@ -151,7 +151,7 @@ public class AgoleManifestReader {
 
         response.close();
         //client.close();
-        
+
         // Parse the master topology.
         NmlTopologyType topology;
         try {

@@ -159,7 +159,7 @@ public class DdsProvider implements DiscoveryProvider {
 
         // Check to see if the document was modified after provided date.
         if (lastModified != null &&
-                lastModified.after(subscription.getLastModified())) {
+                lastModified.compareTo(subscription.getLastModified()) >= 0) {
             // NULL will represent not modified.
             return null;
         }
@@ -464,8 +464,7 @@ public class DdsProvider implements DiscoveryProvider {
         }
 
         // Check to see if the document was modified after provided date.
-        if (lastDiscovered != null &&
-                lastDiscovered.after(document.getLastDiscovered())) {
+        if (lastDiscovered != null && lastDiscovered.compareTo(document.getLastDiscovered()) >= 0) {
             // NULL will represent not modified.
             return null;
         }

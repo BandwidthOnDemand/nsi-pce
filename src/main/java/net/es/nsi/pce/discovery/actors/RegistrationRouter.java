@@ -36,13 +36,12 @@ public class RegistrationRouter extends UntypedActor {
     private int poolSize;
     private long interval;
     private Router router;
-    
+
     private RemoteSubscriptionCache remoteSubscriptionCache;
 
-    public RegistrationRouter(DdsActorSystem ddsActorSystem, 
-            DiscoveryConfiguration discoveryConfiguration, 
+    public RegistrationRouter(DdsActorSystem ddsActorSystem,
+            DiscoveryConfiguration discoveryConfiguration,
             RemoteSubscriptionCache remoteSubscriptionCache) {
-        log.debug("RegistrationRouter: constructor");
         this.ddsActorSystem = ddsActorSystem;
         this.discoveryConfiguration = discoveryConfiguration;
         this.remoteSubscriptionCache = remoteSubscriptionCache;
@@ -73,18 +72,22 @@ public class RegistrationRouter extends UntypedActor {
             RegistrationEvent re = (RegistrationEvent) msg;
             if (re.getEvent() == RegistrationEvent.Event.Register) {
                 // This is our first time through after initialization.
+                log.debug("RegistrationRouter: routeRegister");
                 routeRegister();
             }
             if (re.getEvent() == RegistrationEvent.Event.Audit) {
                 // A regular audit event.
+                log.debug("RegistrationRouter: routeAudit");
                 routeAudit();
             }
             else if (re.getEvent() == RegistrationEvent.Event.Delete) {
                 // We are shutting down so clean up.
+                log.debug("RegistrationRouter: routeShutdown");
                 routeShutdown();
             }
         }
         else if (msg instanceof Terminated) {
+            log.error("RegistrationRouter: Terminated event.");
             router = router.removeRoutee(((Terminated) msg).actor());
             ActorRef r = getContext().actorOf(Props.create(NotificationActor.class));
             getContext().watch(r);
@@ -99,13 +102,13 @@ public class RegistrationRouter extends UntypedActor {
         event.setEvent(RegistrationEvent.Event.Audit);
         ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), event, ddsActorSystem.getActorSystem().dispatcher(), null);
     }
-    
+
     private void routeRegister() {
-        // Check the list of discovery URL against what we already have.
+        // We need to register invoke a registration actor for each remote DDS
+        // we are peering with.
         Set<PeerURLType> discoveryURL = discoveryConfiguration.getDiscoveryURL();
 
         for (PeerURLType url : discoveryURL) {
-            // We have not seen this before.
             if (url.getType().equalsIgnoreCase(NsiConstants.NSI_DDS_V1_XML)) {
                 RemoteSubscription sub = new RemoteSubscription();
                 sub.setDdsURL(url.getValue());
@@ -116,7 +119,7 @@ public class RegistrationRouter extends UntypedActor {
             }
         }
     }
-    
+
     private void routeAudit() {
         // Check the list of discovery URL against what we already have.
         Set<PeerURLType> discoveryURL = discoveryConfiguration.getDiscoveryURL();
@@ -126,8 +129,8 @@ public class RegistrationRouter extends UntypedActor {
             if (!url.getType().equalsIgnoreCase(NsiConstants.NSI_DDS_V1_XML)) {
                 continue;
             }
-            
-            // See if we already have seen this URL.            
+
+            // See if we already have seen this URL.
             RemoteSubscription sub = remoteSubscriptionCache.get(url.getValue());
             if (sub == null) {
                 // We have not seen this before.
@@ -143,7 +146,7 @@ public class RegistrationRouter extends UntypedActor {
                 RegistrationEvent regEvent = new RegistrationEvent();
                 regEvent.setEvent(RegistrationEvent.Event.Update);
                 regEvent.setSubscription(sub);
-                router.route(regEvent, getSelf()); 
+                router.route(regEvent, getSelf());
 
                 // Remove from the existing list as processed.
                 subscriptionURL.remove(url.getValue());
@@ -162,7 +165,7 @@ public class RegistrationRouter extends UntypedActor {
             }
         }
     }
-    
+
     private void routeShutdown() {
         for (String url : remoteSubscriptionCache.keySet()) {
             RemoteSubscription sub = remoteSubscriptionCache.get(url);

@@ -36,7 +36,7 @@ public class NotificationActor extends UntypedActor {
     private final ObjectFactory factory = new ObjectFactory();
     private DiscoveryConfiguration discoveryConfiguration;
     private RestClient restClient;
-    
+
     public NotificationActor(DiscoveryConfiguration discoveryConfiguration) {
         this.discoveryConfiguration = discoveryConfiguration;
         restClient = RestClient.getInstance();
@@ -51,7 +51,7 @@ public class NotificationActor extends UntypedActor {
         if (msg instanceof Notification) {
             Notification notification = (Notification) msg;
             log.debug("NotificationActor: notificationId=" + notification.getSubscription().getId());
-            
+
             NotificationListType list = factory.createNotificationListType();
 
             Date lastDiscovered = new Date(0);
@@ -73,7 +73,7 @@ public class NotificationActor extends UntypedActor {
                 }
                 list.getNotification().add(notify);
             }
-            
+
             list.setId(notification.getSubscription().getId());
             list.setHref(notification.getSubscription().getSubscription().getHref());
             list.setProviderId(discoveryConfiguration.getNsaId());
@@ -84,26 +84,27 @@ public class NotificationActor extends UntypedActor {
             catch (Exception ex) {
                 log.error("NotificationActor: discovered date conversion failed", ex);
             }
-            
+
+            String callback = notification.getSubscription().getSubscription().getCallback();
             Client client = restClient.get();
-            
-            final WebTarget webTarget = client.target(notification.getSubscription().getSubscription().getCallback());
-            
+
+            final WebTarget webTarget = client.target(callback);
+
             JAXBElement<NotificationListType> jaxb = factory.createNotifications(list);
             String mediaType = notification.getSubscription().getEncoding();
             Response response = webTarget.request(mediaType)
                     .post(Entity.entity(new GenericEntity<JAXBElement<NotificationListType>>(jaxb) {}, mediaType));
-            
+
             if (response.getStatus() != Response.Status.ACCEPTED.getStatusCode()) {
-                log.error("NotificationActor: failed notification " + list.getId() + " to client " + notification.getSubscription().getSubscription().getCallback() + ", result = " + response.getStatusInfo().getReasonPhrase());
+                log.error("NotificationActor: failed notification " + list.getId() + " to client " + callback + ", result = " + response.getStatusInfo().getReasonPhrase());
                 // TODO: Tell discovery provider...
                 DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
                 discoveryProvider.deleteSubscription(notification.getSubscription().getId());
             }
             else if (log.isDebugEnabled()) {
-                log.debug("NotificationActor: sent notitifcation " + list.getId() + " to client " + notification.getSubscription().getSubscription().getCallback() + ", result = " + response.getStatusInfo().getReasonPhrase());
+                log.debug("NotificationActor: sent notitifcation " + list.getId() + " to client " + callback + ", result = " + response.getStatusInfo().getReasonPhrase());
             }
-            
+
             response.close();
             //client.close();
         } else {

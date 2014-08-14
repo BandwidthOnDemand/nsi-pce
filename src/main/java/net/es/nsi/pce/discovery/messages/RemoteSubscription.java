@@ -14,7 +14,7 @@ import net.es.nsi.pce.discovery.jaxb.SubscriptionType;
  */
 public class RemoteSubscription implements Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     private String ddsURL;
     private Date lastModified = new Date(0);
     private SubscriptionType subscription;
