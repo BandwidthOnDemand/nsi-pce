@@ -28,7 +28,7 @@ public class Document implements Serializable {
     private String id;
     private String filename;
     private DocumentType document;
-    private Date lastDiscovered = new Date();
+    private Date lastDiscovered;
 
     public Document(DocumentType document, String baseURL) throws WebApplicationException {
         this.id = documentId(document.getNsa(), document.getType(), document.getId());
@@ -37,6 +37,9 @@ public class Document implements Serializable {
         this.document.setType(this.document.getType().trim());
         this.document.setId(this.document.getId().trim());
         this.document.setHref(getDocumentURL(baseURL));
+
+        lastDiscovered = new Date();
+        lastDiscovered.setTime(lastDiscovered.getTime() - lastDiscovered.getTime() % 1000);
     }
 
     public static String documentId(String nsa, String type, String id) throws WebApplicationException {

@@ -30,7 +30,7 @@ public class Subscription implements Serializable {
     private String id;
     private String encoding;
     private SubscriptionType subscription;
-    private Date lastModified = new Date();
+    private Date lastModified;
     private Cancellable action;
 
     public Subscription(SubscriptionRequestType request, String encoding, String baseURL) throws WebApplicationException {
@@ -81,6 +81,9 @@ public class Subscription implements Serializable {
 
         subscription.getAny().addAll(request.getAny());
         subscription.getOtherAttributes().putAll(request.getOtherAttributes());
+
+        lastModified = new Date();
+        lastModified.setTime(lastModified.getTime() - lastModified.getTime() % 1000);
     }
 
     private String getSubscriptionURL(String baseURL) throws WebApplicationException {

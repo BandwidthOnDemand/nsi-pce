@@ -129,8 +129,15 @@ public class DdsProvider implements DiscoveryProvider {
             throw Exceptions.doesNotExistException(DiscoveryError.SUBCRIPTION_DOES_NOT_EXIST, "id", id);
         }
 
+        // Get the current time and remove milliseconds.
+        Date currentTime = new Date();
+        long fixed = currentTime.getTime() / 1000;
+        currentTime.setTime(fixed * 1000);
+
+        log.debug("editSubscription: changing lastModified time from " + subscription.getLastModified() + " to "+ currentTime);
+
         subscription.setEncoding(encoding);
-        subscription.setLastModified(new Date());
+        subscription.setLastModified(currentTime);
         SubscriptionType sub = subscription.getSubscription();
         sub.setRequesterId(request.getRequesterId());
         sub.setFilter(request.getFilter());
