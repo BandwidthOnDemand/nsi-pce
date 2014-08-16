@@ -228,12 +228,15 @@ public class RegistrationActor extends UntypedActor {
 
         if (response.getStatus() == Response.Status.NOT_MODIFIED.getStatusCode()) {
             // The subscription exists and has not been modified.
-            log.debug("RegistrationActor.update: subscription " + webTarget.getUri().toASCIIString() + " not modified.");
+            log.debug("RegistrationActor.update: subscription " + webTarget.getUri().toASCIIString() + " exists (not modified).");
         }
         else if (response.getStatus() == Response.Status.OK.getStatusCode()) {
-            // The subscription exists so we do not need to do anything.
+            // The subscription exists but was modified since our last query.
+            // Save the new version even though we should have know about it.
             subscription.setLastModified(response.getLastModified());
-            log.debug("RegistrationActor.update: subscription " + webTarget.getUri().toASCIIString() + " modified.");
+            SubscriptionType update = response.readEntity(SubscriptionType.class);
+            subscription.setSubscription(update);
+            log.debug("RegistrationActor.update: subscription " + webTarget.getUri().toASCIIString() + " exists (modified).");
         }
         else if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
             // Looks like our subscription was removed. We need to add it back in.
