@@ -10,7 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.discovery.jaxb.NmlNSAType;
-import net.es.nsi.pce.discovery.provider.DiscoveryParser;
+import net.es.nsi.pce.discovery.dao.DiscoveryParser;
 import net.es.nsi.pce.management.logs.PceLogger;
 import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ClientConfig;

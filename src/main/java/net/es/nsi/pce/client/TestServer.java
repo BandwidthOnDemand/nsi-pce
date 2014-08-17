@@ -67,7 +67,7 @@ public enum TestServer {
 
         synchronized(this) {
             if (server != null) {
-                server.stop();
+                server.shutdownNow();
                 server = null;
                 System.out.println("TestServer: shut down complete.");
             }

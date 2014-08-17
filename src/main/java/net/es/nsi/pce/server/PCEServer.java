@@ -14,32 +14,32 @@ import org.slf4j.LoggerFactory;
 
 public class PCEServer {
     public static final String PCE_SERVER_CONFIG_NAME = "pce";
-    
+
     private final Logger log = LoggerFactory.getLogger(getClass());
     private HttpConfig config;
     private HttpServer server = null;
-    
+
     public PCEServer(HttpConfigProvider provider) {
         this.config = provider.getConfig(PCE_SERVER_CONFIG_NAME);
     }
-    
+
     public static PCEServer getInstance() {
         PCEServer pceProvider = SpringApplicationContext.getBean("pceServer", PCEServer.class);
         return pceProvider;
     }
-    
+
     public void start() throws IllegalStateException, IOException {
         synchronized(this) {
             if (server == null) {
                 try {
                     log.debug("PCEServer.start: Starting Grizzly on " + config.getUrl() + " for resources " + config.getPackageName());
                     server = GrizzlyHttpServerFactory.createHttpServer(URI.create(config.getUrl()), RestServer.getConfig(config.getPackageName()), false);
-                    
+
                     if (config.getStaticPath() != null && !config.getStaticPath().isEmpty()) {
                         StaticHttpHandler staticHttpHandler = new StaticHttpHandler(config.getStaticPath());
                         server.getServerConfiguration().addHttpHandler(staticHttpHandler, config.getWwwPath());
                     }
-                    
+
                     server.start();
                     while (!server.isStarted()) {
                         log.debug("PCEServer.start: Waiting for Grizzly to start ...");
@@ -60,12 +60,12 @@ public class PCEServer {
         }
     }
 
-    public void stop() throws IllegalStateException {
+    public void shutdown() throws IllegalStateException {
 
         synchronized(this) {
             if (server != null) {
                 log.debug("PCEServer.stop: Stopping Grizzly.");
-                server.stop();
+                server.shutdownNow();
                 server = null;
             }
             else {
@@ -74,11 +74,11 @@ public class PCEServer {
             }
         }
     }
-    
+
     public String getPackageName() {
         return config.getPackageName();
     }
-    
+
     public String getUrl() {
         return config.getUrl();
     }

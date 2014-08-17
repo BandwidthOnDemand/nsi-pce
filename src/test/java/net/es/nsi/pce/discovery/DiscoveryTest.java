@@ -32,7 +32,7 @@ import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionType;
 import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
-import net.es.nsi.pce.discovery.provider.DiscoveryParser;
+import net.es.nsi.pce.discovery.dao.DiscoveryParser;
 import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.test.TestConfig;

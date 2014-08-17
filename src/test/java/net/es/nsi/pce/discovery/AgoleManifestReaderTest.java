@@ -71,7 +71,7 @@ public class AgoleManifestReaderTest {
             fail();
         }
         finally {
-            server.stop();
+            server.shutdownNow();
         }
     }
 }

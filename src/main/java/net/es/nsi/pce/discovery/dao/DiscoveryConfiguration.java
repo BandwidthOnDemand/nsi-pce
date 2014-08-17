@@ -9,7 +9,6 @@ import java.util.Set;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.discovery.jaxb.PeerURLType;
 import net.es.nsi.pce.discovery.jaxb.DiscoveryConfigurationType;
-import net.es.nsi.pce.discovery.provider.DiscoveryParser;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.spring.SpringApplicationContext;

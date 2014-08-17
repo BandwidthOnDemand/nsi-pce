@@ -6,6 +6,9 @@ package net.es.nsi.pce.discovery.provider;
 
 import akka.actor.Cancellable;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -16,6 +19,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
+import net.es.nsi.pce.discovery.dao.DiscoveryParser;
 import net.es.nsi.pce.discovery.actors.DdsActorController;
 import net.es.nsi.pce.discovery.api.DiscoveryError;
 import net.es.nsi.pce.discovery.api.Exceptions;
@@ -575,6 +579,13 @@ public class DdsProvider implements DiscoveryProvider {
         this.configReader = configReader;
     }
 
+    /**
+     * Load DDS documents from the designated document directory.  This directory
+     * contains documents locally added, either through the file system, or
+     * through an API ADD operation.
+     *
+     * @param path The local document directory.
+     */
     @Override
     public void loadDocuments(String path) {
         Collection<String> xmlFilenames = XmlUtilities.getXmlFilenames(path);
@@ -604,6 +615,13 @@ public class DdsProvider implements DiscoveryProvider {
                 if (expiresTime.before(now)) {
                     // This document is old and no longer valid.
                     log.error("loadDocuments: Loaded document has expired " + filename + ", expires=" + expires.toGregorianCalendar().getTime().toString());
+                    try {
+                        Path file = Paths.get(filename);
+                        Files.deleteIfExists(file);
+                        log.info("loadDocuments: Local document deleted " + filename);
+                    } catch (Exception ex) {
+                        log.error("loadDocuments: Local document delete failed " + filename, ex);
+                    }
                     continue;
                 }
             }

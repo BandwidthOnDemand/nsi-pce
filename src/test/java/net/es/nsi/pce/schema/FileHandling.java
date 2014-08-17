@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.UUID;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.discovery.jaxb.DocumentType;
-import net.es.nsi.pce.discovery.provider.DiscoveryParser;
+import net.es.nsi.pce.discovery.dao.DiscoveryParser;
 
 /**
  *

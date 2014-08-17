@@ -314,8 +314,7 @@ public class DiscoveryService {
 
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
 
-        Document document;
-        document = discoveryProvider.addDocument(request);
+        Document document = discoveryProvider.addDocument(request);
 
         String date = DateUtils.formatDate(document.getLastDiscovered(), DateUtils.PATTERN_RFC1123);
         JAXBElement<DocumentType> jaxb = factory.createDocument(document.getDocument());

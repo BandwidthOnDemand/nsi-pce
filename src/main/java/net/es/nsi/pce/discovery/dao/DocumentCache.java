@@ -18,7 +18,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.discovery.jaxb.DocumentType;
-import net.es.nsi.pce.discovery.provider.DiscoveryParser;
 import net.es.nsi.pce.discovery.provider.Document;
 import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.spring.SpringApplicationContext;

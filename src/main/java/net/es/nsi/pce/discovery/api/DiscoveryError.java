@@ -6,7 +6,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.discovery.jaxb.ErrorType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
-import net.es.nsi.pce.discovery.provider.DiscoveryParser;
+import net.es.nsi.pce.discovery.dao.DiscoveryParser;
 
 /**
  * Defines the error values for the PCE logging system.

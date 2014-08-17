@@ -146,7 +146,7 @@ public enum ConfigurationManager {
     public void shutdown() {
         try {
             discoveryProvider.shutdown();
-            pceServer.stop();
+            pceServer.shutdown();
             pceScheduler.stop();
             initialized = false;
         }
