@@ -19,7 +19,7 @@ public enum TestServer {
 
     private static HttpServer server = null;
     private static FindPathResponseType findPathResponse = null;
-    private static ConcurrentLinkedQueue<NotificationListType> notificationQueue = new ConcurrentLinkedQueue<>();;
+    private static ConcurrentLinkedQueue<NotificationListType> notificationQueue = new ConcurrentLinkedQueue<>();
 
     public boolean pushDiscoveryNotification(NotificationListType notify) {
         return notificationQueue.add(notify);

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.discovery.actors;
 
 import net.es.nsi.pce.discovery.messages.TimerMsg;
@@ -14,14 +10,16 @@ import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
 
 /**
+ * This actor fires periodically to inspect the document directory on permanent
+ * storage for any new or updated documents.
  *
  * @author hacksaw
  */
 public class LocalDocumentActor extends UntypedActor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private DdsActorSystem ddsActorSystem;
-    private DiscoveryConfiguration discoveryConfiguration;
+    private final DdsActorSystem ddsActorSystem;
+    private final DiscoveryConfiguration discoveryConfiguration;
     private long interval;
 
     public LocalDocumentActor(DdsActorSystem ddsActorSystem, DiscoveryConfiguration discoveryConfiguration) {
@@ -32,9 +30,8 @@ public class LocalDocumentActor extends UntypedActor {
     @Override
     public void preStart() {
         TimerMsg message = new TimerMsg();
-        String directory = discoveryConfiguration.getDocuments();
-        if (directory == null || directory.isEmpty()) {
-            log.info("LocalDocumentActor: Disabling local document audit, local directory not configured.");
+        if (!discoveryConfiguration.isDocumentsConfigured()) {
+            log.info("Disabling local document audit, local directory not configured.");
             return;
         }
 
@@ -45,12 +42,11 @@ public class LocalDocumentActor extends UntypedActor {
     public void onReceive(Object msg) {
         if (msg instanceof TimerMsg) {
             TimerMsg message = (TimerMsg) msg;
-            String directory = discoveryConfiguration.getDocuments();
-            if (directory == null || directory.isEmpty()) {
+            if (!discoveryConfiguration.isDocumentsConfigured()) {
                 return;
             }
 
-            DdsProvider.getInstance().loadDocuments(directory);
+            DdsProvider.getInstance().loadDocuments();
             ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
 
         } else {

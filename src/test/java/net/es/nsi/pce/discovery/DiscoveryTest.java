@@ -1,6 +1,7 @@
 package net.es.nsi.pce.discovery;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URLEncoder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -9,6 +10,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.client.TestServer;
 import static org.junit.Assert.assertEquals;
@@ -52,9 +54,11 @@ public class DiscoveryTest {
         }
     };
 
+    private final static String DDS_CONFIGURATION = "src/test/resources/config/dds.xml";
     private final static String DOCUMENT_DIR = "src/test/resources/documents/";
     private final static String callbackURL = testServer.getUrl() + "discovery/callback";
     private final static ObjectFactory factory = new ObjectFactory();
+    private static DiscoveryConfiguration ddsConfig;
     private static TestConfig testConfig;
     private static WebTarget target;
     private static WebTarget discovery;
@@ -62,14 +66,24 @@ public class DiscoveryTest {
     @BeforeClass
     public static void oneTimeSetUp() {
         System.out.println("*************************************** DiscoveryTest oneTimeSetUp ***********************************");
-        // Configure the local test client callback server.
+
         try {
+            // Load a copy of the test DDS configuration and clear the document
+            // repository for this test.
+            ddsConfig = new DiscoveryConfiguration();
+            ddsConfig.setFilename(DDS_CONFIGURATION);
+            ddsConfig.load();
+            File directory = new File(ddsConfig.getRepository());
+            FileUtilities.deleteDirectory(directory);
+
+            // Configure the local test client callback server.
             TestServer.INSTANCE.start(testServer);
         }
-        catch (Exception ex) {
+        catch (IllegalArgumentException | JAXBException | IOException | NullPointerException | IllegalStateException ex) {
             System.err.println("oneTimeSetUp: failed to start HTTP server " + ex.getLocalizedMessage());
             fail();
         }
+
         testConfig = new TestConfig();
         target = testConfig.getTarget();
         discovery = target.path("discovery");
@@ -97,34 +111,18 @@ public class DiscoveryTest {
      */
     @Test
     public void aLoadDocuments() throws Exception {
-        File folder = null;
-        try {
-            folder = new File(DOCUMENT_DIR);
-        }
-        catch (NullPointerException ex) {
-            System.err.println("Failed to load directory " + DOCUMENT_DIR + ", " + ex.getMessage());
-            throw ex;
-        }
-
-        // We will grab all XML files from the target directory.
-        File[] listOfFiles = folder.listFiles();
-
+        System.out.println("************************** Running aLoadDocuments test ********************************");
         // For each document file in the document directory load into discovery service.
-        String file;
-        for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].isFile()) {
-                file = listOfFiles[i].getAbsolutePath();
-                if (file.endsWith(".xml") || file.endsWith(".xml")) {
-                    DocumentType document = DiscoveryParser.getInstance().readDocument(file);
-                    JAXBElement<DocumentType> jaxbRequest = factory.createDocument(document);
-                    Response response = discovery.path("documents").request(MediaType.APPLICATION_XML).post(Entity.entity(new GenericEntity<JAXBElement<DocumentType>>(jaxbRequest) {}, MediaType.APPLICATION_XML));
-                    if (Response.Status.CREATED.getStatusCode() != response.getStatus() &&
-                            Response.Status.CONFLICT.getStatusCode() != response.getStatus()) {
-                        fail();
-                    }
-                }
+        for (String file : FileUtilities.getXmlFileList(DOCUMENT_DIR)) {
+            DocumentType document = DiscoveryParser.getInstance().readDocument(file);
+            JAXBElement<DocumentType> jaxbRequest = factory.createDocument(document);
+            Response response = discovery.path("documents").request(MediaType.APPLICATION_XML).post(Entity.entity(new GenericEntity<JAXBElement<DocumentType>>(jaxbRequest) {}, MediaType.APPLICATION_XML));
+            if (Response.Status.CREATED.getStatusCode() != response.getStatus() &&
+                    Response.Status.CONFLICT.getStatusCode() != response.getStatus()) {
+                fail();
             }
         }
+        System.out.println("************************** Done aLoadDocuments test ********************************");
     }
 
     /**
@@ -186,6 +184,7 @@ public class DiscoveryTest {
 
             assertTrue(found);
         }
+        System.out.println("************************** Running cDocumentsFull test ********************************");
     }
 
     /**
@@ -228,6 +227,7 @@ public class DiscoveryTest {
         DocumentListType documents = response.readEntity(DocumentListType.class);
         assertNotNull(documents);
         assertTrue(documents.getDocument().isEmpty());
+        System.out.println("************************** Done eDocumentNotFound test ********************************");
     }
 
     @Test
@@ -261,58 +261,41 @@ public class DiscoveryTest {
                 assertEquals(document.getType(), d.getType());
             }
         }
+        System.out.println("************************** Done fLocalDocuments test ********************************");
     }
 
     @Test
     public void fUpdateDocuments() throws Exception {
         System.out.println("************************** Running fUpdateDocuments test ********************************");
-        File folder = null;
-        try {
-            folder = new File(DOCUMENT_DIR);
-        }
-        catch (NullPointerException ex) {
-            System.err.println("Failed to load directory " + DOCUMENT_DIR + ", " + ex.getMessage());
-            throw ex;
-        }
-
-        // We will grab all XML files from the target directory.
-        File[] listOfFiles = folder.listFiles();
-
         // For each document file in the document directory load into discovery service.
-        String file;
-        for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].isFile()) {
-                file = listOfFiles[i].getAbsolutePath();
-                if (file.endsWith(".xml") || file.endsWith(".xml")) {
-                    DocumentType document = DiscoveryParser.getInstance().readDocument(file);
-                    XMLGregorianCalendar currentTime = XmlUtilities.xmlGregorianCalendar();
-                    XMLGregorianCalendar future = XmlUtilities.longToXMLGregorianCalendar(System.currentTimeMillis() + 360000);
-                    document.setExpires(future);
-                    document.setVersion(currentTime);
-                    for (Object obj : document.getAny()) {
-                        if (obj instanceof JAXBElement<?>) {
-                            JAXBElement<?> jaxb = (JAXBElement<?>) obj;
-                            if (jaxb.getValue() instanceof NsaType) {
-                                NsaType nsa = (NsaType) jaxb.getValue();
-                                nsa.setVersion(currentTime);
-                                nsa.setExpires(future);
-                            }
-                        }
+        for (String file : FileUtilities.getXmlFileList(DOCUMENT_DIR)) {
+            DocumentType document = DiscoveryParser.getInstance().readDocument(file);
+            XMLGregorianCalendar currentTime = XmlUtilities.xmlGregorianCalendar();
+            XMLGregorianCalendar future = XmlUtilities.longToXMLGregorianCalendar(System.currentTimeMillis() + 360000);
+            document.setExpires(future);
+            document.setVersion(currentTime);
+            for (Object obj : document.getAny()) {
+                if (obj instanceof JAXBElement<?>) {
+                    JAXBElement<?> jaxb = (JAXBElement<?>) obj;
+                    if (jaxb.getValue() instanceof NsaType) {
+                        NsaType nsa = (NsaType) jaxb.getValue();
+                        nsa.setVersion(currentTime);
+                        nsa.setExpires(future);
                     }
-
-                    System.out.println("fUpdateDocuments: updating document " + document.getId());
-
-                    JAXBElement<DocumentType> jaxbRequest = factory.createDocument(document);
-                    Response response = discovery.path("documents")
-                            .path(URLEncoder.encode(document.getNsa().trim(), "UTF-8"))
-                            .path(URLEncoder.encode(document.getType().trim(), "UTF-8"))
-                            .path(URLEncoder.encode(document.getId().trim(), "UTF-8"))
-                            .request(MediaType.APPLICATION_XML)
-                            .put(Entity.entity(new GenericEntity<JAXBElement<DocumentType>>(jaxbRequest) {}, MediaType.APPLICATION_XML));
-                    assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-                    response.close();
                 }
             }
+
+            System.out.println("fUpdateDocuments: updating document " + document.getId());
+
+            JAXBElement<DocumentType> jaxbRequest = factory.createDocument(document);
+            Response response = discovery.path("documents")
+                    .path(URLEncoder.encode(document.getNsa().trim(), "UTF-8"))
+                    .path(URLEncoder.encode(document.getType().trim(), "UTF-8"))
+                    .path(URLEncoder.encode(document.getId().trim(), "UTF-8"))
+                    .request(MediaType.APPLICATION_XML)
+                    .put(Entity.entity(new GenericEntity<JAXBElement<DocumentType>>(jaxbRequest) {}, MediaType.APPLICATION_XML));
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            response.close();
         }
         System.out.println("************************** Done fUpdateDocuments test ********************************");
     }
@@ -346,6 +329,8 @@ public class DiscoveryTest {
         response = testConfig.getClient().target(result.getHref()).request(MediaType.APPLICATION_XML).delete();
         response.close();
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+        System.out.println("************************** Done gAddNotification test ********************************");
     }
 
     @Test
@@ -412,6 +397,11 @@ public class DiscoveryTest {
             }
             notifications = TestServer.INSTANCE.pollDiscoveryNotification();
         }
+
+        response = testConfig.getClient().target(result.getHref()).request(MediaType.APPLICATION_XML).delete();
+        response.close();
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        System.out.println("************************** Done hNotification test ********************************");
     }
 
     @Test

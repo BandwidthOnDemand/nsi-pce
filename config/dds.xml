@@ -44,6 +44,7 @@
     <nsaId>urn:ogf:network:surfnet.nl:1990:nsa:bod7</nsaId>
     <documents>config/documents</documents>
     <cache>config/cache</cache>
+    <repository>config/repository</repository>
     <auditInterval>1800</auditInterval>
     <expiryInterval>600</expiryInterval>
     <actorPool>10</actorPool>

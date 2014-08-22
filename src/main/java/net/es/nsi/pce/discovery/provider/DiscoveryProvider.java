@@ -25,9 +25,9 @@ public interface DiscoveryProvider {
     public Subscription getSubscription(String id, Date lastModified) throws WebApplicationException;
     public Collection<Subscription> getSubscriptions(String requesterId, Date lastModified) throws WebApplicationException;
 
-    public Document addDocument(DocumentType document) throws WebApplicationException;
-    public Document updateDocument(String nsa, String type, String id, DocumentType document) throws WebApplicationException, InvalidVersionException;
-    public Document updateDocument(DocumentType request) throws WebApplicationException, InvalidVersionException;
+    public Document addDocument(DocumentType document, Source context) throws WebApplicationException;
+    public Document updateDocument(String nsa, String type, String id, DocumentType document, Source context) throws WebApplicationException, InvalidVersionException;
+    public Document updateDocument(DocumentType request, Source context) throws WebApplicationException, InvalidVersionException;
     public Collection<Document> getDocuments(String nsa, String type, String id, Date lastDiscovered);
     public Collection<Document> getDocumentsByNsa(String nsa, String type, String id, Date lastDiscovered) throws WebApplicationException;
     public Collection<Document> getDocumentsByNsaAndType(String nsa, String type, String id, Date lastDiscovered) throws WebApplicationException;
@@ -42,5 +42,5 @@ public interface DiscoveryProvider {
     public Collection<Document> getDocuments(FilterType filter);
     public Collection<Subscription> getSubscriptions(DocumentEvent event);
 
-    public void loadDocuments(String path);
+    public void loadDocuments();
 }

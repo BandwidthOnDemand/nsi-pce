@@ -19,7 +19,7 @@ import java.net.URLDecoder;
  * @author hacksaw
  */
 public class TestDocumentCache {
-    DiscoveryConfiguration config;
+    private DiscoveryConfiguration config;
 
     @Before
     public void setUp() throws IllegalArgumentException, JAXBException, FileNotFoundException, NullPointerException, IOException {
@@ -32,9 +32,9 @@ public class TestDocumentCache {
     @Test
     public void testLoadCache() throws FileNotFoundException, UnsupportedEncodingException {
         System.out.println("@Test - testLoadCache");
-        DocumentCache cache = new DocumentCache(config);
-        assertTrue(cache.isUseCache());
-        assertTrue(cache.isUseDocuments());
+        DdsProfile ddsProfile = new CacheProfile(config);
+        DocumentCache cache = new DocumentCache(ddsProfile);
+        assertTrue(cache.isEnabled());
         cache.load();
         Collection<Document> values = cache.values();
         assertTrue(values.size() > 0);
@@ -44,5 +44,16 @@ public class TestDocumentCache {
         int original = values.size();
         cache.expire();
         assertEquals(original, cache.values().size());
+    }
+
+    @Test
+    public void testLoadRepository() throws FileNotFoundException, UnsupportedEncodingException {
+        System.out.println("@Test - testLoadRepository");
+        DdsProfile ddsProfile = new RepositoryProfile(config);
+        DocumentCache cache = new DocumentCache(ddsProfile);
+        assertTrue(cache.isEnabled());
+        cache.load();
+        Collection<Document> values = cache.values();
+        assertTrue(values.isEmpty());
     }
 }

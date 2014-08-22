@@ -16,6 +16,7 @@ import net.es.nsi.pce.discovery.jaxb.DiscoveryConfigurationType;
 import net.es.nsi.pce.discovery.jaxb.DocumentType;
 import net.es.nsi.pce.discovery.jaxb.NmlNSAType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,15 +151,15 @@ public class DiscoveryParser {
         JAXBElement<DocumentType> element = factory.createDocument(document);
 
         File fd = new File(file);
-        try (FileOutputStream fs = new FileOutputStream(file)) {
-            if (!fd.exists()) {
-                fd.createNewFile();
-            }
+        if (!fd.exists()) {
+            log.debug("Creating file " + fd.getAbsolutePath());
+            FileUtils.touch(fd);
+        }
 
+        try (FileOutputStream fs = new FileOutputStream(fd)) {
             Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             jaxbMarshaller.marshal(element, fs);
-
             fs.flush();
         }
     }

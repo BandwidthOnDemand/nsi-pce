@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.discovery.dao;
 
 import java.io.File;
@@ -9,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
@@ -25,6 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * DocumentCache encapsulates DDS document storage through an in memory map
+ * and temporary directory cache for fast restarts.  This singleton object has
+ * a life cycle managed through Spring.
  *
  * @author hacksaw
  */
@@ -32,25 +32,31 @@ public class DocumentCache {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     // The holder of our configuration.
-    private DiscoveryConfiguration configReader;
+    private DdsProfile ddsProfile;
 
     // In-memory document cache indexed by nsa/type/id.
     private Map<String, Document> documents = new ConcurrentHashMap<>();
 
-    private boolean useCache = false;
+    // Are we configured to use the temporary document cache directory?
+    private boolean enabled = false;
     private String cachePath;
 
-    private boolean useDocuments = false;
-    private String documentPath;
+    /**
+     * Create an instance of the DocumentCache.  This is instantiated as a
+     * singleton bean from Spring.
+     *
+     * @param ddsProfile The configuration reader bean holding the DDS runtime
+     * configuration information.
+     * @throws FileNotFoundException
+     */
+    public DocumentCache(DdsProfile ddsProfile) throws FileNotFoundException {
+        this.ddsProfile = ddsProfile;
 
-    public DocumentCache(DiscoveryConfiguration configReader) throws FileNotFoundException {
-        this.configReader = configReader;
-
-        // Check to see if we have a local cache to utilize.
-        if (configReader.getCache() != null && !configReader.getCache().isEmpty()) {
-            File dir = new File(configReader.getCache());
+        // Check to see if we have a local cache to fast start from last contents.
+        if (ddsProfile.getDirectory() != null && !ddsProfile.getDirectory().isEmpty()) {
+            File dir = new File(ddsProfile.getDirectory());
             cachePath = dir.getAbsolutePath();
-            log.debug("load: cache directory configured " + cachePath);
+            log.debug("Cache directory configured " + cachePath);
             if (!dir.exists()) {
                 if (!dir.mkdir()) {
                     throw new FileNotFoundException("Cannot create directory: " + cachePath);
@@ -58,134 +64,128 @@ public class DocumentCache {
             }
 
             // We will be using the cache for this deployment.
-            useCache = true;
-        }
-
-        // Check to see if we have a local document directyory to monitor to utilize.
-        if (configReader.getDocuments() != null && !configReader.getDocuments().isEmpty()) {
-            File dir = new File(configReader.getDocuments());
-            documentPath = dir.getAbsolutePath();
-            log.debug("load: local document directory configured " + documentPath);
-            if (!dir.exists()) {
-                if (!dir.mkdir()) {
-                    throw new FileNotFoundException("Cannot create directory: " + documentPath);
-                }
-            }
-
-            useDocuments = true;
+            enabled = true;
         }
     }
 
-    public void load() {
-        loadCache();
-        loadDocuments();
-    }
-
+    /**
+     * Get an instance of this document cache singleton.
+     *
+     * @return
+     */
     public static DocumentCache getInstance() {
         DocumentCache documentCache = SpringApplicationContext.getBean("documentCache", DocumentCache.class);
         return documentCache;
     }
 
+    /**
+     * Get the document object associated with id.
+     *
+     * @param id Unique identifier of the document to get.
+     * @return
+     */
     public Document get(String id) {
         return documents.get(id);
     }
 
+    /**
+     * Add the specified document object to the cache and temporary storage
+     * overwriting any document of the same id.
+     *
+     * @param id Unique identifier of the document to add.
+     * @param doc The new document object.
+     * @return The previous document object associated with id or null.
+     * @throws JAXBException
+     * @throws IOException
+     */
     public Document put(String id, Document doc) throws JAXBException, IOException {
         // Store the document.
         Document result = documents.put(id, doc);
-
-        // We need to write this new document to disk.
-        if (useCache) {
-            String filename = Paths.get(cachePath, UUID.randomUUID().toString() + ".xml").toString();
-            doc.setFilename(filename);
-            log.debug("put: adding new file " + filename);
-
-            DiscoveryParser.getInstance().writeDocument(filename, doc.getDocument());
+        if (result == null) {
+            writeFile(doc, null);
+        }
+        else {
+            writeFile(doc, result.getFilename());
         }
         return result;
     }
 
+    /**
+     * Replace existing document in cache with specified new document object
+     * and update contents in temporary storage.
+     *
+     * @param id Unique identifier of the document to replace.
+     * @param doc The new document object.
+     * @return The new document with update filename component.
+     * @throws JAXBException
+     * @throws IOException
+     */
     public Document update(String id, Document doc) throws JAXBException, IOException {
-        // Store the document.
-        Document result = documents.put(id, doc);
-
-        // We need to write this new document to disk.
-        if (useCache) {
-            String filename = doc.getFilename();
-            if (result != null) {
-                filename = result.getFilename();
-                doc.setFilename(filename);
-                log.debug("update: reusing old filename " + filename);
-            }
-
-            if (filename == null || filename.isEmpty()) {
-                filename = Paths.get(cachePath, UUID.randomUUID().toString() + ".xml").toString();
-                doc.setFilename(filename);
-            }
-            log.debug("update: updating " + filename);
-            DiscoveryParser.getInstance().writeDocument(filename, doc.getDocument());
-        }
-
-        return result;
+        return put(id, doc);
     }
 
+    /**
+     * Remove the specified document from the cache.
+     *
+     * @param id Unique identifier of the document to remove.
+     * @return Return the document removed from cache, null otherwise.
+     */
     public Document remove(String id) {
         Document doc = documents.remove(id);
-        if (doc != null && isUseCache()) {
-            log.debug("remove: removing " + doc.getFilename());
-            File file = new File(doc.getFilename());
-            if(!file.delete()) {
-                log.error("remove: Delete failed for file  " + doc.getFilename());
-            }
+        if (doc != null && enabled) {
+            deleteFile(doc.getFilename());
         }
 
         return doc;
     }
 
+    public void putAll(DocumentCache cache) {
+        this.documents.putAll(cache.getDocuments());
+    }
+
+    /**
+     * Returns a collection of all documents currently in the document cache.
+     *
+     * @return
+     */
     public Collection<Document> values() {
         return documents.values();
     }
 
-    private void loadCache() {
-        log.debug("loadCache: entering");
-
-        if (!useCache) {
-            log.debug("loadCache: cache directory not configured so exiting.");
-            return;
-        }
-
-        loadDirectory(cachePath, true);
+    /**
+     * Load cache with all document files from local cache directory.
+     */
+    public void load() {
+        loadDirectory(cachePath);
     }
 
-    private void loadDocuments() {
-        log.debug("loadDocuments: entering");
+    /**
+     * Load cache with all document files from local cache directory.
+     */
+    public Map<String, String> loadDirectory(String path) {
+        Map<String, String> list = new ConcurrentHashMap<>();
 
-        if (!useDocuments) {
-            log.debug("loadDocuments: local document directory not configured so exiting.");
-            return;
+        if (!enabled) {
+            log.info("load: cache directory not configured.");
+            return list;
         }
 
-        loadDirectory(documentPath, false);
-    }
-
-
-    private void loadDirectory(String path, boolean delete) {
         Collection<String> xmlFilenames = XmlUtilities.getXmlFilenames(path);
 
         for (String filename : xmlFilenames) {
-            log.debug("loadDirectory: filename " + filename);
+            log.info("load: loading " + filename);
             DocumentType document;
             try {
                 document = DiscoveryParser.getInstance().readDocument(filename);
                 if (document == null) {
-                    log.error("loadDirectory: Loaded empty document from " + filename);
-                    deleteFile(filename, delete);
+                    log.error("load: Loaded empty document from " + filename);
+                    deleteFile(filename);
                     continue;
                 }
             }
             catch (JAXBException | IOException ex) {
-                log.error("loadDirectory: Failed to load file " + filename, ex);
-                deleteFile(filename, delete);
+                log.error("load: Failed to load file " + filename, ex);
+                deleteFile(filename);
                 continue;
             }
 
@@ -197,11 +197,11 @@ public class DocumentCache {
 
                 // We take the current time and add the expiry buffer.
                 Date now = new Date();
-                now.setTime(now.getTime() + configReader.getExpiryInterval() * 1000);
+                now.setTime(now.getTime() + ddsProfile.getExpiryInterval() * 1000);
                 if (expiresTime.before(now)) {
                     // This document is old and no longer valid.
-                    log.error("loadDirectory: Loaded document has expired " + filename + ", expires=" + expires.toGregorianCalendar().getTime().toString());
-                    deleteFile(filename, delete);
+                    log.error("load: Loaded document has expired " + filename + ", expires=" + expires.toGregorianCalendar().getTime().toString());
+                    deleteFile(filename);
                     continue;
                 }
             }
@@ -212,14 +212,14 @@ public class DocumentCache {
                 try {
                     xmlGregorianCalendar = XmlUtilities.xmlGregorianCalendar(date);
                 } catch (DatatypeConfigurationException ex) {
-                    log.error("loadDirectory: Document does not contain an expires date and creation of one failed id=" + document.getId());
+                    log.error("load: Document does not contain an expires date and creation of one failed id=" + document.getId());
                     continue;
                 }
 
                 document.setExpires(xmlGregorianCalendar);
             }
 
-            Document entry = new Document(document, configReader.getBaseURL());
+            Document entry = new Document(document, ddsProfile.getBaseURL());
             entry.setFilename(filename);
 
             // Make sure the file we are loading does not overwrite a newer
@@ -229,24 +229,32 @@ public class DocumentCache {
 
             if (result == null) {
                 documents.put(entry.getId(), entry);
-                log.debug("loadDirectory: added document id=" + entry.getId() + ", filename=" + filename);
+                log.debug("load: added document id=" + entry.getId() + ", filename=" + filename);
+                list.put(entry.getId(), entry.getFilename());
             }
             else if (entry.getDocument().getVersion().compare(result.getDocument().getVersion()) == DatatypeConstants.GREATER) {
-                log.debug("loadDirectory: new document found so removing old cached document id=" + result.getId() + ", filename="+ result.getFilename());
+                log.info("load: new document found so removing old cached document id=" + result.getId() + ", filename="+ result.getFilename());
                 documents.remove(result.getId());
-                deleteFile(result.getFilename(), delete);
+                deleteFile(result.getFilename());
                 documents.put(entry.getId(), entry);
-                log.debug("loadDirectory: added new document id=" + entry.getId() + ", filename=" + filename);
+                log.info("load: added new document id=" + entry.getId() + ", filename=" + filename);
+                list.put(entry.getId(), entry.getFilename());
             }
             else {
-                log.debug("loadDirectory: document currently in cache is newer, removing old document id=" + entry.getId() + ", filename=" + filename);
-                deleteFile(filename, delete);
+                log.info("load: document currently in cache is newer, removing old document id=" + entry.getId() + ", filename=" + filename);
+                deleteFile(filename);
             }
         }
 
-        log.debug("loadDirectory: exiting");
+        return list;
     }
 
+    /**
+     * Expire any documents in the cache past expire time plus the expiryInterval
+     * offset.  We give this extra padding to allow clients to get any delete
+     * updates that were sent (deletes are done in the DDS protocol by setting
+     * expire time to now.
+     */
     public void expire() {
         for (Document document : documents.values()) {
             // We need to determine if this document is still valid
@@ -258,7 +266,7 @@ public class DocumentCache {
 
                 // We take the current time and add the expiry buffer.
                 Date now = new Date();
-                now.setTime(now.getTime() + configReader.getExpiryInterval() * 1000);
+                now.setTime(now.getTime() + ddsProfile.getExpiryInterval() * 1000);
                 if (expiresTime.before(now)) {
                     // This document is old and no longer valid.
                     log.debug("expire: document has expired " + document.getId() + ", expires=" + expires.toGregorianCalendar().getTime().toString());
@@ -269,28 +277,45 @@ public class DocumentCache {
     }
 
     /**
-     * @return the useCache
+     * Is document cache configured for temporary storage of in memory documents
+     * on disk?
+     *
+     * @return the enabled
      */
-    public boolean isUseCache() {
-        return useCache;
+    public boolean isEnabled() {
+        return enabled;
     }
 
     /**
-     * @return the useDocuments
+     * Delete specified file from document cache.
+     *
+     * @param filename File to delete.
      */
-    public boolean isUseDocuments() {
-        return useDocuments;
+    public void deleteFile(String filename) {
+        File file = new File(filename);
+        if(!file.delete()) {
+            log.error("DocumentCache: Delete failed for file  " + filename);
+        }
+        else {
+            log.info("DocumentCache: Deleted old document " + filename);
+        }
     }
 
-    public void deleteFile(String filename, boolean delete) {
-        if (delete) {
-            File file = new File(filename);
-            if(!file.delete()) {
-                log.error("DocumentCache: Delete failed for file  " + filename);
+    private void writeFile(Document doc, String filename) throws JAXBException, IOException {
+        // We need to write this new document to disk.
+        if (enabled) {
+            if (filename == null || filename.isEmpty()) {
+                filename = Paths.get(cachePath, UUID.randomUUID().toString() + ".xml").toString();
             }
-            else {
-                log.debug("DocumentCache: Deleted old cache document " + filename);
-            }
+            doc.setFilename(filename);
+            DiscoveryParser.getInstance().writeDocument(doc.getFilename(), doc.getDocument());
         }
+    }
+
+    /**
+     * @return the documents
+     */
+    public Map<String, Document> getDocuments() {
+        return Collections.unmodifiableMap(documents);
     }
 }

@@ -7,6 +7,7 @@ package net.es.nsi.pce.discovery.actors;
 import net.es.nsi.pce.discovery.messages.Notification;
 import akka.actor.UntypedActor;
 import java.util.Date;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -16,6 +17,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.config.ConfigurationManager;
 import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
+import net.es.nsi.pce.discovery.dao.DiscoveryParser;
 import net.es.nsi.pce.discovery.jaxb.NotificationListType;
 import net.es.nsi.pce.discovery.jaxb.NotificationType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
@@ -34,12 +36,12 @@ public class NotificationActor extends UntypedActor {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ObjectFactory factory = new ObjectFactory();
-    private DiscoveryConfiguration discoveryConfiguration;
-    private RestClient restClient;
+    private final DiscoveryConfiguration discoveryConfiguration;
+    private final RestClient restClient;
 
-    public NotificationActor(DiscoveryConfiguration discoveryConfiguration) {
+    public NotificationActor(DiscoveryConfiguration discoveryConfiguration, RestClient restClient) {
         this.discoveryConfiguration = discoveryConfiguration;
-        restClient = RestClient.getInstance();
+        this.restClient = restClient;
     }
 
     @Override
@@ -89,23 +91,33 @@ public class NotificationActor extends UntypedActor {
             Client client = restClient.get();
 
             final WebTarget webTarget = client.target(callback);
-
             JAXBElement<NotificationListType> jaxb = factory.createNotifications(list);
             String mediaType = notification.getSubscription().getEncoding();
-            Response response = webTarget.request(mediaType)
+            //String jaxbToString = DiscoveryParser.getInstance().jaxbToString(jaxb);
+            //log.debug("Notification to send:\n" + jaxbToString);
+
+            try {
+                Response response = webTarget.request(mediaType)
                     .post(Entity.entity(new GenericEntity<JAXBElement<NotificationListType>>(jaxb) {}, mediaType));
 
-            if (response.getStatus() != Response.Status.ACCEPTED.getStatusCode()) {
-                log.error("NotificationActor: failed notification " + list.getId() + " to client " + callback + ", result = " + response.getStatusInfo().getReasonPhrase());
-                // TODO: Tell discovery provider...
+                if (response.getStatus() != Response.Status.ACCEPTED.getStatusCode()) {
+                    log.error("NotificationActor: failed notification " + list.getId() + " to client " + callback + ", result = " + response.getStatusInfo().getReasonPhrase());
+                    // TODO: Tell discovery provider...
+                    DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
+                    discoveryProvider.deleteSubscription(notification.getSubscription().getId());
+                }
+                else if (log.isDebugEnabled()) {
+                    log.debug("NotificationActor: sent notitifcation " + list.getId() + " to client " + callback + ", result = " + response.getStatusInfo().getReasonPhrase());
+                }
+
+                response.close();
+            }
+            catch (WebApplicationException ex) {
+                log.error("NotificationActor: failed notification " + list.getId() + " to client " + callback, ex);
                 DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
                 discoveryProvider.deleteSubscription(notification.getSubscription().getId());
             }
-            else if (log.isDebugEnabled()) {
-                log.debug("NotificationActor: sent notitifcation " + list.getId() + " to client " + callback + ", result = " + response.getStatusInfo().getReasonPhrase());
-            }
 
-            response.close();
             //client.close();
         } else {
             unhandled(msg);

@@ -19,7 +19,7 @@ public class TestConfig {
     private static final String CONFIG_PATH = "configPath";
     private final static String CONFIG_DIR = "src/test/resources/config/";
     private static final String DEFAULT_TOPOLOGY_FILE = CONFIG_DIR + "topology-dds.xml";
-    private static final String DEFAULT_DDS_FILE = CONFIG_DIR + "dds.xml";
+    public static final String DEFAULT_DDS_FILE = CONFIG_DIR + "dds.xml";
     private static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
     private static final String DDS_CONFIG_FILE_ARGNAME = "ddsConfigFile";
 

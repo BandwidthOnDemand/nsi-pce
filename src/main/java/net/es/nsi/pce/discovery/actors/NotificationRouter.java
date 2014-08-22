@@ -26,6 +26,7 @@ import net.es.nsi.pce.discovery.provider.DiscoveryProvider;
 import net.es.nsi.pce.discovery.provider.Document;
 import net.es.nsi.pce.discovery.dao.DocumentCache;
 import net.es.nsi.pce.discovery.provider.Subscription;
+import net.es.nsi.pce.jersey.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
@@ -41,24 +42,27 @@ public class NotificationRouter extends UntypedActor {
     private DiscoveryConfiguration discoveryConfiguration;
     private DiscoveryProvider discoveryProvider;
     private DocumentCache documentCache;
+    private RestClient restClient;
     private int poolSize;
     private Router router;
 
     public NotificationRouter(DdsActorSystem ddsActorSystem,
-            DiscoveryConfiguration discoveryConfiguration, 
-            DiscoveryProvider discoveryProvider, 
-            DocumentCache documentCache) {
+            DiscoveryConfiguration discoveryConfiguration,
+            DiscoveryProvider discoveryProvider,
+            DocumentCache documentCache,
+            RestClient restClient) {
         this.ddsActorSystem = ddsActorSystem;
         this.discoveryConfiguration = discoveryConfiguration;
         this.discoveryProvider = discoveryProvider;
         this.documentCache = documentCache;
+        this.restClient = restClient;
     }
 
     @Override
     public void preStart() {
         List<Routee> routees = new ArrayList<>();
         for (int i = 0; i < getPoolSize(); i++) {
-            ActorRef r = getContext().actorOf(Props.create(NotificationActor.class, discoveryConfiguration));
+            ActorRef r = getContext().actorOf(Props.create(NotificationActor.class, discoveryConfiguration, restClient));
             getContext().watch(r);
             routees.add(new ActorRefRoutee(r));
         }
@@ -76,7 +80,7 @@ public class NotificationRouter extends UntypedActor {
         else if (msg instanceof SubscriptionEvent) {
             // We have a subscription event.
             SubscriptionEvent se = (SubscriptionEvent) msg;
-            log.debug("NotificationRouter: subscription event id=" + se.getSubscription().getId());           
+            log.debug("NotificationRouter: subscription event id=" + se.getSubscription().getId());
             routeSubscriptionEvent(se);
         }
         else if (msg instanceof Terminated) {
@@ -91,17 +95,17 @@ public class NotificationRouter extends UntypedActor {
             unhandled(msg);
         }
     }
-    
+
     private void routeDocumentEvent(DocumentEvent de) {
         Collection<Subscription> subscriptions = discoveryProvider.getSubscriptions(de);
-        
+
         log.debug("routeDocumentEvent: event=" + de.getEvent() + ", documentId=" + de.getDocument().getId());
-        
+
         // We need to sent the list of matching documents to the callback
         // related to this subscription.  Only send if there is no pending
         // subscription event.
         for (Subscription subscription : subscriptions) {
-            log.debug("routeDocumentEvent: subscription=" + subscription.getId() + ", endpoint=" + subscription.getSubscription().getHref());
+            log.debug("routeDocumentEvent: subscription=" + subscription.getId() + ", endpoint=" + subscription.getSubscription().getCallback());
             if (subscription.getAction() == null) {
                 Notification notification = new Notification();
                 notification.setEvent(de.getEvent());
@@ -113,16 +117,16 @@ public class NotificationRouter extends UntypedActor {
             }
         }
     }
-    
+
     private void routeSubscriptionEvent(SubscriptionEvent se) {
-        
+
         // TODO: Apply subscription filter to these documents.
         Collection<Document> documents = documentCache.values();
-        
+
         // Clean up our trigger event.
         log.debug("routeSubscriptionEvent: event=" + se.getEvent() + ", action=" + se.getSubscription().getAction().isCancelled());
         se.getSubscription().setAction(null);
-        
+
         // We need to sent the list of matching documents to the callback
         // related to this subscription.
         Notification notification = new Notification();
@@ -150,7 +154,7 @@ public class NotificationRouter extends UntypedActor {
         Cancellable scheduleOnce = ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(delay, TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
         return scheduleOnce;
     }
-    
+
     public void sendNotification(Object message) {
         this.getSelf().tell(message, null);
     }

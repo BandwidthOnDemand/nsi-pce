@@ -10,7 +10,7 @@ import net.es.nsi.pce.discovery.dao.DiscoveryParser;
 
 /**
  * Defines the error values for the PCE logging system.
- * 
+ *
  * @author hacksaw
  */
 public enum DiscoveryError {
@@ -22,36 +22,36 @@ public enum DiscoveryError {
     VERSION_NOT_SUPPORTED(104, "VERSION_NOT_SUPPORTED", "The service version requested is not supported. (%s)."),
     INTERNAL_SERVER_ERROR(105, "INTERNAL_SERVER_ERROR", "There was an internal server processing error (%s)."),
     NOT_FOUND(106, "NOT_FOUND", "Requested resources was not found (%s)."),
-    
+
     DOCUMENT_EXISTS(110, "DOCUMENT_EXISTS", "There is already a registered document under provided id (%s)."),
     DOCUMENT_DOES_NOT_EXIST(111, "DOCUMENT_DOES_NOT_EXIST", "The requested document does not exist (%s)."),
     DOCUMENT_INVALID(112, "DOCUMENT_INVALID", "There was a problem with the document that prevents storage (%s)."),
     DOCUMENT_VERSION(113, "DOCUMENT_VERSION", "The document version was older than the current document (%s)."),
-    
 
-    
-    SUBCRIPTION_DOES_NOT_EXIST(120, "SUBCRIPTION_DOES_NOT_EXIST", "There was an internal server processing error (%s)."),
-    
+
+
+    SUBCRIPTION_DOES_NOT_EXIST(120, "SUBCRIPTION_DOES_NOT_EXIST", "Requested subscription identifier does not exist (%s)."),
+
     // Mark the end.
     END(999, "END", "END");
 
     private int code;
     private String label;
     private String description;
- 
+
     /**
      * A mapping between the integer code and its corresponding Status to facilitate lookup by code.
      */
     private static Map<Integer, DiscoveryError> codeToStatusMapping;
-    
+
     private static ObjectFactory factory = new ObjectFactory();
- 
+
     private DiscoveryError(int code, String label, String description) {
         this.code = code;
         this.label = label;
         this.description = description;
     }
- 
+
     private static void initMapping() {
         codeToStatusMapping = new HashMap<>();
         for (DiscoveryError s : values()) {
@@ -74,7 +74,7 @@ public enum DiscoveryError {
         fp.setDescription(String.format(error.getDescription(), info));
         return fp;
     }
-    
+
     public static ErrorType getErrorType(String xml) {
         ErrorType error;
         try {
@@ -84,36 +84,36 @@ public enum DiscoveryError {
         }
         catch (JAXBException ex) {
             error = getErrorType(INTERNAL_SERVER_ERROR, "JAXB", xml);
-            
+
         }
         return error;
     }
-    
+
     public static String getErrorString(DiscoveryError error, String resource, String info) {
         ErrorType fp = getErrorType(error, resource, info);
         JAXBElement<ErrorType> errorElement = factory.createError(fp);
         String xml = DiscoveryParser.getInstance().jaxbToString(errorElement);
         return xml;
     }
-    
+
     public static String getErrorString(ErrorType error) {
         JAXBElement<ErrorType> errorElement = factory.createError(error);
         String xml = DiscoveryParser.getInstance().jaxbToString(errorElement);
         return xml;
     }
-            
+
     public int getCode() {
         return code;
     }
- 
+
     public String getLabel() {
         return label;
     }
- 
+
     public String getDescription() {
         return description;
     }
- 
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();

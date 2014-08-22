@@ -37,6 +37,7 @@ import net.es.nsi.pce.discovery.jaxb.SubscriptionRequestType;
 import net.es.nsi.pce.discovery.jaxb.SubscriptionType;
 import net.es.nsi.pce.discovery.provider.DiscoveryProvider;
 import net.es.nsi.pce.discovery.provider.Document;
+import net.es.nsi.pce.discovery.provider.Source;
 import net.es.nsi.pce.discovery.provider.Subscription;
 import net.es.nsi.pce.schema.NsiConstants;
 import org.apache.http.client.utils.DateUtils;
@@ -314,7 +315,7 @@ public class DiscoveryService {
 
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
 
-        Document document = discoveryProvider.addDocument(request);
+        Document document = discoveryProvider.addDocument(request, Source.LOCAL);
 
         String date = DateUtils.formatDate(document.getLastDiscovered(), DateUtils.PATTERN_RFC1123);
         JAXBElement<DocumentType> jaxb = factory.createDocument(document.getDocument());
@@ -512,7 +513,7 @@ public class DiscoveryService {
         DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
 
         Document document;
-        document = discoveryProvider.updateDocument(nsa, type, id, request);
+        document = discoveryProvider.updateDocument(nsa, type, id, request, Source.LOCAL);
 
         String date = DateUtils.formatDate(document.getLastDiscovered(), DateUtils.PATTERN_RFC1123);
         JAXBElement<DocumentType> jaxb = factory.createDocument(document.getDocument());

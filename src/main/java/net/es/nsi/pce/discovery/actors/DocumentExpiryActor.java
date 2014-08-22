@@ -1,18 +1,14 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.discovery.actors;
 
 import net.es.nsi.pce.discovery.messages.TimerMsg;
 import akka.actor.UntypedActor;
 import java.util.concurrent.TimeUnit;
 import net.es.nsi.pce.discovery.dao.DocumentCache;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
 
 /**
+ * This actor fires periodically to inspect the DDS document cache for any
+ * expired documents.
  *
  * @author hacksaw
  */
@@ -37,7 +33,7 @@ public class DocumentExpiryActor extends UntypedActor {
         if (msg instanceof TimerMsg) {
             TimerMsg message = (TimerMsg) msg;
             documentCache.expire();
-            ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);        
+            ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
 
         } else {
             unhandled(msg);

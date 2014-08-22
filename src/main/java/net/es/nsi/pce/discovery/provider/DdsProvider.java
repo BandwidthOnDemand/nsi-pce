@@ -6,6 +6,7 @@ package net.es.nsi.pce.discovery.provider;
 
 import akka.actor.Cancellable;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,15 +55,19 @@ public class DdsProvider implements DiscoveryProvider {
     // In-memory document cache.
     private DocumentCache documentCache;
 
+    // Local document repository for persistent document storage.
+    private DocumentCache documentRepository;
+
     // The actor system used to send notifications.
     private DdsActorController ddsActorController;
 
     // In-memory subscription cache indexed by subscriptionId.
     private Map<String, Subscription> subscriptions = new ConcurrentHashMap<>();
 
-    public DdsProvider(DiscoveryConfiguration configuration, DocumentCache documentCache, DdsActorController ddsActorController) {
+    public DdsProvider(DiscoveryConfiguration configuration, DocumentCache documentCache, DocumentCache documentRepository, DdsActorController ddsActorController) {
         this.configReader = configuration;
         this.documentCache = documentCache;
+        this.documentRepository = documentRepository;
         this.ddsActorController = ddsActorController;
     }
 
@@ -73,7 +78,28 @@ public class DdsProvider implements DiscoveryProvider {
 
     @Override
     public void init() {
-        // All initialization is now through bean config.
+        log.debug("Starting DDS Service with cached documents:");
+        for (Document document : documentCache.values()) {
+            try {
+                log.debug("id=" + URLDecoder.decode(document.getId(), "UTF-8"));
+            } catch (Exception ex) {
+                log.error("invalid id=" + document.getId());
+            }
+        }
+
+        log.debug("Starting DDS Service with repository documents:");
+        for (Document document : documentRepository.values()) {
+            try {
+                log.debug("id=" + URLDecoder.decode(document.getId(), "UTF-8"));
+            } catch (Exception ex) {
+                log.error("invalid id=" + document.getId());
+            }
+        }
+
+        // Copy documents from permanet repository to cache before we start
+        // processing requests.
+        documentCache.putAll(documentRepository);
+
     }
 
     @Override
@@ -239,13 +265,13 @@ public class DdsProvider implements DiscoveryProvider {
             // This must be the first time we have seen the document so add it
             // into our cache.
             log.debug("processNotification: new documentId=" + documentId);
-            addDocument(document);
+            addDocument(document, Source.REMOTE);
         }
         else {
             // We have seen the document before.
             log.debug("processNotification: update documentId=" + documentId);
             try {
-                updateDocument(document);
+                updateDocument(document, Source.REMOTE);
             }
             catch (InvalidVersionException ex) {
                 // This is an old document version so discard.
@@ -255,7 +281,7 @@ public class DdsProvider implements DiscoveryProvider {
     }
 
     @Override
-    public Document addDocument(DocumentType request) throws WebApplicationException {
+    public Document addDocument(DocumentType request, Source context) throws WebApplicationException {
         // Create and populate our internal document.
         Document document = new Document(request, configReader.getBaseURL());
 
@@ -289,6 +315,10 @@ public class DdsProvider implements DiscoveryProvider {
         // This is a new document so add it into the document space.
         try {
             documentCache.put(document.getId(), document);
+
+            if (context == Source.LOCAL) {
+                documentRepository.put(document.getId(), document);
+            }
         }
         catch (JAXBException | IOException ex) {
             log.error("addDocument: failed to add document to document store", ex);
@@ -304,7 +334,7 @@ public class DdsProvider implements DiscoveryProvider {
     }
 
     @Override
-    public Document updateDocument(String nsa, String type, String id, DocumentType request) throws WebApplicationException, InvalidVersionException {
+    public Document updateDocument(String nsa, String type, String id, DocumentType request, Source context) throws WebApplicationException, InvalidVersionException {
         // Create a document identifier to look up in our documet table.
         String documentId = Document.documentId(nsa, type, id);
 
@@ -351,6 +381,10 @@ public class DdsProvider implements DiscoveryProvider {
         newDoc.setLastDiscovered(new Date());
         try {
             documentCache.update(documentId, newDoc);
+
+            if (context == Source.LOCAL) {
+                documentRepository.update(documentId, newDoc);
+            }
         }
         catch (JAXBException jaxb) {
             log.error("updateDocument: Failed to generate document XML, documentId=" + documentId);
@@ -365,12 +399,12 @@ public class DdsProvider implements DiscoveryProvider {
         de.setDocument(newDoc);
         ddsActorController.sendNotification(de);
 
-        return document;
+        return newDoc;
     }
 
     @Override
-    public Document updateDocument(DocumentType request) throws IllegalArgumentException, NotFoundException, InvalidVersionException {
-        return updateDocument(request.getNsa(), request.getType(), request.getId(), request);
+    public Document updateDocument(DocumentType request, Source context) throws IllegalArgumentException, NotFoundException, InvalidVersionException {
+        return updateDocument(request.getNsa(), request.getType(), request.getId(), request, context);
     }
 
     @Override
@@ -580,15 +614,13 @@ public class DdsProvider implements DiscoveryProvider {
     }
 
     /**
-     * Load DDS documents from the designated document directory.  This directory
-     * contains documents locally added, either through the file system, or
-     * through an API ADD operation.
-     *
-     * @param path The local document directory.
+     * Audit the contents of the local document directory for an new additions.
+     * This directory contains documents administrators want to locally add
+     * through the file system (as an alternative to the REST API ADD).
      */
     @Override
-    public void loadDocuments(String path) {
-        Collection<String> xmlFilenames = XmlUtilities.getXmlFilenames(path);
+    public void loadDocuments() {
+        Collection<String> xmlFilenames = XmlUtilities.getXmlFilenames(configReader.getDocuments());
         for (String filename : xmlFilenames) {
             DocumentType document;
             try {
@@ -613,8 +645,12 @@ public class DdsProvider implements DiscoveryProvider {
                 Date now = new Date();
                 now.setTime(now.getTime() + this.getConfigReader().getExpiryInterval() * 1000);
                 if (expiresTime.before(now)) {
-                    // This document is old and no longer valid.
+                    // This document has expired.  Remove from directory but add
+                    // to document space just in case this is a delete of an
+                    // existing document.
                     log.error("loadDocuments: Loaded document has expired " + filename + ", expires=" + expires.toGregorianCalendar().getTime().toString());
+
+                    // Remove from documents directory.
                     try {
                         Path file = Paths.get(filename);
                         Files.deleteIfExists(file);
@@ -622,16 +658,15 @@ public class DdsProvider implements DiscoveryProvider {
                     } catch (Exception ex) {
                         log.error("loadDocuments: Local document delete failed " + filename, ex);
                     }
-                    continue;
                 }
             }
 
-            // See if we have seen this document before.
+            // Have we seen this document before?
             Document existingDocument = this.getDocument(document);
             if (existingDocument == null) {
                 // We have not seen this document so add it.
                 try {
-                    this.addDocument(document);
+                    addDocument(document, Source.LOCAL);
                 }
                 catch (WebApplicationException ex) {
                     log.error("loadDocuments: Could not add document " + filename, ex);
@@ -647,13 +682,13 @@ public class DdsProvider implements DiscoveryProvider {
                         existingVersion.compare(document.getVersion()) == DatatypeConstants.LESSER) {
                     // The existing version is older so add the new one.
                     try {
-                        this.updateDocument(document);
+                        this.updateDocument(document, Source.LOCAL);
                         log.debug("loadDocuments: updated document " + filename);
                     }
                     catch (WebApplicationException ex) {
                         log.error("loadDocuments: Could not update document " + filename, ex);
                     }
-                }
+               }
             }
         }
     }

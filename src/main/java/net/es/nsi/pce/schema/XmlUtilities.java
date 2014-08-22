@@ -29,13 +29,14 @@ import javax.xml.namespace.QName;
  */
 public class XmlUtilities {
     public final static long ONE_YEAR = 31536000000L;
-    
+    public final static long ONE_DAY = 86400000L;
+
 	/**
 	 * Utility method to marshal a JAXB annotated java object to an XML
          * formatted string.  This class is generic enough to be used for any
          * JAXB annotated java object not containing the {@link XmlRootElement}
          * annotation.
-         * 
+         *
 	 * @param xmlClass	The JAXB class of the object to marshal.
 	 * @param xmlObject	The JAXB object to marshal.
 	 * @return		String containing the XML encoded object.
@@ -46,13 +47,13 @@ public class XmlUtilities {
             if (xmlClass == null || xmlObject == null) {
                 return null;
             }
-            
+
             @SuppressWarnings("unchecked")
             JAXBElement<?> jaxbElement = new JAXBElement(new QName("uri", "local"), xmlClass, xmlObject);
-            
+
             return jaxbToString(xmlClass, jaxbElement);
 	}
-        
+
     public static String jaxbToString(Class<?> xmlClass, JAXBElement<?> jaxbElement) {
 
             // Make sure we are given the correct input.
@@ -72,18 +73,18 @@ public class XmlUtilities {
                 jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
                 jaxbMarshaller.marshal(jaxbElement, writer);
                 result = writer.toString();
-            } catch (Exception e) {             
+            } catch (Exception e) {
                 // Something went wrong so get out of here.
                 return null;
             }
             finally {
                 try { writer.close(); } catch (IOException ex) {}
             }
-            
+
             // Return the XML string.
             return result;
 	}
-    
+
     public static JAXBElement<?> xmlToJaxb(Class<?> xmlClass, String xml) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(xmlClass);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -98,35 +99,35 @@ public class XmlUtilities {
         if (time <= 0) {
             return null;
         }
-        
+
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeInMillis(time);
         XMLGregorianCalendar newXMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
         return newXMLGregorianCalendar;
     }
-    
+
     public static XMLGregorianCalendar xmlGregorianCalendar() throws DatatypeConfigurationException {
         GregorianCalendar cal = new GregorianCalendar();
         return DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
     }
-    
+
     public static XMLGregorianCalendar xmlGregorianCalendar(Date date) throws DatatypeConfigurationException {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(date);
         return DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
     }
-    
+
     public static Date xmlGregorianCalendarToDate(XMLGregorianCalendar cal) throws DatatypeConfigurationException {
         GregorianCalendar gregorianCalendar = cal.toGregorianCalendar();
         return gregorianCalendar.getTime();
     }
-    
+
     public static Collection<String> getXmlFilenames(String path) throws NullPointerException {
-        Collection<String> results = new ArrayList<>(); 
+        Collection<String> results = new ArrayList<>();
         File folder = new File(path);
-      
-        // We will grab all XML files from the target directory. 
-        File[] listOfFiles = folder.listFiles(); 
+
+        // We will grab all XML files from the target directory.
+        File[] listOfFiles = folder.listFiles();
 
         String file;
         for (int i = 0; i < listOfFiles.length; i++) {
@@ -137,7 +138,7 @@ public class XmlUtilities {
                 }
             }
         }
-      
+
         return results;
     }
 }

@@ -43,6 +43,7 @@
     <nsaId>urn:ogf:network:netherlight.net:2013:nsa:bod</nsaId>
     <documents>src/test/resources/config/documents</documents>
     <cache>src/test/resources/config/cache</cache>
+    <repository>src/test/resources/config/repository</repository>
     <auditInterval>300</auditInterval>
     <expiryInterval>600</expiryInterval>
     <actorPool>10</actorPool>

@@ -39,6 +39,7 @@ public class DiscoveryConfiguration {
     private String baseURL = null;
     private String documents = null;
     private String cache = null;
+    private String repository = null;
     private long auditInterval = DEFAULT_AUDIT_INTERVAL;
     private long expiryInterval = EXPIRE_INTERVAL_DEFAULT;
     private int actorPool = ACTORPOOL_DEFAULT_SIZE;
@@ -121,6 +122,11 @@ public class DiscoveryConfiguration {
             setCache(config.getCache());
         }
 
+        // The RepositoryCache will created the directoy if not present.
+        if (config.getRepository() != null && !config.getRepository().isEmpty()) {
+            setRepository(config.getRepository());
+        }
+
         if (config.getAuditInterval() < MIN_AUDIT_INTERVAL || config.getAuditInterval() > MAX_AUDIT_INTERVAL) {
             pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_PARAMETER, "auditInterval", Long.toString(config.getAuditInterval()));
             setAuditInterval(DEFAULT_AUDIT_INTERVAL);
@@ -152,6 +158,30 @@ public class DiscoveryConfiguration {
         }
 
         lastModified = lastMod;
+    }
+
+    public boolean isDocumentsConfigured() {
+        if (documents == null || documents.isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean isCacheConfigured() {
+        if (cache == null || cache.isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean isRepositoryConfigured() {
+        if (repository == null || repository.isEmpty()) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -257,5 +287,19 @@ public class DiscoveryConfiguration {
      */
     public void setBaseURL(String baseURL) {
         this.baseURL = baseURL;
+    }
+
+    /**
+     * @return the repository
+     */
+    public String getRepository() {
+        return repository;
+    }
+
+    /**
+     * @param repository the repository to set
+     */
+    public void setRepository(String repository) {
+        this.repository = repository;
     }
 }
