@@ -8,6 +8,7 @@ import javax.ws.rs.client.ClientBuilder;
 import net.es.nsi.pce.spring.SpringApplicationContext;
 import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.moxy.json.MoxyJsonFeature;
 import org.glassfish.jersey.moxy.xml.MoxyXmlFeature;
@@ -20,18 +21,12 @@ import org.slf4j.LoggerFactory;
  */
 public class RestClient {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private static final List<Client> client = new CopyOnWriteArrayList<>();
-    private static final Random random = new Random();
-    private static int size;
+    private final Client client;
 
-    public RestClient(int size) {
-        this.size = size;
+    public RestClient() {
         ClientConfig clientConfig = new ClientConfig();
         configureClient(clientConfig);
-
-        for (int i = 0; i < size; i++) {
-            client.add(ClientBuilder.newClient(clientConfig));
-        }
+        client = ClientBuilder.newClient(clientConfig);
     }
 
     public static RestClient getInstance() {
@@ -47,17 +42,14 @@ public class RestClient {
         clientConfig.property(MarshallerProperties.NAMESPACE_PREFIX_MAPPER, Utilities.getNameSpace());
         clientConfig.property(MarshallerProperties.JSON_ATTRIBUTE_PREFIX, "@");
         clientConfig.property(MarshallerProperties.JSON_NAMESPACE_SEPARATOR, '.');
+        clientConfig.property(ClientProperties.FOLLOW_REDIRECTS, true);
     }
 
     public Client get() {
-        int value = random.nextInt(size);
-        log.debug("RestClient: random=" + value);
-        return client.get(value);
+        return client;
     }
 
     public void close() {
-        for (Client c : client) {
-            c.close();
-        }
+        client.close();
     }
 }

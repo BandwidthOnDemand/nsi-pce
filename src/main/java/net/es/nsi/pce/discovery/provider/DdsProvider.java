@@ -371,7 +371,12 @@ public class DdsProvider implements DiscoveryProvider {
         }
 
         // Make sure this is a new version of the document.
-        if (request.getVersion().compare(document.getDocument().getVersion()) != DatatypeConstants.GREATER) {
+        if (request.getVersion().compare(document.getDocument().getVersion()) == DatatypeConstants.EQUAL) {
+            log.debug("updateDocument: received document is a duplicate id=" + documentId);
+            throw Exceptions.invalidVersionException(DiscoveryError.DOCUMENT_VERSION, request.getId(), request.getVersion(), document.getDocument().getVersion());
+        }
+        else if (request.getVersion().compare(document.getDocument().getVersion()) == DatatypeConstants.LESSER) {
+            log.debug("updateDocument: received document is an old version id=" + documentId);
             throw Exceptions.invalidVersionException(DiscoveryError.DOCUMENT_VERSION, request.getId(), request.getVersion(), document.getDocument().getVersion());
         }
 
@@ -387,10 +392,10 @@ public class DdsProvider implements DiscoveryProvider {
             }
         }
         catch (JAXBException jaxb) {
-            log.error("updateDocument: Failed to generate document XML, documentId=" + documentId);
+            log.error("updateDocument: Failed to generate document XML, documentId=" + documentId, jaxb);
         }
         catch (IOException io) {
-            log.error("updateDocument: Failed to write document to cache, documentId=" + documentId);
+            log.error("updateDocument: Failed to write document to cache, documentId=" + documentId, io);
         }
 
         // Route a update document event.
