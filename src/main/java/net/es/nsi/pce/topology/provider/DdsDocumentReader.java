@@ -246,7 +246,7 @@ public class DdsDocumentReader {
             response = webGet.request(NsiConstants.NSI_DDS_V1_XML).get();
         }
         catch (Exception ex) {
-            topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, ex.getMessage());
+            topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, webGet.getUri().toASCIIString(), ex.getMessage());
 
             if (response != null) {
                 response.close();

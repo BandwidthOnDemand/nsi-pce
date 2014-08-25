@@ -299,7 +299,7 @@ public class RegistrationActor extends UntypedActor {
             log.error("RegistrationActor.delete: subscription did not exist " + remoteSubscriptionURL);
         }
         else {
-            log.error("RegistrationActor.delete: failed to delete subscription " + remoteDdsURL + ", result = " + response.getStatusInfo().getReasonPhrase());
+            log.error("RegistrationActor.delete: failed to delete subscription " + webTarget.getUri().toASCIIString() + ", result = " + response.getStatusInfo().getReasonPhrase());
             ErrorType error = response.readEntity(ErrorType.class);
             if (error != null) {
                 log.error("RegistrationActor.delete: id=" + error.getId() + ", label=" + error.getLabel() + ", resource=" + error.getResource() + ", description=" + error.getDescription());

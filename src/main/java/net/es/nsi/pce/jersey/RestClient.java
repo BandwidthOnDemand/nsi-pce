@@ -1,26 +1,25 @@
 package net.es.nsi.pce.jersey;
 
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.io.IOException;
+import java.io.InputStream;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.ClientRequestContext;
+import javax.ws.rs.client.ClientResponseContext;
+import javax.ws.rs.client.ClientResponseFilter;
+import javax.ws.rs.core.Response;
 import net.es.nsi.pce.spring.SpringApplicationContext;
 import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.moxy.json.MoxyJsonFeature;
 import org.glassfish.jersey.moxy.xml.MoxyXmlFeature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author hacksaw
  */
 public class RestClient {
-    private final Logger log = LoggerFactory.getLogger(getClass());
     private final Client client;
 
     public RestClient() {
@@ -39,10 +38,10 @@ public class RestClient {
         clientConfig.register(new MoxyXmlFeature());
         clientConfig.register(new MoxyJsonFeature());
         clientConfig.register(new LoggingFilter(java.util.logging.Logger.getGlobal(), true));
+        clientConfig.register(FollowRedirectFilter.class);
         clientConfig.property(MarshallerProperties.NAMESPACE_PREFIX_MAPPER, Utilities.getNameSpace());
         clientConfig.property(MarshallerProperties.JSON_ATTRIBUTE_PREFIX, "@");
         clientConfig.property(MarshallerProperties.JSON_NAMESPACE_SEPARATOR, '.');
-        clientConfig.property(ClientProperties.FOLLOW_REDIRECTS, true);
     }
 
     public Client get() {
@@ -51,5 +50,21 @@ public class RestClient {
 
     public void close() {
         client.close();
+    }
+
+    private static class FollowRedirectFilter implements ClientResponseFilter
+    {
+        @Override
+        public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) throws IOException
+        {
+            if (requestContext == null || responseContext == null || responseContext.getStatus() != Response.Status.FOUND.getStatusCode()) {
+               return;
+            }
+
+            Response resp = requestContext.getClient().target(responseContext.getLocation()).request().method(requestContext.getMethod());
+            responseContext.setEntityStream((InputStream) resp.getEntity());
+            responseContext.setStatusInfo(resp.getStatusInfo());
+            responseContext.setStatus(resp.getStatus());
+        }
     }
 }
