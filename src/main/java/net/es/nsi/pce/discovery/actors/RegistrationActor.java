@@ -10,6 +10,7 @@ import net.es.nsi.pce.discovery.messages.RemoteSubscription;
 import akka.actor.UntypedActor;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -87,7 +88,8 @@ public class RegistrationActor extends UntypedActor {
     }
 
     private void register(RegistrationEvent event) {
-        String remoteDdsURL = event.getSubscription().getDdsURL();
+        final RemoteSubscription remoteSubscription = event.getSubscription();
+        final String remoteDdsURL = remoteSubscription.getDdsURL();
 
         // We will register for all events on all documents.
         FilterCriteriaType criteria = factory.createFilterCriteriaType();
@@ -102,8 +104,7 @@ public class RegistrationActor extends UntypedActor {
             request.setCallback(getNotificationURL());
         }
         catch (MalformedURLException mx) {
-            log.error("RegistrationActor.register: failed to get my notification callback URL", mx);
-            log.error("RegistrationActor.register: failed registration for " + remoteDdsURL);
+            log.error("RegistrationActor.register: failed to get my notification callback URL, failing registration for " + remoteDdsURL, mx);
             return;
         }
 
@@ -135,19 +136,30 @@ public class RegistrationActor extends UntypedActor {
         }
 
         // Looks like we were successful so save the subscription information.
-        SubscriptionType subscription = response.readEntity(SubscriptionType.class);
+        SubscriptionType newSubscription = response.readEntity(SubscriptionType.class);
+
+        log.debug("RegistrationActor.register: created subscription " + newSubscription.getId() + ", href=" + newSubscription.getHref() + ", lastModified=" + response.getLastModified());
+
+        remoteSubscription.setSubscription(newSubscription);
+        if (response.getLastModified() == null) {
+            // We should have gotten a valid lastModified date back.  Fake one
+            // until we have worked out all the failure cases.  This will open
+            // a small window of inaccuracy.
+            log.error("RegistrationActor.register: invalid LastModified header for id=" + newSubscription.getId() + ", href=" + newSubscription.getHref());
+            remoteSubscription.setLastModified(new Date((System.currentTimeMillis() / 1000) * 1000 ));
+        }
+        else {
+            remoteSubscription.setLastModified(response.getLastModified());
+        }
+
+        remoteSubscriptionCache.add(remoteSubscription);
+
         response.close();
         //client.close();
 
-        log.debug("RegistrationActor.register: created subscription " + subscription.getId() + ", href=" + subscription.getHref());
-
-        event.getSubscription().setSubscription(subscription);
-        event.getSubscription().setLastModified(response.getLastModified());
-        remoteSubscriptionCache.add(event.getSubscription());
-
         // Now that we have registered a new subscription make sure we clean up
         // and old ones that may exist on the remote DDS.
-        deleteOldSubscriptions(remoteDdsURL, subscription.getId());
+        deleteOldSubscriptions(remoteDdsURL, newSubscription.getId());
     }
 
     private void deleteOldSubscriptions(String remoteDdsURL, String id) {
@@ -201,8 +213,8 @@ public class RegistrationActor extends UntypedActor {
         // First we retrieve the remote subscription to see if it is still
         // valid.  If it is not then we register again, otherwise we leave it
         // alone for now.
-        RemoteSubscription subscription = remoteSubscriptionCache.get(event.getSubscription().getDdsURL());
-        String remoteSubscriptionURL = subscription.getSubscription().getHref();
+        RemoteSubscription remoteSubscription = remoteSubscriptionCache.get(event.getSubscription().getDdsURL());
+        String remoteSubscriptionURL = remoteSubscription.getSubscription().getHref();
 
         // Check to see if the remote subscription URL is absolute or relative.
         WebTarget webTarget;
@@ -210,15 +222,16 @@ public class RegistrationActor extends UntypedActor {
             webTarget = client.target(remoteSubscriptionURL);
         }
         else {
-            webTarget = client.target(subscription.getDdsURL()).path(remoteSubscriptionURL);
+            webTarget = client.target(remoteSubscription.getDdsURL()).path(remoteSubscriptionURL);
         }
 
         Response response = null;
         try {
-            response = webTarget.request(NsiConstants.NSI_DDS_V1_XML).header("If-Modified-Since", DateUtils.formatDate(subscription.getLastModified(), DateUtils.PATTERN_RFC1123)).get();
+            log.debug("RegistrationActor.update: getting subscription " + webTarget.getUri().toASCIIString() + ", lastModified=" + remoteSubscription.getLastModified());
+            response = webTarget.request(NsiConstants.NSI_DDS_V1_XML).header("If-Modified-Since", DateUtils.formatDate(remoteSubscription.getLastModified(), DateUtils.PATTERN_RFC1123)).get();
         }
         catch (Exception ex) {
-            log.error("RegistrationActor.update: failed to update subscription " + subscription.getSubscription().getHref(), ex);
+            log.error("RegistrationActor.update: failed to update subscription " + remoteSubscriptionURL, ex);
             if (response != null) {
                 response.close();
             }
@@ -233,9 +246,9 @@ public class RegistrationActor extends UntypedActor {
         else if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             // The subscription exists but was modified since our last query.
             // Save the new version even though we should have know about it.
-            subscription.setLastModified(response.getLastModified());
+            remoteSubscription.setLastModified(response.getLastModified());
             SubscriptionType update = response.readEntity(SubscriptionType.class);
-            subscription.setSubscription(update);
+            remoteSubscription.setSubscription(update);
             log.debug("RegistrationActor.update: subscription " + webTarget.getUri().toASCIIString() + " exists (modified).");
         }
         else if (response.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
@@ -243,7 +256,7 @@ public class RegistrationActor extends UntypedActor {
             log.debug("RegistrationActor.update: subscription " + webTarget.getUri().toASCIIString() + " does not exists and will be recreated.");
 
             // Remove the stored subscription since a new one will be created.
-            remoteSubscriptionCache.remove(subscription.getDdsURL());
+            remoteSubscriptionCache.remove(remoteSubscription.getDdsURL());
             register(event);
         }
         else {
