@@ -24,8 +24,9 @@
                 <href>https://oscars.es.net/ConnectionService</href>
             </interface>
             <feature type="vnd.ogf.nsi.cs.v2.role.uPA"/>
+            <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"/>
             <peersWith>urn:ogf:network:manlan.internet2.edu:2013:nsa</peersWith>
-            <peersWith>urn:ogf:network:startap.net:2013:nsa</peersWith>
+            <peersWith>urn:ogf:network:icair.org:2013:nsa</peersWith>
         </ns9:nsa>
     </content>
 </ns5:document>

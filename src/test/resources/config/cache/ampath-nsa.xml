@@ -10,6 +10,10 @@
                 <href>http://nsi.ampath.net:9080/NSI/services/CS2</href>
             </interface>
             <feature type="vnd.ogf.nsi.cs.v2.role.uPA"/>
+            <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"/>
+            <peersWith>urn:ogf:network:icair.org:2013:nsa</peersWith>
+            <peersWith>urn:ogf:network:southernlight.net:2013:nsa</peersWith>
+            <peersWith>urn:ogf:network:nordu.net:2013:nsa</peersWith>
         </ns9:nsa>
     </content>
 </ns5:document>

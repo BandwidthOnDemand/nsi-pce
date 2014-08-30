@@ -15,6 +15,14 @@
                 <href>https://bod.netherlight.net//nsi/v2/provider</href>
             </interface>
             <feature type="vnd.ogf.nsi.cs.v2.role.uPA"/>
+            <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"/>
+            <peersWith>urn:ogf:network:manlan.internet2.edu:2013:nsa</peersWith>
+            <peersWith>urn:ogf:network:uvalight.net:2013:nsa</peersWith>
+            <peersWith>urn:ogf:network:czechlight.cesnet.cz:2013:nsa</peersWith>
+            <peersWith>urn:ogf:network:icair.org:2013:nsa</peersWith>
+            <peersWith>urn:ogf:network:geant.net:2013:nsa</peersWith>
+            <peersWith>urn:ogf:network:nordu.net:2013:nsa</peersWith>
+            <peersWith>urn:ogf:network:pionier.net.pl:2013:nsa</peersWith>
         </ns9:nsa>
     </content>
 </ns4:document>

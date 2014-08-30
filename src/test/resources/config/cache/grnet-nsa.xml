@@ -14,7 +14,7 @@
                 <href>http://62.217.125.86:8080/nsi/ConnectionProvider</href>
             </interface>
             <feature type="vnd.ogf.nsi.cs.v2.role.uPA"/>
-            <peersWith>urn:ogf:network:grnet.gr:2013:nsa</peersWith>
+            <peersWith>urn:ogf:network:geant.net:2013:nsa</peersWith>
         </ns9:nsa>
     </content>
 </ns5:document>

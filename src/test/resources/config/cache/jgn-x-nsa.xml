@@ -14,6 +14,7 @@
                 <href>http://202.180.38.130:8080/2013/07/connectionprovider</href>
             </interface>
             <feature type="vnd.ogf.nsi.cs.v2.role.uPA"/>
+            <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"/>
             <peersWith>urn:ogf:network:kddilabs.jp:2013:nsa</peersWith>
             <peersWith>urn:ogf:network:aist.go.jp:2013:nsa</peersWith>
             <peersWith>urn:ogf:network:sinet.ac.jp:2013:nsa</peersWith>

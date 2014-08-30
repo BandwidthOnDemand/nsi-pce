@@ -39,6 +39,7 @@ public enum NsiError {
     NO_PATH_FOUND("00403", "NO_PATH_FOUND", "Path computation failed (%s)."),
     UNKNOWN_NETWORK("00405", "UNKNOWN_NETWORK", "Unknown network for requested resource (%s)."),
     INVALID_DISCOVERY_INFORMATION("00406", "INVALID_DISCOVERY_INFORMATION", "Cannot map networkId to service interface (%s)."),
+    NO_CONTROLPLANE_PATH_FOUND("00406", "NO_CONTROLPLANE_PATH_FOUND", "No control plane path for selected connection segements (%s)."),
 
     // Internal server errors.
     INTERNAL_ERROR("00500", "INTERNAL_ERROR", "An internal error has caused a message processing failure (%s)."),

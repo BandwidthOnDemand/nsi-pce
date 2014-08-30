@@ -10,6 +10,7 @@
                 <href>http://agole.ansp.br:9080/NSI/services/CS2</href>
             </interface>
             <feature type="vnd.ogf.nsi.cs.v2.role.uPA"/>
+            <peersWith>urn:ogf:network:ampath.net:2013:nsa</peersWith>
         </ns9:nsa>
     </content>
 </ns5:document>

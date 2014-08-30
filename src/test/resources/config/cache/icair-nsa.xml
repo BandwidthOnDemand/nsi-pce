@@ -21,6 +21,11 @@
                 <href>http://pmri061.it.northwestern.edu:9080/NSI/services/CS2</href>
             </interface>
             <feature type="vnd.ogf.nsi.cs.v2.role.uPA"/>
+            <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"/>
+            <peersWith>urn:ogf:network:netherlight.net:2013:nsa:bod</peersWith>
+            <peersWith>urn:ogf:network:krlight.net:2013:nsa</peersWith>
+            <peersWith>urn:ogf:network:es.net:2013:nsa</peersWith>
+            <peersWith>urn:ogf:network:jgn-x.jp:2013:nsa</peersWith>
         </ns9:nsa>
     </content>
 </ns4:document>
