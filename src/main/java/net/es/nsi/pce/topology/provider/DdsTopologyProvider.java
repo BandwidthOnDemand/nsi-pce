@@ -8,13 +8,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
+import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import net.es.nsi.pce.topology.model.NsiSdpFactory;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.management.jaxb.TopologyStatusType;
+import net.es.nsi.pce.topology.model.ControlPlaneTopology;
 import net.es.nsi.pce.schema.NsiConstants;
+import net.es.nsi.pce.spring.SpringApplicationContext;
 import net.es.nsi.pce.topology.dao.TopologyConfiguration;
 import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
 
@@ -47,6 +50,8 @@ public class DdsTopologyProvider implements TopologyProvider {
     // The NSI Topology model used by path finding.
     private NsiTopology nsiTopology = new NsiTopology();
 
+    private ControlPlaneTopology controlPlaneTopology;
+
     // The last time an NML object was discovered.
     private long lastDiscovered = 0L;
 
@@ -68,6 +73,11 @@ public class DdsTopologyProvider implements TopologyProvider {
         providerStatus.setId(getClass().getName());
         providerStatus.setHref(configuration.getDdsURL());
         providerStatus.setStatus(TopologyStatusType.INITIALIZING);
+    }
+
+    public static DdsTopologyProvider getInstance() {
+        DdsTopologyProvider tp = SpringApplicationContext.getBean("topologyProvider", DdsTopologyProvider.class);
+        return tp;
     }
 
      /**
@@ -149,12 +159,15 @@ public class DdsTopologyProvider implements TopologyProvider {
             return;
         }
 
+        // Now that we have a new set of documents (at least some were new or
+        // modified), we must rebuild our entire topology model.
         NsiTopologyFactory nsiFactory = new NsiTopologyFactory();
         nsiFactory.setDefaultServiceType(configuration.getDefaultServiceType());
         NsiTopology newTopology = nsiFactory.createNsiTopology(localNsaDocuments, nsaDocuments, localTopologyDocuments, topologyDocuments);
         lastDiscovered = nsiFactory.getLastDiscovered();
         newTopology = consolidateGlobalTopology(newTopology);
         newTopology.setLastDiscovered(lastDiscovered);
+        controlPlaneTopology = new ControlPlaneTopology(newTopology);
 
         // Identify a successful audit.
         ddsAuditSuccess();
@@ -243,5 +256,13 @@ public class DdsTopologyProvider implements TopologyProvider {
     @Override
     public long getAuditInterval() {
         return configuration.getAuditInterval();
+    }
+
+    /**
+     * @return the ControlPlaneTopology
+     */
+    @Override
+    public ControlPlaneTopology getControlPlaneTopology() {
+        return controlPlaneTopology;
     }
 }

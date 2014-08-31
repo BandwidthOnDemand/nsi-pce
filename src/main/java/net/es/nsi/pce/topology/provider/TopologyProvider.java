@@ -1,6 +1,6 @@
 package net.es.nsi.pce.topology.provider;
 
-import net.es.nsi.pce.management.jaxb.TopologyStatusType;
+import net.es.nsi.pce.topology.model.ControlPlaneTopology;
 import net.es.nsi.pce.topology.dao.TopologyConfiguration;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
@@ -25,6 +25,8 @@ public interface TopologyProvider {
      * @return The discovered NSI topology.
      */
     public NsiTopology getTopology();
+
+    public ControlPlaneTopology getControlPlaneTopology();
 
     /**
      * Get the audit interval (in milliseconds) used by scheduler to schedule
