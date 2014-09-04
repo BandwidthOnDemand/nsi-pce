@@ -25,11 +25,11 @@ import org.slf4j.LoggerFactory;
  */
 public class ControlPlaneTopology {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private Map<String, NsaVertex> verticies = new HashMap<>();
+    private Map<String, NsaVertex> verticies;
     private Graph<NsaVertex, NsaEdge> controlPlane;
 
     public ControlPlaneTopology(NsiTopology tp) {
-        controlPlane = graph(tp);
+        graph(tp);
     }
 
     public String findNextNsa(String sourceNsa, String destNsa) {
@@ -103,14 +103,14 @@ public class ControlPlaneTopology {
         return false;
     }
 
-    private Graph<NsaVertex, NsaEdge> graph(NsiTopology topology) throws IllegalArgumentException, RuntimeException {
-        Graph<NsaVertex, NsaEdge> graph = new SortedSparseMultigraph<>();
-        verticies.clear();
+    private void graph(NsiTopology topology) throws IllegalArgumentException, RuntimeException {
+        controlPlane = new SortedSparseMultigraph<>();
+        verticies = new HashMap<>();
 
         // Add all NSA as verticies.
         for (NsaType nsa : topology.getNsas()) {
             NsaVertex vertex = new NsaVertex(nsa.getId(), nsa);
-            graph.addVertex(vertex);
+            controlPlane.addVertex(vertex);
             verticies.put(vertex.getId(), vertex);
         }
 
@@ -133,12 +133,10 @@ public class ControlPlaneTopology {
                         // We add an outgoing edge for this NSA.
                         Pair<NsaVertex> pair = new Pair<>(sourceNsa, peerNsa);
                         NsaEdge edge = new NsaEdge(nsa, peerNsa.getNsa());
-                        graph.addEdge(edge, pair, EdgeType.DIRECTED);
+                        controlPlane.addEdge(edge, pair, EdgeType.DIRECTED);
                     }
                 }
             }
         }
-
-        return graph;
     }
 }

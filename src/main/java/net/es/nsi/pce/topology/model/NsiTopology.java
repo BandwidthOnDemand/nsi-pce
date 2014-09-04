@@ -28,6 +28,8 @@ import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.VectorType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -136,7 +138,7 @@ public class NsiTopology {
      * @param serviceAdaptation The ServiceAdaptation object to store.
      * @return The ServiceAdaptation object stored.
      */
-    public ServiceAdaptationType addService(ServiceAdaptationType serviceAdaptation) {
+    public ServiceAdaptationType addServiceAdaptation(ServiceAdaptationType serviceAdaptation) {
         return serviceAdaptations.put(serviceAdaptation.getId().toLowerCase(), serviceAdaptation);
     }
 
@@ -520,6 +522,44 @@ public class NsiTopology {
             table.put(nsa.getId(), vectors);
         }
         return table;
+    }
+
+    public NsiTopology getTopologyByNetworkId(String networkId) {
+        NsiTopology tp = new NsiTopology();
+
+        tp.setLocalNsaId(localNsaId);
+        tp.setLocalNetworks(localNetworks);
+        tp.setLastDiscovered(lastDiscovered);
+
+        NetworkType network = getNetworkById(networkId);
+        tp.addNetwork(network);
+
+        tp.addNsa(getNsa(network.getNsa().getId()));
+
+        for (ResourceRefType service : network.getService()) {
+            tp.addService(getService(service.getId()));
+        }
+
+        for (ResourceRefType serviceDomain : network.getServiceDomain()) {
+            tp.addServiceDomain(getServiceDomain(serviceDomain.getId()));
+        }
+
+        for (ResourceRefType serviceAdaptation : network.getServiceAdaptation()) {
+            tp.addServiceAdaptation(getServiceAdaptation(serviceAdaptation.getId()));
+        }
+
+        for (ResourceRefType stp : network.getStp()) {
+            tp.addStp(getStp(stp.getId()));
+        }
+
+        for (SdpType sdp : sdps.values()) {
+            if (networkId.equalsIgnoreCase(sdp.getDemarcationA().getNetwork().getId()) &&
+                    networkId.equalsIgnoreCase(sdp.getDemarcationZ().getNetwork().getId())) {
+                tp.addSdp(sdp);
+            }
+        }
+
+        return tp;
     }
 
 }
