@@ -46,7 +46,7 @@ public class PolicyPCE implements PCEModule {
 
         // If both the source and destination STP are in the same network we
         // need to restrict the path to only that network.
-        if (!srcStp.getNetworkId().equalsIgnoreCase(dstStp.getNetworkId())) {
+        if (srcStp == null || dstStp == null || !srcStp.getNetworkId().equalsIgnoreCase(dstStp.getNetworkId())) {
             return pceData;
         }
 

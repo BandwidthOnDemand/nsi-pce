@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericEntity;
@@ -48,6 +49,7 @@ public class TestDocumentRepository {
     private final static ObjectFactory factory = new ObjectFactory();
     private static DiscoveryConfiguration ddsConfig;
     private static TestConfig testConfig;
+    private static Client client;
     private static WebTarget target;
     private static WebTarget discovery;
 
@@ -56,6 +58,7 @@ public class TestDocumentRepository {
         System.out.println("*************************************** TestDocumentRepository oneTimeSetUp ***********************************");
 
         testConfig = new TestConfig();
+        client = testConfig.getClient();
         target = testConfig.getTarget();
         discovery = target.path("discovery");
 
@@ -104,6 +107,7 @@ public class TestDocumentRepository {
     public void addDocuments() throws Exception {
         // For each document file in the document directory load into discovery service.
         List<String> identifiers = new ArrayList<>();
+        List<String> hrefs = new ArrayList<>();
         for (String file : FileUtilities.getXmlFileList(DOCUMENT_DIR)) {
             DocumentType document = DiscoveryParser.getInstance().readDocument(file);
             JAXBElement<DocumentType> jaxbRequest = factory.createDocument(document);
@@ -113,12 +117,22 @@ public class TestDocumentRepository {
                 fail();
             }
 
+            document = response.readEntity(DocumentType.class);
+
             identifiers.add(document.getId());
+            hrefs.add(document.getHref());
+            log.debug("Added id=" + document.getId() + ", href=" + document.getHref());
         }
 
         // Now verify the local repository contains the target files.
         assertTrue(ddsConfig.isRepositoryConfigured());
         assertTrue(verifyAddResults(identifiers));
+
+        // Now clean up what we added.
+        for (String href : hrefs) {
+            Response response = client.target(href).request(MediaType.APPLICATION_XML).delete();
+            log.debug("Deleted " + href + ", response " + response.getStatus());
+        }
     }
 
     private boolean verifyAddResults(List<String> identifiers) throws JAXBException, IOException, NullPointerException {
@@ -132,7 +146,7 @@ public class TestDocumentRepository {
         for (String id : identifiers) {
             log.debug("verifyAddResults: id=" + id);
         }
-        if (identifiers.containsAll(repository) && repository.containsAll(identifiers)) {
+        if (repository.containsAll(identifiers)) {
             return true;
         }
 
