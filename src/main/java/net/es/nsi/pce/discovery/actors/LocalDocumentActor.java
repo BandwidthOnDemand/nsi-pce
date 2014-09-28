@@ -34,7 +34,8 @@ public class LocalDocumentActor extends UntypedActor {
             log.info("Disabling local document audit, local directory not configured.");
             return;
         }
-
+        
+        DdsProvider.getInstance().loadDocuments();
         ddsActorSystem.getActorSystem().scheduler().scheduleOnce(Duration.create(getInterval(), TimeUnit.SECONDS), this.getSelf(), message, ddsActorSystem.getActorSystem().dispatcher(), null);
     }
 

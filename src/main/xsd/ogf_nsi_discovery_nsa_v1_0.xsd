@@ -37,11 +37,11 @@ or as required to translate it into languages other than English.
 The limited permissions granted above are perpetual and will not be revoked by
 the OGF or its successors or assignees.
 
-Open Grid Forum NSI NSA Discovery Document v1.0.
+Open Grid Forum NSI NSA Description Document v1.0.
 
-Description: This is the NSA Discovery Document schema defined for use in the
-OGF NSI Discovery Service v1.0. Comments and questions can be directed to the
-mailing list group mailing list (nsi-wg@ogf.org).
+Description: This is the NSA Description Document schema defined for use in the
+OGF NSI Document Distribution Service v1.0. Comments and questions can be directed
+to the mailing list group mailing list (nsi-wg@ogf.org).
 -->
 <xsd:schema targetNamespace="http://schemas.ogf.org/nsi/2014/02/discovery/nsa"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -50,12 +50,10 @@ mailing list group mailing list (nsi-wg@ogf.org).
     version="1.0">
     <!--xmlns:kml="http://www.opengis.net/kml/2.2"-->
     <xsd:annotation>
-        <xsd:appinfo>ogf_nsi_discovery_nsa_v1_0.xsd 2014-02-16</xsd:appinfo>
+        <xsd:appinfo>ogf_nsi_nsa_description_v1_0.xsd 2014-09-09</xsd:appinfo>
         <xsd:documentation xml:lang="en">
-            This is an XML schema document describing the NSA element of the
-            OGF NSI Interface Discovery Protocol v1.0.  There is a corresponding
-            document providing a description of the RESTful service definition
-            and protocol specific types.
+            This is an XML schema document defining the format for meta data
+            contained in the the NSA Description Document.
             
             Within the NSI reference architecture the Network Services Agent
             (NSA) is an entity that offers network services.  These services
@@ -64,11 +62,11 @@ mailing list group mailing list (nsi-wg@ogf.org).
             offer Connection Services and Topology Services for a specific
             network, while a second NSA offers Monitoring Services for that
             same network.  In addition, the versions of the services offered
-            can vary from NSA to NSA.  The NSI Discovery Protocol is a metadata
-            service designed to enable self-description of all NSI services
-            and associated protocol interfaces offered by these NSA.
+            can vary from NSA to NSA.  The NSA Description Document is meta 
+            data designed to enable self-description of all NSI services and
+            associated protocol interfaces offered by these NSA.
             
-            The NSI Discovery schema allows an NSA to describe the
+            The NSI Description Document schema allows an NSA to describe the
             interfaces and versions of interfaces that it supports.  Through
             the REST API access methods defined, an NSA can dynamically
             discover interfaces and capabilities supported by a peer NSA,
@@ -84,7 +82,8 @@ mailing list group mailing list (nsi-wg@ogf.org).
     </xsd:annotation>
     
     <!-- Import additional standard name spaces. -->
-    <xsd:import namespace="urn:ietf:params:xml:ns:vcard-4.0" schemaLocation="xCard.xsd"/>
+    <xsd:import namespace="urn:ietf:params:xml:ns:vcard-4.0"
+        schemaLocation="xCard.xsd"/>
     
     <!-- ******************************************************************
          *                     XML element types                          *
@@ -151,6 +150,12 @@ mailing list group mailing list (nsi-wg@ogf.org).
                 interface - A list of zero or more service interfaces supported
                 by the NSA.
                 
+                feature - A list of zero or more features supported by the NSA. 
+                An NSA feature is a piece of metadata that describes a specific
+                capability offered by this NSA, or a configuration value for this
+                NSA, that is not specifically defined by an independent element
+                definition within this document.
+                
                 peersWith - A list of zero or more NSA identifiers enumerating
                 the peer NSA that have set up a trusted control plane relationship
                 with this NSA.
@@ -166,11 +171,16 @@ mailing list group mailing list (nsi-wg@ogf.org).
             <xsd:element name="startTime"       type="xsd:dateTime" minOccurs="0" />
             <xsd:element name="adminContact"    type="xcard:VcardsType" minOccurs="0" />
             <xsd:element name="location"        type="tns:LocationType"  minOccurs="0" />
-            <xsd:element name="networkId"       type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded" />
-            <xsd:element name="interface"       type="tns:InterfaceType" minOccurs="0" maxOccurs="unbounded" />
-            <xsd:element name="feature"         type="tns:FeatureType" minOccurs="0" maxOccurs="unbounded" />
-            <xsd:element name="peersWith"       type="xsd:anyURI" minOccurs="0" maxOccurs="unbounded" />
-            <xsd:element name="other"           type="tns:HolderType" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="networkId"       type="xsd:anyURI" minOccurs="0"
+                maxOccurs="unbounded" />
+            <xsd:element name="interface"       type="tns:InterfaceType" minOccurs="0"
+                maxOccurs="unbounded" />
+            <xsd:element name="feature"         type="tns:FeatureType" minOccurs="0"
+                maxOccurs="unbounded" />
+            <xsd:element name="peersWith"       type="xsd:anyURI" minOccurs="0"
+                maxOccurs="unbounded" />
+            <xsd:element name="other"           type="tns:HolderType" minOccurs="0"
+                maxOccurs="unbounded" />
         </xsd:sequence>
         <xsd:attribute   name="id"      use="required" type="xsd:anyURI" />
         <xsd:attribute   name="version" use="required" type="xsd:dateTime" />
@@ -228,8 +238,8 @@ mailing list group mailing list (nsi-wg@ogf.org).
                 the NSA interface.  Application Internet media types
                 (Content-types)  are used to identify the NSI interface,
                 version, and supported encoding type.  For example, the
-                first string below identifies the NSI Interface Discovery
-                Protocol Version 1 XML encoded representation, while the
+                first string below identifies the NSI Document Distribution
+                Service Version 1 XML encoded representation, while the
                 second string identifies the same protocol and version, but
                 the JSON representation:
                 
@@ -241,7 +251,7 @@ mailing list group mailing list (nsi-wg@ogf.org).
                 following URL provides the protocol endpoint for the interface type
                 identified in this interface reference.
                 
-                href="https://nsa.ogf.org/discovery"     
+                href="https://nsa.ogf.org/dds"     
                 
                 describedBy - This attribute contains a reference to the WSDL
                 or WADL file corresponding to this interface's version (if
@@ -249,7 +259,7 @@ mailing list group mailing list (nsi-wg@ogf.org).
                 location for a WADL description of the NSI Interface Discovery
                 Protocol Version 1.
                 
-                describedBy="https://nsa.ogf.org/discovery/wadl"    
+                describedBy="https://nsa.ogf.org/dds?wadl"    
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
@@ -303,7 +313,8 @@ mailing list group mailing list (nsi-wg@ogf.org).
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:any namespace="##other" processContents="lax" minOccurs="0"
+                maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:anyAttribute namespace="##other" processContents="lax" />
     </xsd:complexType>

@@ -80,7 +80,7 @@ public class NsiStpFactory {
             stp.setConnectedTo(createStpId(port.getConnectedTo(), label));
         }
 
-        // For bidirectional connections we need to include references to the
+        // For bidirectional STP we need to include references to the
         // member unidirectional STP which need to be populated in topology
         // before we process the bidirectional STP.
         if (bidirectional) {

@@ -171,7 +171,6 @@ public class NsiTopologyFactory {
 
                 // Bidirectional ports are stored in separate group element and
                 // reference individual undirection Ports or PortGroups.
-                log.debug("createNsiTopology: Get bidierctional ports for " + networkId);
                 Map<String, NmlPort> biPortMap = getNmlPortsFromBidirectionalPorts(nmlTopology, uniPortMap, nsiNsa);
 
                 Map<String, NmlPort> portMap = new HashMap<>();

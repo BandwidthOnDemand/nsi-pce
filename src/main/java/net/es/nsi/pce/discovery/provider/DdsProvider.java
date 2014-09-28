@@ -463,6 +463,8 @@ public class DdsProvider implements DiscoveryProvider {
             log.error("updateDocument: Failed to write document to cache, documentId=" + documentId, io);
         }
 
+        log.debug("updateDocument: updated documentId=" + documentId);
+
         // Route a update document event.
         DocumentEvent de = new DocumentEvent();
         de.setEvent(DocumentEventType.UPDATED);
