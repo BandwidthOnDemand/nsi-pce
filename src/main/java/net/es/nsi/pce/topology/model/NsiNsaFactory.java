@@ -60,7 +60,6 @@ public class NsiNsaFactory {
 
         // Pull the G0f3 reachability information out of the ANY as a custom
         // extension to the standard NSA elements.
-
         for (NsaHolderType holder : nsa.getOther()) {
             for (Object any : holder.getAny()) {
                 if (any instanceof JAXBElement && ((JAXBElement) any).getValue() instanceof TopologyReachabilityType) {
@@ -89,6 +88,7 @@ public class NsiNsaFactory {
 
         // The network ResourceRefType is populated after the corresponding
         // networks are created.
+        nsiNsa.setSelf(NsiNsaFactory.createResourceRefType(nsiNsa));
 
         return nsiNsa;
     }

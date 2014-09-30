@@ -9,18 +9,14 @@ import net.es.nsi.pce.pf.api.cons.Constraints;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PolicyPCE implements PCEModule {
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
     @Override
-    public PCEData apply(PCEData pceData) {
+    public PCEData apply(PCEData pceData) throws Exception {
         return stpPolicy(pceData);
     }
 
-    private PCEData stpPolicy(PCEData pceData) {
+    private PCEData stpPolicy(PCEData pceData) throws Exception {
         NsiTopology nsiTopology = pceData.getTopology();
 
         // Parse out the constraints this PCE module supports.
@@ -46,11 +42,27 @@ public class PolicyPCE implements PCEModule {
 
         // If both the source and destination STP are in the same network we
         // need to restrict the path to only that network.
-        if (srcStp == null || dstStp == null || !srcStp.getNetworkId().equalsIgnoreCase(dstStp.getNetworkId())) {
+        if (srcStp == null) {
+            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, Point2PointTypes.getSourceStp().getNamespace(), sourceStp.getAttrName(), sourceStp.getValue());
+            throw new Exception(error);
+        }
+        else if (dstStp == null) {
+            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, Point2PointTypes.getDestStp().getNamespace(), destStp.getAttrName(), destStp.getValue());
+            throw new Exception(error);
+        }
+        else if (srcStp.getNetworkId() == null) {
+            String error = NsiError.getFindPathErrorString(NsiError.UNKNOWN_NETWORK, Point2PointTypes.getSourceStp().getNamespace(), sourceStp.getAttrName(), sourceStp.getValue());
+            throw new Exception(error);
+        }
+        else if (dstStp.getNetworkId() == null) {
+            String error = NsiError.getFindPathErrorString(NsiError.UNKNOWN_NETWORK, Point2PointTypes.getDestStp().getNamespace(), destStp.getAttrName(), destStp.getValue());
+            throw new Exception(error);
+        }
+        else if (!srcStp.getNetworkId().equalsIgnoreCase(dstStp.getNetworkId())) {
             return pceData;
         }
 
-        // Build a new topology containing only eleement from this network.
+        // Build a new topology containing only elements from this network.
         NsiTopology tp = nsiTopology.getTopologyByNetworkId(srcStp.getNetworkId());
         pceData.setTopology(tp);
         return pceData;

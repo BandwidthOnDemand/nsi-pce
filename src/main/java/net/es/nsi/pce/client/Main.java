@@ -102,8 +102,8 @@ public class Main {
         p2ps.setSymmetricPath(Boolean.TRUE);
 
         // Add the STP identifiers.
-        p2ps.setSourceSTP("urn:ogf:network:es.net:2013:ps:sunn:1?vlan=1790");
-        p2ps.setDestSTP("urn:ogf:network:surfnet.nl:1990:production7:iperf-1?vlan=1780");
+        p2ps.setSourceSTP("urn:ogf:network:cipo.rnp.br:2014:rjo-1?vlan=200");
+        p2ps.setDestSTP("urn:ogf:network:cipo.rnp.br:2014:bi-southernlight?vlan=1780");
 
         // Add MTU as an additional parameter.
         TypeValueType mtu = factory.createTypeValueType();

@@ -117,6 +117,7 @@ public class TopologyService {
             @QueryParam("labelType") String labelType,
             @QueryParam("labelValue") String labelValue,
             @HeaderParam("If-Modified-Since") String ifModifiedSince) throws Exception {
+log.debug("getStps: " + networkId);
 
         // Get a reference to topology provider and get the NSI Topology model.
         TopologyProvider topologyProvider = ConfigurationManager.INSTANCE.getTopologyProvider();
@@ -128,6 +129,7 @@ public class TopologyService {
 
         // Do initial population of results based on networkId filter.
         if (networkId != null && !networkId.isEmpty()) {
+            log.debug("getStps: filtering on " + networkId);
             stps.getStp().addAll(nsiTopology.getStpsByNetworkId(networkId));
         }
         else {

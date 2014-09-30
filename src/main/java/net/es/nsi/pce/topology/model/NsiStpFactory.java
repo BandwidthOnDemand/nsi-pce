@@ -1,10 +1,10 @@
 package net.es.nsi.pce.topology.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
@@ -39,7 +39,7 @@ public class NsiStpFactory {
      * @param nsiTopology
      * @return
      */
-    public static StpType createStpType(NmlPort port, NmlLabelType label, NsiTopology nsiTopology) {
+    public static StpType createStpType(NmlPort port, NmlLabelType label, ResourceRefType nsiNetworkRef) {
         // We want a new NSI STP resource.
         StpType stp = new StpType();
 
@@ -62,8 +62,12 @@ public class NsiStpFactory {
             stp.getProperty().add(encoding);
         }
 
+        // Build connectedTo id just like we did for this STP id.
+        if (port.getConnectedTo() != null && !port.getConnectedTo().isEmpty()) {
+            stp.setConnectedTo(createStpId(port.getConnectedTo(), label));
+        }
+
         // We need to handle Bidirectional STP differently.
-        boolean bidirectional = false;
         if (port.getOrientation() == Orientation.inbound) {
             stp.setType(StpDirectionalityType.INBOUND);
         }
@@ -72,43 +76,6 @@ public class NsiStpFactory {
         }
         else {
             stp.setType(StpDirectionalityType.BIDIRECTIONAL);
-            bidirectional = true;
-        }
-
-        // Build connectedTo id just like we did for this STP id.
-        if (port.getConnectedTo() != null && !port.getConnectedTo().isEmpty()) {
-            stp.setConnectedTo(createStpId(port.getConnectedTo(), label));
-        }
-
-        // For bidirectional STP we need to include references to the
-        // member unidirectional STP which need to be populated in topology
-        // before we process the bidirectional STP.
-        if (bidirectional) {
-            ResourceRefType stpRef = NsiStpFactory.createResourceRefType(stp);
-
-            // Look up the inbound STP.
-            NmlPort inboundPort = port.getInboundPort();
-            String inboundStpId = createStpId(inboundPort.getId(), label);
-            StpType inboundStp = nsiTopology.getStp(inboundStpId);
-            if (inboundStp != null) {
-                stp.setInboundStp(NsiStpFactory.createResourceRefType(inboundStp));
-                inboundStp.setReferencedBy(stpRef);
-            }
-            else {
-                log.error("Bidirectional port " + stp.getId() + " has invalid inbound unidirectional member " + inboundStpId);
-            }
-
-            // Look up the outbound STP.
-            NmlPort outboundPort = port.getOutboundPort();
-            String outboundStpId = createStpId(outboundPort.getId(), label);
-            StpType outboundStp = nsiTopology.getStp(outboundStpId);
-            if (outboundStp != null) {
-                stp.setOutboundStp(NsiStpFactory.createResourceRefType(outboundStp));
-                outboundStp.setReferencedBy(stpRef);
-            }
-            else {
-                log.error("Bidirectional port " + stp.getId() + " has invalid outbound unidirectional member " + outboundStpId);
-            }
         }
 
         // Add the original label in for tracking.
@@ -125,9 +92,11 @@ public class NsiStpFactory {
             stp.getProperty().add(labeltype);
         }
 
+        // Set our self reference.
+        stp.setSelf(NsiStpFactory.createResourceRefType(stp));
+
         // Finally, link this back into the containing Network resource.
-        NetworkType network = nsiTopology.getNetworkById(stp.getNetworkId());
-        stp.setNetwork(NsiNetworkFactory.createResourceRefType(network));
+        stp.setNetwork(nsiNetworkRef);
 
         return stp;
     }
@@ -135,27 +104,73 @@ public class NsiStpFactory {
     /**
      *
      * @param port
+     * @param label
      * @param nsiTopology
      * @return
      */
-    public static Collection<StpType> createStps(NmlPort port, NsiTopology nsiTopology) {
-        ArrayList<StpType> stpList = new ArrayList<>();
+    public static StpType createBiStpType(NmlPort port, NmlLabelType label, ResourceRefType nsiNetworkRef, Map<String, StpType> uniStp) {
+        // We want a new NSI STP resource.
+        StpType stp = createStpType(port, label, nsiNetworkRef);
+
+        // Look up the inbound STP.
+        NmlPort inboundPort = port.getInboundPort();
+        String inboundStpId = createStpId(inboundPort.getId(), label);
+        StpType inboundStp = uniStp.get(inboundStpId.toLowerCase());
+        if (inboundStp != null) {
+            stp.setInboundStp(inboundStp.getSelf());
+            inboundStp.setReferencedBy(stp.getSelf());
+        }
+        else {
+            log.error("Bidirectional port " + stp.getId() + " has invalid inbound unidirectional member " + inboundStpId);
+        }
+
+        // Look up the outbound STP.
+        NmlPort outboundPort = port.getOutboundPort();
+        String outboundStpId = createStpId(outboundPort.getId(), label);
+        StpType outboundStp = uniStp.get(outboundStpId.toLowerCase());
+        if (outboundStp != null) {
+            stp.setOutboundStp(outboundStp.getSelf());
+            outboundStp.setReferencedBy(stp.getSelf());
+        }
+        else {
+            log.error("Bidirectional port " + stp.getId() + " has invalid outbound unidirectional member " + outboundStpId);
+        }
+
+        return stp;
+    }
+
+    public static Map<String, StpType> createUniStps(NmlPort port, NetworkType nsiNetwork) {
+        Map<String, StpType> stps = new ConcurrentHashMap<>();
 
         if (port.getLabels().isEmpty()) {
-            StpType stp = createStpType(port, null, nsiTopology);
-            stpList.add(stp);
+            StpType stp = createStpType(port, null, nsiNetwork.getSelf());
+            stps.put(stp.getId().toLowerCase(), stp);
         }
         else {
             for (NmlLabelType label : port.getLabels()) {
-                // We want a new NSI STP resource.
-                StpType stp = createStpType(port, label, nsiTopology);
-
-                // Build the STP Identifier using label if present.
-                stpList.add(stp);
+                StpType stp = createStpType(port, label, nsiNetwork.getSelf());
+                stps.put(stp.getId().toLowerCase(), stp);
             }
         }
 
-        return stpList;
+        return stps;
+    }
+
+    public static Map<String, StpType> createBiStps(NmlPort port, NetworkType nsiNetwork, Map<String, StpType> uniStp) {
+        Map<String, StpType> stps = new ConcurrentHashMap<>();
+
+        if (port.getLabels().isEmpty()) {
+            StpType stp = createBiStpType(port, null, nsiNetwork.getSelf(), uniStp);
+            stps.put(stp.getId().toLowerCase(), stp);
+        }
+        else {
+            for (NmlLabelType label : port.getLabels()) {
+                StpType stp = createBiStpType(port, label, nsiNetwork.getSelf(), uniStp);
+                stps.put(stp.getId().toLowerCase(), stp);
+            }
+        }
+
+        return stps;
     }
 
     /**

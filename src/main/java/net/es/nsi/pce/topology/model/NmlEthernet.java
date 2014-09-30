@@ -4,6 +4,7 @@
  */
 package net.es.nsi.pce.topology.model;
 
+import com.google.common.base.Optional;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -17,19 +18,23 @@ import net.es.nsi.pce.topology.jaxb.NmlLabelType;
 public class NmlEthernet {
     private final static String VLAN_LABEL = "http://schemas.ogf.org/nml/2012/10/ethernet#vlan";
     final static String VLAN = "vlan";
-    
-    public static boolean isVlanLabel(String label) {
-        return VLAN_LABEL.equalsIgnoreCase(label);
+
+    public static boolean isVlanLabel(Optional<String> label) {
+        if (!label.isPresent()) {
+            return false;
+        }
+        return VLAN_LABEL.equalsIgnoreCase(label.get());
     }
-    
+
     public static Set<NmlLabelType> labelGroupToLabels(NmlLabelGroupType labelGroup) {
-        
-        if (!isVlanLabel(labelGroup.getLabeltype())) {
+
+        Optional<String> labelType = Optional.fromNullable(labelGroup.getLabeltype());
+        if (!isVlanLabel(labelType)) {
             throw new IllegalArgumentException("Invalid vlan label: " + labelGroup.getLabeltype());
         }
-        
+
         Set<NmlLabelType> labels = new LinkedHashSet<>();
-        
+
         // Split the vlan first by comma, then by hyphen.
         Pattern pattern = Pattern.compile(",");
         String[] comma = pattern.split(labelGroup.getValue());

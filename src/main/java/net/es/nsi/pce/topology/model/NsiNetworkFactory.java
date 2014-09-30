@@ -16,7 +16,7 @@ import org.apache.http.client.utils.DateUtils;
 
 /**
  * A factory class for generating NSI Network resource objects.
- * 
+ *
  * @author hacksaw
  */
 public class NsiNetworkFactory {
@@ -24,15 +24,15 @@ public class NsiNetworkFactory {
 
     /**
      * Create a NSI Network resource object from an NML JAXB object.
-     * 
+     *
      * @param nmlTopology NML JAXB object.
      * @param nsiNsa The NSI NSA resource object used for creating NSA references as well as setting discovered and version information.
-     * 
+     *
      * @return The new Network resource object.
      */
     public static NetworkType createNetworkType(NmlTopologyType nmlTopology, NsaType nsiNsa) {
         NetworkType nsiNetwork = new NetworkType();
-        
+
         // Set the Id and naming information.
         nsiNetwork.setId(nmlTopology.getId());
         String name = nmlTopology.getName();
@@ -43,23 +43,23 @@ public class NsiNetworkFactory {
 
         // Create a direct reference to this Network object.
         nsiNetwork.setHref(NSI_ROOT_NETWORKS + nsiNetwork.getId());
-        
+
         // Set the reference to the managing NSA.
-        ResourceRefType nsiNsaRef = NsiNsaFactory.createResourceRefType(nsiNsa);
-        nsiNetwork.setNsa(nsiNsaRef);
-        
+        nsiNetwork.setNsa(nsiNsa.getSelf());
+
         // Use the managing NSA values for discovered and version.
-        nsiNetwork.setDiscovered(nsiNsa.getDiscovered());  
+        nsiNetwork.setDiscovered(nsiNsa.getDiscovered());
         nsiNetwork.setVersion(nsiNsa.getVersion());
-        
+
+        nsiNetwork.setSelf(NsiNetworkFactory.createResourceRefType(nsiNetwork));
         return nsiNetwork;
     }
-    
+
     /**
      * Create a resource reference for the NSI Network resource.
-     * 
+     *
      * @param network Create a resource for this NSI Network resource object.
-     * 
+     *
      * @return The new resource reference.
      */
     public static ResourceRefType createResourceRefType(NetworkType network) {
@@ -68,7 +68,7 @@ public class NsiNetworkFactory {
         nsaRef.setHref(network.getHref());
         return nsaRef;
     }
-    
+
     public static List<NetworkType> ifModifiedSince(String ifModifiedSince, List<NetworkType> networkList) throws DatatypeConfigurationException {
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             GregorianCalendar cal = new GregorianCalendar();
@@ -81,7 +81,7 @@ public class NsiNetworkFactory {
                 }
             }
         }
-        
+
         return networkList;
     }
 }

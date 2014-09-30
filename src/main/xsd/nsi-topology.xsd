@@ -51,6 +51,7 @@
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
                 <xsd:sequence>
+                    <xsd:element name="self"          type="tns:ResourceRefType" />
                     <xsd:element name="networkId"     type="xsd:anyURI" />
                     <xsd:element name="localId"       type="xsd:anyURI" />
                     <xsd:element name="label"         type="tns:TypeValueType" minOccurs="0" maxOccurs="1" />
@@ -105,6 +106,7 @@
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
                 <xsd:sequence>
+                    <xsd:element name="self"                type="tns:ResourceRefType" />
                     <xsd:element name="network"             type="tns:ResourceRefType" minOccurs="1" />
                     <xsd:element name="service"             type="tns:ResourceRefType" minOccurs="1" />
                     <xsd:element name="fromServiceDomain"   type="tns:ResourceRefType" minOccurs="1" maxOccurs="unbounded" />
@@ -126,6 +128,7 @@
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
                 <xsd:sequence>
+                    <xsd:element name="self"             type="tns:ResourceRefType" />
                     <xsd:element name="network"          type="tns:ResourceRefType" />
                     <xsd:element name="service"          type="tns:ResourceRefType" />
                     <xsd:element name="inboundStp"       type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
@@ -141,7 +144,8 @@
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
                 <xsd:sequence>
-                    <xsd:element name="network" type="tns:ResourceRefType" minOccurs="1" />
+                    <xsd:element name="self"       type="tns:ResourceRefType" />
+                    <xsd:element name="network"    type="tns:ResourceRefType" minOccurs="1" />
                     <xsd:element ref="sd:serviceDefinition" minOccurs="1" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:sequence>
@@ -154,6 +158,7 @@
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
                 <xsd:sequence>
+                    <xsd:element name="self"              type="tns:ResourceRefType" />
                     <xsd:element name="nsa"               type="tns:ResourceRefType" minOccurs="1" />
                     <xsd:element name="service"           type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
                     <xsd:element name="serviceDomain"     type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
@@ -169,6 +174,7 @@
         <xsd:complexContent>
             <xsd:extension  base="tns:NsiResourceType">
                 <xsd:sequence>
+                    <xsd:element name="self"             type="tns:ResourceRefType" />
                     <xsd:element name="softwareVersion" type="xsd:string"            minOccurs="0" />
                     <xsd:element name="startTime"       type="xsd:dateTime"          minOccurs="0" />
                     <xsd:element name="location"        type="nsa:LocationType"      minOccurs="0" />

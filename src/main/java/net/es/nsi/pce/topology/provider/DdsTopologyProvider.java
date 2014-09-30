@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,6 +177,7 @@ public class DdsTopologyProvider implements TopologyProvider {
 
     private NsiTopology consolidateGlobalTopology(NsiTopology topology) {
         log.debug("consolidateGlobalTopology: **** START CONSOLIDATING SDPs ****");
+        log.debug("consolidateGlobalTopology: processing " + topology.getStpMap().size() + " STPs");
         topology.addAllSdp(NsiSdpFactory.createUnidirectionalSdpTopology(topology.getStpMap()));
         topology.addAllSdp(NsiSdpFactory.createBidirectionalSdps(topology.getStpMap()));
         log.debug("consolidateGlobalTopology: **** COMPLETED CONSOLIDATING SDPs ****");

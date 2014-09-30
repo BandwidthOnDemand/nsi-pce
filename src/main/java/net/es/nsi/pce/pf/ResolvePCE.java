@@ -7,18 +7,27 @@ import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.provider.DdsTopologyProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Using control plane topology compute the peer NSA each of the reservation
  * segments should be sent to on route to their final destination.
- * 
+ *
  * @author hacksaw
  */
 public class ResolvePCE implements PCEModule {
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
     @Override
     public PCEData apply(PCEData pceData) {
         NsiTopology topology = pceData.getTopology();
         DdsTopologyProvider tp = DdsTopologyProvider.getInstance();
+
+        if (topology.getLocalNsaId() == null || topology.getLocalNsaId().isEmpty()) {
+            log.error("ResolvePCE: local NSA identifier is not assigned so cannot resolve control plane routes.");
+            return pceData;
+        }
 
         for (PathSegment segment : pceData.getPath().getPathSegments()) {
             // Find the NSA managing this segment.

@@ -109,6 +109,7 @@ public class ControlPlaneTopology {
 
         // Add all NSA as verticies.
         for (NsaType nsa : topology.getNsas()) {
+            log.debug("Adding vertex " + nsa.getId());
             NsaVertex vertex = new NsaVertex(nsa.getId(), nsa);
             controlPlane.addVertex(vertex);
             verticies.put(vertex.getId(), vertex);
@@ -130,6 +131,7 @@ public class ControlPlaneTopology {
                         continue;
                     }
                     if (isPA(peerNsa.getNsa().getFeature())) {
+                        log.debug("Adding edge from " + sourceNsa.getId() + " to " + peerNsa.getId());
                         // We add an outgoing edge for this NSA.
                         Pair<NsaVertex> pair = new Pair<>(sourceNsa, peerNsa);
                         NsaEdge edge = new NsaEdge(nsa, peerNsa.getNsa());

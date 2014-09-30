@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.bind.JAXBElement;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NmlBidirectionalPortType;
@@ -26,7 +27,6 @@ import net.es.nsi.pce.topology.jaxb.NmlTopologyRelationType;
 import net.es.nsi.pce.topology.jaxb.NmlTopologyType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ObjectFactory;
-import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.ServiceDefinitionType;
 import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.ServiceType;
@@ -84,6 +84,9 @@ public class NsiTopologyFactory {
         if (localNsaDocuments.getDocument().size() > 0) {
             newNsiTopology.setLocalNsaId(localNsaDocuments.getDocument().get(0).getId());
             log.debug("createNsiTopology: local nsaId=" + newNsiTopology.getLocalNsaId());
+        }
+        else {
+            log.error("No local NSA Description document discovered so cannot assign local NSA identifier.  Pathfinding will not function!");
         }
 
         List<String> networkIds = new ArrayList<>();
@@ -146,10 +149,8 @@ public class NsiTopologyFactory {
                 // Add this network resource to our NSI topology.
                 newNsiTopology.addNetwork(nsiNetwork);
 
-                // We need to build a reference to this new Network object for
-                // use in the NSA object.
-                ResourceRefType nsiNetworkRef = NsiNetworkFactory.createResourceRefType(nsiNetwork);
-                nsiNsa.getNetwork().add(nsiNetworkRef);
+                // Link this Network object to the NSA object.
+                nsiNsa.getNetwork().add(nsiNetwork.getSelf());
 
                 // Convert all Service Definitions to NSI Service resources.  The
                 // Service Definitions elements are held in an ANY within the NML
@@ -161,8 +162,7 @@ public class NsiTopologyFactory {
                 // Add the Service references to the Network resource.
                 for (ServiceType service : nsiServices) {
                     log.debug("createNsiTopology: Adding service definition " + service.getId());
-                    ResourceRefType serviceRef = NsiServiceFactory.createResourceRefType(service);
-                    nsiNetwork.getService().add(serviceRef);
+                    nsiNetwork.getService().add(service.getSelf());
                 }
 
                 // Unidirectional ports are modelled using Relations.
@@ -170,7 +170,7 @@ public class NsiTopologyFactory {
                 Map<String, NmlPort> uniPortMap = getNmlPortsFromRelations(nmlTopology, nsiNsa);
 
                 // Bidirectional ports are stored in separate group element and
-                // reference individual undirection Ports or PortGroups.
+                // reference individual undirectional Ports or PortGroups.
                 Map<String, NmlPort> biPortMap = getNmlPortsFromBidirectionalPorts(nmlTopology, uniPortMap, nsiNsa);
 
                 Map<String, NmlPort> portMap = new HashMap<>();
@@ -178,36 +178,47 @@ public class NsiTopologyFactory {
                 portMap.putAll(biPortMap);
 
                 // Now we convert the unidirectional NML Ports to STP.
-                log.debug("createNsiTopology: Convert unidierctional ports to STP for " + networkId);
+                log.debug("createNsiTopology: Convert unidirectional ports to STP for " + networkId);
+                Map<String, StpType> uniStp = new ConcurrentHashMap<>();
                 for (NmlPort port : uniPortMap.values()) {
-                    Collection<StpType> newStps = NsiStpFactory.createStps(port, newNsiTopology);
-                    newNsiTopology.addAllStp(newStps);
-                }
-
-                // Now we convert the bidirectional NML Ports to STP.
-                log.debug("createNsiTopology: Convert bidirectional ports to STP for " + networkId);
-                for (NmlPort port : biPortMap.values()) {
-                    Collection<StpType> newStps = NsiStpFactory.createStps(port, newNsiTopology);
-                    newNsiTopology.addAllStp(newStps);
+                    uniStp.putAll(NsiStpFactory.createUniStps(port, nsiNetwork));
                 }
 
                 // Add the port references to the Network resource.
-                log.debug("createNsiTopology: Add port references to network resource " + networkId);
-                for (StpType stp : newNsiTopology.getStps()) {
-                    ResourceRefType stpRef = NsiStpFactory.createResourceRefType(stp);
-                    nsiNetwork.getStp().add(stpRef);
+                log.debug("createNsiTopology: Add unidirectional STP references to network resource " + networkId);
+                for (StpType stp : uniStp.values()) {
+                    nsiNetwork.getStp().add(stp.getSelf());
                 }
+
+                log.debug("createNsiTopology: adding " + uniStp.size() + " unidirectional STP.");
+                newNsiTopology.putAllStp(uniStp);
+
+                // Now we convert the bidirectional NML Ports to STP.  The
+                log.debug("createNsiTopology: Convert bidirectional ports to STP for " + networkId);
+                Map<String, StpType> biStp = new ConcurrentHashMap<>();
+                for (NmlPort port : biPortMap.values()) {
+                    biStp.putAll(NsiStpFactory.createBiStps(port, nsiNetwork, uniStp));
+                }
+
+                // Add the port references to the Network resource.
+                log.debug("createNsiTopology: Add bidirectional STP references to network resource " + networkId);
+                for (StpType stp : biStp.values()) {
+                    nsiNetwork.getStp().add(stp.getSelf());
+                }
+
+                log.debug("createNsiTopology: adding " + biStp.size() + " bidirectional STP.");
+                newNsiTopology.putAllStp(biStp);
 
                 // SwitchingServices are modelled using Relations.
                 log.debug("createNsiTopology: Convert SwitchingService to NSI ServiceDomains for " + networkId);
                 Collection<ServiceDomainType> nsiServiceDomains = getServiceDomainsFromSwitchingServices(nmlTopology, portMap, nsiNetwork, newNsiTopology);
+                log.debug("createNsiTopology: adding " + nsiServiceDomains.size() + " Service Domains.");
                 newNsiTopology.addAllServiceDomains(nsiServiceDomains);
 
                 // Add the ServiceDomain references to the Network resource.
                 log.debug("createNsiTopology: Add ServiceDomains references to " + networkId);
                 for (ServiceDomainType sd : nsiServiceDomains) {
-                    ResourceRefType sdRef = NsiServiceDomainFactory.createResourceRefType(sd);
-                    nsiNetwork.getServiceDomain().add(sdRef);
+                    nsiNetwork.getServiceDomain().add(sd.getSelf());
                 }
 
                 log.debug("createNsiTopology: completed processing networkId " + networkId);
@@ -291,9 +302,8 @@ public class NsiTopologyFactory {
                     for (NmlLabelGroupType labelGroup : portGroup.getLabelGroup()) {
                         // We break out the vlan specific label.
                         labelType = Optional.fromNullable(labelGroup.getLabeltype());
-                        if (NmlEthernet.isVlanLabel(labelGroup.getLabeltype())) {
+                        if (NmlEthernet.isVlanLabel(labelType)) {
                             labels.addAll(NmlEthernet.labelGroupToLabels(labelGroup));
-
                         }
                     }
 
@@ -527,8 +537,7 @@ public class NsiTopologyFactory {
                         ServiceDefinitionType serviceDefinition = (ServiceDefinitionType) jaxb.getValue();
                         ServiceType service = NsiServiceFactory.createServiceType(serviceDefinition, nsiNetwork);
                         nsiTopology.addService(service);
-                        ResourceRefType serviceRef = NsiServiceFactory.createResourceRefType(service);
-                        nsiNetwork.getService().add(serviceRef);
+                        nsiNetwork.getService().add(service.getSelf());
                     }
                 }
             }

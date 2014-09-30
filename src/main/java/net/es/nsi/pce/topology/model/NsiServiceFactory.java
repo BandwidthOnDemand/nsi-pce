@@ -16,7 +16,7 @@ import org.apache.http.client.utils.DateUtils;
 
 /**
  * A factory class for generating NSI Service resource objects.
- * 
+ *
  * @author hacksaw
  */
 public class NsiServiceFactory {
@@ -24,10 +24,10 @@ public class NsiServiceFactory {
 
     /**
      * Create a NSI Service resource object from an NML JAXB object.
-     * 
+     *
      * @param serviceDefinition NML ServiceDefinition JAXB object.
      * @param nsiNetwork The NSI Network resource object used for creating Network references as well as setting discovered and version information.
-     * @return 
+     * @return
      */
     public static ServiceType createServiceType(ServiceDefinitionType serviceDefinition, NetworkType nsiNetwork) {
         ServiceType nsiService = new ServiceType();
@@ -41,20 +41,17 @@ public class NsiServiceFactory {
         nsiService.setDiscovered(nsiNetwork.getDiscovered());
         nsiService.setVersion(nsiNetwork.getVersion());
         nsiService.setHref(NSI_ROOT_SERVICES + serviceDefinition.getId());
-
-        ResourceRefType nsiNetworkRef = NsiNetworkFactory.createResourceRefType(nsiNetwork);
-        nsiService.setNetwork(nsiNetworkRef);
-
-        nsiService.setServiceDefinition(serviceDefinition);              
-        
+        nsiService.setNetwork(nsiNetwork.getSelf());
+        nsiService.setServiceDefinition(serviceDefinition);
+        nsiService.setSelf(NsiServiceFactory.createResourceRefType(nsiService));
         return nsiService;
     }
 
     /**
      * Create a resource reference for the NSI Service resource.
-     * 
+     *
      * @param service Create a resource for this NSI Service resource object.
-     * @return 
+     * @return
      */
     public static ResourceRefType createResourceRefType(ServiceType service) {
         ResourceRefType serviceRef = new ResourceRefType();
@@ -63,7 +60,7 @@ public class NsiServiceFactory {
         serviceRef.setType(service.getType());
         return serviceRef;
     }
-    
+
     public static List<ServiceType> ifModifiedSince(String ifModifiedSince, List<ServiceType> serviceList) throws DatatypeConfigurationException {
         if (ifModifiedSince != null && !ifModifiedSince.isEmpty()) {
             GregorianCalendar cal = new GregorianCalendar();
@@ -76,7 +73,7 @@ public class NsiServiceFactory {
                 }
             }
         }
-        
+
         return serviceList;
     }
 }

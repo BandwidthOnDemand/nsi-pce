@@ -4,8 +4,6 @@ import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The SequentialPCE will take a list of Path Computation Modules and
@@ -28,7 +26,7 @@ public class SequentialPCE implements PCEModule {
      * @throws Exception
      */
     @Override
-    public PCEData apply(PCEData pceData) {
+    public PCEData apply(PCEData pceData) throws Exception {
         for (PCEModule mod : moduleList) {
             pceData = mod.apply(pceData);
         }

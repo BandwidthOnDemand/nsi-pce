@@ -91,6 +91,14 @@ public class NsiTopology {
     }
 
     /**
+     *
+     * @param stpList
+     */
+    public void putAllStp(Map<String, StpType> stpList) {
+        stps.putAll(stpList);
+    }
+
+    /**
      * Add an SDP object to the topology indexed by sdpId.
      *
      * @param sdp The SDP object to store.
@@ -200,6 +208,10 @@ public class NsiTopology {
      */
     public NsaType addNsa(NsaType nsa) {
         return nsas.put(nsa.getId().toLowerCase(), nsa);
+    }
+
+    public void addAllNsa(Map<String, NsaType> nsas) {
+        this.nsas.putAll(nsas);
     }
 
     /*************************************************************************
@@ -487,6 +499,15 @@ public class NsiTopology {
     }
 
     public Optional<String> getProviderUrl(String nsaId) {
+        Optional<NsaType> nsa = Optional.fromNullable(getNsa(nsaId));
+        if (!nsa.isPresent()) {
+            return Optional.absent();
+        }
+
+        if (nsa.get().getInterface() == null) {
+            return Optional.absent();
+        }
+
         for (NsaInterfaceType anInteface : getNsa(nsaId).getInterface()) {
             if (NsiConstants.NSI_CS_PROVIDER_V2.equalsIgnoreCase(anInteface.getType())) {
                 return Optional.fromNullable(emptyToNull(anInteface.getHref().trim()));
@@ -534,7 +555,8 @@ public class NsiTopology {
         NetworkType network = getNetworkById(networkId);
         tp.addNetwork(network);
 
-        tp.addNsa(getNsa(network.getNsa().getId()));
+        // We need all the NSA for control plane path finding.
+        tp.addAllNsa(nsas);
 
         for (ResourceRefType service : network.getService()) {
             tp.addService(getService(service.getId()));
