@@ -32,6 +32,14 @@ public class DiscoveryConfiguration {
     public static final int ACTORPOOL_DEFAULT_SIZE = 20;
     public static final int ACTORPOOL_MIN_SIZE = 5;
 
+    public static final int NOTIFICATIONSIZE_MAX_SIZE = 40;
+    public static final int NOTIFICATIONSIZE_DEFAULT_SIZE = 10;
+    public static final int NOTIFICATIONSIZE_MIN_SIZE = 5;
+
+    public static final int PAGESIZE_MAX_SIZE = 100;
+    public static final int PAGESIZE_DEFAULT_SIZE = 50;
+    public static final int PAGESIZE_MIN_SIZE = 5;
+
     private String filename = null;
 
     private long lastModified = 0;
@@ -43,6 +51,8 @@ public class DiscoveryConfiguration {
     private long auditInterval = DEFAULT_AUDIT_INTERVAL;
     private long expiryInterval = EXPIRE_INTERVAL_DEFAULT;
     private int actorPool = ACTORPOOL_DEFAULT_SIZE;
+    private int notificationSize;
+    private int pageSize;
     private Set<PeerURLType> discoveryURL = new HashSet<>();
 
     public static DiscoveryConfiguration getInstance() {
@@ -151,6 +161,21 @@ public class DiscoveryConfiguration {
         if (config.getBaseURL() == null || config.getBaseURL().isEmpty()) {
             pceLogger.errorAudit(PceErrors.DISCOVERY_CONFIGURATION_INVALID_PARAMETER, "baseURL=" + config.getBaseURL());
             throw new FileNotFoundException("Invalid base URL: " + config.getBaseURL());
+        }
+
+        if (config.getNotificationSize() < NOTIFICATIONSIZE_MIN_SIZE ||
+                config.getNotificationSize() > NOTIFICATIONSIZE_MAX_SIZE) {
+            setNotificationSize(NOTIFICATIONSIZE_DEFAULT_SIZE);
+        }
+        else {
+            setNotificationSize(config.getNotificationSize());
+        }
+
+        if (config.getPageSize() < PAGESIZE_MIN_SIZE || config.getPageSize() > PAGESIZE_MAX_SIZE) {
+            setPageSize(PAGESIZE_DEFAULT_SIZE);
+        }
+        else {
+            setPageSize(config.getPageSize());
         }
 
         for (PeerURLType url : config.getPeerURL()) {
@@ -301,5 +326,33 @@ public class DiscoveryConfiguration {
      */
     public void setRepository(String repository) {
         this.repository = repository;
+    }
+
+    /**
+     * @return the notificationSize
+     */
+    public int getNotificationSize() {
+        return notificationSize;
+    }
+
+    /**
+     * @param notificationSize the notificationSize to set
+     */
+    public void setNotificationSize(int notificationSize) {
+        this.notificationSize = notificationSize;
+    }
+
+    /**
+     * @return the pageSize
+     */
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    /**
+     * @param pageSize the pageSize to set
+     */
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
     }
 }

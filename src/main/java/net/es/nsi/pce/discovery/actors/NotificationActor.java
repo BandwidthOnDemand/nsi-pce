@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.discovery.actors;
 
 import net.es.nsi.pce.discovery.messages.Notification;
@@ -17,7 +13,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.config.ConfigurationManager;
 import net.es.nsi.pce.discovery.dao.DiscoveryConfiguration;
-import net.es.nsi.pce.discovery.dao.DiscoveryParser;
 import net.es.nsi.pce.discovery.jaxb.NotificationListType;
 import net.es.nsi.pce.discovery.jaxb.NotificationType;
 import net.es.nsi.pce.discovery.jaxb.ObjectFactory;
@@ -55,8 +50,6 @@ public class NotificationActor extends UntypedActor {
             log.debug("NotificationActor: notificationId=" + notification.getSubscription().getId());
 
             NotificationListType list = factory.createNotificationListType();
-
-            Date lastDiscovered = new Date(0);
             for (Document document : notification.getDocuments()) {
                 log.debug("NotificationActor: documentId=" + document.getDocument().getId());
                 NotificationType notify = factory.createNotificationType();
@@ -65,10 +58,6 @@ public class NotificationActor extends UntypedActor {
                 try {
                     XMLGregorianCalendar discovered = XmlUtilities.longToXMLGregorianCalendar(document.getLastDiscovered().getTime());
                     notify.setDiscovered(discovered);
-
-                    if (lastDiscovered.before(document.getLastDiscovered())) {
-                        lastDiscovered = document.getLastDiscovered();
-                    }
                 }
                 catch (Exception ex) {
                     log.error("NotificationActor: discovered date conversion failed", ex);
@@ -79,14 +68,6 @@ public class NotificationActor extends UntypedActor {
             list.setId(notification.getSubscription().getId());
             list.setHref(notification.getSubscription().getSubscription().getHref());
             list.setProviderId(discoveryConfiguration.getNsaId());
-            try {
-                XMLGregorianCalendar discovered = XmlUtilities.longToXMLGregorianCalendar(lastDiscovered.getTime());
-                list.setDiscovered(discovered);
-            }
-            catch (Exception ex) {
-                log.error("NotificationActor: discovered date conversion failed", ex);
-            }
-
             String callback = notification.getSubscription().getSubscription().getCallback();
             Client client = restClient.get();
 
@@ -117,8 +98,6 @@ public class NotificationActor extends UntypedActor {
                 DiscoveryProvider discoveryProvider = ConfigurationManager.INSTANCE.getDiscoveryProvider();
                 discoveryProvider.deleteSubscription(notification.getSubscription().getId());
             }
-
-            //client.close();
         } else {
             unhandled(msg);
         }
