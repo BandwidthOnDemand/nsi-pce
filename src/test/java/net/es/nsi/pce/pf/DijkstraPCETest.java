@@ -1,7 +1,9 @@
 package net.es.nsi.pce.pf;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
@@ -12,22 +14,33 @@ import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
 import org.junit.Test;
+import org.junit.Before;
+import static org.junit.Assert.*;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
-
+import org.mockito.MockitoAnnotations;
+import static org.mockito.Mockito.*;
+import static org.hamcrest.CoreMatchers.is;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 public class DijkstraPCETest {
 
-    private DijkstraPCE subject = new DijkstraPCE();
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test
     public void should_pull_out_individual_segments() {
+        // given
+        DijkstraPCE subject = new DijkstraPCE();
+        NsiTopology mockedTopology = mock(NsiTopology.class);
+
         StpType srcStp1 = new StpType();
         srcStp1.setNetworkId("urn:ogf:network:surfnet.nl:1990:src-testbed");
         srcStp1.setId("urn:ogf:network:surfnet.nl:1990:src-testbed:start");
 
-        ServiceDomainType srcServiceDomain = new ServiceDomainType();
+        ServiceDomainType srcServiceDomain = mock(ServiceDomainType.class);
         srcServiceDomain.setId("urn:ogf:network:surfnet.nl:1990:src-testbed:ServiceDomain");
 
         StpEdge srcEdge = new StpEdge(srcStp1.getId(), srcStp1, srcServiceDomain);
@@ -64,11 +77,33 @@ public class DijkstraPCETest {
 
         List<GraphEdge> path = Arrays.asList(srcEdge, interEdge1, interEdge2, dstEdge);
 
-        NsiTopology nsiTopology = new NsiTopology();
-        nsiTopology.addAllStp(Arrays.asList(srcStp1, srcStp2, dstStp1, dstStp2, intermediateStp1, intermediateStp2));
+        final Map<String, StpType> stps = new HashMap<>();
+        stps.put(srcStp1.getId(), srcStp1);
+        stps.put(srcStp2.getId(), srcStp2);
+        stps.put(dstStp1.getId(), dstStp1);
+        stps.put(dstStp2.getId(), dstStp2);
+        stps.put(intermediateStp1.getId(), intermediateStp1);
+        stps.put(intermediateStp2.getId(), intermediateStp2);
 
-        List<StpPair> segments = subject.pullIndividualSegmentsOut(path, nsiTopology);
+        // mock for method getStp
+        when(mockedTopology.getStp(anyString())).thenAnswer(new Answer<StpType>() {
+            @Override
+            public StpType answer(InvocationOnMock invocation) throws Throwable {
+                Object[] arguments = invocation.getArguments();
+                if (arguments != null && arguments.length > 0 && arguments[0] != null) {
+                    String key = (String) arguments[0];
+                    if (stps.containsKey(key)) {
+                        return stps.get(key);
+                    }
+                }
+                return null;
+            }
+        });
 
+        // when
+        List<StpPair> segments = subject.pullIndividualSegmentsOut(path, mockedTopology);
+
+        // then
         assertThat(segments.size(), is(3));
         assertThat(segments.get(0).getA().getId(), is("urn:ogf:network:surfnet.nl:1990:src-testbed:start"));
         assertThat(segments.get(2).getZ().getId(), is("urn:ogf:network:surfnet.nl:1990:dst-testbed:end"));

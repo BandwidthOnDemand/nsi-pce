@@ -224,6 +224,18 @@ public class PceLogger {
     private String lastRootResource;
     private int count = 0;
 
+    public void flush() {
+        if (count > 1) {
+            LogType error = createEntry();
+            error.setType(LogEnumType.ERROR);
+            error.setCode(lastError.getCode());
+            error.setLabel(lastError.getLabel());
+            error.setDescription(String.format(lastError.getDescription(), "Repeated " + count + " times"));
+            error.setResource(lastRootResource);
+            logError(error);
+        }
+    }
+
     public void errorSummary(PceErrors tError, String rootResource, String primaryResource, String secondaryResource) {
         if (tError == lastError && rootResource.contains(lastRootResource)) {
             count++;

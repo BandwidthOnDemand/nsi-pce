@@ -1,0 +1,2002 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:collection xmlns:ns2="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns4="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns3="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns9="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:ns5="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns7="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns8="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration">
+    <ns2:subscriptions/>
+    <ns2:documents>
+        <ns2:document id="urn:ogf:network:jgn-x.jp:2013:topology" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Ajgn-x.jp%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Ajgn-x.jp%3A2013%3Atopology" version="2013-07-26T10:42:44Z" expires="2016-04-27T12:34:34.726-04:00">
+            <nsa>urn:ogf:network:jgn-x.jp:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:jgn-x.jp:2013:topology" version="2013-07-26T10:42:44Z">
+                    <ns4:name>jgn-x.jp</ns4:name>
+                    <ns4:Lifetime/>
+                    <ns4:BidirectionalPort id="urn:ogf:network:jgn-x.jp:2013:bi-ps">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:ps-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:ps-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:jgn-x.jp:2013:bi-jgn-x-kddilabs">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:jgn-x-kddilabs"/>
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:kddilabs-jgn-x"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:jgn-x.jp:2013:bi-jgn-x-aist">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:jgn-x-aist"/>
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:aist-jgn-x"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:jgn-x.jp:2013:bi-jgn-x-sinet">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:jgn-x-sinet"/>
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:sinet-jgn-x"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:jgn-x.jp:2013:bi-jgn-x-startap">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:if-jgn-x-startap"/>
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:if-startap-jgn-x"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:jgn-x.jp:2013:bi-jgn-x-singaren">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:jgn-x-singaren"/>
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:singaren-jgn-x"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:jgn-x.jp:2013:bi-jgn-x-krlight">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:if-jgn-x-krlight"/>
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:if-krlight-jgn-x"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:ps-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:ps-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:jgn-x-kddilabs">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:kddilabs.jp:2013:jgn-x-kddilabs"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:kddilabs-jgn-x">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:kddilabs.jp:2013:kddilabs-jgn-x"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:jgn-x-aist">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:aist.go.jp:2013:jgn-x-aist"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:aist-jgn-x">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:aist.go.jp:2013:aist-jgn-x"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:jgn-x-sinet">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:sinet.ac.jp:2013:jgn-x-sinet"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:sinet-jgn-x">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:sinet.ac.jp:2013:sinet-jgn-x"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:if-jgn-x-startap">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:icair.org:2013:jgn-x-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:if-startap-jgn-x">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:icair.org:2013:jgn-x-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:jgn-x-singaren">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783,1785-1790</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:singaren.net:2013:jgn-x-singaren"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:singaren-jgn-x">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783,1785-1790</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:singaren.net:2013:singaren-jgn-x"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:if-jgn-x-krlight">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:if-jgn-x-krlight"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:if-krlight-jgn-x">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:if-krlight-jgn-x"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:netherlight.net:2013:testbed" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Anetherlight.net%3A2013%3Ansa%3Abod/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Anetherlight.net%3A2013%3Atestbed" version="2014-03-12T11:40:53+01:00" expires="2016-04-27T12:34:35.133-04:00">
+            <nsa>urn:ogf:network:netherlight.net:2013:nsa:bod</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:netherlight.net:2013:testbed" version="2014-03-12T11:40:53+01:00">
+                    <ns4:name>NetherLight A-GOLE test bed</ns4:name>
+                    <ns4:Lifetime/>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:232">
+                        <ns4:name>dlp01 VLAN 1799</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:232:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:232:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:241">
+                        <ns4:name>port 18 no-equipement</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:241:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:241:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:282">
+                        <ns4:name>A-GOLE video streaming demo (dlp01 VLAN 1784)</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:282:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:282:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:526">
+                        <ns4:name>UvA host port (0/6 of F25)</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:526:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:526:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:2514">
+                        <ns4:name>dlp01 VLAN 1790</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:2514:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:2514:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:3263">
+                        <ns4:name>A-GOLE ping test (dlp01 VLAN 1783)</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:3263:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:3263:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1">
+                        <ns4:name>MANLAN via OME13</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1">
+                        <ns4:name>NORDUnet</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1">
+                        <ns4:name>ICair (formerly StarLight/StarTap)</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:uva:1">
+                        <ns4:name>UvALight</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:uva:1:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:uva:1:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:geant:1">
+                        <ns4:name>Geant (via PIONIER data plane)</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:geant:1:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:geant:1:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1">
+                        <ns4:name>CzechLight</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1">
+                        <ns4:name>PIONIER (temporarily via  4T-1-1-3)</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns6:serviceDefinition id="urn:ogf:network:netherlight.net:2013:ServiceDefinition:EVTS.A-GOLE">
+                        <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
+                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                    </ns6:serviceDefinition>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:232:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:232:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:241:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:241:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:282:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1784</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:282:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1784</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:526:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1784</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:526:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1784</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:2514:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1790</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:2514:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1790</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:3263:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1783</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:3263:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1783</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:netherlight:in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:netherlight:out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1782,1785-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:nordu.net:2013:netherlight-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1782,1785-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:nordu.net:2013:netherlight-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:icair.org:2013:netherlight-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:icair.org:2013:netherlight-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:uva:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:netherlight-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:uva:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:netherlight-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:geant:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:geant.net:2013:topology:port-to-nether-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:geant:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:geant.net:2013:topology:port-to-nether-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:pionier.net.pl:2013:netherlight-pionier"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:pionier.net.pl:2013:pionier-netherlight"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasService">
+                        <ns4:SwitchingService encoding="http://schemas.ogf.org/nml/2013/05/ethernet" labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:netherlight.net:2013:ServiceDomain:a-gole:testbed:A-GOLE-EVTS">
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:232:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:241:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:282:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:526:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:2514:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:3263:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:uva:1:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:geant:1:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1:in"/>
+                            </ns4:Relation>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:232:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:241:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:282:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:526:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:2514:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:3263:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:uva:1:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:geant:1:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1:out"/>
+                            </ns4:Relation>
+                            <ns6:serviceDefinition id="urn:ogf:network:netherlight.net:2013:ServiceDefinition:EVTS.A-GOLE"/>
+                        </ns4:SwitchingService>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:southernlight.net:2013:topology" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Asouthernlight.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Asouthernlight.net%3A2013%3Atopology" version="2014-04-10T04:32:42.091" expires="2016-04-27T12:34:35.286-04:00">
+            <nsa>urn:ogf:network:southernlight.net:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:southernlight.net:2013:topology" version="2014-04-10T04:32:42.091">
+                    <ns4:name>southernlight.net:2013</ns4:name>
+                    <ns4:Lifetime/>
+                    <ns4:BidirectionalPort id="urn:ogf:network:southernlight.net:2013:bi-ampath">
+                        <ns4:name>bi-ampath</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:southernlight.net:2013:bi-ampath-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:southernlight.net:2013:bi-ampath-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:southernlight.net:2013:bi-rnp">
+                        <ns4:name>bi-rnp</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:southernlight.net:2013:bi-rnp-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:southernlight.net:2013:bi-rnp-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:southernlight.net:2013:bi-ampath-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:southernlight-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:southernlight.net:2013:bi-rnp-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:southernlight.net:2013:bi-ampath-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:southernlight-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:southernlight.net:2013:bi-rnp-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:es.net:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Aes.net%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aes.net%3A2013%3Ansa" version="2013-09-24T12:12:00Z" expires="2016-04-27T12:34:34.701-04:00">
+            <nsa>urn:ogf:network:es.net:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:es.net:2013:nsa" version="2013-09-24T12:12:00Z">
+                    <location>
+                        <longitude>-122.272995</longitude>
+                        <latitude>37.87161</latitude>
+                    </location>
+                    <networkId>urn:ogf:network:es.net:2013</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>https://oscars.es.net/ConnectionService</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"></feature>
+                    <peersWith>urn:ogf:network:manlan.internet2.edu:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:icair.org:2013:nsa</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:es.net:2013" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Aes.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Aes.net%3A2013" version="2013-09-24T12:12:00Z" expires="2016-04-27T12:34:34.705-04:00">
+            <nsa>urn:ogf:network:es.net:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:es.net:2013" version="2013-09-24T12:12:00Z">
+                    <ns4:name>es.net</ns4:name>
+                    <ns4:Lifetime/>
+                    <ns4:BidirectionalPort id="urn:ogf:network:es.net:2013:ps:sunn:1">
+                        <ns4:PortGroup id="urn:ogf:network:es.net:2013:ps:sunn:1:in"/>
+                        <ns4:PortGroup id="urn:ogf:network:es.net:2013:ps:sunn:1:out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:es.net:2013:manlan:aofa:1">
+                        <ns4:PortGroup id="urn:ogf:network:es.net:2013:manlan:aofa:1:in"/>
+                        <ns4:PortGroup id="urn:ogf:network:es.net:2013:manlan:aofa:1:out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:es.net:2013:startap:star:1">
+                        <ns4:PortGroup id="urn:ogf:network:es.net:2013:startap:star:1:in"/>
+                        <ns4:PortGroup id="urn:ogf:network:es.net:2013:startap:star:1:out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:es.net:2013:ps:sunn:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:es.net:2013:ps:sunn:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:es.net:2013:manlan:aofa:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:es:out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:es.net:2013:manlan:aofa:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:es:in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:es.net:2013:startap:star:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:icair.org:2013:esnet-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:es.net:2013:startap:star:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:icair.org:2013:esnet-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:czechlight.cesnet.cz:2013:topology" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Aczechlight.cesnet.cz%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Aczechlight.cesnet.cz%3A2013%3Atopology" version="2014-01-02T23:45:58.566" expires="2016-04-27T12:34:35.13-04:00">
+            <nsa>urn:ogf:network:czechlight.cesnet.cz:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:czechlight.cesnet.cz:2013:topology" version="2014-01-02T23:45:58.566">
+                    <ns4:name>czechlight.cesnet.cz:2013</ns4:name>
+                    <ns4:Lifetime/>
+                    <ns4:BidirectionalPort id="urn:ogf:network:czechlight.cesnet.cz:2013:brno">
+                        <ns4:name>brno</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:brno-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:brno-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:czechlight.cesnet.cz:2013:pinger">
+                        <ns4:name>pinger</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:pinger-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:pinger-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight">
+                        <ns4:name>netherlight</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:brno-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:pinger-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1:out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:brno-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:pinger-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1:in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:pionier.net.pl:2013:topology" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Apionier.net.pl%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Apionier.net.pl%3A2013%3Atopology" version="2013-07-26T10:42:44Z" expires="2016-04-27T12:34:34.694-04:00">
+            <nsa>urn:ogf:network:pionier.net.pl:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:pionier.net.pl:2013:topology" version="2013-07-26T10:42:44Z">
+                    <ns4:name>pionier.net.pl</ns4:name>
+                    <ns4:Lifetime/>
+                    <ns4:BidirectionalPort id="urn:ogf:network:pionier.net.pl:2013:bi-pionier-netherlight">
+                        <ns4:PortGroup id="urn:ogf:network:pionier.net.pl:2013:pionier-netherlight"/>
+                        <ns4:PortGroup id="urn:ogf:network:pionier.net.pl:2013:netherlight-pionier"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:pionier.net.pl:2013:bi-ps">
+                        <ns4:PortGroup id="urn:ogf:network:pionier.net.pl:2013:ps-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:pionier.net.pl:2013:ps-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:pionier.net.pl:2013:pionier-netherlight">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1:in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:pionier.net.pl:2013:netherlight-pionier">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1:out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:pionier.net.pl:2013:ps-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:pionier.net.pl:2013:ps-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:uvalight.net:2013:topology" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Auvalight.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Auvalight.net%3A2013%3Atopology" version="2014-04-11T03:06:28.209Z" expires="2016-04-27T23:46:59.063-04:00">
+            <nsa>urn:ogf:network:uvalight.net:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:uvalight.net:2013:topology">
+                    <ns4:name>uvalight.net:2013</ns4:name>
+                    <ns4:BidirectionalPort id="urn:ogf:network:uvalight.net:2013:ps">
+                        <ns4:name>ps</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:ps-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:ps-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:uvalight.net:2013:video">
+                        <ns4:name>video</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:video-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:video-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:uvalight.net:2013:netherlight">
+                        <ns4:name>netherlight</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:netherlight-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:netherlight-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:uvalight.net:2013:nordu">
+                        <ns4:name>nordu</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:nordu-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:nordu-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:ps-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:video-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1784</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:netherlight-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:uva:1:out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:nordu-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:nordu.net:2013:uvalight-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:ps-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:video-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1784</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:netherlight-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:uva:1:in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:nordu-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:nordu.net:2013:uvalight-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:aist.go.jp:2013:topology" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Aaist.go.jp%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Aaist.go.jp%3A2013%3Atopology" version="2013-07-26T10:42:44Z" expires="2016-04-27T12:34:34.741-04:00">
+            <nsa>urn:ogf:network:aist.go.jp:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:aist.go.jp:2013:topology" version="2013-07-26T10:42:44Z">
+                    <ns4:name>aist.go.jp</ns4:name>
+                    <ns4:Lifetime/>
+                    <ns4:BidirectionalPort id="urn:ogf:network:aist.go.jp:2013:bi-aist-jgn-x">
+                        <ns4:PortGroup id="urn:ogf:network:aist.go.jp:2013:aist-jgn-x"/>
+                        <ns4:PortGroup id="urn:ogf:network:aist.go.jp:2013:jgn-x-aist"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:aist.go.jp:2013:bi-ps">
+                        <ns4:PortGroup id="urn:ogf:network:aist.go.jp:2013:ps-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:aist.go.jp:2013:ps-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:aist.go.jp:2013:bi-video">
+                        <ns4:PortGroup id="urn:ogf:network:aist.go.jp:2013:video-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:aist.go.jp:2013:video-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:aist.go.jp:2013:aist-jgn-x">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:aist-jgn-x"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:aist.go.jp:2013:jgn-x-aist">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:jgn-x-aist"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:aist.go.jp:2013:ps-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:aist.go.jp:2013:ps-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:aist.go.jp:2013:video-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:aist.go.jp:2013:video-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:czechlight.cesnet.cz:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Aczechlight.cesnet.cz%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aczechlight.cesnet.cz%3A2013%3Ansa" version="2014-01-02T23:45:58.566" expires="2016-04-27T12:34:35.127-04:00">
+            <nsa>urn:ogf:network:czechlight.cesnet.cz:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:czechlight.cesnet.cz:2013:nsa" version="2014-01-02T23:45:58.566">
+                    <networkId>urn:ogf:network:czechlight.cesnet.cz:2013:topology</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>http://opennsa.cesnet.cz:9080/NSI/services/CS2</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:netherlight.net:2013:nsa:bod" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Anetherlight.net%3A2013%3Ansa%3Abod/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Anetherlight.net%3A2013%3Ansa%3Abod" version="2014-03-12T11:40:53+01:00" expires="2016-04-27T23:36:57.639-04:00">
+            <nsa>urn:ogf:network:netherlight.net:2013:nsa:bod</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:netherlight.net:2013:nsa:bod" version="2014-03-12T11:40:53+01:00">
+                    <name>NetherLight A-GOLE test bed</name>
+                    <location>
+                        <longitude>4.954585</longitude>
+                        <latitude>52.3567</latitude>
+                    </location>
+                    <networkId>urn:ogf:network:netherlight.net:2013:testbed</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>https://bod.netherlight.net//nsi/v2/provider</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"></feature>
+                    <peersWith>urn:ogf:network:manlan.internet2.edu:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:uvalight.net:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:czechlight.cesnet.cz:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:icair.org:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:geant.net:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:nordu.net:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:pionier.net.pl:2013:nsa</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:uvalight.net:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Auvalight.net%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Auvalight.net%3A2013%3Ansa" version="2014-04-11T03:06:28.209Z" expires="2016-04-27T23:46:59.063-04:00">
+            <nsa>urn:ogf:network:uvalight.net:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:uvalight.net:2013:nsa" version="2014-04-11T03:06:28.209Z" expires="2016-04-27T23:46:59.063-04:00">
+                    <location>
+                        <longitude>-122.272995</longitude>
+                        <latitude>37.87161</latitude>
+                    </location>
+                    <networkId>urn:ogf:network:uvalight.net:2013:topology</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>https://nsa.uvalight.net:9443/NSI/services/CS2</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <peersWith>urn:ogf:network:netherlight.net:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:nordu.net:2013:nsa</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:geant.net:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa" version="2014-04-23T15:00:00Z" expires="2015-06-23T09:43:20.512-07:00">
+            <nsa>urn:ogf:network:geant.net:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:geant.net:2013:nsa" version="2014-07-23T15:00:00Z">
+                    <name>geant.net</name>
+                    <softwareVersion>AutoBAHN 3.0</softwareVersion>
+                    <startTime>2014-03-17T14:43:48Z</startTime>
+                    <networkId>urn:ogf:network:geant.net:2013:topology</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>https://beta-bodv3.geant.net:8091/nsi/ConnectionProvider</href>
+                    </interface>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.topology.v2+xml</type>
+                        <href>http://beta-bodv3-gui.geant.net:8080/autobahn-ts/export/network/urn:ogf:network:geant.net:2013:topology</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"></feature>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <peersWith>urn:ogf:network:netherlight.net:2013:nsa:bod</peersWith>
+                    <peersWith>urn:ogf:network:grnet.gr:2013:nsa</peersWith>
+                    <other>
+                        <ns7:TopologyReachability>
+                            <Topology id="urn:ogf:network:nordu.net:2013:topology" cost="1"/>
+                            <Topology id="urn:ogf:network:heanet.ie:2013:topology" cost="1"/>
+                            <Topology id="urn:ogf:network:ja.net:2013:topology" cost="1"/>
+                            <Topology id="urn:ogf:network:pionier.pl:2013:topology" cost="1"/>
+                            <Topology id="urn:ogf:network:funet.fi:2013:topology" cost="1"/>
+                            <Topology id="urn:ogf:network:grnet.gr:2013:topology" cost="1"/>
+                            <Topology id="urn:ogf:network:dfn.de:2013:topology" cost="1"/>
+                            <Topology id="urn:ogf:network:carnet.hr:2013:topology" cost="1"/>
+                            <Topology id="urn:ogf:network:deic.dk:2013:topology" cost="1"/>
+                            <Topology id="urn:ogf:network:surfnet.nl:1990:production7" cost="1"/>
+                        </ns7:TopologyReachability>
+                    </other>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:kddilabs.jp:2013:topology" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Akddilabs.jp%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Akddilabs.jp%3A2013%3Atopology" version="2013-07-26T10:42:44Z" expires="2016-04-27T12:34:34.556-04:00">
+            <nsa>urn:ogf:network:kddilabs.jp:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:kddilabs.jp:2013:topology" version="2013-07-26T10:42:44Z">
+                    <ns4:name>kddilabs.jp</ns4:name>
+                    <ns4:Lifetime/>
+                    <ns4:BidirectionalPort id="urn:ogf:network:kddilabs.jp:2013:bi-kddilabs-jgn-x">
+                        <ns4:PortGroup id="urn:ogf:network:kddilabs.jp:2013:kddilabs-jgn-x"/>
+                        <ns4:PortGroup id="urn:ogf:network:kddilabs.jp:2013:jgn-x-kddilabs"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:kddilabs.jp:2013:bi-ps">
+                        <ns4:PortGroup id="urn:ogf:network:kddilabs.jp:2013:ps-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:kddilabs.jp:2013:ps-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:kddilabs.jp:2013:ps-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:kddilabs.jp:2013:ps-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:kddilabs.jp:2013:kddilabs-jgn-x">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:kddilabs-jgn-x"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:kddilabs.jp:2013:jgn-x-kddilabs">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:jgn-x-kddilabs"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:icair.org:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Aicair.org%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aicair.org%3A2013%3Ansa" version="2014-04-11T03:06:28.209Z" expires="2016-04-27T23:46:59.063-04:00">
+            <nsa>urn:ogf:network:icair.org:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:icair.org:2013:nsa" version="2013-11-01T22:02:37.128" expires="2016-04-27T23:46:59.063-04:00">
+                    <networkId>urn:ogf:network:icair.org:2013:topology</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>http://pmri061.it.northwestern.edu:9080/NSI/services/CS2</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"></feature>
+                    <peersWith>urn:ogf:network:netherlight.net:2013:nsa:bod</peersWith>
+                    <peersWith>urn:ogf:network:krlight.net:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:es.net:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:jgn-x.jp:2013:nsa</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:pionier.net.pl:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Apionier.net.pl%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Apionier.net.pl%3A2013%3Ansa" version="2013-07-26T10:42:44Z" expires="2016-04-27T12:34:34.692-04:00">
+            <nsa>urn:ogf:network:pionier.net.pl:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:pionier.net.pl:2013:nsa" version="2013-07-26T10:42:44Z">
+                    <location>
+                        <longitude>16.916</longitude>
+                        <latitude>52.412</latitude>
+                    </location>
+                    <networkId>urn:ogf:network:pionier.net.pl:2013:topology</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>http://194.132.53.174:9080/nsi/ConnectionProvider</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <peersWith>urn:ogf:network:netherlight.net:2013:nsa:bod</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:grnet.gr:2013:topology" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Agrnet.gr%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Agrnet.gr%3A2013%3Atopology" version="2013-07-26T10:42:44Z" expires="2016-04-27T12:34:34.622-04:00">
+            <nsa>urn:ogf:network:grnet.gr:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:grnet.gr:2013:topology" version="2013-07-26T10:42:44Z">
+                    <ns4:name>grnet.gr</ns4:name>
+                    <ns4:Lifetime/>
+                    <ns4:BidirectionalPort id="urn:ogf:network:grnet.gr:2013:bi-grnet-geant">
+                        <ns4:PortGroup id="urn:ogf:network:grnet.gr:2013:grnet-geant"/>
+                        <ns4:PortGroup id="urn:ogf:network:grnet.gr:2013:geant-grnet"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:grnet.gr:2013:bi-ps">
+                        <ns4:PortGroup id="urn:ogf:network:grnet.gr:2013:ps-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:grnet.gr:2013:ps-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:grnet.gr:2013:grnet-geant">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:geant.net:2013:topology:bi-geant-grnet-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:grnet.gr:2013:geant-grnet">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:geant.net:2013:topology:bi-geant-grnet-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:grnet.gr:2013:ps-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:grnet.gr:2013:ps-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:krlight.net:2013:topology" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Akrlight.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Akrlight.net%3A2013%3Atopology" version="2013-07-26T10:42:44Z" expires="2016-04-27T12:34:34.692-04:00">
+            <nsa>urn:ogf:network:krlight.net:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:krlight.net:2013:topology" version="2013-07-26T10:42:44Z">
+                    <ns4:name>krlight.net</ns4:name>
+                    <ns4:BidirectionalPort id="urn:ogf:network:krlight.net:2013:bi-krlight-gloriad">
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:if-krlight-startap"/>
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:if-startap-krlight"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:krlight.net:2013:bi-ps">
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:ps-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:ps-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:krlight.net:2013:bi-video">
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:video-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:video-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:krlight.net:2013:bi-krlight-jgn-x">
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:if-krlight-jgn-x"/>
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:if-jgn-x-krlight"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:if-krlight-startap">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:icair.org:2013:krlight-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:if-startap-krlight">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:icair.org:2013:krlight-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:ps-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:ps-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:video-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:video-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:if-krlight-jgn-x">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:if-krlight-jgn-x"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:if-jgn-x-krlight">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:if-jgn-x-krlight"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:kddilabs.jp:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Akddilabs.jp%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Akddilabs.jp%3A2013%3Ansa" version="2013-07-26T10:42:44Z" expires="2016-04-27T12:34:34.554-04:00">
+            <nsa>urn:ogf:network:kddilabs.jp:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:kddilabs.jp:2013:nsa" version="2013-07-26T10:42:44Z">
+                    <location>
+                        <longitude>139.517</longitude>
+                        <latitude>35.879</latitude>
+                    </location>
+                    <networkId>urn:ogf:network:kddilabs.jp:2013:topology</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>http://210.196.65.114:9352/2013/07/connectionprovider</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <peersWith>urn:ogf:network:jgn-x.jp:2013:nsa</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:geant.net:2013:topology" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Atopology" version="2013-07-26T10:42:44Z" expires="2015-04-21T17:25:42.056-04:00">
+            <nsa>urn:ogf:network:geant.net:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:geant.net:2013:topology" version="2013-07-26T10:42:44Z">
+                    <ns4:name>geant.net</ns4:name>
+                    <ns4:Lifetime>
+                        <ns4:start>2013-07-26T10:42:44Z</ns4:start>
+                        <ns4:end>2015-04-21T17:25:42.056-04:00</ns4:end>
+                    </ns4:Lifetime>
+                    <ns4:BidirectionalPort id="urn:ogf:network:geant.net:2013:bi-geant-grnet">
+                        <ns4:PortGroup id="urn:ogf:network:geant.net:2013:geant-grnet"/>
+                        <ns4:PortGroup id="urn:ogf:network:geant.net:2013:grnet-geant"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:geant.net:2013:bi-ps">
+                        <ns4:PortGroup id="urn:ogf:network:geant.net:2013:ps-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:geant.net:2013:ps-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:geant.net:2013:bi-geant-netherlight">
+                        <ns4:PortGroup id="urn:ogf:network:geant.net:2013:geant-netherlight"/>
+                        <ns4:PortGroup id="urn:ogf:network:geant.net:2013:netherlight-geant"/>
+                    </ns4:BidirectionalPort>
+                    <ns6:serviceDefinition id="urn:ogf:network:geant.net:2013:topologyServiceDefinition:EVTS.A-GOLE">
+                        <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
+                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                    </ns6:serviceDefinition>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:geant.net:2013:geant-grnet">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:grnet.gr:2013:geant-grnet"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:geant.net:2013:grnet-geant">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:grnet.gr:2013:grnet-geant"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:geant.net:2013:ps-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:geant.net:2013:ps-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:geant.net:2013:geant-netherlight">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:geant:1:in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:geant.net:2013:netherlight-geant">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:geant:1:out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasService">
+                        <ns4:SwitchingService labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:geant.net:2013:topologyServiceDomain:a-gole:testbed:A-GOLE-EVTS">
+                            <ns6:serviceDefinition id="urn:ogf:network:geant.net:2013:topologyServiceDefinition:EVTS.A-GOLE"/>
+                        </ns4:SwitchingService>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:manlan.internet2.edu:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Amanlan.internet2.edu%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Amanlan.internet2.edu%3A2013%3Ansa" version="2013-09-24T11:50:00Z" expires="2016-04-27T12:34:34.746-04:00">
+            <nsa>urn:ogf:network:manlan.internet2.edu:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:manlan.internet2.edu:2013:nsa" version="2013-09-24T11:50:00Z">
+                    <location>
+                        <longitude>-74.003</longitude>
+                        <latitude>40.718666</latitude>
+                    </location>
+                    <networkId>urn:ogf:network:manlan.internet2.edu:2013:</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>https://oscars.manlan.internet2.edu:8500/nsi-v2/ConnectionServiceProvider</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <peersWith>urn:ogf:network:es.net:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:netherlight.net:2013:nsa:bod</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:jgn-x.jp:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Ajgn-x.jp%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Ajgn-x.jp%3A2013%3Ansa" version="2013-07-26T10:42:44Z" expires="2016-04-27T12:34:34.723-04:00">
+            <nsa>urn:ogf:network:jgn-x.jp:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:jgn-x.jp:2013:nsa" version="2013-07-26T10:42:44Z">
+                    <location>
+                        <longitude>139.764</longitude>
+                        <latitude>35.688</latitude>
+                    </location>
+                    <networkId>urn:ogf:network:jgn-x.jp:2013:topology</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>http://202.180.38.130:8080/2013/07/connectionprovider</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"></feature>
+                    <peersWith>urn:ogf:network:kddilabs.jp:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:aist.go.jp:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:sinet.ac.jp:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:icair.org:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:singaren.net:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:krlight.net:2013:nsa</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:sinet.ac.jp:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Asinet.ac.jp%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Asinet.ac.jp%3A2013%3Ansa" version="2013-07-26T10:42:44Z" expires="2016-04-27T12:34:34.684-04:00">
+            <nsa>urn:ogf:network:sinet.ac.jp:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:sinet.ac.jp:2013:nsa" version="2013-07-26T10:42:44Z">
+                    <location>
+                        <longitude>139.758</longitude>
+                        <latitude>35.693</latitude>
+                    </location>
+                    <networkId>urn:ogf:network:sinet.ac.jp:2013:topology</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>http://150.100.12.124:9090/sinet_upa/services/connectionprovider</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <peersWith>urn:ogf:network:jgn-x.jp:2013:nsa</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:icair.org:2013:topology" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Aicair.org%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Aicair.org%3A2013%3Atopology" version="2013-11-01T22:02:37.128" expires="2016-04-27T23:46:59.063-04:00">
+            <nsa>urn:ogf:network:icair.org:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:icair.org:2013:topology">
+                    <ns4:name>icair.org:2013</ns4:name>
+                    <ns4:BidirectionalPort id="urn:ogf:network:icair.org:2013:jgn-x">
+                        <ns4:name>jgn-x</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:jgn-x-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:jgn-x-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:icair.org:2013:ps">
+                        <ns4:name>ps</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:ps-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:ps-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:icair.org:2013:esnet">
+                        <ns4:name>esnet</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:esnet-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:esnet-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:icair.org:2013:ampath">
+                        <ns4:name>ampath</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:ampath-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:ampath-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:icair.org:2013:netherlight">
+                        <ns4:name>netherlight</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:netherlight-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:netherlight-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:icair.org:2013:gloriad">
+                        <ns4:name>gloriad</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:gloriad-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:gloriad-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:icair.org:2013:singaren">
+                        <ns4:name>singaren</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:singaren-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:singaren-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:icair.org:2013:krlight">
+                        <ns4:name>krlight</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:krlight-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:krlight-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:jgn-x-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:if-jgn-x-startap"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:ps-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:esnet-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:es.net:2013:startap:star:1:out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:ampath-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:starlight-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:netherlight-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:gloriad-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:gloriad.net:2013:startap:out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:singaren-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:singaren.net:2013:startap:out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:krlight-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:if-krlight-startap"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:jgn-x-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:if-startap-jgn-x"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:ps-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:esnet-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:es.net:2013:startap:star:1:in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:ampath-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:starlight-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:netherlight-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:gloriad-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:gloriad.net:2013:startap:in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:singaren-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:singaren.net:2013:startap:in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:icair.org:2013:krlight-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:krlight.net:2013:if-startap-krlight"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:grnet.gr:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Agrnet.gr%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Agrnet.gr%3A2013%3Ansa" version="2013-07-26T10:42:44Z" expires="2016-04-27T12:34:34.619-04:00">
+            <nsa>urn:ogf:network:grnet.gr:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:grnet.gr:2013:nsa" version="2013-07-26T10:42:44Z">
+                    <location>
+                        <longitude>16.916</longitude>
+                        <latitude>52.412</latitude>
+                    </location>
+                    <networkId>urn:ogf:network:grnet.gr:2013:topology</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>http://62.217.125.86:8080/nsi/ConnectionProvider</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <peersWith>urn:ogf:network:geant.net:2013:nsa</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:manlan.internet2.edu:2013:" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Amanlan.internet2.edu%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Amanlan.internet2.edu%3A2013%3A" version="2013-09-24T11:50:00Z" expires="2016-04-27T12:34:34.749-04:00">
+            <nsa>urn:ogf:network:manlan.internet2.edu:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:manlan.internet2.edu:2013:" version="2013-09-24T11:50:00Z">
+                    <ns4:name>manlan.internet2.edu</ns4:name>
+                    <ns4:Lifetime/>
+                    <ns4:BidirectionalPort id="urn:ogf:network:manlan.internet2.edu:2013:es">
+                        <ns4:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:es:in"/>
+                        <ns4:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:es:out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:manlan.internet2.edu:2013:netherlight">
+                        <ns4:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:netherlight:in"/>
+                        <ns4:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:netherlight:out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:es:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:es.net:2013:manlan:aofa:1:out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:es:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:es.net:2013:manlan:aofa:1:in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:netherlight:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:netherlight:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:southernlight.net:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Asouthernlight.net%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Asouthernlight.net%3A2013%3Ansa" version="2014-04-10T04:32:42.091" expires="2016-04-27T12:34:35.282-04:00">
+            <nsa>urn:ogf:network:southernlight.net:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:southernlight.net:2013:nsa" version="2014-04-10T04:32:42.091">
+                    <networkId>urn:ogf:network:southernlight.net:2013:topology</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>http://agole.ansp.br:9080/NSI/services/CS2</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <peersWith>urn:ogf:network:ampath.net:2013:nsa</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:opennsa.org:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Aopennsa.org%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aopennsa.org%3A2013%3Ansa" version="2014-09-29T10:53:35.584-07:00" expires="2015-09-28T10:53:35.867-07:00">
+            <nsa>urn:ogf:network:opennsa.org:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:opennsa.org:2013:nsa" version="2014-09-29T10:53:35.584-07:00">
+                    <name>opennsa.org</name>
+                    <softwareVersion>1.0-SNAPSHOT (9c03135)</softwareVersion>
+                    <startTime>2014-09-28T10:53:35.584-07:00</startTime>
+                    <adminContact>
+                        <ns3:vcard>
+                            <ns3:uid>
+                                <ns3:uri>https://nsi-aggr-west.es.net/nsi-v2/ConnectionServiceProvider#adminContact</ns3:uri>
+                            </ns3:uid>
+                            <ns3:prodid>
+                                <ns3:text>OpenNSA</ns3:text>
+                            </ns3:prodid>
+                            <ns3:rev>
+                                <ns3:timestamp>20140928T105335Z</ns3:timestamp>
+                            </ns3:rev>
+                            <ns3:kind>
+                                <ns3:text>individual</ns3:text>
+                            </ns3:kind>
+                            <ns3:fn>
+                                <ns3:text>John MacAuley</ns3:text>
+                            </ns3:fn>
+                            <ns3:n>
+                                <ns3:surname>MacAuley</ns3:surname>
+                                <ns3:given>John</ns3:given>
+                            </ns3:n>
+                        </ns3:vcard>
+                    </adminContact>
+                    <location>
+                        <longitude>-122.25023</longitude>
+                        <latitude>37.87692</latitude>
+                    </location>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.dds.v1+xml</type>
+                        <href>https://67.55.28.116:8401/discovery</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"></feature>
+                    <peersWith>urn:ogf:network:es.net:2013:nsa:nsi-aggr-west</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:krlight.net:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Akrlight.net%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Akrlight.net%3A2013%3Ansa" version="2013-07-26T10:42:44Z" expires="2016-04-27T12:34:34.689-04:00">
+            <nsa>urn:ogf:network:krlight.net:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:krlight.net:2013:nsa" version="2013-07-26T10:42:44Z">
+                    <location>
+                        <longitude>127.359</longitude>
+                        <latitude>36.366</latitude>
+                    </location>
+                    <networkId>urn:ogf:network:krlight.net:2013:topology</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>http://nsi2.kisti.re.kr/ConnectionServiceProvider</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <peersWith>urn:ogf:network:icair.org:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:jgn-x.jp:2013:nsa</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:sinet.ac.jp:2013:topology" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Asinet.ac.jp%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Asinet.ac.jp%3A2013%3Atopology" version="2013-07-26T10:42:44Z" expires="2016-04-27T12:34:34.69-04:00">
+            <nsa>urn:ogf:network:sinet.ac.jp:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:sinet.ac.jp:2013:topology" version="2013-07-26T10:42:44Z">
+                    <ns4:name>sinet.ac.jp</ns4:name>
+                    <ns4:Lifetime/>
+                    <ns4:BidirectionalPort id="urn:ogf:network:sinet.ac.jp:2013:bi-sinet-jgn-x">
+                        <ns4:PortGroup id="urn:ogf:network:sinet.ac.jp:2013:sinet-jgn-x"/>
+                        <ns4:PortGroup id="urn:ogf:network:sinet.ac.jp:2013:jgn-x-sinet"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:sinet.ac.jp:2013:bi-ps">
+                        <ns4:PortGroup id="urn:ogf:network:sinet.ac.jp:2013:ps-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:sinet.ac.jp:2013:ps-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:sinet.ac.jp:2013:ps-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:sinet.ac.jp:2013:ps-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:sinet.ac.jp:2013:sinet-jgn-x">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:sinet-jgn-x"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:sinet.ac.jp:2013:jgn-x-sinet">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:jgn-x.jp:2013:jgn-x-sinet"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:ampath.net:2013:topology" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Aampath.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Aampath.net%3A2013%3Atopology" version="2013-11-15T13:41:53.856" expires="2016-04-27T12:34:34.758-04:00">
+            <nsa>urn:ogf:network:ampath.net:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:ampath.net:2013:topology" version="2013-11-15T13:41:53.856">
+                    <ns4:name>ampath.net:2013</ns4:name>
+                    <ns4:Lifetime/>
+                    <ns4:BidirectionalPort id="urn:ogf:network:ampath.net:2013:starlight">
+                        <ns4:name>starlight</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:starlight-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:starlight-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:ampath.net:2013:southernlight">
+                        <ns4:name>southernlight</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:southernlight-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:southernlight-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:ampath.net:2013:ndn">
+                        <ns4:name>ndn</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:ndn-in"/>
+                        <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:ndn-out"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:starlight-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1800</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:icair.org:2013:ampath-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:southernlight-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1800</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:southernlight.net:2013:bi-ampath-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:ndn-in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1782-1785</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:nordu.net:2013:ampath-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:starlight-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1800</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:icair.org:2013:ampath-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:southernlight-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1800</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:southernlight.net:2013:bi-ampath-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                        <ns4:PortGroup id="urn:ogf:network:ampath.net:2013:ndn-out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1782-1785</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:nordu.net:2013:ampath-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:aist.go.jp:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Aaist.go.jp%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aaist.go.jp%3A2013%3Ansa" version="2013-07-26T10:42:44Z" expires="2016-04-27T12:34:34.739-04:00">
+            <nsa>urn:ogf:network:aist.go.jp:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:aist.go.jp:2013:nsa" version="2013-07-26T10:42:44Z">
+                    <location>
+                        <longitude>140.133</longitude>
+                        <latitude>36.06</latitude>
+                    </location>
+                    <networkId>urn:ogf:network:aist.go.jp:2013:topology</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>http://163.220.30.173:22211/aist_upa/services/ConnectionProvider</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"></feature>
+                    <peersWith>urn:ogf:network:jgn-x.jp:2013:nsa</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:ampath.net:2013:nsa" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Aampath.net%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aampath.net%3A2013%3Ansa" version="2013-11-15T13:41:53.856" expires="2016-04-27T12:34:34.756-04:00">
+            <nsa>urn:ogf:network:ampath.net:2013:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:ampath.net:2013:nsa" version="2013-11-15T13:41:53.856">
+                    <networkId>urn:ogf:network:ampath.net:2013:topology</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>http://nsi.ampath.net:9080/NSI/services/CS2</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"></feature>
+                    <peersWith>urn:ogf:network:icair.org:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:southernlight.net:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:nordu.net:2013:nsa</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+    </ns2:documents>
+    <ns2:local>
+        <ns2:document id="urn:ogf:network:netherlight.net:2013:testbed" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Anetherlight.net%3A2013%3Ansa%3Abod/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Anetherlight.net%3A2013%3Atestbed" version="2014-03-12T11:40:53+01:00" expires="2016-04-27T12:34:35.133-04:00">
+            <nsa>urn:ogf:network:netherlight.net:2013:nsa:bod</nsa>
+            <type>vnd.ogf.nsi.topology.v2+xml</type>
+            <content>
+                <ns4:Topology id="urn:ogf:network:netherlight.net:2013:testbed" version="2014-03-12T11:40:53+01:00">
+                    <ns4:name>NetherLight A-GOLE test bed</ns4:name>
+                    <ns4:Lifetime/>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:232">
+                        <ns4:name>dlp01 VLAN 1799</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:232:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:232:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:241">
+                        <ns4:name>port 18 no-equipement</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:241:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:241:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:282">
+                        <ns4:name>A-GOLE video streaming demo (dlp01 VLAN 1784)</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:282:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:282:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:526">
+                        <ns4:name>UvA host port (0/6 of F25)</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:526:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:526:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:2514">
+                        <ns4:name>dlp01 VLAN 1790</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:2514:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:2514:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:3263">
+                        <ns4:name>A-GOLE ping test (dlp01 VLAN 1783)</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:3263:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:3263:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1">
+                        <ns4:name>MANLAN via OME13</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1">
+                        <ns4:name>NORDUnet</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1">
+                        <ns4:name>ICair (formerly StarLight/StarTap)</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:uva:1">
+                        <ns4:name>UvALight</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:uva:1:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:uva:1:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:geant:1">
+                        <ns4:name>Geant (via PIONIER data plane)</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:geant:1:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:geant:1:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1">
+                        <ns4:name>CzechLight</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns4:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1">
+                        <ns4:name>PIONIER (temporarily via  4T-1-1-3)</ns4:name>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1:out"/>
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1:in"/>
+                    </ns4:BidirectionalPort>
+                    <ns6:serviceDefinition id="urn:ogf:network:netherlight.net:2013:ServiceDefinition:EVTS.A-GOLE">
+                        <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
+                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                    </ns6:serviceDefinition>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:232:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:232:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:241:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:241:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1799</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:282:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1784</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:282:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1784</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:526:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1784</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:526:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1784</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:2514:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1790</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:2514:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1790</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:3263:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1783</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:3263:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1783</ns4:LabelGroup>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:netherlight:in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:netherlight:out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1782,1785-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:nordu.net:2013:netherlight-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1782,1785-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:nordu.net:2013:netherlight-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:icair.org:2013:netherlight-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:icair.org:2013:netherlight-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:uva:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:netherlight-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:uva:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:uvalight.net:2013:netherlight-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:geant:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:geant.net:2013:topology:port-to-nether-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:geant:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:geant.net:2013:topology:port-to-nether-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight-in"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:netherlight-out"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1:out">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:pionier.net.pl:2013:netherlight-pionier"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1:in">
+                            <ns4:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</ns4:LabelGroup>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns4:PortGroup id="urn:ogf:network:pionier.net.pl:2013:pionier-netherlight"/>
+                            </ns4:Relation>
+                        </ns4:PortGroup>
+                    </ns4:Relation>
+                    <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasService">
+                        <ns4:SwitchingService encoding="http://schemas.ogf.org/nml/2013/05/ethernet" labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:netherlight.net:2013:ServiceDomain:a-gole:testbed:A-GOLE-EVTS">
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:232:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:241:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:282:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:526:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:2514:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:3263:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:uva:1:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:geant:1:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1:in"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1:in"/>
+                            </ns4:Relation>
+                            <ns4:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:232:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:241:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:282:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:526:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:2514:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:3263:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:manlan:1:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:nordu.net:1:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:starlight:1:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:uva:1:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:geant:1:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:czechlight:1:out"/>
+                                <ns4:PortGroup id="urn:ogf:network:netherlight.net:2013:testbed:pionier:1:out"/>
+                            </ns4:Relation>
+                            <ns6:serviceDefinition id="urn:ogf:network:netherlight.net:2013:ServiceDefinition:EVTS.A-GOLE"/>
+                        </ns4:SwitchingService>
+                    </ns4:Relation>
+                </ns4:Topology>
+            </content>
+        </ns2:document>
+        <ns2:document id="urn:ogf:network:netherlight.net:2013:nsa:bod" href="http://localhost:8401/discovery/documents/urn%3Aogf%3Anetwork%3Anetherlight.net%3A2013%3Ansa%3Abod/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Anetherlight.net%3A2013%3Ansa%3Abod" version="2014-03-12T11:40:53+01:00" expires="2016-04-27T23:36:57.639-04:00">
+            <nsa>urn:ogf:network:netherlight.net:2013:nsa:bod</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content>
+                <ns9:nsa id="urn:ogf:network:netherlight.net:2013:nsa:bod" version="2014-03-12T11:40:53+01:00">
+                    <name>NetherLight A-GOLE test bed</name>
+                    <location>
+                        <longitude>4.954585</longitude>
+                        <latitude>52.3567</latitude>
+                    </location>
+                    <networkId>urn:ogf:network:netherlight.net:2013:testbed</networkId>
+                    <interface>
+                        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+                        <href>https://bod.netherlight.net//nsi/v2/provider</href>
+                    </interface>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
+                    <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"></feature>
+                    <peersWith>urn:ogf:network:manlan.internet2.edu:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:uvalight.net:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:czechlight.cesnet.cz:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:icair.org:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:geant.net:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:nordu.net:2013:nsa</peersWith>
+                    <peersWith>urn:ogf:network:pionier.net.pl:2013:nsa</peersWith>
+                </ns9:nsa>
+            </content>
+        </ns2:document>
+    </ns2:local>
+</ns2:collection>
+

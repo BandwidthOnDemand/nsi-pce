@@ -178,7 +178,7 @@ public class NsiTopologyFactory {
                 portMap.putAll(biPortMap);
 
                 // Now we convert the unidirectional NML Ports to STP.
-                log.debug("createNsiTopology: Convert unidirectional ports to STP for " + networkId);
+                log.debug("createNsiTopology: Converting unidirectional ports to STPs for " + networkId);
                 Map<String, StpType> uniStp = new ConcurrentHashMap<>();
                 for (NmlPort port : uniPortMap.values()) {
                     uniStp.putAll(NsiStpFactory.createUniStps(port, nsiNetwork));

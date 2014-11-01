@@ -2,12 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.es.nsi.pce.discovery.util;
+package net.es.nsi.pce.util;
 
-import com.google.common.base.Optional;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

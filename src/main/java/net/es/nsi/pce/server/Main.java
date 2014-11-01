@@ -25,11 +25,7 @@ public class Main {
     private static final String CONFIG_PATH = "configPath";
     private static final String CONFIG_DEFAULT_PATH = "config/";
     private static final String DEFAULT_TOPOLOGY_FILE = CONFIG_DEFAULT_PATH + "topology-dds.xml";
-    private static final String DEFAULT_DDS_FILE = CONFIG_DEFAULT_PATH + "dds.xml";
-
     public static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
-    public static final String DDS_CONFIG_FILE_ARGNAME = "ddsConfigFile";
-
     public static final String PCE_SERVER_CONFIG_NAME = "pce";
 
     // Keep running PCE while true.
@@ -70,10 +66,6 @@ public class Main {
         topologyOption.setRequired(false);
         options.addOption(topologyOption);
 
-        Option ddsOption = new Option(DDS_CONFIG_FILE_ARGNAME, true, "Path to your DDS configuration file");
-        ddsOption.setRequired(false);
-        options.addOption(ddsOption);
-
         Option configOption = new Option("c", true, "Where you keep your other configfiles (defaults to ./config)");
         configOption.setRequired(false);
         options.addOption(configOption);
@@ -87,7 +79,7 @@ public class Main {
         } catch (ParseException e) {
             System.err.println("You did not provide the correct arguments, see usage below.");
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("java -jar pce.jar  [-c <configDir>] [-topologyConfigFile <filename>] [-ddsConfigFile <filename>]", options);
+            formatter.printHelp("java -jar pce.jar  [-c <configDir>] [-topologyConfigFile <filename>]", options);
             System.exit(1);
             return;
         }
@@ -112,13 +104,6 @@ public class Main {
         }
 
         System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, topologyFile);
-
-        String ddsFile = cmd.getOptionValue(DDS_CONFIG_FILE_ARGNAME);
-        if (ddsFile == null || ddsFile.isEmpty()) {
-            ddsFile = DEFAULT_DDS_FILE;
-        }
-
-        System.setProperty(DDS_CONFIG_FILE_ARGNAME, ddsFile);
 
         // Load PCE configuration from disk.
         ConfigurationManager.INSTANCE.initialize(configPath);

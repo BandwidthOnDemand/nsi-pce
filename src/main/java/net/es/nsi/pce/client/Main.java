@@ -30,6 +30,8 @@ import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.path.jaxb.ConstraintListType;
 import net.es.nsi.pce.path.jaxb.ConstraintType;
+import net.es.nsi.pce.path.jaxb.OrderedStpType;
+import net.es.nsi.pce.path.jaxb.StpListType;
 import net.es.nsi.pce.path.jaxb.TypeValueType;
 import net.es.nsi.pce.path.services.EthernetTypes;
 import org.glassfish.jersey.client.ClientConfig;
@@ -102,8 +104,22 @@ public class Main {
         p2ps.setSymmetricPath(Boolean.TRUE);
 
         // Add the STP identifiers.
-        p2ps.setSourceSTP("urn:ogf:network:cipo.rnp.br:2014:rjo-1?vlan=200");
-        p2ps.setDestSTP("urn:ogf:network:cipo.rnp.br:2014:bi-southernlight?vlan=1780");
+        p2ps.setSourceSTP("urn:ogf:network:cipo.rnp.br:2014:rjo-1?vlan=1801");
+        p2ps.setDestSTP("urn:ogf:network:ampath.net:2013:topology:starlight?vlan=1799");
+
+        // Set ERO.
+        StpListType ero = factory.createStpListType();
+        OrderedStpType stp0 = factory.createOrderedStpType();
+        stp0.setOrder(0);
+        stp0.setStp("urn:ogf:network:manlan.internet2.edu:2013:geant-lag");
+        ero.getOrderedSTP().add(stp0);
+
+        OrderedStpType stp1 = factory.createOrderedStpType();
+        stp1.setOrder(1);
+        stp1.setStp("urn:ogf:network:geant.net:2013:topology:bi-geant-surfnet1");
+        ero.getOrderedSTP().add(stp1);
+
+        p2ps.setEro(ero);
 
         // Add MTU as an additional parameter.
         TypeValueType mtu = factory.createTypeValueType();

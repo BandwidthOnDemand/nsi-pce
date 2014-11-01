@@ -37,12 +37,12 @@ public class DdsTopologyProvider implements TopologyProvider {
     private TopologyConfiguration configuration;
 
     // List of discovered NSA documents published in the DDS.
-    private DdsDocumentReader nsaDocumentReader;
+    private DocumentReader nsaDocumentReader;
     private Map<String, DdsWrapper> nsaDocuments;
     private DdsDocumentListType localNsaDocuments;
 
     // List of discovered topology documents published in the DDS.
-    private DdsDocumentReader topologyDocumentReader;
+    private DocumentReader topologyDocumentReader;
     private Map<String, DdsWrapper> topologyDocuments = new ConcurrentHashMap<>();
     private DdsDocumentListType localTopologyDocuments;
 
@@ -87,8 +87,13 @@ public class DdsTopologyProvider implements TopologyProvider {
      */
     @Override
     public void init() throws Exception {
-        nsaDocumentReader = new DdsDocumentReader(configuration.getDdsURL(), NsiConstants.NSI_DOC_TYPE_NSA_V1);
-        topologyDocumentReader = new DdsDocumentReader(configuration.getDdsURL(), NsiConstants.NSI_DOC_TYPE_TOPOLOGY_V2);
+        nsaDocumentReader = SpringApplicationContext.getBean("documentReader", DocumentReader.class);
+        nsaDocumentReader.setTarget(configuration.getDdsURL());
+        nsaDocumentReader.setType(NsiConstants.NSI_DOC_TYPE_NSA_V1);
+
+        topologyDocumentReader = SpringApplicationContext.getBean("documentReader", DocumentReader.class);
+        topologyDocumentReader.setTarget(configuration.getDdsURL());
+        topologyDocumentReader.setType(NsiConstants.NSI_DOC_TYPE_TOPOLOGY_V2);
     }
 
     @Override

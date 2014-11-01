@@ -17,18 +17,18 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConstants;
-import net.es.nsi.pce.discovery.util.UrlHelper;
 import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
 import net.es.nsi.pce.schema.NsiConstants;
+import net.es.nsi.pce.util.UrlHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ChunkedInput;
 
-public class DdsDocumentReader {
+public class DdsDocumentReader implements DocumentReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private PceLogger topologyLogger = PceLogger.getLogger();
 
@@ -61,12 +61,27 @@ public class DdsDocumentReader {
         this.restClient = RestClient.getInstance();
     }
 
+    public DdsDocumentReader() {
+        this.restClient = RestClient.getInstance();
+    }
+
+    @Override
+    public void setTarget(String target) {
+        this.target = target;
+    }
+
+    @Override
+    public void setType(String type) {
+        this.type = type;
+    }
+
     /**
      * Get the date the remote topology endpoint reported as the last time the
      * topology document was modified.
      *
      * @return the lastModified date of the remote topology document.
      */
+    @Override
     public long getLastModified() {
         return lastModified;
     }
@@ -76,6 +91,7 @@ public class DdsDocumentReader {
      *
      * @param lastModified the lastModified to set
      */
+    @Override
     public void setLastModified(long lastModified) {
         this.lastModified = lastModified;
     }
@@ -322,11 +338,13 @@ public class DdsDocumentReader {
         return documents;
     }
 
+    @Override
     public Map<String, DdsWrapper> get() throws NotFoundException, JAXBException, UnsupportedEncodingException {
         read();
         return Collections.unmodifiableMap(ddsDocuments);
     }
 
+    @Override
     public Map<String, DdsWrapper> getIfModified() throws NotFoundException, JAXBException, UnsupportedEncodingException {
         if (read() == true) {
             return Collections.unmodifiableMap(ddsDocuments);
@@ -338,6 +356,7 @@ public class DdsDocumentReader {
     /**
      * @return the localDocuments
      */
+    @Override
     public DdsDocumentListType getLocalDocuments() {
         return localDocuments;
     }

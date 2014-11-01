@@ -182,7 +182,7 @@ public class DijkstraPCE implements PCEModule {
         StpVertex dstVertex = new StpVertex(dstStp.getId(), dstStp);
         graph.addVertex(dstVertex);
         verticies.put(dstVertex.getId(), dstVertex);
-        
+
         // Add ServiceDomains as verticies.
         for (ServiceDomainType serviceDomain : nsiTopology.getServiceDomains()) {
             ServiceDomainVertex vertex = new ServiceDomainVertex(serviceDomain.getId(), serviceDomain);

@@ -21,7 +21,7 @@
 -->
 <top:topology xmlns:top="http://schemas.es.net/nsi/2013/08/pce/topology/configuration">
     <baseURL>http://localhost:8400/topology</baseURL>
-    <ddsURL>http://localhost:8400/discovery</ddsURL>
+    <ddsURL>src/test/resources/config/testDocuments.xml</ddsURL>
     <auditInterval>300</auditInterval>
     <defaultServiceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</defaultServiceType>
 </top:topology>

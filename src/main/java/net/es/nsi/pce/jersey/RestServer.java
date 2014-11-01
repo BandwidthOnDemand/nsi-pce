@@ -8,7 +8,6 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBElement;
-import net.es.nsi.pce.discovery.api.DiscoveryService;
 import net.es.nsi.pce.path.api.FindPathService;
 import net.es.nsi.pce.management.api.ManagementService;
 import net.es.nsi.pce.path.api.ReachabilityService;
@@ -31,7 +30,6 @@ public class RestServer {
                 .register(FindPathService.class) // Remove this if packages gets fixed.
                 .register(ReachabilityService.class) // Remove this if packages gets fixed.
                 .register(TopologyService.class) // Remove this if packages gets fixed.
-                .register(DiscoveryService.class) // Remove this if packages gets fixed.
                 .register(ManagementService.class) // Remove this if packages gets fixed.
                 .register(new MoxyXmlFeature())
                 .register(new MoxyJsonFeature())

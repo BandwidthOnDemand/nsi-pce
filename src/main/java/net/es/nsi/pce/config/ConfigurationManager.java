@@ -1,7 +1,6 @@
 package net.es.nsi.pce.config;
 
 import net.es.nsi.pce.spring.SpringContext;
-import net.es.nsi.pce.discovery.provider.DiscoveryProvider;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.sched.PCEScheduler;
 import net.es.nsi.pce.sched.TopologyAudit;
@@ -44,7 +43,6 @@ public enum ConfigurationManager {
 
     private static PCEServer pceServer;
     private static TopologyProvider topologyProvider;
-    private static DiscoveryProvider discoveryProvider;
     private static PCEScheduler pceScheduler;
     private static ApplicationContext context;
 
@@ -96,10 +94,6 @@ public enum ConfigurationManager {
             pceServer = (PCEServer) context.getBean("pceServer");
             pceServer.start();
 
-            // Start the discovery process.
-            discoveryProvider = (DiscoveryProvider) context.getBean("discoveryProvider");
-            discoveryProvider.start();
-
             // Start the NIS network topology build.
             topologyProvider = (TopologyProvider) context.getBean("topologyProvider");
             try {
@@ -136,16 +130,8 @@ public enum ConfigurationManager {
         return topologyProvider;
     }
 
-    /**
-     * @return the discoveryProvider
-     */
-    public DiscoveryProvider getDiscoveryProvider() {
-        return discoveryProvider;
-    }
-
     public void shutdown() {
         try {
-            discoveryProvider.shutdown();
             pceServer.shutdown();
             pceScheduler.stop();
             initialized = false;
