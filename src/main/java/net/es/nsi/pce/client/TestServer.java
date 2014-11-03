@@ -92,7 +92,7 @@ public enum TestServer {
 
         return new ResourceConfig()
                 .packages(packageName)
-                .register(DiscoveryNotificationCallback.class) // Remove this if packages gets fixed.
+                .register(DdsNotificationCallback.class) // Remove this if packages gets fixed.
                 .register(FindPathResponseService.class) // Remove this if packages gets fixed.
                 .register(new MoxyXmlFeature())
                 .register(new MoxyJsonFeature())
