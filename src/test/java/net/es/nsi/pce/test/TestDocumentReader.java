@@ -15,6 +15,11 @@ import net.es.nsi.pce.topology.jaxb.DdsCollectionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/*
+ * This class replaces the DDS Document Reader for test cases.  It will read
+ * a file containing the list of DDS documents held within a <collection>
+ * element.
+ */
 public class TestDocumentReader implements DocumentReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -98,7 +103,7 @@ public class TestDocumentReader implements DocumentReader {
                 localDocuments.getDocument().add(document);
             }
         }
-        
+
         long currentTime = System.currentTimeMillis();
         for (DdsDocumentType document : collection.getDocuments().getDocument()) {
             if (type.equals(document.getType().trim())) {
