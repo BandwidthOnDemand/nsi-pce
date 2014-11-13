@@ -102,7 +102,6 @@ public class DdsDocumentReader implements DocumentReader {
         // Read and store local documents.
         localDocuments = readLocal();
 
-
         DdsDocumentListType documents = readSummary();
 
         // If we did not get back any documents then clear previous results.
@@ -161,7 +160,7 @@ public class DdsDocumentReader implements DocumentReader {
                 catch (NotFoundException | JAXBException | UnsupportedEncodingException ex) {
                     log.error("read: error reading updated resource details for " + discovered.getHref(), ex);
 
-                    // TODO: Verify we shoudl not delete the old entry on
+                    // TODO: Verify we should not delete the old entry on
                     // failure to read new entry.
                     continue;
                 }
@@ -259,6 +258,7 @@ public class DdsDocumentReader implements DocumentReader {
 
         Response response = null;
         try {
+            log.debug("readDetails: reading URL " + webGet.getUri().toASCIIString());
             response = webGet.request(NsiConstants.NSI_DDS_V1_XML).get();
         }
         catch (Exception ex) {
@@ -272,10 +272,10 @@ public class DdsDocumentReader implements DocumentReader {
         }
 
         if (response.getStatus() != Status.OK.getStatusCode()) {
-            topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, Integer.toString(response.getStatus()));
+            topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, webGet.getUri().toASCIIString(), Integer.toString(response.getStatus()));
             response.close();
             //client.close();
-            throw new NotFoundException("Failed to retrieve document (" + response.getStatus() + ") from target=" + target + ", path=" + href);
+            throw new NotFoundException("Failed to retrieve document (" + response.getStatus() + ") from target=" + webGet.getUri().toASCIIString());
         }
 
         // We want to store the last modified date as viewed from the HTTP server.
@@ -307,10 +307,11 @@ public class DdsDocumentReader implements DocumentReader {
 
         Response response = null;
         try {
+            log.debug("readLocal: target URL " + webGet.getUri().toASCIIString());
             response = webGet.request(NsiConstants.NSI_DDS_V1_XML).get();
         }
         catch (Exception ex) {
-            topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, ex.getMessage());
+            topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, webGet.getUri().toASCIIString(), ex.getMessage());
             if (response != null) {
                 response.close();
             }
@@ -319,10 +320,10 @@ public class DdsDocumentReader implements DocumentReader {
         }
 
         if (response.getStatus() != Status.OK.getStatusCode()) {
-            topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, target, Integer.toString(response.getStatus()));
+            topologyLogger.errorAudit(PceErrors.AUDIT_DDS_COMMS, webGet.getUri().toASCIIString(), Integer.toString(response.getStatus()));
             response.close();
             //client.close();
-            throw new NotFoundException("Failed to retrieve document (" + response.getStatus() + ") from target=" + target + ", path=local/" + encode);
+            throw new NotFoundException("Failed to retrieve document (" + response.getStatus() + ") from target=" + webGet.getUri().toASCIIString() + ", path=local/" + encode);
         }
 
         DdsDocumentListType documents = null;
