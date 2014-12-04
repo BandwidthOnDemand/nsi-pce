@@ -53,6 +53,10 @@ public class NsiTopologyFactory {
 
     // The default serviceType offered by this topology.
     private String defaultServiceType = null;
+
+    // The base URL for the REST services based on thsi topology.
+    private String baseURL = null;
+
     /**
      * @return the lastDiscovered
      */
@@ -72,6 +76,20 @@ public class NsiTopologyFactory {
      */
     public void setDefaultServiceType(String defaultServiceType) {
         this.defaultServiceType = defaultServiceType;
+    }
+
+    /**
+     * @return the baseURL
+     */
+    public String getBaseURL() {
+        return baseURL;
+    }
+
+    /**
+     * @param baseURL the baseURL to set
+     */
+    public void setBaseURL(String baseURL) {
+        this.baseURL = baseURL;
     }
 
     public NsiTopology createNsiTopology(DdsDocumentListType localNsaDocuments, Map<String, DdsWrapper> nsaDocuments, DdsDocumentListType localTopologyDocuments, Map<String, DdsWrapper> topologyDocuments) throws Exception {
@@ -107,7 +125,7 @@ public class NsiTopologyFactory {
             }
 
             // Create the NSI NSA resource from NSA document.
-            NsaType nsiNsa = NsiNsaFactory.createNsaType(nsa);
+            NsaType nsiNsa = NsiNsaFactory.createNsaType(nsa, baseURL);
             nsiNsa.setDiscovered(XmlUtilities.longToXMLGregorianCalendar(documentWrapper.getDiscovered()));
 
             // Add it to the NSI topology.

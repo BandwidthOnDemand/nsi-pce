@@ -39,7 +39,7 @@
     </xsd:complexType>
 
     <xsd:complexType name="NsiResourceType">
-        <xsd:attribute    name="id"         type="xsd:anyURI"    use="optional"/>
+        <xsd:attribute    name="id"         type="xsd:string"    use="optional"/>
         <xsd:attribute    name="name"       type="xsd:string"    use="optional"/>
         <xsd:attribute    name="version"    type="xsd:dateTime"  use="optional"/>
         <xsd:attribute    name="discovered" type="xsd:dateTime"  use="optional"/>
@@ -182,13 +182,36 @@
                     <xsd:element name="network"         type="tns:ResourceRefType"   minOccurs="0" maxOccurs="unbounded" />
                     <xsd:element name="interface"       type="nsa:InterfaceType"     minOccurs="0" maxOccurs="unbounded" />
                     <xsd:element name="feature"         type="nsa:FeatureType"       minOccurs="0" maxOccurs="unbounded" />
-                    <xsd:element name="peersWith"       type="xsd:anyURI"            minOccurs="0" maxOccurs="unbounded" />
+                    <xsd:element name="peersWith"       type="tns:PeersWithType"     minOccurs="0" maxOccurs="unbounded" />
                     <xsd:element name="reachability"    type="tns:ReachabilityType"  minOccurs="0" maxOccurs="unbounded" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:sequence>
+                <xsd:attribute   name="expires"         type="xsd:dateTime"  use="optional"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>
+
+    <xsd:complexType name="PeersWithType">
+        <xsd:complexContent>
+            <xsd:extension  base="tns:ResourceRefType">
+                <xsd:attribute  name="role"  type="tns:PeerRoleEnum"  default="RA"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:simpleType name="PeerRoleEnum">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                Type enumerating the role of the trusted control plane
+                relationship between peer NSA.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="RA" />
+            <xsd:enumeration value="PA" />
+            <xsd:enumeration value="RA_PA" />
+        </xsd:restriction>
+    </xsd:simpleType>
 
     <xsd:complexType name="ReachabilityType">
          <xsd:sequence>

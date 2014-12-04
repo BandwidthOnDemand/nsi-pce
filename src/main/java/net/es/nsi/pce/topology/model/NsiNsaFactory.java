@@ -12,9 +12,13 @@ import net.es.nsi.pce.topology.jaxb.TopologyReachabilityType;
 import net.es.nsi.pce.topology.jaxb.TopologyType;
 import net.es.nsi.pce.topology.jaxb.NsaHolderType;
 import net.es.nsi.pce.topology.jaxb.NsaNsaType;
+import net.es.nsi.pce.topology.jaxb.NsaPeerRoleEnum;
+import net.es.nsi.pce.topology.jaxb.NsaPeersWithType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.NsiResourceType;
 import net.es.nsi.pce.topology.jaxb.ObjectFactory;
+import net.es.nsi.pce.topology.jaxb.PeerRoleEnum;
+import net.es.nsi.pce.topology.jaxb.PeersWithType;
 import net.es.nsi.pce.topology.jaxb.ReachabilityType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.VectorType;
@@ -25,37 +29,49 @@ import org.apache.http.client.utils.DateUtils;
  * @author hacksaw
  */
 public class NsiNsaFactory {
-    private static final String NSI_ROOT_NSAS = "/nsas/";
-
     /**
      * Create a NSI NSA resource object from an NML JAXB object.
      *
      * @param nmlNsa NML JAXB object.
      * @return
      */
-    public static NsaType createNsaType(NsaNsaType nsa) {
+    public static NsaType createNsaType(NsaNsaType nsa, String baseURL) {
         ObjectFactory factory = new ObjectFactory();
         NsaType nsiNsa = factory.createNsaType();
         nsiNsa.setId(nsa.getId());
         nsiNsa.setName(nsa.getName());
         nsiNsa.setVersion(nsa.getVersion());
-        nsiNsa.setHref(NSI_ROOT_NSAS + nsiNsa.getId());
+        nsiNsa.setExpires(nsa.getExpires());
+
+        nsiNsa.setHref(NsiPathURI.getURL(baseURL, NsiPathURI.NSI_ROOT_NSAS, nsiNsa.getId()));
 
         nsiNsa.setSoftwareVersion(nsa.getSoftwareVersion());
         nsiNsa.setStartTime(nsa.getStartTime());
         nsiNsa.setLocation(nsa.getLocation());
         nsiNsa.setAdminContact(nsa.getAdminContact());
 
-        if (nsa.getInterface() != null && !nsa.getInterface().isEmpty()) {
+        if (!nsa.getInterface().isEmpty()) {
             nsiNsa.getInterface().addAll(nsa.getInterface());
         }
 
-        if (nsa.getFeature() != null && !nsa.getFeature().isEmpty()) {
+        if (!nsa.getFeature().isEmpty()) {
             nsiNsa.getFeature().addAll(nsa.getFeature());
         }
 
-        if (nsa.getPeersWith() != null && !nsa.getPeersWith().isEmpty()) {
-            nsiNsa.getPeersWith().addAll(nsa.getPeersWith());
+        for (NsaPeersWithType peersWith : nsa.getPeersWith()) {
+            PeersWithType peer = factory.createPeersWithType();
+
+            peer.setId(peersWith.getValue().trim());
+            peer.setHref(NsiPathURI.getURL(baseURL, NsiPathURI.NSI_ROOT_NSAS, peer.getId()));
+
+            if (peersWith.getRole() == NsaPeerRoleEnum.PA) {
+                peer.setRole(PeerRoleEnum.PA);
+            }
+            else {
+                peer.setRole(PeerRoleEnum.RA);
+            }
+
+            nsiNsa.getPeersWith().add(peer);
         }
 
         // Pull the G0f3 reachability information out of the ANY as a custom

@@ -167,6 +167,7 @@ public class DdsTopologyProvider implements TopologyProvider {
         // modified), we must rebuild our entire topology model.
         NsiTopologyFactory nsiFactory = new NsiTopologyFactory();
         nsiFactory.setDefaultServiceType(configuration.getDefaultServiceType());
+        nsiFactory.setBaseURL(configuration.getBaseURL());
         NsiTopology newTopology = nsiFactory.createNsiTopology(localNsaDocuments, nsaDocuments, localTopologyDocuments, topologyDocuments);
         lastDiscovered = nsiFactory.getLastDiscovered();
         newTopology = consolidateGlobalTopology(newTopology);

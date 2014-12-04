@@ -28,8 +28,6 @@ import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.VectorType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -119,7 +117,7 @@ public class NsiTopology {
     }
 
     public Collection<ServiceAdaptationType> getServiceAdaptations() {
-        return serviceAdaptations.values();
+        return Collections.unmodifiableCollection(serviceAdaptations.values());
     }
 
     public ServiceAdaptationType getServiceAdaptation(String serviceAdaptationId) {
@@ -308,7 +306,7 @@ public class NsiTopology {
      * @return The collection of STPs currently in the NSI topology.
      */
     public Collection<StpType> getStps() {
-        return stps.values();
+        return Collections.unmodifiableCollection(stps.values());
     }
 
     public Map<String, StpType> getStpMap() {
@@ -410,7 +408,7 @@ public class NsiTopology {
      * @return Set of networkIds.
      */
     public Set<String> getNetworkIds() {
-        return networks.keySet();
+        return Collections.unmodifiableSet(networks.keySet());
     }
 
     /**
@@ -419,7 +417,7 @@ public class NsiTopology {
      * @return Collection of Network objects from this topology.
      */
     public Collection<NetworkType> getNetworks() {
-        return networks.values();
+        return Collections.unmodifiableCollection(networks.values());
     }
 
     /**
@@ -428,7 +426,7 @@ public class NsiTopology {
      * @return List of SDP in a Collection.
      */
     public Collection<SdpType> getSdps() {
-        return sdps.values();
+        return Collections.unmodifiableCollection(sdps.values());
     }
 
     /**
@@ -451,19 +449,19 @@ public class NsiTopology {
 
 
     public Collection<ServiceDomainType> getServiceDomains() {
-        return serviceDomains.values();
+        return Collections.unmodifiableCollection(serviceDomains.values());
     }
 
     public Collection<ServiceType> getServices() {
-        return services.values();
+        return Collections.unmodifiableCollection(services.values());
     }
 
     public Collection<NsaType> getNsas() {
-        return nsas.values();
+        return Collections.unmodifiableCollection(nsas.values());
     }
 
     public Set<String> getNsaIds() {
-        return nsas.keySet();
+        return Collections.unmodifiableSet(nsas.keySet());
     }
 
     /**

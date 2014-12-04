@@ -46,7 +46,7 @@ public enum NsiError {
     INTERNAL_NRM_ERROR("00501", "INTERNAL_NRM_ERROR", "An internal NRM error has caused a message processing failure (%s)."),
 
     // Resource availability errors.
-    RESOURCE_UNAVAILABLE("00500", "RESOURCE_UNAVAILABLE", "An internal error has caused a message processing failure (%s)."),
+    RESOURCE_UNAVAILABLE("00600", "RESOURCE_UNAVAILABLE", "An internal error has caused a message processing failure (%s)."),
 
     // Control plane error group.
 

@@ -71,6 +71,9 @@ public enum PceErrors {
     DISCOVERY_CONFIGURATION_INVALID_PARAMETER(6004, "DISCOVERY_CONFIGURATION_INVALID_PARAMETER", "Value missing or invalid (%s)"),
     DISCOVERY_CONFIGURATION_CANNOT_CREATE_DIRECTORY(6005, "DISCOVERY_CONFIGURATION_CANNOT_CREATE_DIRECTORY", "Cannot create directory (%s)"),
 
+    REST_INTERNAL_SERVER(7000, "REST_INTERNAL_SERVER", "An internal server error has occured."),
+    REST_ILLEGAL_ARGUMENT(7000, "REST_ILLEGAL_ARGUMENT", "An internal server error has occured."),
+
     // Mark the end.
     END(9000, "", "");
 

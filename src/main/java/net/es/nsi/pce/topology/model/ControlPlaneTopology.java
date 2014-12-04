@@ -14,6 +14,8 @@ import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.topology.jaxb.NsaFeatureType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
+import net.es.nsi.pce.topology.jaxb.PeerRoleEnum;
+import net.es.nsi.pce.topology.jaxb.PeersWithType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,6 +105,35 @@ public class ControlPlaneTopology {
         return false;
     }
 
+    private boolean isRA(List<NsaFeatureType> features) {
+        if (features == null) {
+            return false;
+        }
+
+        for (NsaFeatureType feature : features) {
+            if (NsiConstants.NSI_CS_URA.equalsIgnoreCase(feature.getType()) ||
+                    NsiConstants.NSI_CS_AGG.equalsIgnoreCase(feature.getType())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isURA(List<NsaFeatureType> features) {
+        if (features == null) {
+            return false;
+        }
+
+        for (NsaFeatureType feature : features) {
+            if (NsiConstants.NSI_CS_URA.equalsIgnoreCase(feature.getType())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void graph(NsiTopology topology) throws IllegalArgumentException, RuntimeException {
         controlPlane = new SortedSparseMultigraph<>();
         verticies = new HashMap<>();
@@ -123,19 +154,21 @@ public class ControlPlaneTopology {
         for (NsaType nsa : topology.getNsas()) {
             NsaVertex sourceNsa = verticies.get(nsa.getId());
 
-            if (isAG(nsa.getFeature())) {
-                for (String peer : nsa.getPeersWith()) {
-                    NsaVertex peerNsa = verticies.get(peer);
-                    if (peerNsa == null) {
-                        log.error("NSA id=" + nsa.getId() + " has invalid peersWith id=" + peer);
-                        continue;
-                    }
-                    if (isPA(peerNsa.getNsa().getFeature())) {
-                        log.debug("Adding edge from " + sourceNsa.getId() + " to " + peerNsa.getId());
-                        // We add an outgoing edge for this NSA.
-                        Pair<NsaVertex> pair = new Pair<>(sourceNsa, peerNsa);
-                        NsaEdge edge = new NsaEdge(nsa, peerNsa.getNsa());
-                        controlPlane.addEdge(edge, pair, EdgeType.DIRECTED);
+            if (isRA(nsa.getFeature())) {
+                for (PeersWithType peer : nsa.getPeersWith()) {
+                    if (peer.getRole() == PeerRoleEnum.RA) {
+                        NsaVertex destNsa = verticies.get(peer.getId());
+                        if (destNsa == null) {
+                            log.error("NSA id=" + nsa.getId() + " has invalid peersWith id=" + peer.getId());
+                            continue;
+                        }
+                        if (isPA(destNsa.getNsa().getFeature())) {
+                            log.debug("Adding edge from " + sourceNsa.getId() + " to " + destNsa.getId());
+                            // We add an outgoing edge for this NSA.
+                            Pair<NsaVertex> pair = new Pair<>(sourceNsa, destNsa);
+                            NsaEdge edge = new NsaEdge(nsa, destNsa.getNsa());
+                            controlPlane.addEdge(edge, pair, EdgeType.DIRECTED);
+                        }
                     }
                 }
             }
