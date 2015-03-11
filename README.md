@@ -1,3 +1,5 @@
+**Note: The DDS is now a standalone package that will require a separate install.  This documentation needs to be updated.
+
 # NSI Path Computation Engine
 
 The Network Services Interface Path Computation Engine (NSI-PCE) is a conglomeration of components from the NSI 2.0 series of specifications [OGF NSF]:
