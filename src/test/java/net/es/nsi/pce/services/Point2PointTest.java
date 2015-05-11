@@ -7,7 +7,7 @@ import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.services.EthernetTypes;
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.api.cons.BooleanAttrConstraint;
-import net.es.nsi.pce.pf.api.cons.Constraints;
+import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.pf.api.cons.NumAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
@@ -44,7 +44,7 @@ public class Point2PointTest {
         Point2Point p2p = new Point2Point();
         Set<Constraint> constraints = p2p.addConstraints(mockedP2ps);
 
-        Constraints attr = new Constraints(constraints);
+        AttrConstraints attr = new AttrConstraints(constraints);
 
         NumAttrConstraint capacity = attr.removeNumAttrConstraint(Point2PointTypes.CAPACITY);
         assertNotNull(capacity);

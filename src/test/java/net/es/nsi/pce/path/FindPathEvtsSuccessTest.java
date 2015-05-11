@@ -83,6 +83,12 @@ public class FindPathEvtsSuccessTest {
           this.setStpZ("urn:ogf:network:netherlight.net:2013:testbed:manlan:1?vlan=1784");
         }
     };
+    
+    private final static StpTestData test7 = new StpTestData() {
+        { this.setStpA("urn:ogf:network:uvalight.net:2013:ps?vlan=1780-1785");
+          this.setStpZ("urn:ogf:network:es.net:2013:ps:sunn:1?vlan=1780-1785");
+        }
+    };
 
     private final static List<StpTestData> testData = new ArrayList<StpTestData>() {
         private static final long serialVersionUID = 1L;
@@ -93,6 +99,7 @@ public class FindPathEvtsSuccessTest {
             this.add(test4);
             this.add(test5);
             this.add(test6);
+            //this.add(test7);
         }
     };
 

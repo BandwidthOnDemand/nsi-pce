@@ -22,7 +22,7 @@ import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.AttrConstraint;
 import net.es.nsi.pce.pf.api.cons.Constraint;
-import net.es.nsi.pce.pf.api.cons.Constraints;
+import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 
 /**
  *
@@ -30,7 +30,7 @@ import net.es.nsi.pce.pf.api.cons.Constraints;
  */
 public class Point2Point {
     private ObjectFactory factory = new ObjectFactory();
-    private Constraints constraints = new Constraints();
+    private AttrConstraints constraints = new AttrConstraints();
 
     public Set<Constraint> addConstraints(P2PServiceBaseType service) {
         // Add requested capacity.
@@ -101,7 +101,7 @@ public class Point2Point {
         // For each pair of STP we need to build a resolved path.
         for (PathSegment segment : path.getPathSegments()) {
             // Convert the constraints.
-            Constraints pathConstraints = segment.getConstraints();
+            AttrConstraints pathConstraints = segment.getConstraints();
             StringAttrConstraint serviceType = pathConstraints.removeStringAttrConstraint(PCEConstraints.SERVICETYPE);
             NumAttrConstraint capacity = pathConstraints.removeNumAttrConstraint(Point2PointTypes.CAPACITY);
             StringAttrConstraint directionality = pathConstraints.removeStringAttrConstraint(Point2PointTypes.DIRECTIONALITY);

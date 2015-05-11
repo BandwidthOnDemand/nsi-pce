@@ -12,4 +12,9 @@ public class GraphEdge extends SortedGraphObject {
     public GraphEdge(String id) {
         super(id);
     }
+
+    @Override
+    public String toString() {
+        return "GraphEdge=" + this.getId();
+    }
 }

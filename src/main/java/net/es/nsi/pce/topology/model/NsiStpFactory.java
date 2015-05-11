@@ -33,11 +33,11 @@ public class NsiStpFactory {
     private static final String NSI_ROOT_STPS = "/stps/";
 
     /**
-     *
+     * 
      * @param port
      * @param label
-     * @param nsiTopology
-     * @return
+     * @param nsiNetworkRef
+     * @return 
      */
     public static StpType createStpType(NmlPort port, NmlLabelType label, ResourceRefType nsiNetworkRef) {
         // We want a new NSI STP resource.
@@ -105,6 +105,8 @@ public class NsiStpFactory {
      *
      * @param port
      * @param label
+     * @param nsiNetworkRef
+     * @param uniStp
      * @param nsiTopology
      * @return
      */

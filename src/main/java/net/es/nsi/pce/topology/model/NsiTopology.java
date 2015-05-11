@@ -1,7 +1,7 @@
 package net.es.nsi.pce.topology.model;
 
+import com.google.common.base.Optional;
 import static com.google.common.base.Strings.emptyToNull;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,11 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import com.google.common.base.Optional;
 import java.util.concurrent.ConcurrentSkipListMap;
-
+import java.util.concurrent.CopyOnWriteArrayList;
 import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NsaInterfaceType;
@@ -24,9 +21,9 @@ import net.es.nsi.pce.topology.jaxb.ReachabilityType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.ServiceAdaptationType;
+import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpType;
-import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.VectorType;
 
 /**
@@ -433,7 +430,7 @@ public class NsiTopology {
      * Get the list of SDP within this topology containing the specified STP
      * (if it exists).
      *
-     * @param stp The STP to locate in the list of SDP.
+     * @param stpId The STP to locate in the list of SDP.
      * @return The matching list of SDP.
      */
     public Set<SdpType> getSdpMember(String stpId) {

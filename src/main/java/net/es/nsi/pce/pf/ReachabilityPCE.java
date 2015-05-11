@@ -34,7 +34,7 @@ import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.pf.api.StpPair;
-import net.es.nsi.pce.pf.api.cons.Constraints;
+import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
@@ -80,7 +80,7 @@ public class ReachabilityPCE implements PCEModule {
         checkNotNull(pceData.getTrace(), "No trace was provided");
         checkNotNull(pceData.getTopology(), "No topology was provided");
 
-        Constraints constraints = pceData.getAttrConstraints();
+        AttrConstraints constraints = pceData.getAttrConstraints();
         Stp sourceStp = findSourceStp(constraints);
         Stp destStp = findDestinationStp(constraints);
 
@@ -95,11 +95,11 @@ public class ReachabilityPCE implements PCEModule {
         return pceData;
     }
 
-    private void addConstraints(Path path, Constraints constraints) {
+    private void addConstraints(Path path, AttrConstraints constraints) {
         constraints.removeStringAttrConstraint(Point2PointTypes.SOURCESTP);
         constraints.removeStringAttrConstraint(Point2PointTypes.DESTSTP);
         for (PathSegment segment: path.getPathSegments()) {
-            segment.setConstraints(new Constraints(constraints));
+            segment.setConstraints(new AttrConstraints(constraints));
         }
     }
 
@@ -129,7 +129,7 @@ public class ReachabilityPCE implements PCEModule {
         }
     }
 
-    private Stp findSourceStp(Constraints constraints) {
+    private Stp findSourceStp(AttrConstraints constraints) {
         String sourceStp = getSourceStpOrFail(constraints);
         try {
             return Stp.fromStpId(sourceStp);
@@ -138,7 +138,7 @@ public class ReachabilityPCE implements PCEModule {
         }
     }
 
-    private Stp findDestinationStp(Constraints constraints) {
+    private Stp findDestinationStp(AttrConstraints constraints) {
         String destStp = getDestinationStpOrFail(constraints);
         try {
             return Stp.fromStpId(destStp);
@@ -343,15 +343,15 @@ public class ReachabilityPCE implements PCEModule {
         return reachability;
     }
 
-    private String getSourceStpOrFail(Constraints constraints) {
+    private String getSourceStpOrFail(AttrConstraints constraints) {
         return getStringValue(Point2PointTypes.SOURCESTP, constraints);
     }
 
-    private String getDestinationStpOrFail(Constraints constraints) {
+    private String getDestinationStpOrFail(AttrConstraints constraints) {
         return getStringValue(Point2PointTypes.DESTSTP, constraints);
     }
 
-    private String getStringValue(String attributeName, Constraints constraints) {
+    private String getStringValue(String attributeName, AttrConstraints constraints) {
         Optional<String> value = getValue(constraints.getStringAttrConstraint(attributeName));
 
         if (value.isPresent()) {

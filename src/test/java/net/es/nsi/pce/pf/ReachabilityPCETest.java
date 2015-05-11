@@ -1,20 +1,11 @@
 package net.es.nsi.pce.pf;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
-
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.ReachabilityPCE.Reachability;
 import net.es.nsi.pce.pf.ReachabilityPCE.Stp;
@@ -31,13 +22,24 @@ import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ReachabilityPCETest {
 
     private final static String LOCAL_NETWORK_ID = "urn:ogf:network:local.net:1970:topology";
     private final static String LOCAL_NSA_ID = "urn:ogf:network:local.net:1970:nsa";
 
-    private ReachabilityPCE subject = new ReachabilityPCE();
+    private final ReachabilityPCE subject = new ReachabilityPCE();
 
     private NsiTopology topologyMock;
 

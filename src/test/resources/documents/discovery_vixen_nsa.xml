@@ -71,9 +71,10 @@
             <feature type="org.ogf.nsi.cs.v2.role.aggregator"/>
             <feature type="org.ogf.nsi.cs.v2.role.uPA"/>
             <feature type="org.ogf.nsi.cs.v2.commitTimeout">120</feature>
-            <peersWith>urn:ogf:network:example.com:2013:nsa:dasher</peersWith>
-            <peersWith>urn:ogf:network:example.com:2013:nsa:dancer</peersWith>
-            <peersWith>urn:ogf:network:example.com:2013:nsa:prancer</peersWith>
+            <peersWith role="RA">urn:ogf:network:example.com:2013:nsa:dasher</peersWith>
+            <peersWith role="PA">urn:ogf:network:example.com:2013:nsa:dancer</peersWith>
+            <peersWith role="RA">urn:ogf:network:example.com:2013:nsa:prancer</peersWith>
+            <peersWith role="PA">urn:ogf:network:example.com:2013:nsa:prancer</peersWith>
         </tns:nsa>
     </content>
 </tns:document>

@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.google.common.base.Objects;
 
-import net.es.nsi.pce.pf.api.cons.Constraints;
+import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 
 /**
  *
@@ -16,7 +16,7 @@ public class PathSegment implements Serializable {
     private final StpPair stpPair;
     private String nsaId;
     private String csProviderURL;
-    private Constraints constraints = new Constraints();
+    private AttrConstraints constraints = new AttrConstraints();
 
     public PathSegment(StpPair stpPair) {
         this.stpPair = stpPair;
@@ -48,11 +48,11 @@ public class PathSegment implements Serializable {
         return stpPair;
     }
 
-    public Constraints getConstraints() {
+    public AttrConstraints getConstraints() {
         return constraints;
     }
 
-    public void setConstraints(Constraints constraints) {
+    public void setConstraints(AttrConstraints constraints) {
         this.constraints = constraints;
     }
 

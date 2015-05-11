@@ -13,17 +13,18 @@ import java.util.Set;
 import net.es.nsi.pce.path.jaxb.TypeValueType;
 
 /**
+ * Models a set of attribute constraints.
  *
  * @author hacksaw
  */
-public class Constraints {
-    private Set<Constraint> constraints;
+public class AttrConstraints {
+    private final Set<Constraint> constraints;
 
-    public Constraints() {
+    public AttrConstraints() {
         constraints = new HashSet<>();
     }
 
-    public Constraints(Set<Constraint> constraints) {
+    public AttrConstraints(Set<Constraint> constraints) {
         this.constraints = new HashSet<>();
         for (Constraint constraint : constraints) {
             if (constraint instanceof AttrConstraint) {
@@ -32,7 +33,7 @@ public class Constraints {
         }
     }
 
-    public Constraints(Constraints constraints) {
+    public AttrConstraints(AttrConstraints constraints) {
         this.constraints = new HashSet<>(constraints.get());
     }
 
@@ -108,9 +109,13 @@ public class Constraints {
 
     public StringAttrConstraint getStringAttrConstraint(String name) {
         for (Constraint constraint : constraints) {
-            if (constraint instanceof StringAttrConstraint &&
-                    ((StringAttrConstraint) constraint).getAttrName().equalsIgnoreCase(name)) {
-                return (StringAttrConstraint) constraint;
+            if (constraint instanceof StringAttrConstraint) {
+                StringAttrConstraint str = (StringAttrConstraint) constraint;
+
+                String attrName = str.getAttrName();
+                if (attrName != null && attrName.equalsIgnoreCase(name)) {
+                    return (StringAttrConstraint) constraint;
+                }
             }
         }
         return null;

@@ -2,13 +2,13 @@ package net.es.nsi.pce.pf;
 
 import java.util.List;
 import java.util.Set;
-import net.es.nsi.pce.pf.api.PCEData;
-import net.es.nsi.pce.pf.api.PCEModule;
-import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.path.jaxb.FindPathAlgorithmType;
 import net.es.nsi.pce.pf.api.NsiError;
+import net.es.nsi.pce.pf.api.PCEData;
+import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.cons.Constraint;
+import net.es.nsi.pce.topology.provider.TopologyProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,14 +20,16 @@ import org.slf4j.LoggerFactory;
  */
 public class PathfinderCore {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private TopologyProvider topologyProvider;
-    private net.es.nsi.pce.pf.SequentialPCE chainPCE;
-    private net.es.nsi.pce.pf.SequentialPCE treePCE;
+    private final TopologyProvider topologyProvider;
+    private final net.es.nsi.pce.pf.SequentialPCE chainPCE;
+    private final net.es.nsi.pce.pf.SequentialPCE treePCE;
     /**
      * Default constructor for this class.  Performs lookups on the Spring
      * beans for required services.
      *
-     * @throws Exception If Spring cannot resolve the desired beans.
+     * @param topologyProvider
+     * @param chainPCE
+     * @param treePCE
      */
     public PathfinderCore(TopologyProvider topologyProvider, net.es.nsi.pce.pf.SequentialPCE chainPCE, net.es.nsi.pce.pf.SequentialPCE treePCE) {
         this.topologyProvider = topologyProvider;
@@ -42,7 +44,7 @@ public class PathfinderCore {
      *
      * @param algorithm The algorithm to run for this path request (CHAIN or TREE).
      * @param contraints The list of path constraints.
-     * @param po The list to populate the path results.
+     * @param trace
      * @return Resolved path if one exists, otherwise an exception.
      * @throws Exception An exception carrying an XML encoded findPathErrorType.
      */
@@ -51,11 +53,11 @@ public class PathfinderCore {
         PCEData pceData = new PCEData();
 
         // Add routing constrains.
-        pceData.getConstraints().addAll(contraints);
+        pceData.addConstraints(contraints);
 
         // Add topology
         pceData.setTopology(topologyProvider.getTopology());
-        
+
         // Add trace.
         pceData.setTrace(trace);
 

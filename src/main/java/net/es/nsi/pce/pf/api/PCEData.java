@@ -1,13 +1,12 @@
 package net.es.nsi.pce.pf.api;
 
-import net.es.nsi.pce.pf.api.cons.Constraint;
-import net.es.nsi.pce.pf.api.cons.Constraints;
-import net.es.nsi.pce.topology.model.NsiTopology;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import net.es.nsi.pce.pf.api.cons.AttrConstraints;
+import net.es.nsi.pce.pf.api.cons.Constraint;
+import net.es.nsi.pce.topology.model.NsiTopology;
 
 /**
  * Defines the data passed into and between Path Computation Modules.
@@ -26,7 +25,7 @@ import java.util.Set;
  */
 public class PCEData {
     private Path path = new Path();
-    private Set<Constraint> constraints = new HashSet<>();
+    private final Set<Constraint> constraints = new HashSet<>();
     private NsiTopology topology = new NsiTopology();
     private List<String> trace;
 
@@ -49,8 +48,8 @@ public class PCEData {
         return constraints;
     }
 
-    public Constraints getAttrConstraints() {
-        return new Constraints(constraints);
+    public AttrConstraints getAttrConstraints() {
+        return new AttrConstraints(constraints);
     }
 
     public NsiTopology getTopology() {
@@ -63,6 +62,10 @@ public class PCEData {
 
     public boolean addConstraint(Constraint constraint) {
         return constraints.add(constraint);
+    }
+
+    public boolean addConstraints(Set<Constraint> constraints) {
+        return this.constraints.addAll(constraints);
     }
 
     public List<String> getTrace() {

@@ -5,7 +5,7 @@ import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
-import net.es.nsi.pce.pf.api.cons.Constraints;
+import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
@@ -20,7 +20,7 @@ public class PolicyPCE implements PCEModule {
         NsiTopology nsiTopology = pceData.getTopology();
 
         // Parse out the constraints this PCE module supports.
-        Constraints constraints = new Constraints(pceData.getConstraints());
+        AttrConstraints constraints = new AttrConstraints(pceData.getConstraints());
 
         // Get source stpId.
         StringAttrConstraint sourceStp = constraints.getStringAttrConstraint(Point2PointTypes.SOURCESTP);

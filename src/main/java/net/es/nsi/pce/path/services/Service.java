@@ -19,7 +19,7 @@ public enum Service {
     private final String qname;
 
     // Service mapping for A-GOLE service type.
-    final static String EVTS_AGOLE = "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE";
+    private final static String EVTS_AGOLE = "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE";
 
     // Lists of service elements associated with the EVTS AGOLE service.
     private final static List<Service> EVTS_AGOLE_LIST = new ArrayList<Service>() {

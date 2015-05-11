@@ -1,36 +1,33 @@
 package net.es.nsi.pce.pf;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.common.base.Optional;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.Graph;
-import java.util.HashMap;
-import java.util.Map;
-import com.google.common.base.Optional;
 import edu.uci.ics.jung.graph.SortedSparseMultigraph;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.es.nsi.pce.path.jaxb.DirectionalityType;
+import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.api.NsiError;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
+import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.pf.api.StpPair;
-import net.es.nsi.pce.pf.api.cons.Constraints;
+import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.BooleanAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
-import net.es.nsi.pce.path.services.Point2PointTypes;
-import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
-import net.es.nsi.pce.topology.model.NsiTopology;
-import net.es.nsi.pce.topology.jaxb.StpType;
-import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
+import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
+import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.topology.model.NsiTopology;
 import org.apache.commons.collections15.Transformer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Main path computation class using Dijkstra's shortest path on an NSI
@@ -51,12 +48,13 @@ public class DijkstraPCE implements PCEModule {
      *    - endTime
      *    - capacity
      *    - ero
+     * @param pceData
+     * @return
      */
     @Override
     public PCEData apply(PCEData pceData) {
-
-        // Parse out the constraints this PCE module supports.
-        Constraints constraints = new Constraints(pceData.getConstraints());
+        // Get the constraints this PCE module supports.
+        AttrConstraints constraints = pceData.getAttrConstraints();
 
         // Determine directionality of service request, default to bidirectional if not present.
         DirectionalityType directionality = DirectionalityType.BIDIRECTIONAL;
@@ -69,7 +67,7 @@ public class DijkstraPCE implements PCEModule {
         boolean symmetricPath = true;
         BooleanAttrConstraint symmetricPathConstraint = constraints.getBooleanAttrConstraint(Point2PointTypes.SYMMETRICPATH);
         if (symmetricPathConstraint != null) {
-            symmetricPath = Boolean.valueOf(symmetricPathConstraint.getValue());
+            symmetricPath = symmetricPathConstraint.getValue();
         }
 
         // Get source stpId.
@@ -112,14 +110,14 @@ public class DijkstraPCE implements PCEModule {
         validateDirectionality(srcStp, dstStp, directionality);
 
         // These will be applied to individual path segment results.
-        Constraints segmentConstraints = new Constraints(pceData.getConstraints());
+        AttrConstraints segmentConstraints = new AttrConstraints(pceData.getConstraints());
         segmentConstraints.removeStringAttrConstraint(Point2PointTypes.SOURCESTP);
         segmentConstraints.removeStringAttrConstraint(Point2PointTypes.DESTSTP);
 
         List<GraphEdge> path = getPath(srcStp, dstStp, pceData, nsiTopology);
 
         // Check to see if there is a valid path.
-        if (path.isEmpty()) {
+        if (path == null || path.isEmpty()) {
             String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "No path found using provided criteria");
             throw new RuntimeException(error);
         }
@@ -130,7 +128,7 @@ public class DijkstraPCE implements PCEModule {
 
             log.debug("Pair: " + pair.getA().getId() + " -- " + pair.getZ().getId());
 
-            Constraints cons = new Constraints(segmentConstraints);
+            AttrConstraints cons = new AttrConstraints(segmentConstraints);
             PathSegment pathSegment = new PathSegment(pair);
             pathSegment.setConstraints(cons);
             pceData.getPath().getPathSegments().add(i, pathSegment);
@@ -215,7 +213,9 @@ public class DijkstraPCE implements PCEModule {
 
         // Add bidirectional SDP as edges.
         for (SdpType sdp : nsiTopology.getSdps()) {
+            log.debug("Here: " + sdp.getId());
             if (sdp.getType() == SdpDirectionalityType.BIDIRECTIONAL) {
+                log.debug("Inside: " + sdp.getId());
                 Optional<ResourceRefType> aServiceDomainRef = Optional.fromNullable(sdp.getDemarcationA().getServiceDomain());
                 Optional<ResourceRefType> zServiceDomainRef = Optional.fromNullable(sdp.getDemarcationZ().getServiceDomain());
                 Optional<ResourceRefType> srcSdp = Optional.fromNullable(srcStp.getSdp());

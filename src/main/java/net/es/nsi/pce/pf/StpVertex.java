@@ -24,4 +24,9 @@ public class StpVertex extends GraphVertex {
     public StpType getStp() {
         return stp;
     }
+
+    @Override
+    public String toString() {
+        return "StpVertex=" + stp.getId();
+    }
 }
