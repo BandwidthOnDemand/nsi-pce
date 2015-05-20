@@ -1,7 +1,6 @@
 package net.es.nsi.pce.topology.model;
 
 import com.google.common.base.Optional;
-import net.es.nsi.pce.management.logs.PceErrors;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,6 +11,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.bind.JAXBElement;
+import net.es.nsi.pce.management.logs.PceErrors;
+import net.es.nsi.pce.management.logs.PceLogger;
+import net.es.nsi.pce.schema.XmlUtilities;
+import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
+import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NmlBidirectionalPortType;
 import net.es.nsi.pce.topology.jaxb.NmlLabelGroupType;
@@ -25,17 +29,13 @@ import net.es.nsi.pce.topology.jaxb.NmlSwitchingServiceRelationType;
 import net.es.nsi.pce.topology.jaxb.NmlSwitchingServiceType;
 import net.es.nsi.pce.topology.jaxb.NmlTopologyRelationType;
 import net.es.nsi.pce.topology.jaxb.NmlTopologyType;
+import net.es.nsi.pce.topology.jaxb.NsaNsaType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ObjectFactory;
 import net.es.nsi.pce.topology.jaxb.ServiceDefinitionType;
 import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.ServiceType;
 import net.es.nsi.pce.topology.jaxb.StpType;
-import net.es.nsi.pce.management.logs.PceLogger;
-import net.es.nsi.pce.schema.XmlUtilities;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
-import net.es.nsi.pce.topology.jaxb.NsaNsaType;
 import net.es.nsi.pce.topology.provider.DdsWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,6 +107,7 @@ public class NsiTopologyFactory {
             log.error("No local NSA Description document discovered so cannot assign local NSA identifier.  Pathfinding will not function!");
         }
 
+        // Add the local network identifiers.
         List<String> networkIds = new ArrayList<>();
         for (DdsDocumentType topology : localTopologyDocuments.getDocument()) {
             log.debug("createNsiTopology: local networkId=" + topology.getId());
@@ -199,7 +200,9 @@ public class NsiTopologyFactory {
                 log.debug("createNsiTopology: Converting unidirectional ports to STPs for " + networkId);
                 Map<String, StpType> uniStp = new ConcurrentHashMap<>();
                 for (NmlPort port : uniPortMap.values()) {
-                    uniStp.putAll(NsiStpFactory.createUniStps(port, nsiNetwork));
+                    Map<String, StpType> uniStps = NsiStpFactory.createUniStps(port, nsiNetwork);
+                    uniStp.putAll(uniStps);
+                    newNsiTopology.addStpBundle(port.getId(), uniStp);
                 }
 
                 // Add the port references to the Network resource.
@@ -211,11 +214,13 @@ public class NsiTopologyFactory {
                 log.debug("createNsiTopology: adding " + uniStp.size() + " unidirectional STP.");
                 newNsiTopology.putAllStp(uniStp);
 
-                // Now we convert the bidirectional NML Ports to STP.  The
+                // Now we convert the bidirectional NML Ports to STP.
                 log.debug("createNsiTopology: Convert bidirectional ports to STP for " + networkId);
                 Map<String, StpType> biStp = new ConcurrentHashMap<>();
                 for (NmlPort port : biPortMap.values()) {
-                    biStp.putAll(NsiStpFactory.createBiStps(port, nsiNetwork, uniStp));
+                    Map<String, StpType> biStps = NsiStpFactory.createBiStps(port, nsiNetwork, uniStp);
+                    biStp.putAll(biStps);
+                    newNsiTopology.addStpBundle(port.getId(), biStp);
                 }
 
                 // Add the port references to the Network resource.

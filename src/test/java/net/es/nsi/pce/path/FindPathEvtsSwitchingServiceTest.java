@@ -11,20 +11,18 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeFactory;
-import net.es.nsi.pce.path.jaxb.ObjectFactory;
+import net.es.nsi.pce.client.TestServer;
+import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.path.jaxb.DirectionalityType;
 import net.es.nsi.pce.path.jaxb.FindPathAlgorithmType;
 import net.es.nsi.pce.path.jaxb.FindPathRequestType;
 import net.es.nsi.pce.path.jaxb.FindPathResponseType;
 import net.es.nsi.pce.path.jaxb.FindPathStatusType;
+import net.es.nsi.pce.path.jaxb.ObjectFactory;
 import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.jaxb.ReplyToType;
-import net.es.nsi.pce.config.http.HttpConfig;
-import net.es.nsi.pce.client.TestServer;
 import net.es.nsi.pce.test.TestConfig;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -49,22 +47,15 @@ public class FindPathEvtsSwitchingServiceTest {
     // First test has mismatched vlans and will require a SwitchingService with
     // labelSwapping == true.
     private final static StpTestData test1 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:kddilabs.jp:2013:bi-ps?vlan=1782");
-          this.setStpZ("urn:ogf:network:uvalight.net:2013:ps?vlan=1781");
-        }
-    };
-
-    // Second test requests a unidirectional STP -- Not yet supported!
-    private final static StpTestData test2 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1?vlan=1779");
-          this.setStpZ("urn:ogf:network:manlan.internet2.edu:2013:netherlight:in?vlan=1779");
+        { this.setStpA("urn:ogf:network:kddilabs.jp:2013:topology:bi-ps?vlan=1782");
+          this.setStpZ("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1781");
         }
     };
 
     // Test creation of wild card SwitchingService in GEANT network.
     private final static StpTestData test3 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:geant.net:2013:bi-geant-grnet?vlan=1779");
-          this.setStpZ("urn:ogf:network:geant.net:2013:bi-geant-netherlight?vlan=1780");
+        { this.setStpA("urn:ogf:network:geant.net:2013:topology:GARR__port?vlan=300");
+          this.setStpZ("urn:ogf:network:geant.net:2013:topology:PE-DFN-to-GEANT?vlan=2000");
         }
     };
 

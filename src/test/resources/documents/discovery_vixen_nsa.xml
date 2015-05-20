@@ -47,8 +47,8 @@
                     <xcard:country>Canada</xcard:country>
                 </address>
             </location>
-            <networkId>urn:ogf:network:example.com:2013:network:theworkshop</networkId>
-            <networkId>urn:ogf:network:example.com:2013:network:candycaneforest</networkId>
+            <networkId>urn:ogf:network:example.com:2013:theworkshop</networkId>
+            <networkId>urn:ogf:network:example.com:2013:candycaneforest</networkId>
             <interface>
                 <type>application/vnd.ogf.nsi.dds.v1+xml</type>
                 <href>https://nsa.example.com/discovery</href>

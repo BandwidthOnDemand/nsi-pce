@@ -33,14 +33,16 @@ import net.es.nsi.pce.topology.jaxb.VectorType;
 public class NsiTopology {
     // The NSI Topology model.
     private String localNsaId;
-    private List<String> localNetworks = new CopyOnWriteArrayList<>();
-    private ConcurrentSkipListMap<String, StpType> stps = new ConcurrentSkipListMap<>();
-    private ConcurrentHashMap<String, SdpType> sdps = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ServiceAdaptationType> serviceAdaptations = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ServiceDomainType> serviceDomains = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, ServiceType> services = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, NetworkType> networks = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, NsaType> nsas = new ConcurrentHashMap<>();
+    private final List<String> localNetworks = new CopyOnWriteArrayList<>();
+    private final ConcurrentSkipListMap<String, StpType> stps = new ConcurrentSkipListMap<>();
+    private final ConcurrentHashMap<String, SdpType> sdps = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ServiceAdaptationType> serviceAdaptations = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ServiceDomainType> serviceDomains = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ServiceType> services = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, NetworkType> networks = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, NsaType> nsas = new ConcurrentHashMap<>();
+
+    private final ConcurrentSkipListMap<String, Map<String, StpType>> stpBundle = new ConcurrentSkipListMap<>();
 
     // The time of the most recent discovered item.
     private long lastDiscovered = 0L;
@@ -91,6 +93,22 @@ public class NsiTopology {
      */
     public void putAllStp(Map<String, StpType> stpList) {
         stps.putAll(stpList);
+    }
+
+    /**
+     * Add an STP object to the topology indexed by stpId.
+     *
+     * @param stpBundleId
+     * @param stpBundle
+     * @return NULL if this is the first object with this id, otherwise the STP
+     * bundle map replaced.
+     */
+    public Map<String, StpType> addStpBundle(String stpBundleId, Map<String, StpType> stpBundle) {
+        return this.stpBundle.put(stpBundleId, stpBundle);
+    }
+
+    public Map<String, StpType> getStpBundle(String stpBundleId) {
+        return this.stpBundle.get(stpBundleId);
     }
 
     /**
