@@ -6,10 +6,13 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SortedSparseMultigraph;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import net.es.nsi.pce.path.jaxb.DirectionalityType;
 import net.es.nsi.pce.path.services.Point2PointTypes;
+import net.es.nsi.pce.path.services.SimpleStp;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
@@ -75,16 +78,30 @@ public class DijkstraPCE implements PCEModule {
         if (sourceStp == null) {
             throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), "null"));
         }
-        String srcStpId = sourceStp.getValue();
 
         // Get destination stpId.
         StringAttrConstraint destStp = constraints.getStringAttrConstraint(Point2PointTypes.DESTSTP);
         if (destStp == null) {
             throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), "null"));
         }
-        String dstStpId = destStp.getValue();
 
-        // TODO: Need to handle underspecified STPid.
+        // Parse the source STP to make sure it is valid.
+        SimpleStp srcStpId;
+        try {
+            srcStpId = new SimpleStp(sourceStp.getValue());
+        }
+        catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), sourceStp.getValue()));
+        }
+
+        // Parse the destination STP to make sure it is valid.
+        SimpleStp dstStpId;
+        try {
+            dstStpId = new SimpleStp(destStp.getValue());
+        }
+        catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), destStp.getValue()));
+        }
 
         // Get the topology model used for routing.
         NsiTopology nsiTopology = pceData.getTopology();
@@ -95,19 +112,16 @@ public class DijkstraPCE implements PCEModule {
         }
 
         // Look up the STP within our model matching the request.
-        StpType srcStp = nsiTopology.getStp(srcStpId);
-        StpType dstStp = nsiTopology.getStp(dstStpId);
+        StpType srcStp = nsiTopology.getStp(srcStpId.getStpId());
+        StpType dstStp = nsiTopology.getStp(dstStpId.getStpId());
 
-        // TODO: If we decide to allow blind routing to a network then remove
-        // these tests for a null STP.
-        if (srcStp == null) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), srcStpId));
-        }
-        else if (dstStp == null) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), dstStpId));
+        if (srcStp != null) {
+            validateDirectionality(srcStp, directionality);
         }
 
-        validateDirectionality(srcStp, dstStp, directionality);
+        if (dstStp != null) {
+            validateDirectionality(dstStp, directionality);
+        }
 
         // These will be applied to individual path segment results.
         AttrConstraints segmentConstraints = new AttrConstraints(pceData.getConstraints());
@@ -137,26 +151,17 @@ public class DijkstraPCE implements PCEModule {
         return pceData;
     }
 
-    private void validateDirectionality(StpType srcStp, StpType dstStp, DirectionalityType directionality) throws IllegalArgumentException {
+    private void validateDirectionality(StpType stp, DirectionalityType directionality) throws IllegalArgumentException {
         // Verify the specified STP are of the correct type for the request.
         if (directionality == DirectionalityType.UNIDIRECTIONAL) {
-             if (srcStp.getType() != StpDirectionalityType.INBOUND &&
-                     srcStp.getType() != StpDirectionalityType.OUTBOUND) {
-                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), srcStp.getId()));
-            }
-
-            if (dstStp.getType() != StpDirectionalityType.INBOUND &&
-                     dstStp.getType() != StpDirectionalityType.OUTBOUND) {
-                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), dstStp.getId()));
+             if (stp.getType() != StpDirectionalityType.INBOUND &&
+                     stp.getType() != StpDirectionalityType.OUTBOUND) {
+                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stp.getId()));
             }
         }
         else {
-            if (srcStp.getType() != StpDirectionalityType.BIDIRECTIONAL) {
-                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), srcStp.getId()));
-            }
-
-            if (dstStp.getType() != StpDirectionalityType.BIDIRECTIONAL) {
-                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), dstStp.getId()));
+            if (stp.getType() != StpDirectionalityType.BIDIRECTIONAL) {
+                throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stp.getId()));
             }
         }
     }
@@ -211,15 +216,48 @@ public class DijkstraPCE implements PCEModule {
         StpEdge destinationEdge = new StpEdge(dstStp.getId(), dstStp, destinationServiceDomain);
         graph.addEdge(destinationEdge, dstVertex, verticies.get(destinationServiceDomain.getId()));
 
-        // Add bidirectional SDP as edges.
+        // Get the source and destination SDP and exclude any related SDP to
+        // avoid loops.  We expect the STP to be an ingress on a domain and
+        // not an egress.
+        Set<String> exclusionSdp = new HashSet<>();
+
+        Optional<ResourceRefType> srcSdp = Optional.fromNullable(srcStp.getSdp());
+        Optional<ResourceRefType> dstSdp = Optional.fromNullable(dstStp.getSdp());
+
+        if (srcSdp.isPresent()) {
+            exclusionSdp.add(srcSdp.get().getId());
+        }
+
+        Optional<Map<String, StpType>> srcBundle = Optional.fromNullable(nsiTopology.getStpBundle(srcStp.getId()));
+        if (srcBundle.isPresent()) {
+            for (StpType stp : srcBundle.get().values()) {
+                Optional<ResourceRefType> sdpRef = Optional.fromNullable(stp.getSdp());
+                if (sdpRef.isPresent()) {
+                    exclusionSdp.add(sdpRef.get().getId());
+                }
+            }
+        }
+
+        if (dstSdp.isPresent()) {
+            exclusionSdp.add(dstSdp.get().getId());
+        }
+
+        Optional<Map<String, StpType>> dstBundle = Optional.fromNullable(nsiTopology.getStpBundle(dstStp.getId()));
+        if (dstBundle.isPresent()) {
+            for (StpType stp : dstBundle.get().values()) {
+                Optional<ResourceRefType> sdpRef = Optional.fromNullable(stp.getSdp());
+                if (sdpRef.isPresent()) {
+                    exclusionSdp.add(sdpRef.get().getId());
+                }
+            }
+        }
+
+        // We only do bidirectional path finding at this point so add the
+        // bidirectional SDP as edges.
         for (SdpType sdp : nsiTopology.getSdps()) {
-            log.debug("Here: " + sdp.getId());
             if (sdp.getType() == SdpDirectionalityType.BIDIRECTIONAL) {
-                log.debug("Inside: " + sdp.getId());
                 Optional<ResourceRefType> aServiceDomainRef = Optional.fromNullable(sdp.getDemarcationA().getServiceDomain());
                 Optional<ResourceRefType> zServiceDomainRef = Optional.fromNullable(sdp.getDemarcationZ().getServiceDomain());
-                Optional<ResourceRefType> srcSdp = Optional.fromNullable(srcStp.getSdp());
-                Optional<ResourceRefType> dstSdp = Optional.fromNullable(dstStp.getSdp());
 
                 if (!aServiceDomainRef.isPresent()) {
                     log.error("Missing service domain for demarcationA sdpId=" + sdp.getId() + " and stpId=" + sdp.getDemarcationA().getStp().getId());
@@ -227,11 +265,8 @@ public class DijkstraPCE implements PCEModule {
                 else if (!zServiceDomainRef.isPresent()) {
                     log.error("Missing service domain for demarcationZ sdpId=" + sdp.getId() + " and stpId=" + sdp.getDemarcationZ().getStp().getId());
                 }
-                else if (srcSdp.isPresent() && srcSdp.get().getId().equalsIgnoreCase(sdp.getId())) {
-                    log.debug("Omitting SDP sdpId=" + sdp.getId() + ", due to source stpId=" + srcStp.getId());
-                }
-                else if (dstSdp.isPresent() && dstSdp.get().getId().equalsIgnoreCase(sdp.getId())) {
-                    log.debug("Omitting SDP sdpId=" + sdp.getId() + ", due to destination stpId=" + dstStp.getId());
+                else if (exclusionSdp.contains(sdp.getId())) {
+                    log.debug("Omitting SDP sdpId=" + sdp.getId() + ", due to source stpId=" + srcStp.getId() + " or destination stpId=" + dstStp.getId());
                 }
                 else {
                     SdpEdge sdpEdge = new SdpEdge(sdp.getId(), sdp);

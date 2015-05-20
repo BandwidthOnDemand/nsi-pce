@@ -11,21 +11,18 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeFactory;
-import net.es.nsi.pce.path.jaxb.ObjectFactory;
+import net.es.nsi.pce.client.TestServer;
+import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.path.jaxb.DirectionalityType;
 import net.es.nsi.pce.path.jaxb.FindPathAlgorithmType;
 import net.es.nsi.pce.path.jaxb.FindPathRequestType;
 import net.es.nsi.pce.path.jaxb.FindPathResponseType;
 import net.es.nsi.pce.path.jaxb.FindPathStatusType;
+import net.es.nsi.pce.path.jaxb.ObjectFactory;
 import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.jaxb.ReplyToType;
-
-import net.es.nsi.pce.config.http.HttpConfig;
-import net.es.nsi.pce.client.TestServer;
 import net.es.nsi.pce.test.TestConfig;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -48,36 +45,43 @@ public class FindPathEvtsFailedTest {
 
     // First test has mismatched vlans.
     private final static StpTestData test1 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:kddilabs.jp:2013:bi-ps?vlan=1782");
-          this.setStpZ("urn:ogf:network:uvalight.net:2013:ps?vlan=1781");
+        { this.setStpA("urn:ogf:network:manlan.internet2.edu:2013::sw.net.manlan.internet2.edu:3_3:uslhcnet?vlan=1800");
+          this.setStpZ("urn:ogf:network:manlan.internet2.edu:2013::sw.net.manlan.internet2.edu:13_1:+?vlan=1801");
         }
     };
 
-    // Second test has unreachable ports.
+    // Second test has unreachable ports. -- Everthing is currently reachable.
     private final static StpTestData test2 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:czechlight.cesnet.cz:2013:pinger?vlan=1799");
-          this.setStpZ("urn:ogf:network:es.net:2013:ps:sunn:1?vlan=1799");
+        { this.setStpA("urn:ogf:network:czechlight.cesnet.cz:2013:topology:brno?vlan=1799");
+          this.setStpZ("urn:ogf:network:czechlight.cesnet.cz:2013:topology:pinger?vlan=1780");
         }
     };
 
     // Third test has matching vlans but out of range for port.
     private final static StpTestData test3 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:aist.go.jp:2013:bi-ps?vlan=4000");
-          this.setStpZ("urn:ogf:network:pionier.net.pl:2013:bi-ps?vlan=4000");
+        { this.setStpA("urn:ogf:network:czechlight.cesnet.cz:2013:topology:brno?vlan=256");
+          this.setStpZ("urn:ogf:network:czechlight.cesnet.cz:2013:topology:pinger?vlan=99");
         }
     };
 
     // Fourth test requests a unidirectional STP.
     private final static StpTestData test4 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:netherlight.net:2013:port:a-gole:testbed:manlan:1?vlan=1779");
-          this.setStpZ("urn:ogf:network:manlan.internet2.edu:2013:netherlight:in?vlan=1779");
+        { this.setStpA("urn:ogf:network:netherlight.net:2013:production7:surfnet-1-out?vlan=1779");
+          this.setStpZ("urn:ogf:network:icair.org:2013:topology:netherlight-in?vlan=1779");
         }
     };
 
     // Fifth test request a path with unknown STP.
     private final static StpTestData test5 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:aist.go.jp:2013:bi-ps?vlan=1780");
-          this.setStpZ("urn:ogf:network:pionier.net.pl:2013:bi-ps-999?vlan=1780");
+        { this.setStpA("urn:ogf:network:aist.go.jp:2013:topology:bi-ps?vlan=1780");
+          this.setStpZ("urn:ogf:network:pionier.net.pl:2013:topology:bi-ps-999?vlan=1780");
+        }
+    };
+
+    // Failure case?  Fifth test request two STP on either end of an SDP.
+    private final static StpTestData test6 = new StpTestData() {
+        { this.setStpA("urn:ogf:network:es.net:2013::star-cr5:6_2_1:umich?vlan=3176");
+          this.setStpZ("urn:ogf:network:oess.dcn.umnet.umich.edu:2013::f10-dynes.dcn.umnet.umich.edu:Te+0_20:esnet?vlan=3176");
         }
     };
 
@@ -89,6 +93,7 @@ public class FindPathEvtsFailedTest {
             this.add(test3);
             this.add(test4);
             this.add(test5);
+            this.add(test6);
         }
     };
 

@@ -10,12 +10,32 @@ import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
+/**
+ * The PolicyPCE performs topology filtering based on defined policies.
+ *
+ * @author hacksaw
+ */
 public class PolicyPCE implements PCEModule {
+    /**
+     * Apply policy to the provided topology based on reservation input
+     * parameters.
+     *
+     * @param pceData
+     * @return
+     * @throws Exception
+     */
     @Override
     public PCEData apply(PCEData pceData) throws Exception {
         return stpPolicy(pceData);
     }
 
+    /**
+     * Implements basic STP policies that apply to all reservations.
+     * 
+     * @param pceData
+     * @return
+     * @throws Exception
+     */
     private PCEData stpPolicy(PCEData pceData) throws Exception {
         NsiTopology nsiTopology = pceData.getTopology();
 
@@ -43,11 +63,11 @@ public class PolicyPCE implements PCEModule {
         // If both the source and destination STP are in the same network we
         // need to restrict the path to only that network.
         if (srcStp == null) {
-            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, Point2PointTypes.getSourceStp().getNamespace(), sourceStp.getAttrName(), sourceStp.getValue());
+            String error = NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2PointTypes.getSourceStp().getNamespace(), sourceStp.getAttrName(), sourceStp.getValue());
             throw new Exception(error);
         }
         else if (dstStp == null) {
-            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, Point2PointTypes.getDestStp().getNamespace(), destStp.getAttrName(), destStp.getValue());
+            String error = NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2PointTypes.getDestStp().getNamespace(), destStp.getAttrName(), destStp.getValue());
             throw new Exception(error);
         }
         else if (srcStp.getNetworkId() == null) {

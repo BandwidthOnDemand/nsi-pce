@@ -12,19 +12,18 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeFactory;
-import net.es.nsi.pce.path.jaxb.ObjectFactory;
+import net.es.nsi.pce.client.TestServer;
+import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.path.jaxb.DirectionalityType;
 import net.es.nsi.pce.path.jaxb.FindPathAlgorithmType;
 import net.es.nsi.pce.path.jaxb.FindPathRequestType;
 import net.es.nsi.pce.path.jaxb.FindPathResponseType;
 import net.es.nsi.pce.path.jaxb.FindPathStatusType;
+import net.es.nsi.pce.path.jaxb.ObjectFactory;
 import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.jaxb.ReplyToType;
-import net.es.nsi.pce.config.http.HttpConfig;
-import net.es.nsi.pce.client.TestServer;
 import net.es.nsi.pce.path.jaxb.TraceType;
 import net.es.nsi.pce.test.TestConfig;
 import org.junit.AfterClass;
@@ -47,46 +46,48 @@ public class FindPathEvtsSuccessTest {
     private final static ObjectFactory factory = new ObjectFactory();
 
     private final static StpTestData test1 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:kddilabs.jp:2013:bi-ps?vlan=1782");
-          this.setStpZ("urn:ogf:network:uvalight.net:2013:ps?vlan=1782");
+        { this.setStpA("urn:ogf:network:kddilabs.jp:2013:topology:bi-ps?vlan=1782");
+          this.setStpZ("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1782");
         }
     };
 
     private final static StpTestData test2 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:uvalight.net:2013:ps?vlan=1780");
-          this.setStpZ("urn:ogf:network:es.net:2013:ps:sunn:1?vlan=1780");
+        { this.setStpA("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1780");
+          this.setStpZ("urn:ogf:network:es.net:2013::sunn-cr5:10_1_6:+?vlan=1780");
         }
     };
 
     private final static StpTestData test3 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:aist.go.jp:2013:bi-ps?vlan=1780");
-          this.setStpZ("urn:ogf:network:pionier.net.pl:2013:bi-ps?vlan=1780");
+        { this.setStpA("urn:ogf:network:aist.go.jp:2013:topology:bi-ps?vlan=1780");
+          this.setStpZ("urn:ogf:network:pionier.net.pl:2013:topology:server_port?vlan=1780");
         }
     };
 
+    // Label swapping in single domain.
     private final static StpTestData test4 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:netherlight.net:2013:testbed:241?vlan=1799");
-          this.setStpZ("urn:ogf:network:netherlight.net:2013:testbed:232?vlan=1799");
+        { this.setStpA("urn:ogf:network:netherlight.net:2013:production7:surfnet-1?vlan=1700");
+          this.setStpZ("urn:ogf:network:netherlight.net:2013:production7:geant-1?vlan=2102");
         }
     };
 
-    // Fifth test request two STP on either end of an SDP.
+    // Two endpoint in same domain.
     private final static StpTestData test5 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:netherlight.net:2013:testbed:manlan:1?vlan=1799");
-          this.setStpZ("urn:ogf:network:manlan.internet2.edu:2013:netherlight?vlan=1799");
+        { this.setStpA("urn:ogf:network:netherlight.net:2013:production7:nordunet-1?vlan=1779");
+          this.setStpZ("urn:ogf:network:netherlight.net:2013:production7:czechlight-1?vlan=1784");
         }
     };
 
-    // Netherlight endpoints.
-    private final static StpTestData test6 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:netherlight.net:2013:testbed:282?vlan=1784");
-          this.setStpZ("urn:ogf:network:netherlight.net:2013:testbed:manlan:1?vlan=1784");
-        }
-    };
-    
+    // Two underspecified STP.
     private final static StpTestData test7 = new StpTestData() {
         { this.setStpA("urn:ogf:network:uvalight.net:2013:ps?vlan=1780-1785");
-          this.setStpZ("urn:ogf:network:es.net:2013:ps:sunn:1?vlan=1780-1785");
+          this.setStpZ("urn:ogf:network:es.net:2013::sunn-cr5:10_1_6:+?vlan=1780-1785");
+        }
+    };
+
+    // One underspecified STP.
+    private final static StpTestData test8 = new StpTestData() {
+        { this.setStpA("urn:ogf:network:uvalight.net:2013:ps?vlan=1780");
+          this.setStpZ("urn:ogf:network:es.net:2013::sunn-cr5:10_1_6:+?vlan=1780-1785");
         }
     };
 
@@ -98,8 +99,8 @@ public class FindPathEvtsSuccessTest {
             this.add(test3);
             this.add(test4);
             this.add(test5);
-            this.add(test6);
             //this.add(test7);
+            //this.add(test8);
         }
     };
 
