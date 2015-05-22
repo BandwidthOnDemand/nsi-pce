@@ -32,13 +32,12 @@ import org.slf4j.LoggerFactory;
  * @author hacksaw
  */
 public class NsiSdpFactory {
+    private static Logger log = LoggerFactory.getLogger(NsiSdpFactory.class);
     private static final String NSI_ROOT_SDPS = "/sdps/";
 
     public static SdpType createSdpType(StpType stpA, StpType stpZ) {
         // We want a new NSI STP.
         SdpType sdp = new SdpType();
-
-        // Set the STP attributes.
         sdp.setId(stpA.getId() + "::" + stpZ.getId());
         sdp.setName(sdp.getId());
 
@@ -78,10 +77,9 @@ public class NsiSdpFactory {
     }
 
 
-    public static Collection<SdpType> createUnidirectionalSdpTopology(Map<String, StpType> stpMap) {
-        Logger log = LoggerFactory.getLogger(NsiSdpFactory.class);
+    public static Collection<SdpType> createUnidirectionalSdp(Map<String, StpType> stpMap) {
         PceLogger topologyLogger = PceLogger.getLogger();
-        log.debug("createUnidirectionalSdpTopology: **** START CONSOLIDATE UNIDIRECTIONAL SDPs ****");
+        log.debug("createUnidirectionalSdp: **** START CONSOLIDATE UNIDIRECTIONAL SDPs ****");
 
         // Validate that an inbound STP is connected to an oubound STP on
         // the remote end, and likewise, and outbound STP is connected to
@@ -142,14 +140,12 @@ public class NsiSdpFactory {
 
         topologyLogger.flush();
 
-        log.debug("createUnidirectionalSdpTopology: **** COMPLETED CONSOLIDATING UNIDIRECTIONAL SDPs ****");
+        log.debug("createUnidirectionalSdp: **** COMPLETED CONSOLIDATING UNIDIRECTIONAL SDPs ****");
 
         return sdpList;
     }
 
-
     public static Collection<SdpType> createBidirectionalSdps(Map<String, StpType> stpMap) {
-        Logger log = LoggerFactory.getLogger(NsiSdpFactory.class);
         PceLogger topologyLogger = PceLogger.getLogger();
         log.debug("createBidirectionalSdps: **** START CONSOLIDATE BIDIRECTIONAL SDPs ****");
 
@@ -208,20 +204,31 @@ public class NsiSdpFactory {
 
                 // Determine if the STP are connected to anything.
                 StpType remoteInboundStp = stpMap.get(outboundStp.getConnectedTo().toLowerCase());
-                if (remoteInboundStp == null) {
+                if (remoteInboundStp == null || remoteInboundStp.getReferencedBy() == null) {
                     topologyLogger.errorSummary(PceErrors.BIDIRECTIONAL_STP_REMOTE_REFERNCE_MISMATCH, stp.getLocalId(), stp.getId(), outboundStp.getConnectedTo());
                     continue;
                 }
 
                 StpType remoteOutboundStp = stpMap.get(inboundStp.getConnectedTo().toLowerCase());
-                if (remoteOutboundStp == null) {
+                if (remoteOutboundStp == null || remoteOutboundStp.getReferencedBy() == null) {
                     topologyLogger.errorSummary(PceErrors.BIDIRECTIONAL_STP_REMOTE_REFERNCE_MISMATCH, stp.getLocalId(), stp.getId(), inboundStp.getConnectedTo());
                     continue;
                 }
 
+                // Verify the unidirectional ports on each end are referencing each other.
+                if (!outboundStp.getId().equalsIgnoreCase(remoteInboundStp.getConnectedTo())) {
+                    topologyLogger.errorSummary(PceErrors.STP_REMOTE_REFERNCE_MISMATCH, stp.getLocalId(), stp.getId(), outboundStp.getConnectedTo());
+                    continue;
+                }
+
+                if (!inboundStp.getId().equalsIgnoreCase(remoteOutboundStp.getConnectedTo())) {
+                    topologyLogger.errorSummary(PceErrors.STP_REMOTE_REFERNCE_MISMATCH, stp.getLocalId(), stp.getId(), inboundStp.getConnectedTo());
+                    continue;
+                }
+
                 // Now we access the remote bidirectional port.
-                if (remoteInboundStp.getReferencedBy() == null || remoteOutboundStp.getReferencedBy() == null ||
-                        !remoteInboundStp.getReferencedBy().getId().equalsIgnoreCase(remoteOutboundStp.getReferencedBy().getId())) {
+                if (!remoteInboundStp.getReferencedBy().getId().equalsIgnoreCase(remoteOutboundStp.getReferencedBy().getId()) ||
+                        !inboundStp.getReferencedBy().getId().equalsIgnoreCase(outboundStp.getReferencedBy().getId())) {
                     topologyLogger.errorSummary(PceErrors.BIDIRECTIONAL_STP_REMOTE_REFERNCE_MISMATCH, stp.getLocalId(), stp.getId(), inboundStp.getConnectedTo());
                     continue;
                 }
@@ -232,11 +239,19 @@ public class NsiSdpFactory {
                     continue;
                 }
 
-                SdpType biSdp = NsiSdpFactory.createSdpType(stp, remoteBiStp);
+                SdpType biSdp;
+                if (stp.getId().compareToIgnoreCase(remoteBiStp.getId()) < 0) {
+                    biSdp = NsiSdpFactory.createSdpType(stp, remoteBiStp);
+                }
+                else {
+                    biSdp = NsiSdpFactory.createSdpType(remoteBiStp, stp);
+                }
+
                 sdpList.add(biSdp);
 
                 ResourceRefType sdpRef = createResourceRefType(biSdp);
                 remoteBiStp.setSdp(sdpRef);
+
                 stp.setSdp(sdpRef);
             }
         }

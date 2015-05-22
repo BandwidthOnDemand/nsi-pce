@@ -26,14 +26,12 @@ public class SimpleStp {
     }
 
     public SimpleStp(String stpId, Set<SimpleLabel> labels) throws IllegalArgumentException {
-        this.networkId = parseNetworkId(stpId);
-        this.localId = parseStpId(stpId);
+        parseId(stpId);
         this.labels = labels;
     }
 
     public SimpleStp(String stpId, SimpleLabel label) throws IllegalArgumentException {
-        this.networkId = parseNetworkId(stpId);
-        this.localId = parseStpId(stpId);
+        parseId(stpId);
         this.labels.add(label);
     }
 
@@ -43,11 +41,11 @@ public class SimpleStp {
             return;
         }
 
-        this.networkId = parseNetworkId(stpId);
+        String[]  question = questionPattern.split(stpId);
+
+        parseId(question[0]);
 
         // If a question mark is present then we have to process attached label.
-        String[]  question = questionPattern.split(stpId);
-        this.localId = parseStpId(question[0]);
         if (question.length > 1) {
             // We need to parse the label.
             this.labels = SimpleLabels.fromString(question[1]);
@@ -55,10 +53,11 @@ public class SimpleStp {
     }
 
     public boolean isUnderSpecified() {
-        return labels.size() == 1;
+        System.out.println(labels.size());
+        return labels.size() != 1;
     }
 
-    private String parseNetworkId(String id) throws IllegalArgumentException {
+    public static String parseNetworkId(String id) throws IllegalArgumentException {
         StringBuilder sb = new StringBuilder();
         String[] components = colonPattern.split(id);
 
@@ -75,7 +74,7 @@ public class SimpleStp {
         return sb.toString();
     }
 
-    private String parseStpId(String id) throws IllegalArgumentException {
+    public static String parseLocalId(String id) throws IllegalArgumentException {
         StringBuilder sb = new StringBuilder();
         String[] components = colonPattern.split(id);
 
@@ -90,6 +89,32 @@ public class SimpleStp {
 
         sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
+    }
+
+    private void parseId(String id) throws IllegalArgumentException {
+        StringBuilder nsb = new StringBuilder();
+        String[] components = colonPattern.split(id);
+
+        if (components.length <= NSI_NETWORK_LENGTH) {
+            throw new IllegalArgumentException("STP identifier does not contain a localId component " + id);
+        }
+
+        for (int i = 0; i < NSI_NETWORK_LENGTH && i < components.length; i++) {
+            nsb.append(components[i]);
+            nsb.append(NSI_URN_SEPARATOR);
+        }
+
+        nsb.deleteCharAt(nsb.length() - 1);
+        this.networkId = nsb.toString();
+
+        StringBuilder lsb = new StringBuilder();
+        for (int i = NSI_NETWORK_LENGTH; i < components.length; i++) {
+            lsb.append(components[i]);
+            lsb.append(NSI_URN_SEPARATOR);
+        }
+
+        lsb.deleteCharAt(lsb.length() - 1);
+        this.localId = lsb.toString();
     }
 
     /**

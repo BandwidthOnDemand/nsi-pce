@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NsiTopologyFactory {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private PceLogger topologyLogger = PceLogger.getLogger();
+    private final PceLogger topologyLogger = PceLogger.getLogger();
 
     // Time we last discovered a document change.
     private long lastDiscovered = 0L;
