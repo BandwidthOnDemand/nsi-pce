@@ -33,8 +33,8 @@ public class SimpleLabels {
             results.add(label);
         }
         else if (equals.length > 1 && !equals[1].isEmpty()) {
-            String type = equals[0].trim();
             // Split the vlan first by comma, then by hyphen.
+            String type = equals[0].trim();
             String[] comma = commaPattern.split(equals[1]);
             for (int i = 0; i < comma.length; i++) {
                 // Now by hyphen.
@@ -51,6 +51,10 @@ public class SimpleLabels {
                 else if (hyphen.length > 1 && hyphen.length < 3) {
                     int min = Integer.parseInt(hyphen[0].trim());
                     int max = Integer.parseInt(hyphen[1].trim());
+
+                    if (max <= min) {
+                        throw new IllegalArgumentException("Invalid lable range: min=" + min + ", max=" + max);
+                    }
                     for (int j = min; j < max + 1; j++) {
                         SimpleLabel label = new SimpleLabel();
                         label.setType(type);
@@ -60,7 +64,7 @@ public class SimpleLabels {
                 }
                 // This is unsupported.
                 else {
-                    throw new IllegalArgumentException("Invalid string format: " + labels);
+                    throw new IllegalArgumentException("Invalid label format: " + labels);
                 }
             }
         }

@@ -30,7 +30,7 @@ public class TopologyTest {
     private static TestConfig testConfig;
     private static Client client;
     private static WebTarget topology;
-    private static JsonProxy proxy = new JsonProxy();
+    private static final JsonProxy proxy = new JsonProxy();
 
     @BeforeClass
     public static void oneTimeSetUp() {

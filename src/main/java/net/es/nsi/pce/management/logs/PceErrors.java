@@ -56,6 +56,7 @@ public enum PceErrors {
     BIDIRECTIONAL_STP_REMOTE_REFERNCE_MISMATCH(4007, "BIDIRECTIONAL_STP_REMOTE_REFERNCE_MISMATCH", "Bidirectional STP has remote reference but remote STP's reference does not match (%s)."),
     BIDIRECTIONAL_STP_INVALID_MEMEBER_VALUE(4008, "BIDIRECTIONAL_STP_INVALID_MEMEBER_VALUE", "Bidirectional STP has an invalid member value (%s)."),
     BIDIRECTIONAL_STP_LABEL_RANGE_MISMATCH(4009,"BIDIRECTIONAL_STP_LABEL_RANGE_MISMATCH", "Bidirectional STP contains unidirectional STP with differing label ranges (%s)."),
+    BIDIRECTIONAL_STP_CIRCLULAR_REFERENCE(4007, "BIDIRECTIONAL_STP_CIRCLULAR_REFERENCE", "Bidirectional STP has loopback unidirectional ports (%s)."),
 
     // Management interface errors.
     MANAGEMENT(5000, "MANAGEMENT", "Management error."),

@@ -1,6 +1,5 @@
 package net.es.nsi.pce.test;
 
-import net.es.nsi.pce.topology.provider.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
@@ -8,10 +7,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
 import net.es.nsi.pce.schema.NmlParser;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
 import net.es.nsi.pce.topology.jaxb.DdsCollectionType;
+import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
+import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
+import net.es.nsi.pce.topology.provider.DdsWrapper;
+import net.es.nsi.pce.topology.provider.DocumentReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,16 +34,17 @@ public class TestDocumentReader implements DocumentReader {
     private long lastModified = 0;
 
     // A list of full documents matching the specified type.
-    private Map<String, DdsWrapper> ddsDocuments = new ConcurrentHashMap<>();
+    private final Map<String, DdsWrapper> ddsDocuments = new ConcurrentHashMap<>();
 
     // Documents of the specified type discovered as local to this DDS service.
-    private DdsDocumentListType localDocuments = new DdsDocumentListType();
+    private final DdsDocumentListType localDocuments = new DdsDocumentListType();
 
     /**
      * Class constructor takes the remote location URL from which to load the
      * NSA's associated NML topology.
      *
      * @param target Location of the NSA's XML based NML topology.
+     * @param type
      */
     public TestDocumentReader(String target, String type) {
         this.target = target;

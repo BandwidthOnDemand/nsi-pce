@@ -4,7 +4,6 @@ import com.google.common.collect.Sets;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collections;
-import net.es.nsi.pce.management.logs.PceErrors;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
@@ -17,20 +16,21 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConstants;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
 import net.es.nsi.pce.jersey.RestClient;
+import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
 import net.es.nsi.pce.schema.NsiConstants;
+import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
+import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
 import net.es.nsi.pce.util.UrlHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ChunkedInput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DdsDocumentReader implements DocumentReader {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private PceLogger topologyLogger = PceLogger.getLogger();
+    private final PceLogger topologyLogger = PceLogger.getLogger();
 
     // The remote location of the file to read.
     private String target;
@@ -42,12 +42,12 @@ public class DdsDocumentReader implements DocumentReader {
     private long lastModified = 0;
 
     // A list of full documents matching the specified type.
-    private Map<String, DdsWrapper> ddsDocuments = new ConcurrentHashMap<>();
+    private final Map<String, DdsWrapper> ddsDocuments = new ConcurrentHashMap<>();
 
     // Documents of the specified type discovered as local to this DDS service.
     private DdsDocumentListType localDocuments = new DdsDocumentListType();
 
-    private RestClient restClient;
+    private final RestClient restClient;
 
     /**
      * Class constructor takes the remote location URL from which to load the

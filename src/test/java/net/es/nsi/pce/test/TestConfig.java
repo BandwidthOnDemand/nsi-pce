@@ -21,8 +21,8 @@ public class TestConfig {
     private static final String DEFAULT_TOPOLOGY_FILE = CONFIG_DIR + "topology-dds.xml";
     private static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
 
-    private Client client;
-    private WebTarget target;
+    private final Client client;
+    private final WebTarget target;
 
     public TestConfig() {
         System.setProperty(CONFIG_PATH, CONFIG_DIR);

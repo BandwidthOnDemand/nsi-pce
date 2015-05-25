@@ -5,6 +5,7 @@ import java.util.Set;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -122,5 +123,18 @@ public class SimpleStpTest {
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidStpId() {
         SimpleStp stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013:bi-ps?vlan=1782");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInvalidLabelRange() {
+        SimpleStp stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013::bi-ps?vlan=1782-1781");
+        stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013::bi-ps?vlan=100-200,1782-1781");
+        stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013::bi-ps?vlan=100,99,200,1782-1786,178-179");
+    }
+
+    @Test
+    public void testIsUnderSpecified() {
+        SimpleStp stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013::bi-ps?vlan=1782-1790");
+        assertTrue(stp.isUnderSpecified());
     }
 }

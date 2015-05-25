@@ -1,24 +1,24 @@
 package net.es.nsi.pce.topology.provider;
 
-import net.es.nsi.pce.topology.model.NsiTopologyFactory;
 import java.io.UnsupportedEncodingException;
-import net.es.nsi.pce.management.logs.PceLogs;
-import net.es.nsi.pce.management.logs.PceErrors;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.topology.model.NsiTopology;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import net.es.nsi.pce.topology.model.NsiSdpFactory;
-import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.management.jaxb.TopologyStatusType;
-import net.es.nsi.pce.topology.model.ControlPlaneTopology;
+import net.es.nsi.pce.management.logs.PceErrors;
+import net.es.nsi.pce.management.logs.PceLogger;
+import net.es.nsi.pce.management.logs.PceLogs;
 import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.spring.SpringApplicationContext;
 import net.es.nsi.pce.topology.dao.TopologyConfiguration;
 import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
+import net.es.nsi.pce.topology.model.ControlPlaneTopology;
+import net.es.nsi.pce.topology.model.NsiSdpFactory;
+import net.es.nsi.pce.topology.model.NsiTopology;
+import net.es.nsi.pce.topology.model.NsiTopologyFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -83,7 +83,7 @@ public class DdsTopologyProvider implements TopologyProvider {
      * For this provider we read the topology source from an XML configuration
      * file.
      *
-     * @param source Path to the XML configuration file.
+     * @throws java.lang.Exception
      */
     @Override
     public void init() throws Exception {
@@ -184,7 +184,7 @@ public class DdsTopologyProvider implements TopologyProvider {
     private NsiTopology consolidateGlobalTopology(NsiTopology topology) {
         log.debug("consolidateGlobalTopology: **** START CONSOLIDATING SDPs ****");
         log.debug("consolidateGlobalTopology: processing " + topology.getStpMap().size() + " STPs");
-        topology.addAllSdp(NsiSdpFactory.createUnidirectionalSdpTopology(topology.getStpMap()));
+        topology.addAllSdp(NsiSdpFactory.createUnidirectionalSdp(topology.getStpMap()));
         topology.addAllSdp(NsiSdpFactory.createBidirectionalSdps(topology.getStpMap()));
         log.debug("consolidateGlobalTopology: **** COMPLETED CONSOLIDATING SDPs ****");
         return topology;
