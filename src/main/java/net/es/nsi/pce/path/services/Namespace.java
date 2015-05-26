@@ -9,9 +9,9 @@ package net.es.nsi.pce.path.services;
  * @author hacksaw
  */
 public class Namespace {
-    private String namespace;
-    private String qname;
-    private String type;
+    private final String namespace;
+    private final String qname;
+    private final String type;
 
     public Namespace(String namespace, String qname, String type) {
         this.namespace = namespace;

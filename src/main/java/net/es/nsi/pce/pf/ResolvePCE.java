@@ -19,6 +19,13 @@ import org.slf4j.LoggerFactory;
 public class ResolvePCE implements PCEModule {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    /**
+     * For each path segment returned by PCE resolve the next hop NSA and
+     * associated CS endpoint.
+     *
+     * @param pceData
+     * @return
+     */
     @Override
     public PCEData apply(PCEData pceData) {
         NsiTopology topology = pceData.getTopology();

@@ -4,8 +4,12 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import javax.xml.datatype.DatatypeConfigurationException;
+import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.ReachabilityPCE.Reachability;
 import net.es.nsi.pce.pf.ReachabilityPCE.Stp;
@@ -13,8 +17,11 @@ import net.es.nsi.pce.pf.api.PCEConstraints;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.PathSegment;
+import net.es.nsi.pce.pf.api.cons.Constraint;
+import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.schema.NsiConstants;
+import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
 import net.es.nsi.pce.topology.jaxb.NsaInterfaceType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
@@ -65,27 +72,22 @@ public class ReachabilityPCETest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void should_throw_exception_when_missing_connection_trace() {
+    public void should_throw_exception_when_missing_connection_trace() throws DatatypeConfigurationException {
         String sourceStp = LOCAL_NETWORK_ID + ":start";
         String destStp = LOCAL_NETWORK_ID + ":end";
 
-        StringAttrConstraint source = createStringConstraint(Point2PointTypes.SOURCESTP, sourceStp);
-        StringAttrConstraint destination = createStringConstraint(Point2PointTypes.DESTSTP, destStp);
-
-        PCEData pceData = new PCEData(source, destination);
+        PCEData pceData = new PCEData();
+        pceData.addConstraints(getReservationConstraints(sourceStp, destStp));
         subject.apply(pceData);
     }
 
     @Test
-    public void should_calculate_path_if_both_src_and_dest_belongs_to_local_network() {
+    public void should_calculate_path_if_both_src_and_dest_belongs_to_local_network() throws DatatypeConfigurationException {
         String sourceStp = LOCAL_NETWORK_ID + ":start";
         String destStp = LOCAL_NETWORK_ID + ":end";
 
-        StringAttrConstraint source = createStringConstraint(Point2PointTypes.SOURCESTP, sourceStp);
-        StringAttrConstraint destination = createStringConstraint(Point2PointTypes.DESTSTP, destStp);
-        StringAttrConstraint serviceType = createStringConstraint(PCEConstraints.SERVICETYPE, "ServiceType");
-
-        PCEData pceData = new PCEData(source, destination, serviceType);
+        PCEData pceData = new PCEData();
+        pceData.addConstraints(getReservationConstraints(sourceStp, destStp));
         pceData.setTrace(Collections.<String>emptyList());
         pceData.setTopology(topologyMock);
 
@@ -95,20 +97,17 @@ public class ReachabilityPCETest {
         assertThat(path.getPathSegments().size(), is(1));
 
         assertPathSegment(path.getPathSegments().iterator().next(), sourceStp, destStp, LOCAL_NSA_ID);
-        assertThat(path.getPathSegments().iterator().next().getConstraints().getStringAttrConstraint(PCEConstraints.SERVICETYPE).getValue(), is("ServiceType"));
+        assertThat(path.getPathSegments().iterator().next().getConstraints().getStringAttrConstraint(PCEConstraints.SERVICETYPE).getValue(), is("http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"));
     }
 
     @Test
-    public void should_split_up_request_if_src_belongs_to_local_network() {
+    public void should_split_up_request_if_src_belongs_to_local_network() throws DatatypeConfigurationException {
         String sourceStp = LOCAL_NETWORK_ID + ":start";
         String destNetworkId= "urn:ogf:network:bar:1980:topology";
         String destStp = destNetworkId + ":end";
 
         String peerNsaId = "urn:ogf:network:foo:2013:nsa";
         String peerNetworkId = "urn:ogf:network:foo:2013:topology";
-
-        StringAttrConstraint source = createStringConstraint(Point2PointTypes.SOURCESTP, sourceStp);
-        StringAttrConstraint destination = createStringConstraint(Point2PointTypes.DESTSTP, destStp);
 
         Map<String, Integer> costs = ImmutableMap.of(destNetworkId, 5, "urn:ogf:network:es.net:2013:topology", 10);
         ImmutableMap<String, Map<String, Integer>> reachabilityTable = ImmutableMap.of(peerNsaId, costs);
@@ -129,7 +128,8 @@ public class ReachabilityPCETest {
         when(peerInterface.getHref()).thenReturn("http://foo.bar/provider");
         when(peerInterface.getType()).thenReturn(NsiConstants.NSI_CS_PROVIDER_V2);
 
-        PCEData pceData = new PCEData(source, destination);
+        PCEData pceData = new PCEData();
+        pceData.addConstraints(getReservationConstraints(sourceStp, destStp));
         pceData.setTrace(Collections.<String>emptyList());
         pceData.setTopology(topologyMock);
 
@@ -434,4 +434,24 @@ public class ReachabilityPCETest {
         return demarcation;
     }
 
+    private Set<Constraint> getReservationConstraints(String sourceStp, String destStp) throws DatatypeConfigurationException {
+        Set<Constraint> constraints = new HashSet<>();
+        net.es.nsi.pce.path.jaxb.ObjectFactory objFactory = new net.es.nsi.pce.path.jaxb.ObjectFactory();
+        ObjectAttrConstraint p2pConstraint = new ObjectAttrConstraint();
+        P2PServiceBaseType p2p = objFactory.createP2PServiceBaseType();
+        p2p.setSourceSTP(sourceStp);
+        p2p.setDestSTP(destStp);
+        p2pConstraint.setAttrName(Point2PointTypes.P2PS);
+        p2pConstraint.setValue(p2p);
+        constraints.add(p2pConstraint);
+
+        Set<Constraint> scheduleConstraints = PCEConstraints.getConstraints(
+                XmlUtilities.longToXMLGregorianCalendar(System.currentTimeMillis()),
+                XmlUtilities.longToXMLGregorianCalendar(System.currentTimeMillis() + 1000*360),
+                NsiConstants.EVTS_AGOLE, null);
+
+        constraints.addAll(scheduleConstraints);
+
+        return constraints;
+    }
 }

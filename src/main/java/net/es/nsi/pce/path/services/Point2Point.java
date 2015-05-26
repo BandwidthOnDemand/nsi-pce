@@ -14,23 +14,30 @@ import net.es.nsi.pce.path.jaxb.ResolvedPathType;
 import net.es.nsi.pce.path.jaxb.TypeValueType;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.pf.api.PCEConstraints;
-import net.es.nsi.pce.pf.api.cons.BooleanAttrConstraint;
-import net.es.nsi.pce.pf.api.cons.NumAttrConstraint;
-import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.PathSegment;
-import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.AttrConstraint;
-import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
+import net.es.nsi.pce.pf.api.cons.BooleanAttrConstraint;
+import net.es.nsi.pce.pf.api.cons.Constraint;
+import net.es.nsi.pce.pf.api.cons.NumAttrConstraint;
+import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
+import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 
 /**
  *
  * @author hacksaw
  */
 public class Point2Point {
-    private ObjectFactory factory = new ObjectFactory();
-    private AttrConstraints constraints = new AttrConstraints();
+    private final ObjectFactory factory = new ObjectFactory();
+    private final AttrConstraints constraints = new AttrConstraints();
+
+    public Constraint addConstraint(P2PServiceBaseType service) {
+        ObjectAttrConstraint constraint = new ObjectAttrConstraint();
+        constraint.setAttrName(Point2PointTypes.P2PS);
+        constraint.setValue(service);
+        return constraint;
+    }
 
     public Set<Constraint> addConstraints(P2PServiceBaseType service) {
         // Add requested capacity.
@@ -95,6 +102,12 @@ public class Point2Point {
         return constraints.get();
     }
 
+    /**
+     * Create a return message object for each path segment returned by PCE.
+     *
+     * @param path
+     * @return
+     */
     public List<ResolvedPathType> resolvePath(Path path) {
         List<ResolvedPathType> resolvedPath = new ArrayList<>();
 
@@ -103,30 +116,11 @@ public class Point2Point {
             // Convert the constraints.
             AttrConstraints pathConstraints = segment.getConstraints();
             StringAttrConstraint serviceType = pathConstraints.removeStringAttrConstraint(PCEConstraints.SERVICETYPE);
-            NumAttrConstraint capacity = pathConstraints.removeNumAttrConstraint(Point2PointTypes.CAPACITY);
-            StringAttrConstraint directionality = pathConstraints.removeStringAttrConstraint(Point2PointTypes.DIRECTIONALITY);
-            BooleanAttrConstraint symmetric = pathConstraints.removeBooleanAttrConstraint(Point2PointTypes.SYMMETRICPATH);
+            ObjectAttrConstraint p2pObject = pathConstraints.removeObjectAttrConstraint(Point2PointTypes.P2PS);
             List<TypeValueType> attrConstraints = pathConstraints.removeStringAttrConstraints();
 
-            StpPair stpPair = segment.getStpPair();
-
             // Build our path finding results into an P2PS service.
-            P2PServiceBaseType p2psResult = factory.createP2PServiceBaseType();
-            p2psResult.setSourceSTP(stpPair.getA().getId());
-            p2psResult.setDestSTP(stpPair.getZ().getId());
-
-            if (capacity != null) {
-                p2psResult.setCapacity(capacity.getValue());
-            }
-
-            if (directionality != null) {
-                p2psResult.setDirectionality(DirectionalityType.valueOf(directionality.getValue()));
-            }
-
-            if (symmetric != null) {
-                p2psResult.setSymmetricPath(symmetric.getValue());
-            }
-
+            P2PServiceBaseType p2psResult = p2pObject.getValue(P2PServiceBaseType.class);
             p2psResult.getParameter().addAll(attrConstraints);
 
             // Set the corresponding serviceType and add out EVTS results.
@@ -134,6 +128,7 @@ public class Point2Point {
             if (serviceType != null) {
                 pathObj.setServiceType(serviceType.getValue());
             }
+
             pathObj.getAny().add(factory.createP2Ps(p2psResult));
 
             pathObj.setNsa(segment.getNsaId());

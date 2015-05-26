@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.xml.datatype.DatatypeConfigurationException;
+import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.api.PCEConstraints;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.Constraint;
+import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.schema.XmlUtilities;
@@ -86,7 +88,7 @@ public class DijkstraPCETest {
 
     /**
      * Test of apply method, of class DijkstraPCE.
-     * 
+     *
      * @throws javax.xml.datatype.DatatypeConfigurationException
      */
     @Test
@@ -96,15 +98,14 @@ public class DijkstraPCETest {
         // Build the reservation contraint list.
         Set<Constraint> constraints = new HashSet<>();
 
-        StringAttrConstraint sourceStp = new StringAttrConstraint();
-        sourceStp.setAttrName(Point2PointTypes.SOURCESTP);
-        sourceStp.setValue("urn:ogf:network:surfnet.nl:1990:src-testbed:start");
-        constraints.add(sourceStp);
-
-        StringAttrConstraint destStp = new StringAttrConstraint();
-        destStp.setAttrName(Point2PointTypes.DESTSTP);
-        destStp.setValue("urn:ogf:network:surfnet.nl:1990:dst-testbed:end");
-        constraints.add(destStp);
+        net.es.nsi.pce.path.jaxb.ObjectFactory objFactory = new net.es.nsi.pce.path.jaxb.ObjectFactory();
+        ObjectAttrConstraint p2pConstraint = new ObjectAttrConstraint();
+        P2PServiceBaseType p2p = objFactory.createP2PServiceBaseType();
+        p2p.setSourceSTP("urn:ogf:network:surfnet.nl:1990:src-testbed:start");
+        p2p.setDestSTP("urn:ogf:network:surfnet.nl:1990:dst-testbed:end");
+        p2pConstraint.setAttrName(Point2PointTypes.P2PS);
+        p2pConstraint.setValue(p2p);
+        constraints.add(p2pConstraint);
 
         Set<Constraint> scheduleConstraints = PCEConstraints.getConstraints(
                 XmlUtilities.longToXMLGregorianCalendar(System.currentTimeMillis()),
@@ -120,6 +121,47 @@ public class DijkstraPCETest {
         DijkstraPCE subect = new DijkstraPCE();
         PCEData result = subect.apply(pceData);
         assertEquals(result.getPath().getPathSegments().size(), 3);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testWrongServiceType() throws DatatypeConfigurationException {
+        log.debug("testWrongServiceType");
+
+        // Build the reservation contraint list.
+        Set<Constraint> constraints = new HashSet<>();
+
+        net.es.nsi.pce.path.jaxb.ObjectFactory objFactory = new net.es.nsi.pce.path.jaxb.ObjectFactory();
+        ObjectAttrConstraint p2pConstraint = new ObjectAttrConstraint();
+        P2PServiceBaseType p2p = objFactory.createP2PServiceBaseType();
+        p2p.setSourceSTP("urn:ogf:network:surfnet.nl:1990:src-testbed:start");
+        p2p.setDestSTP("urn:ogf:network:surfnet.nl:1990:dst-testbed:end");
+        p2pConstraint.setAttrName(Point2PointTypes.P2PS);
+        p2pConstraint.setValue(p2p);
+        constraints.add(p2pConstraint);
+
+        StringAttrConstraint sourceStp = new StringAttrConstraint();
+        sourceStp.setAttrName(Point2PointTypes.SOURCESTP);
+        sourceStp.setValue("urn:ogf:network:surfnet.nl:1990:src-testbed:start");
+        constraints.add(sourceStp);
+
+        StringAttrConstraint destStp = new StringAttrConstraint();
+        destStp.setAttrName(Point2PointTypes.DESTSTP);
+        destStp.setValue("urn:ogf:network:surfnet.nl:1990:dst-testbed:end");
+        constraints.add(destStp);
+
+        Set<Constraint> scheduleConstraints = PCEConstraints.getConstraints(
+                XmlUtilities.longToXMLGregorianCalendar(System.currentTimeMillis()),
+                XmlUtilities.longToXMLGregorianCalendar(System.currentTimeMillis() + 1000*360),
+                "Bobby Boogie", null);
+
+        constraints.addAll(scheduleConstraints);
+
+        PCEData pceData = new PCEData();
+        pceData.addConstraints(constraints);
+        pceData.setTopology(mockedTopology);
+
+        DijkstraPCE subect = new DijkstraPCE();
+        subect.apply(pceData);
     }
 
     private void buildMockedTopology() {

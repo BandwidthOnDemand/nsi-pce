@@ -1,5 +1,7 @@
 package net.es.nsi.pce.path.services;
 
+import net.es.nsi.pce.pf.SimpleLabel;
+import net.es.nsi.pce.pf.SimpleStp;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.After;

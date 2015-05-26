@@ -7,8 +7,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The Authentication and Authorization Path Computation module.  At the moment
- * this module looks up NSA credentials relating to the networks involved in
- * the path result.
+ * this module does nothing.
  *
  * @author hacksaw
  */

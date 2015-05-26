@@ -20,27 +20,27 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
-import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
+import net.es.nsi.pce.jersey.RestClient;
+import net.es.nsi.pce.jersey.RestServer;
+import net.es.nsi.pce.jersey.Utilities;
 import net.es.nsi.pce.path.jaxb.FindPathAlgorithmType;
 import net.es.nsi.pce.path.jaxb.FindPathRequestType;
 import net.es.nsi.pce.path.jaxb.FindPathResponseType;
 import net.es.nsi.pce.path.jaxb.FindPathStatusType;
 import net.es.nsi.pce.path.jaxb.ObjectFactory;
+import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.jaxb.ReplyToType;
 import net.es.nsi.pce.path.jaxb.ResolvedPathType;
-import net.es.nsi.pce.jersey.RestClient;
-import net.es.nsi.pce.jersey.RestServer;
-import net.es.nsi.pce.jersey.Utilities;
 import net.es.nsi.pce.path.jaxb.TraceType;
+import net.es.nsi.pce.path.services.Point2Point;
+import net.es.nsi.pce.path.services.Service;
 import net.es.nsi.pce.pf.Algorithms;
 import net.es.nsi.pce.pf.PathfinderCore;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.pf.api.PCEConstraints;
 import net.es.nsi.pce.pf.api.cons.Constraint;
-import net.es.nsi.pce.schema.XmlUtilities;
-import net.es.nsi.pce.path.services.Point2Point;
-import net.es.nsi.pce.path.services.Service;
 import net.es.nsi.pce.schema.PathApiParser;
+import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.spring.SpringApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +79,7 @@ public class FindPathService {
      * @param accept The MediaType the client will accept in a response.  Used if MediaType is not specified in the replyTo field.
      * @param request The client find path request.
      * @return HTTP Response object identifying a status of the request.
+     * @throws java.lang.Exception
      *
      */
     @POST
@@ -141,7 +142,6 @@ public class FindPathService {
             return RestServer.getBadRequestError("serviceType");
         }
 
-        //
         // TODO: Place the Path Finding and FindPathResponse building code
         // in a separate model and route via Scala.
 
@@ -185,8 +185,12 @@ public class FindPathService {
                         contraints.addAll(PCEConstraints.getConstraints(request.getStartTime(), request.getEndTime(), serviceType, request.getConstraints()));
 
                         // Now the service specific constraints.
-                        Set<Constraint> addConstraints = p2p.addConstraints(p2ps);
-                        contraints.addAll(addConstraints);
+                        //Set<Constraint> addConstraints = p2p.addConstraints(p2ps);
+                        //contraints.addAll(addConstraints);
+
+                        Constraint p2pContstraint = p2p.addConstraint(p2ps);
+                        contraints.add(p2pContstraint);
+
                         try {
                             net.es.nsi.pce.pf.api.Path path = pathfinderCore.findPath(algorithm, contraints, convertTrace(request.getTrace()));
                             List<ResolvedPathType> resolved = p2p.resolvePath(path);
@@ -198,6 +202,9 @@ public class FindPathService {
                             resp.setFindPathError(NsiError.getFindPathError(ex.getMessage()));
                             break;
                         }
+                    }
+                    else {
+                        log.error("Service element parsing error: " + inService.getQname());
                     }
                 }
                 else {

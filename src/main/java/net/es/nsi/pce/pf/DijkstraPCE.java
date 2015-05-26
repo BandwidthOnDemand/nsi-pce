@@ -1,6 +1,7 @@
 package net.es.nsi.pce.pf;
 
 import com.google.common.base.Optional;
+import static com.google.common.base.Preconditions.checkNotNull;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SortedSparseMultigraph;
@@ -11,15 +12,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import net.es.nsi.pce.path.jaxb.DirectionalityType;
+import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.services.Point2PointTypes;
-import net.es.nsi.pce.path.services.SimpleStp;
+import net.es.nsi.pce.path.services.Service;
 import net.es.nsi.pce.pf.api.NsiError;
+import net.es.nsi.pce.pf.api.PCEConstraints;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
-import net.es.nsi.pce.pf.api.cons.BooleanAttrConstraint;
+import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
 import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
@@ -40,6 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DijkstraPCE implements PCEModule {
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private final net.es.nsi.pce.path.jaxb.ObjectFactory factory = new net.es.nsi.pce.path.jaxb.ObjectFactory();
 
     /**
      * This path computation module supports pathfinding for the P2PS service
@@ -56,51 +60,51 @@ public class DijkstraPCE implements PCEModule {
      */
     @Override
     public PCEData apply(PCEData pceData) {
-        // Get the constraints this PCE module supports.
+        checkNotNull(pceData.getTopology(), "DijkstraPCE: No topology was provided");
+
+        // Get constraints this PCE module supports.
         AttrConstraints constraints = pceData.getAttrConstraints();
 
-        // Determine directionality of service request, default to bidirectional if not present.
-        DirectionalityType directionality = DirectionalityType.BIDIRECTIONAL;
-        StringAttrConstraint directionalityConstraint = constraints.getStringAttrConstraint(Point2PointTypes.DIRECTIONALITY);
-        if (directionalityConstraint != null) {
-            directionality = DirectionalityType.valueOf(directionalityConstraint.getValue());
+        // We currently implement P2PS policies in the PCE.  Reject any path
+        // finding requests for services we do not understand.
+        StringAttrConstraint serviceType = constraints.getStringAttrConstraint(PCEConstraints.SERVICETYPE);
+        List<Service> serviceByType = Service.getServiceByType(serviceType.getValue());
+        if (!serviceByType.contains(Service.P2PS)) {
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.UNSUPPORTED_PARAMETER, Point2PointTypes.P2PS, serviceType.getAttrName(), serviceType.getValue()));
         }
+
+        // Generic reservation information are in string constraint attributes,
+        // but the P2PS specific constraints are in the P2PS P2PServiceBaseType.
+        P2PServiceBaseType p2p = PfUtils.getP2PServiceBaseTypeOrFail(constraints);
+
+        // Determine directionality of service request, default to bidirectional if not present.
+        DirectionalityType directionality = PfUtils.getDirectionality(p2p);
 
         // Determine path symmetry.
-        boolean symmetricPath = true;
-        BooleanAttrConstraint symmetricPathConstraint = constraints.getBooleanAttrConstraint(Point2PointTypes.SYMMETRICPATH);
-        if (symmetricPathConstraint != null) {
-            symmetricPath = symmetricPathConstraint.getValue();
-        }
+        boolean symmetricPath = PfUtils.getSymmetricPath(p2p);
 
         // Get source stpId.
-        StringAttrConstraint sourceStp = constraints.getStringAttrConstraint(Point2PointTypes.SOURCESTP);
-        if (sourceStp == null) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), "null"));
-        }
+        String sourceStp = PfUtils.getSourceStpOrFail(p2p);
 
         // Get destination stpId.
-        StringAttrConstraint destStp = constraints.getStringAttrConstraint(Point2PointTypes.DESTSTP);
-        if (destStp == null) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), "null"));
-        }
+        String destStp = PfUtils.getDestinationStpOrFail(p2p);
 
         // Parse the source STP to make sure it is valid.
         SimpleStp srcStpId;
         try {
-            srcStpId = new SimpleStp(sourceStp.getValue());
+            srcStpId = new SimpleStp(sourceStp);
         }
         catch (IllegalArgumentException ex) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), sourceStp.getValue()));
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), sourceStp));
         }
 
         // Parse the destination STP to make sure it is valid.
         SimpleStp dstStpId;
         try {
-            dstStpId = new SimpleStp(destStp.getValue());
+            dstStpId = new SimpleStp(destStp);
         }
         catch (IllegalArgumentException ex) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), destStp.getValue()));
+            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.STP_RESOLUTION_ERROR, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), destStp));
         }
 
         // Get the topology model used for routing.
@@ -123,11 +127,6 @@ public class DijkstraPCE implements PCEModule {
             validateDirectionality(dstStp, directionality);
         }
 
-        // These will be applied to individual path segment results.
-        AttrConstraints segmentConstraints = new AttrConstraints(pceData.getConstraints());
-        segmentConstraints.removeStringAttrConstraint(Point2PointTypes.SOURCESTP);
-        segmentConstraints.removeStringAttrConstraint(Point2PointTypes.DESTSTP);
-
         List<GraphEdge> path = getPath(srcStp, dstStp, pceData, nsiTopology);
 
         // Check to see if there is a valid path.
@@ -142,7 +141,23 @@ public class DijkstraPCE implements PCEModule {
 
             log.debug("Pair: " + pair.getA().getId() + " -- " + pair.getZ().getId());
 
-            AttrConstraints cons = new AttrConstraints(segmentConstraints);
+            // Copy the applicable attribute constraints into this path.
+            AttrConstraints cons = new AttrConstraints(pceData.getConstraints());
+            constraints.removeObjectAttrConstraint(Point2PointTypes.P2PS);
+
+            // Create a new P2PS constraint for this segment.
+            P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();
+            p2ps.setCapacity(p2p.getCapacity());
+            p2ps.setDirectionality(directionality);
+            p2ps.setEro(p2p.getEro());
+            p2ps.setSymmetricPath(symmetricPath);
+            p2ps.setSourceSTP(pair.getA().getId());
+            p2ps.setDestSTP(pair.getZ().getId());
+            ObjectAttrConstraint p2psObject = new ObjectAttrConstraint();
+            p2psObject.setAttrName(Point2PointTypes.P2PS);
+            p2psObject.setValue(p2ps);
+            cons.add(p2psObject);
+
             PathSegment pathSegment = new PathSegment(pair);
             pathSegment.setConstraints(cons);
             pceData.getPath().getPathSegments().add(i, pathSegment);
