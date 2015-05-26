@@ -47,6 +47,7 @@ public enum Service {
     /**
      * Return string QNAME for the enum instead of a name value.
      *
+     * @return
      * @see java.lang.Enum#toString()
      */
     @Override

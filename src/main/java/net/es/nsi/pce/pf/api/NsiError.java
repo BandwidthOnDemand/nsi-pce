@@ -19,7 +19,7 @@ public enum NsiError {
     MISSING_PARAMETER("00101", "MISSING_PARAMETER", "Invalid or missing parameter (%s)."),
     UNSUPPORTED_PARAMETER("00102", "UNSUPPORTED_PARAMETER", "Parameter provided contains an unsupported value which MUST be processed (%s)."),
     NOT_IMPLEMENTED("00103", "NOT_IMPLEMENTED", "Parameter is for a feature that has not been implemented (%s)."),
-    VERSION_NOT_SUPPORTED("00104", "VERSION_NOT_SUPPORTED", "The service version requested is not supported. (%s)."),
+    VERSION_NOT_SUPPORTED("00104", "VERSION_NOT_SUPPORTED", "The protocl version requested is not supported. (%s)."),
 
     // Connection errors.
     CONNECTION_ERROR("00200", "CONNECTION_ERROR", "A connection error has occured (%s)."),

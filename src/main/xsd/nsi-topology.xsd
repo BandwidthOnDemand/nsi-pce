@@ -22,6 +22,7 @@
     <xsd:element name="network"           type="tns:NetworkType" />
     <xsd:element name="nsa"               type="tns:NsaType" />
     <xsd:element name="collection"        type="tns:CollectionType" />
+    <xsd:element name="topologyError"     type="tns:TopologyErrorType" />
 
     <xsd:complexType name="CollectionType">
         <xsd:sequence>
@@ -263,4 +264,28 @@
             <xsd:enumeration  value="Undefined"/>
         </xsd:restriction>
     </xsd:simpleType>
+
+    <xsd:complexType name="TopologyErrorType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                Returned when an error is the topology query.
+
+                Elements:
+
+                code - The error code for the specific error.
+
+                label - A character string label for the error.
+
+                description - A detailed description of error.
+
+                resource - The resource that caused the error.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="code"        type="xsd:int" />
+            <xsd:element name="label"       type="xsd:string" />
+            <xsd:element name="description" type="xsd:string" />
+            <xsd:element name="resource"    type="xsd:string" />
+        </xsd:sequence>
+    </xsd:complexType>
 </xsd:schema>

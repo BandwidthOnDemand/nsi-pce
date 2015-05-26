@@ -121,6 +121,32 @@ public class AttrConstraints {
         return null;
     }
 
+    public ObjectAttrConstraint removeObjectAttrConstraint(String name) {
+        for (Iterator<Constraint> it = constraints.iterator(); it.hasNext(); ) {
+            Constraint constraint = it.next();
+            if (constraint instanceof ObjectAttrConstraint &&
+                    ((ObjectAttrConstraint) constraint).getAttrName().equalsIgnoreCase(name)) {
+                it.remove();
+                return (ObjectAttrConstraint) constraint;
+            }
+        }
+        return null;
+    }
+
+    public ObjectAttrConstraint getObjectAttrConstraint(String name) {
+        for (Constraint constraint : constraints) {
+            if (constraint instanceof ObjectAttrConstraint) {
+                ObjectAttrConstraint str = (ObjectAttrConstraint) constraint;
+
+                String attrName = str.getAttrName();
+                if (attrName != null && attrName.equalsIgnoreCase(name)) {
+                    return (ObjectAttrConstraint) constraint;
+                }
+            }
+        }
+        return null;
+    }
+
     public BooleanAttrConstraint removeBooleanAttrConstraint(String name) {
         for (Iterator<Constraint> it = constraints.iterator(); it.hasNext(); ) {
             Constraint constraint = it.next();

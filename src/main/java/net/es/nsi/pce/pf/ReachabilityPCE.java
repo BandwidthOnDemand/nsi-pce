@@ -1,9 +1,16 @@
 package net.es.nsi.pce.pf;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.base.Predicate;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import static com.google.common.base.Strings.isNullOrEmpty;
-
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Ordering;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -13,19 +20,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Ordering;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.services.Point2Point;
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.api.NsiError;
@@ -35,6 +30,7 @@ import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
+import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
@@ -43,6 +39,8 @@ import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This PCE module calculates the path based on reachability information.
@@ -63,6 +61,7 @@ import net.es.nsi.pce.topology.model.NsiTopology;
 public class ReachabilityPCE implements PCEModule {
 
     private static final Logger logger = LoggerFactory.getLogger(ReachabilityPCE.class);
+    private final net.es.nsi.pce.path.jaxb.ObjectFactory factory = new net.es.nsi.pce.path.jaxb.ObjectFactory();
 
     private final static Ordering<Entry<String, Map<String, Integer>>> REACHABILITY_TABLE_ORDERING = Ordering.from(new Comparator<Entry<String, Map<String, Integer>>>() {
         @Override
@@ -70,7 +69,7 @@ public class ReachabilityPCE implements PCEModule {
             return o1.getKey().compareTo(o2.getKey());
         }
     });
-    private Random random = new Random();
+    private final Random random = new Random();
 
     // TODO make this configurable at startup
     private final boolean forceIdenticalVlans = true;
@@ -96,10 +95,25 @@ public class ReachabilityPCE implements PCEModule {
     }
 
     private void addConstraints(Path path, AttrConstraints constraints) {
-        constraints.removeStringAttrConstraint(Point2PointTypes.SOURCESTP);
-        constraints.removeStringAttrConstraint(Point2PointTypes.DESTSTP);
         for (PathSegment segment: path.getPathSegments()) {
-            segment.setConstraints(new AttrConstraints(constraints));
+            // Copy the applicable attribute constraints into this path.
+            AttrConstraints cons = new AttrConstraints(constraints);
+            P2PServiceBaseType orig = PfUtils.removeP2PServiceBaseTypeOrFail(cons);
+
+            // Create a new P2PS constraint for this segment.
+            P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();
+            p2ps.setCapacity(orig.getCapacity());
+            p2ps.setDirectionality(PfUtils.getDirectionality(orig));
+            p2ps.setEro(orig.getEro());
+            p2ps.setSymmetricPath(PfUtils.getSymmetricPath(orig));
+            p2ps.setSourceSTP(segment.getStpPair().getA().getId());
+            p2ps.setDestSTP(segment.getStpPair().getZ().getId());
+            
+            ObjectAttrConstraint p2psObject = new ObjectAttrConstraint();
+            p2psObject.setAttrName(Point2PointTypes.P2PS);
+            p2psObject.setValue(p2ps);
+
+            segment.setConstraints(cons);
         }
     }
 
@@ -130,7 +144,7 @@ public class ReachabilityPCE implements PCEModule {
     }
 
     private Stp findSourceStp(AttrConstraints constraints) {
-        String sourceStp = getSourceStpOrFail(constraints);
+        String sourceStp = PfUtils.getSourceStpOrFail(constraints);
         try {
             return Stp.fromStpId(sourceStp);
         } catch (IllegalArgumentException e) {
@@ -139,7 +153,7 @@ public class ReachabilityPCE implements PCEModule {
     }
 
     private Stp findDestinationStp(AttrConstraints constraints) {
-        String destStp = getDestinationStpOrFail(constraints);
+        String destStp = PfUtils.getDestinationStpOrFail(constraints);
         try {
             return Stp.fromStpId(destStp);
         } catch (IllegalArgumentException e) {
@@ -240,7 +254,7 @@ public class ReachabilityPCE implements PCEModule {
                 candidates.add(sdp);
             }
         }
-        if (candidates.size() == 0) {
+        if (candidates.isEmpty()) {
             return Optional.absent();
         }
         else if (forceIdenticalVlans && vlan.isPresent()) {
@@ -343,14 +357,6 @@ public class ReachabilityPCE implements PCEModule {
         return reachability;
     }
 
-    private String getSourceStpOrFail(AttrConstraints constraints) {
-        return getStringValue(Point2PointTypes.SOURCESTP, constraints);
-    }
-
-    private String getDestinationStpOrFail(AttrConstraints constraints) {
-        return getStringValue(Point2PointTypes.DESTSTP, constraints);
-    }
-
     private String getStringValue(String attributeName, AttrConstraints constraints) {
         Optional<String> value = getValue(constraints.getStringAttrConstraint(attributeName));
 
@@ -396,7 +402,7 @@ public class ReachabilityPCE implements PCEModule {
     public static class Stp {
         private static final Splitter STP_SPLITTER = Splitter.on(":");
         private static final Joiner STP_JOINER = Joiner.on(":");
-        private static Pattern VLAN_PATTERN = Pattern.compile("[?&]vlan=([^&]+)$");
+        private static final Pattern VLAN_PATTERN = Pattern.compile("[?&]vlan=([^&]+)$");
 
         private final String id;
         private final String networkId;
