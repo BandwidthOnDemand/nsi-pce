@@ -143,7 +143,7 @@ public class DijkstraPCE implements PCEModule {
 
             // Copy the applicable attribute constraints into this path.
             AttrConstraints cons = new AttrConstraints(pceData.getConstraints());
-            constraints.removeObjectAttrConstraint(Point2PointTypes.P2PS);
+            cons.removeObjectAttrConstraint(Point2PointTypes.P2PS);
 
             // Create a new P2PS constraint for this segment.
             P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();
