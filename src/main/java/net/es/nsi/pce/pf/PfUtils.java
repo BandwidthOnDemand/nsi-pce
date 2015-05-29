@@ -7,22 +7,29 @@ package net.es.nsi.pce.pf;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.path.jaxb.DirectionalityType;
 import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.services.Point2PointTypes;
-import net.es.nsi.pce.pf.api.NsiError;
+import net.es.nsi.pce.pf.api.PCEConstraints;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
+import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 
 /**
  *
  * @author hacksaw
  */
 public class PfUtils {
+
+    public static String getServiceTypeOrFail(AttrConstraints constraints) {
+        return getStringValue(PCEConstraints.SERVICETYPE, constraints);
+    }
+
     public static String getSourceStpOrFail(AttrConstraints constraints) {
         String sourceStp = getP2PServiceBaseTypeOrFail(constraints).getSourceSTP();
         if (Strings.isNullOrEmpty(sourceStp)) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), "null"));
+            throw Exceptions.missingParameter(Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), "null");
         }
 
         return sourceStp;
@@ -34,13 +41,13 @@ public class PfUtils {
             return sourceStp.get();
         }
 
-        throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), "null"));
+        throw Exceptions.missingParameter(Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), "null");
     }
 
     public static String getDestinationStpOrFail(AttrConstraints constraints) {
         String destStp = getP2PServiceBaseTypeOrFail(constraints).getDestSTP();
         if (Strings.isNullOrEmpty(destStp)) {
-            throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), "null"));
+            throw Exceptions.missingParameter(Point2PointTypes.getDestStp().getNamespace(), Point2PointTypes.getDestStp().getType(), "null");
         }
 
         return destStp;
@@ -52,7 +59,7 @@ public class PfUtils {
             return destStp.get();
         }
 
-        throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getDestStp().getType(), "null"));
+        throw Exceptions.missingParameter(Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getDestStp().getType(), "null");
     }
 
     public static DirectionalityType getDirectionality(P2PServiceBaseType p2ps) {
@@ -73,7 +80,7 @@ public class PfUtils {
             return p2pObject.get().getValue(P2PServiceBaseType.class);
         }
 
-        throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2PointTypes.P2PS, "null", "null"));
+        throw Exceptions.missingParameter(Point2PointTypes.P2PS, "null", "null");
     }
 
     public static P2PServiceBaseType removeP2PServiceBaseTypeOrFail(AttrConstraints constraints) {
@@ -84,6 +91,24 @@ public class PfUtils {
             return p2pObject.get().getValue(P2PServiceBaseType.class);
         }
 
-        throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2PointTypes.P2PS, "null", "null"));
+        throw Exceptions.missingParameter(Point2PointTypes.P2PS, "null", "null");
+    }
+
+    private static String getStringValue(String attributeName, AttrConstraints constraints) {
+        Optional<String> value = getValue(constraints.getStringAttrConstraint(attributeName));
+
+        if (value.isPresent()) {
+            return value.get();
+        }
+
+        throw Exceptions.missingParameter(Point2PointTypes.P2PS, attributeName, null);
+    }
+
+    private static Optional<String> getValue(StringAttrConstraint constraint) {
+        if (constraint == null) {
+            return Optional.absent();
+        }
+
+        return Optional.fromNullable(Strings.emptyToNull(constraint.getValue()));
     }
 }

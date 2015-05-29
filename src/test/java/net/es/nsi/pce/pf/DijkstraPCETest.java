@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.WebApplicationException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.services.Point2PointTypes;
@@ -123,7 +124,7 @@ public class DijkstraPCETest {
         assertEquals(result.getPath().getPathSegments().size(), 3);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = WebApplicationException.class)
     public void testWrongServiceType() throws DatatypeConfigurationException {
         log.debug("testWrongServiceType");
 

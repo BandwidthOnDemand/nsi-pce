@@ -46,7 +46,7 @@ public class FindPathEvtsFailedTest {
     // First test has mismatched vlans.
     private final static StpTestData test1 = new StpTestData() {
         { this.setStpA("urn:ogf:network:manlan.internet2.edu:2013::sw.net.manlan.internet2.edu:3_3:uslhcnet?vlan=1800");
-          this.setStpZ("urn:ogf:network:manlan.internet2.edu:2013::sw.net.manlan.internet2.edu:13_1:+?vlan=1801");
+          this.setStpZ("urn:ogf:network:manlan.internet2.edu:2013::sw.net.manlan.internet2.edu:13_1:+?vlan=1799");
         }
     };
 
@@ -85,15 +85,22 @@ public class FindPathEvtsFailedTest {
         }
     };
 
+    private final static StpTestData test7 = new StpTestData() {
+        { this.setStpA("urn:ogf:network:netherlight.net:2013:production7:czechlight-1?vlan=-1770-1779");
+          this.setStpZ("urn:ogf:network:netherlight.net:2013:production7:pionier-1?vlan=1780");
+        }
+    };
+
     private final static List<StpTestData> testData = new ArrayList<StpTestData>() {
         private static final long serialVersionUID = 1L;
         {
-            //this.add(test1);
+            this.add(test1);
             this.add(test2);
             this.add(test3);
             this.add(test4);
             this.add(test5);
             this.add(test6);
+            this.add(test7);
         }
     };
 

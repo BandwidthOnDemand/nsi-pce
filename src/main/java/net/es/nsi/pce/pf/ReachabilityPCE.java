@@ -7,7 +7,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
@@ -31,7 +30,6 @@ import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
-import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.topology.jaxb.DemarcationType;
 import net.es.nsi.pce.topology.jaxb.NsaType;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
@@ -108,7 +106,7 @@ public class ReachabilityPCE implements PCEModule {
             p2ps.setSymmetricPath(PfUtils.getSymmetricPath(orig));
             p2ps.setSourceSTP(segment.getStpPair().getA().getId());
             p2ps.setDestSTP(segment.getStpPair().getZ().getId());
-            
+
             ObjectAttrConstraint p2psObject = new ObjectAttrConstraint();
             p2psObject.setAttrName(Point2PointTypes.P2PS);
             p2psObject.setValue(p2ps);
@@ -355,24 +353,6 @@ public class ReachabilityPCE implements PCEModule {
         }
 
         return reachability;
-    }
-
-    private String getStringValue(String attributeName, AttrConstraints constraints) {
-        Optional<String> value = getValue(constraints.getStringAttrConstraint(attributeName));
-
-        if (value.isPresent()) {
-            return value.get();
-        }
-
-        throw new IllegalArgumentException(NsiError.getFindPathErrorString(NsiError.MISSING_PARAMETER, Point2PointTypes.P2PS, attributeName, null));
-    }
-
-    private Optional<String> getValue(StringAttrConstraint constraint) {
-        if (constraint == null) {
-            return Optional.absent();
-        }
-
-        return Optional.fromNullable(Strings.emptyToNull(constraint.getValue()));
     }
 
     public static class Reachability {

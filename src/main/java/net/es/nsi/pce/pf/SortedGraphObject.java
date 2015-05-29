@@ -13,9 +13,8 @@ import java.util.Random;
  */
 public class SortedGraphObject implements Comparator<SortedGraphObject>, Comparable<SortedGraphObject> {
     private String id;
-    private long sortValue;
-
-    static final Random random = new Random();
+    private final long sortValue;
+    private static final Random random = new Random();
 
     public SortedGraphObject(String id) {
         this.id = id;

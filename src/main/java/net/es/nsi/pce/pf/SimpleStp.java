@@ -1,8 +1,10 @@
 package net.es.nsi.pce.pf;
 
 import com.google.common.base.Strings;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -163,6 +165,22 @@ public class SimpleStp {
         sb.append(NSI_URN_SEPARATOR);
         sb.append(localId);
         return sb.toString();
+    }
+
+    public List<String> getMemberStpId() {
+        List<String> result = new ArrayList<>();
+        if (labels.isEmpty()) {
+            result.add(getId());
+        }
+        else {
+            for (SimpleLabel label : labels) {
+                StringBuilder sb = new StringBuilder(getId());
+                sb.append(NSI_LABEL_SEPARATOR);
+                sb.append(label.toString());
+                result.add(sb.toString());
+            }
+        }
+        return result;
     }
 
     /**

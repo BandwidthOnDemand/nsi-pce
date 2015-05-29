@@ -1615,11 +1615,11 @@
                 </ns3:Topology>
             </content>
         </ns2:document>
-        <ns2:document id="urn:ogf:network:funet.fi:2013:topology" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Afunet.fi%3A2013%3Atopology" version="2015-05-28T17:22:57.864Z" expires="2016-05-27T19:22:57.963+02:00">
+        <ns2:document id="urn:ogf:network:funet.fi:2013:topology" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Afunet.fi%3A2013%3Atopology" version="2015-05-29T03:12:39.099Z" expires="2016-05-27T20:12:39.449-07:00">
             <nsa>urn:ogf:network:geant.net:2013:nsa</nsa>
             <type>vnd.ogf.nsi.topology.v2+xml</type>
             <content>
-                <ns3:Topology id="urn:ogf:network:funet.fi:2013:topology" version="2015-05-28T17:22:57.864Z">
+                <ns3:Topology id="urn:ogf:network:funet.fi:2013:topology" version="2015-05-29T03:12:39.099Z">
                     <ns3:name>funet.fi</ns3:name>
                     <ns3:BidirectionalPort id="urn:ogf:network:funet.fi:2013:topology:test1-autobahn-2">
                         <ns3:name>test1-autobahn-2</ns3:name>
@@ -3856,14 +3856,14 @@
                 </ns3:Topology>
             </content>
         </ns2:document>
-        <ns2:document id="urn:ogf:network:es.net:2013:nsa:nsi-aggr-west" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Aes.net%3A2013%3Ansa%3Ansi-aggr-west/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aes.net%3A2013%3Ansa%3Ansi-aggr-west" version="2015-05-27T09:42:33.795-07:00" expires="2016-05-26T09:42:33.834-07:00">
+        <ns2:document id="urn:ogf:network:es.net:2013:nsa:nsi-aggr-west" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Aes.net%3A2013%3Ansa%3Ansi-aggr-west/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aes.net%3A2013%3Ansa%3Ansi-aggr-west" version="2015-05-28T12:12:36.666-07:00" expires="2016-05-27T12:12:36.709-07:00">
             <nsa>urn:ogf:network:es.net:2013:nsa:nsi-aggr-west</nsa>
             <type>vnd.ogf.nsi.nsa.v1+xml</type>
             <content>
-                <ns8:nsa id="urn:ogf:network:es.net:2013:nsa:nsi-aggr-west" version="2015-05-27T09:42:33.795-07:00">
+                <ns8:nsa id="urn:ogf:network:es.net:2013:nsa:nsi-aggr-west" version="2015-05-28T12:12:36.666-07:00">
                     <name>nsi-aggr-west</name>
                     <softwareVersion>1.0-SNAPSHOT (8dbbbbb)</softwareVersion>
-                    <startTime>2015-05-27T09:14:11.097-07:00</startTime>
+                    <startTime>2015-05-28T11:50:57.368-07:00</startTime>
                     <adminContact>
                         <ns5:vcard>
                             <ns5:uid>
@@ -3873,7 +3873,7 @@
                                 <ns5:text>ESnet - nsi-aggr-west </ns5:text>
                             </ns5:prodid>
                             <ns5:rev>
-                                <ns5:timestamp>20150527T091411Z</ns5:timestamp>
+                                <ns5:timestamp>20150528T115057Z</ns5:timestamp>
                             </ns5:rev>
                             <ns5:kind>
                                 <ns5:text>individual</ns5:text>
@@ -5772,11 +5772,11 @@
                 </ns3:Topology>
             </content>
         </ns2:document>
-        <ns2:document id="urn:ogf:network:geant.net:2013:topology" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Atopology" version="2015-05-28T17:22:58.173Z" expires="2016-05-27T19:22:58.34+02:00">
+        <ns2:document id="urn:ogf:network:geant.net:2013:topology" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Atopology" version="2015-05-29T03:12:40.061Z" expires="2016-05-27T20:12:40.474-07:00">
             <nsa>urn:ogf:network:geant.net:2013:nsa</nsa>
             <type>vnd.ogf.nsi.topology.v2+xml</type>
             <content>
-                <ns3:Topology id="urn:ogf:network:geant.net:2013:topology" version="2015-05-28T17:22:58.173Z">
+                <ns3:Topology id="urn:ogf:network:geant.net:2013:topology" version="2015-05-29T03:12:40.061Z">
                     <ns3:name>geant.net</ns3:name>
                     <ns3:BidirectionalPort id="urn:ogf:network:geant.net:2013:topology:Ubuntunet__port">
                         <ns3:name>Ubuntunet__port</ns3:name>
@@ -6537,31 +6537,31 @@
                 </ns3:Topology>
             </content>
         </ns2:document>
-        <ns2:document id="urn:ogf:network:heanet.ie:2013:topology" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Aheanet.ie%3A2013%3Atopology" version="2015-05-28T17:22:57.712Z" expires="2016-05-27T19:22:57.849+02:00">
+        <ns2:document id="urn:ogf:network:heanet.ie:2013:topology" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Aheanet.ie%3A2013%3Atopology" version="2015-05-29T03:12:37.999Z" expires="2016-05-27T20:12:38.795-07:00">
             <nsa>urn:ogf:network:geant.net:2013:nsa</nsa>
             <type>vnd.ogf.nsi.topology.v2+xml</type>
             <content>
-                <ns3:Topology id="urn:ogf:network:heanet.ie:2013:topology" version="2015-05-28T17:22:57.712Z">
+                <ns3:Topology id="urn:ogf:network:heanet.ie:2013:topology" version="2015-05-29T03:12:37.999Z">
                     <ns3:name>heanet.ie</ns3:name>
-                    <ns3:BidirectionalPort id="urn:ogf:network:heanet.ie:2013:topology:HEAnet-HRB-port">
-                        <ns3:name>HEAnet-HRB-port</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:HEAnet-HRB-port-in"/>
-                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:HEAnet-HRB-port-out"/>
-                    </ns3:BidirectionalPort>
                     <ns3:BidirectionalPort id="urn:ogf:network:heanet.ie:2013:topology:exemplar_switch_cliPort">
                         <ns3:name>exemplar_switch_cliPort</ns3:name>
                         <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:exemplar_switch_cliPort-in"/>
                         <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:exemplar_switch_cliPort-out"/>
                     </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:heanet.ie:2013:topology:exemplar-port-to-heanet">
-                        <ns3:name>exemplar-port-to-heanet</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:exemplar-port-to-heanet-in"/>
-                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:exemplar-port-to-heanet-out"/>
+                    <ns3:BidirectionalPort id="urn:ogf:network:heanet.ie:2013:topology:HEAnet-HRB-port">
+                        <ns3:name>HEAnet-HRB-port</ns3:name>
+                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:HEAnet-HRB-port-in"/>
+                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:HEAnet-HRB-port-out"/>
                     </ns3:BidirectionalPort>
                     <ns3:BidirectionalPort id="urn:ogf:network:heanet.ie:2013:topology:HEANET-gsn-epa-port">
                         <ns3:name>HEANET-gsn-epa-port</ns3:name>
                         <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:HEANET-gsn-epa-port-in"/>
                         <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:HEANET-gsn-epa-port-out"/>
+                    </ns3:BidirectionalPort>
+                    <ns3:BidirectionalPort id="urn:ogf:network:heanet.ie:2013:topology:exemplar-port-to-heanet">
+                        <ns3:name>exemplar-port-to-heanet</ns3:name>
+                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:exemplar-port-to-heanet-in"/>
+                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:exemplar-port-to-heanet-out"/>
                     </ns3:BidirectionalPort>
                     <ns3:BidirectionalPort id="urn:ogf:network:heanet.ie:2013:topology:HEANET-phoebus-port">
                         <ns3:name>HEANET-phoebus-port</ns3:name>
@@ -6643,6 +6643,16 @@
                         <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:exemplar_switch_cliPort-out">
+                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2000-2050</ns3:LabelGroup>
+                        </ns3:PortGroup>
+                    </ns3:Relation>
+                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:exemplar_switch_cliPort-in">
+                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2000-2050</ns3:LabelGroup>
+                        </ns3:PortGroup>
+                    </ns3:Relation>
+                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                         <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:HEAnet-HRB-port-out">
                             <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2000-2050</ns3:LabelGroup>
                         </ns3:PortGroup>
@@ -6653,12 +6663,12 @@
                         </ns3:PortGroup>
                     </ns3:Relation>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:exemplar_switch_cliPort-out">
+                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:HEANET-gsn-epa-port-out">
                             <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2000-2050</ns3:LabelGroup>
                         </ns3:PortGroup>
                     </ns3:Relation>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:exemplar_switch_cliPort-in">
+                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:HEANET-gsn-epa-port-in">
                             <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2000-2050</ns3:LabelGroup>
                         </ns3:PortGroup>
                     </ns3:Relation>
@@ -6676,16 +6686,6 @@
                             <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
                                 <ns3:PortGroup id="EXEMPLAR:exemplar-sw1.ardnet.net;;exemplar-sw1.ardnet.net__TenGigabitEthernet1__0__2-out"/>
                             </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:HEANET-gsn-epa-port-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2000-2050</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:HEANET-gsn-epa-port-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2000-2050</ns3:LabelGroup>
                         </ns3:PortGroup>
                     </ns3:Relation>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
@@ -7009,14 +7009,14 @@
                 </ns8:nsa>
             </content>
         </ns2:document>
-        <ns2:document id="urn:ogf:network:ampath.net:2013:nsa" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Aampath.net%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aampath.net%3A2013%3Ansa" version="2015-05-26T14:53:49Z" expires="2016-05-25T17:22:56.734+02:00">
+        <ns2:document id="urn:ogf:network:ampath.net:2013:nsa" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Aampath.net%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aampath.net%3A2013%3Ansa" version="2015-05-28T20:55:36Z" expires="2016-05-27T23:22:59.308+02:00">
             <nsa>urn:ogf:network:ampath.net:2013:nsa</nsa>
             <type>vnd.ogf.nsi.nsa.v1+xml</type>
             <content>
-                <ns8:nsa id="urn:ogf:network:ampath.net:2013:nsa" version="2015-05-26T14:53:49Z">
+                <ns8:nsa id="urn:ogf:network:ampath.net:2013:nsa" version="2015-05-28T20:55:36Z">
                     <name>ampath.net</name>
-                    <softwareVersion>OpenNSA-git-20150526</softwareVersion>
-                    <startTime>2015-05-26T14:53:49Z</startTime>
+                    <softwareVersion>OpenNSA-git-20150528</softwareVersion>
+                    <startTime>2015-05-28T20:55:36Z</startTime>
                     <networkId>urn:ogf:network:ampath.net:2013:topology</networkId>
                     <interface>
                         <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
@@ -7211,11 +7211,11 @@
                 </ns8:nsa>
             </content>
         </ns2:document>
-        <ns2:document id="urn:ogf:network:ampath.net:2013:topology" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Aampath.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Aampath.net%3A2013%3Atopology" version="2015-05-26T14:53:49Z" expires="2016-05-25T17:22:56.866+02:00">
+        <ns2:document id="urn:ogf:network:ampath.net:2013:topology" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Aampath.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Aampath.net%3A2013%3Atopology" version="2015-05-28T20:55:36Z" expires="2016-05-27T23:22:59.43+02:00">
             <nsa>urn:ogf:network:ampath.net:2013:nsa</nsa>
             <type>vnd.ogf.nsi.topology.v2+xml</type>
             <content>
-                <ns3:Topology id="urn:ogf:network:ampath.net:2013:topology" version="2015-05-26T14:53:49Z">
+                <ns3:Topology id="urn:ogf:network:ampath.net:2013:topology" version="2015-05-28T20:55:36Z">
                     <ns3:name>ampath.net:2013</ns3:name>
                     <ns3:BidirectionalPort id="urn:ogf:network:ampath.net:2013:topology:starlight">
                         <ns3:name>starlight</ns3:name>
@@ -7325,11 +7325,11 @@
                 </ns8:nsa>
             </content>
         </ns2:document>
-        <ns2:document id="urn:ogf:network:deic.dk:2013:topology" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Adeic.dk%3A2013%3Atopology" version="2015-05-28T17:22:58.064Z" expires="2016-05-27T19:22:58.168+02:00">
+        <ns2:document id="urn:ogf:network:deic.dk:2013:topology" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Adeic.dk%3A2013%3Atopology" version="2015-05-29T03:12:39.74Z" expires="2016-05-27T20:12:39.959-07:00">
             <nsa>urn:ogf:network:geant.net:2013:nsa</nsa>
             <type>vnd.ogf.nsi.topology.v2+xml</type>
             <content>
-                <ns3:Topology id="urn:ogf:network:deic.dk:2013:topology" version="2015-05-28T17:22:58.064Z">
+                <ns3:Topology id="urn:ogf:network:deic.dk:2013:topology" version="2015-05-29T03:12:39.74Z">
                     <ns3:name>deic.dk</ns3:name>
                     <ns3:BidirectionalPort id="urn:ogf:network:deic.dk:2013:topology:funet-geant">
                         <ns3:name>funet-geant</ns3:name>
@@ -7824,11 +7824,11 @@
                 </ns3:Topology>
             </content>
         </ns2:document>
-        <ns2:document id="urn:ogf:network:ja.net:2013:topology" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Aja.net%3A2013%3Atopology" version="2015-05-28T17:22:58.484Z" expires="2016-05-27T19:22:58.592+02:00">
+        <ns2:document id="urn:ogf:network:ja.net:2013:topology" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Aja.net%3A2013%3Atopology" version="2015-05-29T03:12:41.145Z" expires="2016-05-27T20:12:41.456-07:00">
             <nsa>urn:ogf:network:geant.net:2013:nsa</nsa>
             <type>vnd.ogf.nsi.topology.v2+xml</type>
             <content>
-                <ns3:Topology id="urn:ogf:network:ja.net:2013:topology" version="2015-05-28T17:22:58.484Z">
+                <ns3:Topology id="urn:ogf:network:ja.net:2013:topology" version="2015-05-29T03:12:41.145Z">
                     <ns3:name>ja.net</ns3:name>
                     <ns3:BidirectionalPort id="urn:ogf:network:ja.net:2013:topology:bonfire-1">
                         <ns3:name>bonfire-1</ns3:name>
@@ -9795,11 +9795,11 @@
                 </ns3:Topology>
             </content>
         </ns2:document>
-        <ns2:document id="urn:ogf:network:pionier.net.pl:2013:topology" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Apionier.net.pl%3A2013%3Atopology" version="2015-05-28T17:22:58.349Z" expires="2016-05-27T19:22:58.474+02:00">
+        <ns2:document id="urn:ogf:network:pionier.net.pl:2013:topology" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Ageant.net%3A2013%3Ansa/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Apionier.net.pl%3A2013%3Atopology" version="2015-05-29T03:12:40.572Z" expires="2016-05-27T20:12:41.043-07:00">
             <nsa>urn:ogf:network:geant.net:2013:nsa</nsa>
             <type>vnd.ogf.nsi.topology.v2+xml</type>
             <content>
-                <ns3:Topology id="urn:ogf:network:pionier.net.pl:2013:topology" version="2015-05-28T17:22:58.349Z">
+                <ns3:Topology id="urn:ogf:network:pionier.net.pl:2013:topology" version="2015-05-29T03:12:40.572Z">
                     <ns3:name>pionier.net.pl</ns3:name>
                     <ns3:BidirectionalPort id="urn:ogf:network:pionier.net.pl:2013:topology:PORT_TO_PIONIER">
                         <ns3:name>PORT_TO_PIONIER</ns3:name>
@@ -10208,14 +10208,14 @@
         </ns2:document>
     </ns2:documents>
     <ns2:local>
-        <ns2:document id="urn:ogf:network:es.net:2013:nsa:nsi-aggr-west" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Aes.net%3A2013%3Ansa%3Ansi-aggr-west/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aes.net%3A2013%3Ansa%3Ansi-aggr-west" version="2015-05-27T09:42:33.795-07:00" expires="2016-05-26T09:42:33.834-07:00">
+        <ns2:document id="urn:ogf:network:es.net:2013:nsa:nsi-aggr-west" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Aes.net%3A2013%3Ansa%3Ansi-aggr-west/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aes.net%3A2013%3Ansa%3Ansi-aggr-west" version="2015-05-28T12:12:36.666-07:00" expires="2016-05-27T12:12:36.709-07:00">
             <nsa>urn:ogf:network:es.net:2013:nsa:nsi-aggr-west</nsa>
             <type>vnd.ogf.nsi.nsa.v1+xml</type>
             <content>
-                <ns8:nsa id="urn:ogf:network:es.net:2013:nsa:nsi-aggr-west" version="2015-05-27T09:42:33.795-07:00">
+                <ns8:nsa id="urn:ogf:network:es.net:2013:nsa:nsi-aggr-west" version="2015-05-28T12:12:36.666-07:00">
                     <name>nsi-aggr-west</name>
                     <softwareVersion>1.0-SNAPSHOT (8dbbbbb)</softwareVersion>
-                    <startTime>2015-05-27T09:14:11.097-07:00</startTime>
+                    <startTime>2015-05-28T11:50:57.368-07:00</startTime>
                     <adminContact>
                         <ns5:vcard>
                             <ns5:uid>
@@ -10225,7 +10225,7 @@
                                 <ns5:text>ESnet - nsi-aggr-west </ns5:text>
                             </ns5:prodid>
                             <ns5:rev>
-                                <ns5:timestamp>20150527T091411Z</ns5:timestamp>
+                                <ns5:timestamp>20150528T115057Z</ns5:timestamp>
                             </ns5:rev>
                             <ns5:kind>
                                 <ns5:text>individual</ns5:text>

@@ -63,16 +63,16 @@ public enum NsiError {
     // Mark the end.
     END("99999", "END", "END");
 
-    private String code;
-    private String label;
-    private String description;
+    private final String code;
+    private final String label;
+    private final String description;
 
     /**
      * A mapping between the integer code and its corresponding Status to facilitate lookup by code.
      */
     private static Map<String, NsiError> codeToStatusMapping;
 
-    private static ObjectFactory factory = new ObjectFactory();
+    private static final ObjectFactory factory = new ObjectFactory();
 
     private NsiError(String code, String label, String description) {
         this.code = code;
