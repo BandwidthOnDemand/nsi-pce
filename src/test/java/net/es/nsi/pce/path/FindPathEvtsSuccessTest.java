@@ -97,6 +97,13 @@ public class FindPathEvtsSuccessTest {
         }
     };
 
+    // Label swapping in single domain.
+    private final static StpTestData test9 = new StpTestData() {
+        { this.setStpA("urn:ogf:network:netherlight.net:2013:production7:surfnet-1?vlan=1700-1720");
+          this.setStpZ("urn:ogf:network:netherlight.net:2013:production7:geant-1?vlan=2100-2102");
+        }
+    };
+
     private final static List<StpTestData> testData = new ArrayList<StpTestData>() {
         private static final long serialVersionUID = 1L;
         {
@@ -108,6 +115,7 @@ public class FindPathEvtsSuccessTest {
             this.add(test6);
             this.add(test7);
             this.add(test8);
+            this.add(test9);
         }
     };
 

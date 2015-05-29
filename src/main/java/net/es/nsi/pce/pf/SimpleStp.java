@@ -167,6 +167,11 @@ public class SimpleStp {
         return sb.toString();
     }
 
+    public static String getId(String stpId) {
+        String[] components = questionPattern.split(stpId);
+        return components[0];
+    }
+
     public List<String> getMemberStpId() {
         List<String> result = new ArrayList<>();
         if (labels.isEmpty()) {

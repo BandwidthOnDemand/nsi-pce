@@ -91,6 +91,13 @@ public class FindPathEvtsFailedTest {
         }
     };
 
+    // Two separate ranges on a non-label swapping network.
+    private final static StpTestData test8 = new StpTestData() {
+        { this.setStpA("urn:ogf:network:czechlight.cesnet.cz:2013:topology:brno?vlan=-1770-1785");
+          this.setStpZ("urn:ogf:network:czechlight.cesnet.cz:2013:topology:pinger?vlan=1786-1790");
+        }
+    };
+
     private final static List<StpTestData> testData = new ArrayList<StpTestData>() {
         private static final long serialVersionUID = 1L;
         {
@@ -101,6 +108,7 @@ public class FindPathEvtsFailedTest {
             this.add(test5);
             this.add(test6);
             this.add(test7);
+            this.add(test8);
         }
     };
 

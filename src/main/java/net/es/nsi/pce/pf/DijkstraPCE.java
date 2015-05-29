@@ -130,7 +130,26 @@ public class DijkstraPCE implements PCEModule {
         for (int i = 0; i < segments.size(); i++) {
             StpPair pair = segments.get(i);
 
-            log.debug("Pair: " + pair.getA().getId() + " -- " + pair.getZ().getId());
+            String stpIdA = pair.getA().getId();
+            String stpIdZ = pair.getZ().getId();
+
+            log.debug("Pair: " + stpIdA + " -- " + stpIdZ);
+
+            String baseA = SimpleStp.getId(stpIdA);
+            if (srcStpId.getId().equalsIgnoreCase(baseA)) {
+                stpIdA = sourceStp;
+            }
+            else if (dstStpId.getId().equalsIgnoreCase(baseA)) {
+                stpIdA = destStp;
+            }
+
+            String baseZ = SimpleStp.getId(stpIdZ);
+            if (srcStpId.getId().equalsIgnoreCase(baseZ)) {
+                stpIdZ = sourceStp;
+            }
+            else if (dstStpId.getId().equalsIgnoreCase(baseZ)) {
+                stpIdZ = destStp;
+            }
 
             // Copy the applicable attribute constraints into this path.
             AttrConstraints newConstraints = new AttrConstraints(pceData.getConstraints());
@@ -142,8 +161,8 @@ public class DijkstraPCE implements PCEModule {
             p2ps.setDirectionality(directionality);
             p2ps.setEro(p2p.getEro());
             p2ps.setSymmetricPath(symmetricPath);
-            p2ps.setSourceSTP(pair.getA().getId());
-            p2ps.setDestSTP(pair.getZ().getId());
+            p2ps.setSourceSTP(stpIdA);
+            p2ps.setDestSTP(stpIdZ);
             ObjectAttrConstraint p2psObject = new ObjectAttrConstraint();
             p2psObject.setAttrName(Point2PointTypes.P2PS);
             p2psObject.setValue(p2ps);

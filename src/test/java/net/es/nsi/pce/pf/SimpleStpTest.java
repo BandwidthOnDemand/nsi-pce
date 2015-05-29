@@ -1,7 +1,5 @@
-package net.es.nsi.pce.path.services;
+package net.es.nsi.pce.pf;
 
-import net.es.nsi.pce.pf.SimpleLabel;
-import net.es.nsi.pce.pf.SimpleStp;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.After;
@@ -138,5 +136,17 @@ public class SimpleStpTest {
     public void testIsUnderSpecified() {
         SimpleStp stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013::bi-ps?vlan=1782-1790");
         assertTrue(stp.isUnderSpecified());
+    }
+
+    @Test
+    public void testGetId() {
+        String result = SimpleStp.getId("urn:ogf:network:cipo.rnp.br:2013::PMW:ge-2_3_4:+:out?vlan=1999");
+        assertEquals("urn:ogf:network:cipo.rnp.br:2013::PMW:ge-2_3_4:+:out", result);
+
+        result = SimpleStp.getId("urn:ogf:network:cipo.rnp.br:2013:testbed:PMW:ge-2_3_4:+:out?vlan=1999");
+        assertEquals("urn:ogf:network:cipo.rnp.br:2013:testbed:PMW:ge-2_3_4:+:out", result);
+
+        result = SimpleStp.getId("urn:ogf:network:cipo.rnp.br:2013:testbed:PMW:ge-2_3_4:+:out");
+        assertEquals("urn:ogf:network:cipo.rnp.br:2013:testbed:PMW:ge-2_3_4:+:out", result);
     }
 }
