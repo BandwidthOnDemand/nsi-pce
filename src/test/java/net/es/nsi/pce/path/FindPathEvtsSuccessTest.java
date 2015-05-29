@@ -77,16 +77,22 @@ public class FindPathEvtsSuccessTest {
         }
     };
 
+    private final static StpTestData test6 = new StpTestData() {
+        { this.setStpA("urn:ogf:network:es.net:2013::aofa-cr5:4_2_1:+?vlan=3901");
+          this.setStpZ("urn:ogf:network:surfnet.nl:1990:production7:96292?vlan=3901");
+        }
+    };
+
     // Two underspecified STP.
     private final static StpTestData test7 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:uvalight.net:2013:ps?vlan=1780-1785");
+        { this.setStpA("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1780-1785");
           this.setStpZ("urn:ogf:network:es.net:2013::sunn-cr5:10_1_6:+?vlan=1780-1785");
         }
     };
 
     // One underspecified STP.
     private final static StpTestData test8 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:uvalight.net:2013:ps?vlan=1780");
+        { this.setStpA("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1780");
           this.setStpZ("urn:ogf:network:es.net:2013::sunn-cr5:10_1_6:+?vlan=1780-1785");
         }
     };
@@ -99,8 +105,9 @@ public class FindPathEvtsSuccessTest {
             this.add(test3);
             this.add(test4);
             this.add(test5);
-            //this.add(test7);
-            //this.add(test8);
+            this.add(test6);
+            this.add(test7);
+            this.add(test8);
         }
     };
 
@@ -233,7 +240,6 @@ public class FindPathEvtsSuccessTest {
         }
 
         assertNotNull(findPathResponse);
-
         assertEquals(FindPathStatusType.SUCCESS, findPathResponse.getStatus());
 
         System.out.println("*************************************** testSuccessfulPath done ***********************************");

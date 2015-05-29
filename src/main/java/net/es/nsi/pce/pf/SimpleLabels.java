@@ -53,7 +53,7 @@ public class SimpleLabels {
                     int max = Integer.parseInt(hyphen[1].trim());
 
                     if (max <= min) {
-                        throw new IllegalArgumentException("Invalid lable range: min=" + min + ", max=" + max);
+                        throw new IllegalArgumentException("Invalid label range: min=" + min + ", max=" + max);
                     }
                     for (int j = min; j < max + 1; j++) {
                         SimpleLabel label = new SimpleLabel();

@@ -19,25 +19,26 @@ import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
  */
 public class PCEConstraints {
     // These are fixed element definitions within the findPath request.
+    public static final String NAMESPACE = "http://schemas.ogf.org/nsi/2013/12/connection/types";
     public static final String STARTTIME = "http://schemas.ogf.org/nsi/2013/12/connection/types#criteria/startTime";
     public static final String ENDTIME = "http://schemas.ogf.org/nsi/2013/12/connection/types#criteria/endTime";
     public static final String SERVICETYPE = "http://schemas.ogf.org/nsi/2013/12/connection/types#criteria/serviceType";
 
     /**
      * Build a routing constraint set from the standard API parameters.
-     * 
+     *
      * @param startTime
      * @param endTime
      * @param serviceType
      * @param constraints
-     * @return 
+     * @return
      */
     public static Set<Constraint> getConstraints(XMLGregorianCalendar startTime,
             XMLGregorianCalendar endTime, String serviceType,
             ConstraintListType constraints) {
 
         Set<Constraint> results = new HashSet<>();
-        
+
         // Add the start time.
         if (startTime != null) {
             NumAttrConstraint start = new NumAttrConstraint();
@@ -45,7 +46,7 @@ public class PCEConstraints {
             start.setValue(startTime.toGregorianCalendar().getTimeInMillis());
             results.add(start);
         }
-        
+
         // Add the end time.
         if (endTime != null) {
             NumAttrConstraint end = new NumAttrConstraint();
@@ -53,7 +54,7 @@ public class PCEConstraints {
             end.setValue(endTime.toGregorianCalendar().getTimeInMillis());
             results.add(end);
         }
-        
+
         // Add the serviceType as a constriant.
         if (serviceType != null && !serviceType.isEmpty()) {
             StringAttrConstraint st = new StringAttrConstraint();
@@ -61,7 +62,7 @@ public class PCEConstraints {
             st.setValue(serviceType);
             results.add(st);
         }
-        
+
         // Add the inclusion/exclusion contraints.
         if (constraints != null) {
             for (ConstraintType include : constraints.getInclude()) {
@@ -74,10 +75,10 @@ public class PCEConstraints {
                 StringAttrConstraint ex = new StringAttrConstraint();
                 ex.setAttrName(exclude.getType());
                 ex.setValue(exclude.getValue());
-                results.add(ex);                
+                results.add(ex);
             }
         }
-        
+
         return results;
     }
 }

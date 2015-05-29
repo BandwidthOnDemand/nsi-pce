@@ -196,6 +196,16 @@ public class FindPathService {
                             List<ResolvedPathType> resolved = p2p.resolvePath(path);
                             resp.getPath().addAll(resolved);
                         }
+                        catch (WebApplicationException app) {
+                            log.error("findPath: findPath P2PS failed", app);
+                            if (Exceptions.getFindPathErrorType(app).isPresent()) {
+                                resp.setStatus(FindPathStatusType.FAILED);
+                                resp.setFindPathError(Exceptions.getFindPathErrorType(app).get());
+                            }
+                            else {
+                                throw app;
+                            }
+                        }
                         catch (Exception ex) {
                             log.error("findPath: findPath P2PS failed", ex);
                             resp.setStatus(FindPathStatusType.FAILED);

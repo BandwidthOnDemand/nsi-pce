@@ -220,7 +220,7 @@ public class NsiTopologyFactory {
                 for (NmlPort port : biPortMap.values()) {
                     Map<String, StpType> biStps = NsiStpFactory.createBiStps(port, nsiNetwork, uniStp);
                     biStp.putAll(biStps);
-                    newNsiTopology.addStpBundle(port.getId(), biStp);
+                    newNsiTopology.addStpBundle(port.getId(), biStps);
                 }
 
                 // Add the port references to the Network resource.

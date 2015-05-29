@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.WebApplicationException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.services.Point2PointTypes;
@@ -64,7 +65,7 @@ public class ReachabilityPCETest {
         when(localNsa.getNetwork()).thenReturn(Arrays.asList(localNetwork));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = WebApplicationException.class)
     public void should_throw_exception_when_missing_source_stp() {
         PCEData pceData = new PCEData();
         pceData.setTrace(Collections.<String>emptyList());
