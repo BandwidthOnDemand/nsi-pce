@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.path.jaxb.DirectionalityType;
+import net.es.nsi.pce.topology.jaxb.SdpType;
 import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
@@ -71,6 +72,56 @@ public class StpTypeBundle {
                 throw Exceptions.unidirectionalStpInBidirectionalRequest(stp.getId());
             }
         }
+    }
+
+    /**
+     * Restrict the provided STP bundle to contain only the STP corresponding
+     * to the remote end of the associated SDP.
+
+     * @param topology
+     * @param stp
+     * @param directionality
+     * @return
+     */
+    public StpTypeBundle getPeerRestrictedBundle(NsiTopology topology, Optional<StpType> stp, DirectionalityType directionality) {
+        if (stp.isPresent()) {
+            Optional<StpTypeBundle> peer = getPeerBundle(topology, stp.get(), directionality);
+            if (peer.isPresent()) {
+                return peer.get();
+            }
+            else {
+                throw Exceptions.invalidEroError(stp.get().getId());
+            }
+        }
+
+        return this;
+    }
+
+
+    /**
+     * Get the peer bundle for the remote end of the SDP associated with the
+     * provided STP.
+     *
+     * @param topology
+     * @param stp
+     * @param directionality
+     * @return
+     */
+    private Optional<StpTypeBundle> getPeerBundle(NsiTopology topology, StpType stp, DirectionalityType directionality) {
+        Optional<StpTypeBundle> resultBundle = Optional.absent();
+        Optional<SdpType> sdp = Optional.fromNullable(topology.getSdp(stp.getSdp().getId()));
+        if (sdp.isPresent()) {
+            SimpleStp peer;
+            if (sdp.get().getDemarcationA().getStp().getId().equalsIgnoreCase(stp.getId())) {
+                peer = new SimpleStp(topology.getStp(sdp.get().getDemarcationZ().getStp().getId()).getId());
+            }
+            else {
+                peer = new SimpleStp(topology.getStp(sdp.get().getDemarcationA().getStp().getId()).getId());
+            }
+            resultBundle = Optional.of(new StpTypeBundle(topology, peer, directionality));
+        }
+
+        return resultBundle;
     }
 
     public int size() {

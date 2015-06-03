@@ -16,6 +16,10 @@ import net.es.nsi.pce.pf.api.PCEConstraints;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
+import net.es.nsi.pce.topology.jaxb.ResourceRefType;
+import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
+import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.topology.model.NsiTopology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,6 +119,18 @@ public class PfUtils {
         }
 
         return simple;
+    }
+
+
+    public static ServiceDomainType getServiceDomainOrFail(NsiTopology topology, StpType stp) {
+        Optional<ResourceRefType> serviceDomain = Optional.fromNullable(stp.getServiceDomain());
+        if (serviceDomain.isPresent()) {
+            Optional<ServiceDomainType> sd = Optional.fromNullable(topology.getServiceDomain(stp.getServiceDomain().getId()));
+            if (sd.isPresent()) {
+                return sd.get();
+            }
+        }
+        throw Exceptions.noPathFound("Missing ServiceDomain for source sdpId=" + stp.getId());
     }
 
     private static String getStringValue(String attributeName, AttrConstraints constraints) {

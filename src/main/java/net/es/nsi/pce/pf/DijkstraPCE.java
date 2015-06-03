@@ -6,9 +6,7 @@ import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SortedSparseMultigraph;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +14,6 @@ import java.util.Set;
 import javax.ws.rs.WebApplicationException;
 import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.path.jaxb.DirectionalityType;
-import net.es.nsi.pce.path.jaxb.OrderedStpType;
 import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.jaxb.StpListType;
 import net.es.nsi.pce.path.services.Point2PointTypes;
@@ -29,9 +26,7 @@ import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
 import net.es.nsi.pce.topology.jaxb.ResourceRefType;
-import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
 import net.es.nsi.pce.topology.jaxb.SdpType;
-import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
 import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.apache.commons.collections15.Transformer;
@@ -123,7 +118,7 @@ public class DijkstraPCE implements PCEModule {
 
             // Manipulate the sourceBundle if we had a previous iteration that
             // has restricted the STP's available on this bundle.
-            StpTypeBundle sourceBundle = getPeerRestrictedBundle(nsiTopology, route.getBundleA(), nextStp, directionality);
+            StpTypeBundle sourceBundle = route.getBundleA().getPeerRestrictedBundle(nsiTopology, nextStp, directionality);
 
             // Compute the shortest path.
             List<GraphEdge> edges = getShortestPath(sourceBundle, route.getBundleZ(), pceData, nsiTopology);
@@ -194,7 +189,7 @@ public class DijkstraPCE implements PCEModule {
             P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();
             p2ps.setCapacity(p2p.getCapacity());
             p2ps.setDirectionality(directionality);
-            p2ps.setEro(getInternalERO(ro, SimpleStp.parseNetworkId(stpIdA)));
+            p2ps.setEro(ro.getInternalERO(SimpleStp.parseNetworkId(stpIdA)));
             p2ps.setSymmetricPath(symmetricPath);
             p2ps.setSourceSTP(stpIdA);
             p2ps.setDestSTP(stpIdZ);
@@ -211,56 +206,6 @@ public class DijkstraPCE implements PCEModule {
         return pceData;
     }
 
-
-    /**
-     * Restrict the provided STP bundle to contain only the STP corresponding
-     * to the remote end of the associated SDP.
-
-     * @param topology
-     * @param bundle
-     * @param stp
-     * @param directionality
-     * @return
-     */
-    private StpTypeBundle getPeerRestrictedBundle(NsiTopology topology, StpTypeBundle bundle, Optional<StpType> stp, DirectionalityType directionality) {
-        if (stp.isPresent()) {
-            Optional<StpTypeBundle> peer = getPeerBundle(topology, stp.get(), directionality);
-            if (peer.isPresent()) {
-                return peer.get();
-            }
-            else {
-                throw Exceptions.invalidEroError(stp.get().getId());
-            }
-        }
-
-        return bundle;
-    }
-
-    /**
-     * Get the peer bundle for the remote end of the SDP associated with the
-     * provided STP.
-     *
-     * @param topology
-     * @param stp
-     * @param directionality
-     * @return
-     */
-    private Optional<StpTypeBundle> getPeerBundle(NsiTopology topology, StpType stp, DirectionalityType directionality) {
-        Optional<StpTypeBundle> bundle = Optional.absent();
-        Optional<SdpType> sdp = Optional.fromNullable(topology.getSdp(stp.getSdp().getId()));
-        if (sdp.isPresent()) {
-            SimpleStp peer;
-            if (sdp.get().getDemarcationA().getStp().getId().equalsIgnoreCase(stp.getId())) {
-                peer = new SimpleStp(topology.getStp(sdp.get().getDemarcationZ().getStp().getId()).getId());
-            }
-            else {
-                peer = new SimpleStp(topology.getStp(sdp.get().getDemarcationA().getStp().getId()).getId());
-            }
-            bundle = Optional.of(new StpTypeBundle(topology, peer, directionality));
-        }
-
-        return bundle;
-    }
 
     private List<GraphEdge> getShortestPath(StpTypeBundle srcBundle,
             StpTypeBundle dstBundle, PCEData pceData, NsiTopology nsiTopology)
@@ -290,14 +235,14 @@ public class DijkstraPCE implements PCEModule {
         // TODO: Add path finding support for STP not in topology.
 
         // Build the graph.
-        addStpVerticies(graph, verticies, srcBundle);
-        addStpVerticies(graph, verticies, dstBundle);
-        addServiceDomainVerticies(graph, verticies, nsiTopology.getServiceDomains());
-        linkStpAndServiceDomainVerticies(nsiTopology, graph, verticies, srcBundle, nsiTopology.getServiceDomains());
-        linkStpAndServiceDomainVerticies(nsiTopology, graph, verticies, dstBundle, nsiTopology.getServiceDomains());
-        Set<String> exclusionSdp = getExclusionSdp(nsiTopology, srcBundle);
-        exclusionSdp.addAll(getExclusionSdp(nsiTopology, dstBundle));
-        addSdpEdges(nsiTopology, graph, verticies, exclusionSdp);
+        GraphUtils.addStpVerticies(graph, verticies, srcBundle);
+        GraphUtils.addStpVerticies(graph, verticies, dstBundle);
+        GraphUtils.addServiceDomainVerticies(graph, verticies, nsiTopology.getServiceDomains());
+        GraphUtils.linkStpAndServiceDomainVerticies(nsiTopology, graph, verticies, srcBundle, nsiTopology.getServiceDomains());
+        GraphUtils.linkStpAndServiceDomainVerticies(nsiTopology, graph, verticies, dstBundle, nsiTopology.getServiceDomains());
+        Set<String> exclusionSdp = nsiTopology.getExclusionSdp(srcBundle);
+        exclusionSdp.addAll(nsiTopology.getExclusionSdp(dstBundle));
+        GraphUtils.addSdpEdges(nsiTopology, graph, verticies, exclusionSdp);
         DijkstraShortestPath<GraphVertex, GraphEdge> alg = new DijkstraShortestPath<>(graph, trans, true);
 
         // We now try to find a viable path based on the graph we just built.
@@ -325,107 +270,7 @@ public class DijkstraPCE implements PCEModule {
         }
 
         log.debug("Path computation completed with " + shortestPath.size() + " SDP returned.");
-
         return shortestPath;
-    }
-
-    // make this network for internal ERO and not STP
-    private StpListType getInternalERO(RouteObject ro, String networkId) {
-        StpListType list = factory.createStpListType();
-        for (Route route : ro.getRoutes()) {
-            for (OrderedStpType internal : route.getInternalStp()) {
-                if (networkId.equalsIgnoreCase(SimpleStp.parseNetworkId(internal.getStp()))) {
-                    list.getOrderedSTP().add(internal);
-                }
-            }
-
-            if (!list.getOrderedSTP().isEmpty()) {
-                return list;
-            }
-        }
-
-        if (!list.getOrderedSTP().isEmpty()) {
-            return list;
-        }
-
-        return null;
-    }
-
-    private ServiceDomainType getServiceDomainOrFail(NsiTopology topology, StpType stp) {
-        Optional<ResourceRefType> serviceDomain = Optional.fromNullable(stp.getServiceDomain());
-        if (serviceDomain.isPresent()) {
-            Optional<ServiceDomainType> sd = Optional.fromNullable(topology.getServiceDomain(stp.getServiceDomain().getId()));
-            if (sd.isPresent()) {
-                return sd.get();
-            }
-        }
-        throw Exceptions.noPathFound("Missing ServiceDomain for source sdpId=" + stp.getId());
-    }
-
-    private void addStpVerticies(Graph<GraphVertex, GraphEdge> graph, Map<String, GraphVertex> verticies, StpTypeBundle bundle) {
-        for (StpType stp : bundle.values()) {
-            StpVertex srcVertex = new StpVertex(stp.getId(), stp);
-            graph.addVertex(srcVertex);
-            verticies.put(srcVertex.getId(), srcVertex);
-        }
-    }
-
-    private void addServiceDomainVerticies(Graph<GraphVertex, GraphEdge> graph, Map<String, GraphVertex> verticies, Collection<ServiceDomainType> serviceDomains) {
-        // Add ServiceDomains as verticies.
-        for (ServiceDomainType serviceDomain : serviceDomains) {
-            ServiceDomainVertex vertex = new ServiceDomainVertex(serviceDomain.getId(), serviceDomain);
-            graph.addVertex(vertex);
-            verticies.put(vertex.getId(), vertex);
-        }
-    }
-
-    private void linkStpAndServiceDomainVerticies(NsiTopology topology, Graph<GraphVertex, GraphEdge> graph, Map<String, GraphVertex> verticies, StpTypeBundle bundle, Collection<ServiceDomainType> serviceDomains) {
-        for (StpType stp : bundle.values()) {
-            ServiceDomainType serviceDomain = getServiceDomainOrFail(topology, stp);
-            StpEdge edge = new StpEdge(stp.getId(), stp, serviceDomain);
-            GraphVertex vertex = verticies.get(stp.getId());
-            graph.addEdge(edge, vertex, verticies.get(serviceDomain.getId()));
-        }
-    }
-
-    private Set<String> getExclusionSdp(NsiTopology topology, StpTypeBundle stpBundle) {
-        Set<String> exclusionSdp = new HashSet<>();
-        Optional<Map<String, StpType>> bundle = Optional.fromNullable(topology.getStpBundle(stpBundle.getSimpleStp().getId()));
-        if (bundle.isPresent()) {
-            for (StpType anStp : bundle.get().values()) {
-                Optional<ResourceRefType> sdpRef = Optional.fromNullable(anStp.getSdp());
-                if (sdpRef.isPresent()) {
-                    exclusionSdp.add(sdpRef.get().getId());
-                }
-            }
-        }
-
-        return exclusionSdp;
-    }
-
-    private void addSdpEdges(NsiTopology topology, Graph<GraphVertex, GraphEdge> graph, Map<String, GraphVertex> verticies, Set<String> exclusionSdp) {
-        // We only do bidirectional path finding at this point so add the
-        // bidirectional SDP as edges.
-        for (SdpType sdp : topology.getSdps()) {
-            if (sdp.getType() == SdpDirectionalityType.BIDIRECTIONAL) {
-                Optional<ResourceRefType> aServiceDomainRef = Optional.fromNullable(sdp.getDemarcationA().getServiceDomain());
-                Optional<ResourceRefType> zServiceDomainRef = Optional.fromNullable(sdp.getDemarcationZ().getServiceDomain());
-
-                if (!aServiceDomainRef.isPresent()) {
-                    log.error("Missing service domain for demarcationA sdpId=" + sdp.getId() + " and stpId=" + sdp.getDemarcationA().getStp().getId());
-                }
-                else if (!zServiceDomainRef.isPresent()) {
-                    log.error("Missing service domain for demarcationZ sdpId=" + sdp.getId() + " and stpId=" + sdp.getDemarcationZ().getStp().getId());
-                }
-                else if (exclusionSdp.contains(sdp.getId())) {
-                    log.debug("Omitting SDP sdpId=" + sdp.getId());
-                }
-                else {
-                    SdpEdge sdpEdge = new SdpEdge(sdp.getId(), sdp);
-                    graph.addEdge(sdpEdge, verticies.get(aServiceDomainRef.get().getId()), verticies.get(zServiceDomainRef.get().getId()));
-                }
-            }
-        }
     }
 
     protected List<StpPair> pullIndividualSegmentsOut(List<GraphEdge> path, NsiTopology nsiTopology) {
@@ -433,8 +278,6 @@ public class DijkstraPCE implements PCEModule {
 
         Optional<StpType> start = Optional.absent();
         for (GraphEdge edge: path) {
-            log.debug("--- Edge: " + edge.getId());
-
             if (edge instanceof StpEdge) {
                 StpEdge stpEdge = (StpEdge) edge;
 
@@ -471,7 +314,7 @@ public class DijkstraPCE implements PCEModule {
     }
 
     private List<GraphEdge> consolidatePath(NsiTopology topology, List<GraphEdge> path) {
-        // We now consolidate adjacent STP at ERO points back into SDP.
+        // We now consolidate adjacent STP at ERO breakpoints back into SDP.
         List<GraphEdge> consolidatedPath = new ArrayList<>();
         Iterator<GraphEdge> edge = path.iterator();
         GraphEdge lastEdge = null;
@@ -484,26 +327,28 @@ public class DijkstraPCE implements PCEModule {
 
                     Optional<ResourceRefType> currentSdpRef = Optional.fromNullable(currentStpEdge.getStp().getSdp());
                     Optional<ResourceRefType> lastSdpRef = Optional.fromNullable(lastStpEdge.getStp().getSdp());
+
                     if (currentSdpRef.isPresent() && lastSdpRef.isPresent() && currentSdpRef.get().getId().equalsIgnoreCase(lastSdpRef.get().getId())) {
                         Optional<SdpType> sdp = Optional.fromNullable(topology.getSdp(currentSdpRef.get().getId()));
                         if (!sdp.isPresent()) {
                             throw Exceptions.noPathFound("No SDP associated with STP: " + currentStpEdge.getStp().getId());
                         }
+
                         SdpEdge sdpEdge = new SdpEdge(sdp.get());
                         consolidatedPath.add(sdpEdge);
-                    }
-                    else {
-                        consolidatedPath.add(lastEdge);
+                        lastEdge = null;
+                        continue;
                     }
                 }
-                else {
-                    consolidatedPath.add(lastEdge);
-                }
+
+                consolidatedPath.add(lastEdge);
             }
             lastEdge = currentEdge;
         }
 
-        consolidatedPath.add(lastEdge);
+        if(lastEdge != null) {
+            consolidatedPath.add(lastEdge);
+        }
 
         return consolidatedPath;
     }

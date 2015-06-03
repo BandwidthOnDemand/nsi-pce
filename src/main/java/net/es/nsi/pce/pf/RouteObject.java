@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RouteObject {
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private final net.es.nsi.pce.path.jaxb.ObjectFactory factory = new net.es.nsi.pce.path.jaxb.ObjectFactory();
     List<Route> routes = new ArrayList<>();
 
     public RouteObject(NsiTopology topology, SimpleStp srcStpId,
@@ -101,6 +102,28 @@ public class RouteObject {
 
     public List<Route> getRoutes() {
         return routes;
+    }
+
+    // make this network for internal ERO and not STP
+    public StpListType getInternalERO(String networkId) {
+        StpListType list = factory.createStpListType();
+        for (Route route : this.getRoutes()) {
+            for (OrderedStpType internal : route.getInternalStp()) {
+                if (networkId.equalsIgnoreCase(SimpleStp.parseNetworkId(internal.getStp()))) {
+                    list.getOrderedSTP().add(internal);
+                }
+            }
+
+            if (!list.getOrderedSTP().isEmpty()) {
+                return list;
+            }
+        }
+
+        if (!list.getOrderedSTP().isEmpty()) {
+            return list;
+        }
+
+        return null;
     }
 
     public int size() {

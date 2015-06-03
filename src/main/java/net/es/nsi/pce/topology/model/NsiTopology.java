@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import net.es.nsi.pce.pf.StpTypeBundle;
 import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.topology.jaxb.NetworkType;
 import net.es.nsi.pce.topology.jaxb.NsaInterfaceType;
@@ -597,4 +598,18 @@ public class NsiTopology {
         return tp;
     }
 
+    public Set<String> getExclusionSdp(StpTypeBundle stpBundle) {
+        Set<String> exclusionSdp = new HashSet<>();
+        Optional<Map<String, StpType>> bundle = Optional.fromNullable(this.getStpBundle(stpBundle.getSimpleStp().getId()));
+        if (bundle.isPresent()) {
+            for (StpType anStp : bundle.get().values()) {
+                Optional<ResourceRefType> sdpRef = Optional.fromNullable(anStp.getSdp());
+                if (sdpRef.isPresent()) {
+                    exclusionSdp.add(sdpRef.get().getId());
+                }
+            }
+        }
+
+        return exclusionSdp;
+    }
 }
