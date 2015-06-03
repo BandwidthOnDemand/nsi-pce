@@ -9,14 +9,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.WebApplicationException;
 import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.path.jaxb.DirectionalityType;
+import net.es.nsi.pce.path.jaxb.OrderedStpType;
 import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
+import net.es.nsi.pce.path.jaxb.StpListType;
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.path.services.Service;
 import net.es.nsi.pce.pf.api.PCEConstraints;
@@ -55,7 +57,7 @@ public class DijkstraPCE implements PCEModule {
      *    - startTime
      *    - endTime
      *    - capacity
-     *    - ero
+     *
      * @param pceData
      * @return
      */
@@ -68,14 +70,13 @@ public class DijkstraPCE implements PCEModule {
 
         // We currently implement P2PS policies in the PCE.  Reject any path
         // finding requests for services we do not understand.
-
         String serviceType = PfUtils.getServiceTypeOrFail(constraints);
         List<Service> serviceByType = Service.getServiceByType(serviceType);
         if (!serviceByType.contains(Service.P2PS)) {
             throw Exceptions.unsupportedParameter(PCEConstraints.NAMESPACE, PCEConstraints.SERVICETYPE, serviceType);
         }
 
-        // Generic reservation information are in string constraint attributes,
+        // Generic reservation information is in string constraint attributes,
         // but the P2PS specific constraints are in the P2PS P2PServiceBaseType.
         P2PServiceBaseType p2p = PfUtils.getP2PServiceBaseTypeOrFail(constraints);
 
@@ -91,42 +92,74 @@ public class DijkstraPCE implements PCEModule {
         // Get destination stpId.
         String destStp = PfUtils.getDestinationStpOrFail(p2p);
 
+        // Get the optional ERO object.
+        Optional<StpListType> ero = PfUtils.getEro(p2p);
+
         // Parse the source STP to make sure it is valid.
-        SimpleStp srcStpId;
-        try {
-            srcStpId = new SimpleStp(sourceStp);
-        }
-        catch (IllegalArgumentException ex) {
-            log.error("DijkstraPCE: Failed to parse source STP: " + sourceStp, ex);
-            throw Exceptions.stpResolutionError(sourceStp);
-        }
+        SimpleStp srcStpId = PfUtils.getSimpleStpOrFail(sourceStp);
 
         // Parse the destination STP to make sure it is valid.
-        SimpleStp dstStpId;
-        try {
-            dstStpId = new SimpleStp(destStp);
-        }
-        catch (IllegalArgumentException ex) {
-            log.error("DijkstraPCE: Failed to parse destination STP: " + sourceStp, ex);
-            throw Exceptions.stpResolutionError(destStp);
-        }
+        SimpleStp dstStpId = PfUtils.getSimpleStpOrFail(destStp);
 
         // Get the topology model used for routing.
         NsiTopology nsiTopology = pceData.getTopology();
 
-        log.debug("******* localId " + nsiTopology.getLocalNsaId());
-        for (String networkId : nsiTopology.getNetworkIds()) {
-            log.debug("******* networkId " + networkId);
+        // Log topologies applied to this request.
+        log.debug("localId " + nsiTopology.getLocalNsaId());
+        nsiTopology.getNetworkIds().stream().forEach((networkId) -> {
+            log.debug("networkId " + networkId);
+        });
+
+        // Segment the request into subroutes if an ERO is provided.
+        RouteObject ro = new RouteObject(nsiTopology, srcStpId, dstStpId, directionality, ero);
+
+        // Perform pathfinding on each computed route.
+        List<GraphEdge> path = new ArrayList<>();
+        Optional<StpType> nextStp = Optional.absent();
+        Iterator<Route> iterator = ro.getRoutes().iterator();
+        while (iterator.hasNext()) {
+            // We will process this route now.
+            Route route = iterator.next();
+
+            // Manipulate the sourceBundle if we had a previous iteration that
+            // has restricted the STP's available on this bundle.
+            StpTypeBundle sourceBundle = getPeerRestrictedBundle(nsiTopology, route.getBundleA(), nextStp, directionality);
+
+            // Compute the shortest path.
+            List<GraphEdge> edges = getShortestPath(sourceBundle, route.getBundleZ(), pceData, nsiTopology);
+
+            // Check to see if we found a valid path.
+            if (edges.isEmpty()) {
+                throw Exceptions.noPathFound("No path found using provided criteria sourceStp=" + route.getBundleA().getSimpleStp().getId() + ", and destStp=" + route.getBundleZ().getSimpleStp().getId());
+            }
+
+            // Extract the computed destination STP here so we can get the
+            // STP on the end of the SDP for the start of our next iteration.
+            if (iterator.hasNext()) {
+                GraphEdge terminalEdge = edges.get(edges.size() - 1);
+                if (terminalEdge instanceof StpEdge) {
+                    StpEdge stpEdge = (StpEdge) terminalEdge;
+                    nextStp = Optional.of(stpEdge.getStp());
+                }
+                else {
+                    throw Exceptions.noPathFound("Issue with edge STP: " + route.getBundleZ().getSimpleStp().getStpId());
+                }
+            }
+
+            // Add edges from this path computation to our result set.
+            path.addAll(edges);
         }
 
-        List<GraphEdge> path = getPath(srcStpId, dstStpId, directionality, pceData, nsiTopology);
-
         // Check to see if there is a valid path.
-        if (path == null || path.isEmpty()) {
+        if (path.isEmpty()) {
             throw Exceptions.noPathFound("No path found using provided criteria");
         }
 
-        List<StpPair> segments = pullIndividualSegmentsOut(path, nsiTopology);
+        // Consolidate the path segment results.
+        List<GraphEdge> consolidatedPath = consolidatePath(nsiTopology, path);
+
+        // Build a path response for each segment in the the computed path.
+        List<StpPair> segments = pullIndividualSegmentsOut(consolidatedPath, nsiTopology);
         for (int i = 0; i < segments.size(); i++) {
             StpPair pair = segments.get(i);
 
@@ -135,6 +168,8 @@ public class DijkstraPCE implements PCEModule {
 
             log.debug("Pair: " + stpIdA + " -- " + stpIdZ);
 
+            // Map the A and Z ends of the original request back to their initial
+            // form just in case they were underspecified.
             String baseA = SimpleStp.getId(stpIdA);
             if (srcStpId.getId().equalsIgnoreCase(baseA)) {
                 stpIdA = sourceStp;
@@ -159,7 +194,7 @@ public class DijkstraPCE implements PCEModule {
             P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();
             p2ps.setCapacity(p2p.getCapacity());
             p2ps.setDirectionality(directionality);
-            p2ps.setEro(p2p.getEro());
+            p2ps.setEro(getInternalERO(ro, SimpleStp.parseNetworkId(stpIdA)));
             p2ps.setSymmetricPath(symmetricPath);
             p2ps.setSourceSTP(stpIdA);
             p2ps.setDestSTP(stpIdZ);
@@ -176,7 +211,60 @@ public class DijkstraPCE implements PCEModule {
         return pceData;
     }
 
-    private List<GraphEdge> getPath(SimpleStp srcStpId, SimpleStp dstStpId, DirectionalityType directionality, PCEData pceData, NsiTopology nsiTopology) throws WebApplicationException {
+
+    /**
+     * Restrict the provided STP bundle to contain only the STP corresponding
+     * to the remote end of the associated SDP.
+
+     * @param topology
+     * @param bundle
+     * @param stp
+     * @param directionality
+     * @return
+     */
+    private StpTypeBundle getPeerRestrictedBundle(NsiTopology topology, StpTypeBundle bundle, Optional<StpType> stp, DirectionalityType directionality) {
+        if (stp.isPresent()) {
+            Optional<StpTypeBundle> peer = getPeerBundle(topology, stp.get(), directionality);
+            if (peer.isPresent()) {
+                return peer.get();
+            }
+            else {
+                throw Exceptions.invalidEroError(stp.get().getId());
+            }
+        }
+
+        return bundle;
+    }
+
+    /**
+     * Get the peer bundle for the remote end of the SDP associated with the
+     * provided STP.
+     *
+     * @param topology
+     * @param stp
+     * @param directionality
+     * @return
+     */
+    private Optional<StpTypeBundle> getPeerBundle(NsiTopology topology, StpType stp, DirectionalityType directionality) {
+        Optional<StpTypeBundle> bundle = Optional.absent();
+        Optional<SdpType> sdp = Optional.fromNullable(topology.getSdp(stp.getSdp().getId()));
+        if (sdp.isPresent()) {
+            SimpleStp peer;
+            if (sdp.get().getDemarcationA().getStp().getId().equalsIgnoreCase(stp.getId())) {
+                peer = new SimpleStp(topology.getStp(sdp.get().getDemarcationZ().getStp().getId()).getId());
+            }
+            else {
+                peer = new SimpleStp(topology.getStp(sdp.get().getDemarcationA().getStp().getId()).getId());
+            }
+            bundle = Optional.of(new StpTypeBundle(topology, peer, directionality));
+        }
+
+        return bundle;
+    }
+
+    private List<GraphEdge> getShortestPath(StpTypeBundle srcBundle,
+            StpTypeBundle dstBundle, PCEData pceData, NsiTopology nsiTopology)
+            throws WebApplicationException {
         // We build a graph consisting of source STP, destination STP, and all
         // service domains as verticies.  The SDP are added as edges between
         // service domains.  A special edge is added between the edge STP and
@@ -201,19 +289,6 @@ public class DijkstraPCE implements PCEModule {
         //
         // TODO: Add path finding support for STP not in topology.
 
-        // Get the set of possible source and destination ports.
-        StpTypeBundle srcBundle = new StpTypeBundle(nsiTopology, srcStpId, directionality);
-        if (srcBundle.isEmpty()) {
-            log.error("getPath: source STP does not exist in topology: " + srcStpId.toString());
-            throw Exceptions.stpResolutionError(srcStpId.toString());
-        }
-
-        StpTypeBundle dstBundle = new StpTypeBundle(nsiTopology, dstStpId, directionality);
-        if (dstBundle.isEmpty()) {
-            log.error("getPath: destination STP does not exist in topology: " + dstStpId.toString());
-            throw Exceptions.stpResolutionError(dstStpId.toString());
-        }
-
         // Build the graph.
         addStpVerticies(graph, verticies, srcBundle);
         addStpVerticies(graph, verticies, dstBundle);
@@ -229,27 +304,51 @@ public class DijkstraPCE implements PCEModule {
         // If there is only a single source and destination STP then this is
         // simple, however, if we have multiple then we need to iterate through
         // the combinations.  Randomize to give us a good chance of success when
-        // singalling to the uPA.
-        List<GraphEdge> path = new LinkedList<>();
+        // singalling to the uPA.  We will try every possible pair to get the
+        // shortest path.
+        List<GraphEdge> shortestPath = new ArrayList<>();
         StpChooser pairs = new StpChooser(srcBundle, dstBundle);
         while (pairs.hasNext()) {
+            List<GraphEdge> path;
             try {
                 StpPair pair = pairs.removeRandom();
-                log.debug("getPath: stpA=" + pair.getA().getId() + ", stpZ=" + pair.getZ().getId());
+                log.debug("getPath: trying stpA=" + pair.getA().getId() + ", stpZ=" + pair.getZ().getId());
                 path = alg.getPath(verticies.get(pair.getA().getId()), verticies.get(pair.getZ().getId()));
             } catch (IllegalArgumentException ex) {
                 log.error("No path found", ex);
                 throw Exceptions.noPathFound(ex.getMessage());
             }
 
-            if (!path.isEmpty()) {
-                break;
+            if (!path.isEmpty() && (shortestPath.isEmpty() || path.size() < shortestPath.size())) {
+                shortestPath = path;
             }
         }
 
-        log.debug("Path computation completed with " + path.size() + " SDP returned.");
+        log.debug("Path computation completed with " + shortestPath.size() + " SDP returned.");
 
-        return path;
+        return shortestPath;
+    }
+
+    // make this network for internal ERO and not STP
+    private StpListType getInternalERO(RouteObject ro, String networkId) {
+        StpListType list = factory.createStpListType();
+        for (Route route : ro.getRoutes()) {
+            for (OrderedStpType internal : route.getInternalStp()) {
+                if (networkId.equalsIgnoreCase(SimpleStp.parseNetworkId(internal.getStp()))) {
+                    list.getOrderedSTP().add(internal);
+                }
+            }
+
+            if (!list.getOrderedSTP().isEmpty()) {
+                return list;
+            }
+        }
+
+        if (!list.getOrderedSTP().isEmpty()) {
+            return list;
+        }
+
+        return null;
     }
 
     private ServiceDomainType getServiceDomainOrFail(NsiTopology topology, StpType stp) {
@@ -369,5 +468,43 @@ public class DijkstraPCE implements PCEModule {
         }
 
         return segments;
+    }
+
+    private List<GraphEdge> consolidatePath(NsiTopology topology, List<GraphEdge> path) {
+        // We now consolidate adjacent STP at ERO points back into SDP.
+        List<GraphEdge> consolidatedPath = new ArrayList<>();
+        Iterator<GraphEdge> edge = path.iterator();
+        GraphEdge lastEdge = null;
+        while (edge.hasNext()) {
+            GraphEdge currentEdge = edge.next();
+            if (lastEdge != null) {
+                if (currentEdge instanceof StpEdge && lastEdge instanceof StpEdge) {
+                    StpEdge currentStpEdge = (StpEdge) currentEdge;
+                    StpEdge lastStpEdge = (StpEdge) lastEdge;
+
+                    Optional<ResourceRefType> currentSdpRef = Optional.fromNullable(currentStpEdge.getStp().getSdp());
+                    Optional<ResourceRefType> lastSdpRef = Optional.fromNullable(lastStpEdge.getStp().getSdp());
+                    if (currentSdpRef.isPresent() && lastSdpRef.isPresent() && currentSdpRef.get().getId().equalsIgnoreCase(lastSdpRef.get().getId())) {
+                        Optional<SdpType> sdp = Optional.fromNullable(topology.getSdp(currentSdpRef.get().getId()));
+                        if (!sdp.isPresent()) {
+                            throw Exceptions.noPathFound("No SDP associated with STP: " + currentStpEdge.getStp().getId());
+                        }
+                        SdpEdge sdpEdge = new SdpEdge(sdp.get());
+                        consolidatedPath.add(sdpEdge);
+                    }
+                    else {
+                        consolidatedPath.add(lastEdge);
+                    }
+                }
+                else {
+                    consolidatedPath.add(lastEdge);
+                }
+            }
+            lastEdge = currentEdge;
+        }
+
+        consolidatedPath.add(lastEdge);
+
+        return consolidatedPath;
     }
 }

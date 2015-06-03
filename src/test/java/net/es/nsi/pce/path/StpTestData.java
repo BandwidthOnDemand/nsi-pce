@@ -4,6 +4,8 @@
  */
 package net.es.nsi.pce.path;
 
+import net.es.nsi.pce.path.jaxb.StpListType;
+
 /**
  *
  * @author hacksaw
@@ -11,6 +13,7 @@ package net.es.nsi.pce.path;
 public class StpTestData {
     private String stpA;
     private String stpZ;
+    private StpListType ero;
 
     /**
      * @return the stpA
@@ -38,5 +41,19 @@ public class StpTestData {
      */
     public void setStpZ(String stpZ) {
         this.stpZ = stpZ;
+    }
+
+    /**
+     * @return the ero
+     */
+    public StpListType getEro() {
+        return ero;
+    }
+
+    /**
+     * @param ero the ero to set
+     */
+    public void setEro(StpListType ero) {
+        this.ero = ero;
     }
 }

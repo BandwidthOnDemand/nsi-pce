@@ -72,6 +72,12 @@ public class Exceptions {
         return new WebApplicationException(ex);
     }
 
+    public static WebApplicationException invalidEroError(String stpId) {
+        FindPathErrorType error = NsiError.getFindPathError(NsiError.INVALID_ERO, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stpId);
+        Response ex = Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();
+        return new WebApplicationException(ex);
+    }
+
 /* UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST
     public static WebApplicationException internalServerErrorException(String resource, String parameter) {
         String description = NsiError.getFindPathErrorString(NsiError.UNKNOWN_NETWORK, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), srcStpId);

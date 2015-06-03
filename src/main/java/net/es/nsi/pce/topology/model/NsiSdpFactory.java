@@ -93,7 +93,7 @@ public class NsiSdpFactory {
 
             StpType remoteStp = stpMap.get(remoteStpId.toLowerCase());
             if (remoteStp == null) {
-                topologyLogger.errorSummary(PceErrors.STP_INVALID_REMOTE_REFERNCE, stp.getLocalId(), stp.getId(), remoteStpId);
+                topologyLogger.errorSummary(PceErrors.STP_INVALID_REMOTE_REFERNCE, stp.getNetworkId(), stp.getId(), remoteStpId);
                 continue;
             }
 
@@ -103,13 +103,13 @@ public class NsiSdpFactory {
                 // Check to see if this outbound STP is connected to an inbound
                 // STP at the far end, and that they agree to be connected.
                 if (remoteStp.getType() != StpDirectionalityType.INBOUND) {
-                    topologyLogger.errorSummary(PceErrors.STP_OUTBOUND_REFERNCE_MISMATCH, stp.getLocalId(), stp.getId(), remoteStpId);
+                    topologyLogger.errorSummary(PceErrors.STP_OUTBOUND_REFERNCE_MISMATCH, stp.getNetworkId(), stp.getId(), remoteStpId);
                     continue;
                 }
 
                 if (remoteStpConnectedTo == null ||
                         !remoteStpConnectedTo.equalsIgnoreCase(stp.getId())) {
-                    topologyLogger.errorSummary(PceErrors.STP_REMOTE_REFERNCE_MISMATCH, stp.getLocalId(), stp.getId(), remoteStpId);
+                    topologyLogger.errorSummary(PceErrors.STP_REMOTE_REFERNCE_MISMATCH, stp.getNetworkId(), stp.getId(), remoteStpId);
                     continue;
                 }
 
@@ -126,13 +126,13 @@ public class NsiSdpFactory {
                 // majority of these were already checked in the outbound case
                 // but there may be some stragglers.
                 if (remoteStp.getType() != StpDirectionalityType.OUTBOUND) {
-                    topologyLogger.errorSummary(PceErrors.STP_INBOUND_REFERNCE_MISMATCH, stp.getLocalId(), stp.getId(), remoteStpId);
+                    topologyLogger.errorSummary(PceErrors.STP_INBOUND_REFERNCE_MISMATCH, stp.getNetworkId(), stp.getId(), remoteStpId);
                     continue;
                 }
 
                 if (remoteStpConnectedTo == null ||
                         !remoteStpConnectedTo.equalsIgnoreCase(stp.getId())) {
-                    topologyLogger.errorSummary(PceErrors.STP_REMOTE_REFERNCE_MISMATCH, stp.getLocalId(), stp.getId(), remoteStpId);
+                    topologyLogger.errorSummary(PceErrors.STP_REMOTE_REFERNCE_MISMATCH, stp.getNetworkId(), stp.getId(), remoteStpId);
                     continue;
                 }
             }

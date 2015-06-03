@@ -10,17 +10,21 @@ import com.google.common.base.Strings;
 import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.path.jaxb.DirectionalityType;
 import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
+import net.es.nsi.pce.path.jaxb.StpListType;
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.api.PCEConstraints;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author hacksaw
  */
 public class PfUtils {
+    private final static Logger log = LoggerFactory.getLogger(PfUtils.class);
 
     public static String getServiceTypeOrFail(AttrConstraints constraints) {
         return getStringValue(PCEConstraints.SERVICETYPE, constraints);
@@ -72,6 +76,11 @@ public class PfUtils {
         return symmetricPath.or(Boolean.TRUE);
     }
 
+    public static Optional<StpListType> getEro(P2PServiceBaseType p2ps) {
+        Optional<StpListType> ero = Optional.fromNullable(p2ps.getEro());
+        return ero;
+    }
+
     public static P2PServiceBaseType getP2PServiceBaseTypeOrFail(AttrConstraints constraints) {
         // Generic reservation information are in string constraint attributes,
         // but the P2PS specific constraints are in the P2PS P2PServiceBaseType.
@@ -92,6 +101,20 @@ public class PfUtils {
         }
 
         throw Exceptions.missingParameter(Point2PointTypes.P2PS, "null", "null");
+    }
+
+    public static SimpleStp getSimpleStpOrFail(String stpId) {
+        // Parse the STP to make sure it is valid.
+        SimpleStp simple;
+        try {
+            simple = new SimpleStp(stpId);
+        }
+        catch (IllegalArgumentException ex) {
+            log.error("getSimpleStpOrFail: stpId=" + stpId, ex);
+            throw Exceptions.stpResolutionError(stpId);
+        }
+
+        return simple;
     }
 
     private static String getStringValue(String attributeName, AttrConstraints constraints) {

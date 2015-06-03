@@ -22,8 +22,10 @@ import net.es.nsi.pce.path.jaxb.FindPathRequestType;
 import net.es.nsi.pce.path.jaxb.FindPathResponseType;
 import net.es.nsi.pce.path.jaxb.FindPathStatusType;
 import net.es.nsi.pce.path.jaxb.ObjectFactory;
+import net.es.nsi.pce.path.jaxb.OrderedStpType;
 import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.jaxb.ReplyToType;
+import net.es.nsi.pce.path.jaxb.StpListType;
 import net.es.nsi.pce.path.jaxb.TraceType;
 import net.es.nsi.pce.test.TestConfig;
 import org.junit.AfterClass;
@@ -46,8 +48,14 @@ public class FindPathEvtsSuccessTest {
     private final static ObjectFactory factory = new ObjectFactory();
 
     private final static StpTestData test1 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:kddilabs.jp:2013:topology:bi-ps?vlan=1782");
-          this.setStpZ("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1782");
+        {   this.setStpA("urn:ogf:network:kddilabs.jp:2013:topology:bi-ps?vlan=1782");
+            this.setStpZ("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1782");
+            StpListType ero = factory.createStpListType();
+            OrderedStpType interdomain = factory.createOrderedStpType();
+            interdomain.setOrder(1);
+            interdomain.setStp("urn:ogf:network:icair.org:2013:topology:netherlight?vlan=1780-1790");
+            ero.getOrderedSTP().add(interdomain);
+            this.setEro(ero);
         }
     };
 
@@ -65,8 +73,8 @@ public class FindPathEvtsSuccessTest {
 
     // Label swapping in single domain.
     private final static StpTestData test4 = new StpTestData() {
-        { this.setStpA("urn:ogf:network:netherlight.net:2013:production7:surfnet-1?vlan=1700");
-          this.setStpZ("urn:ogf:network:netherlight.net:2013:production7:geant-1?vlan=2102");
+        {   this.setStpA("urn:ogf:network:netherlight.net:2013:production7:surfnet-1?vlan=1700");
+            this.setStpZ("urn:ogf:network:netherlight.net:2013:production7:geant-1?vlan=2102");
         }
     };
 
@@ -97,13 +105,119 @@ public class FindPathEvtsSuccessTest {
         }
     };
 
-    // Label swapping in single domain.
+    // Underpecified STP single domain.
     private final static StpTestData test9 = new StpTestData() {
         { this.setStpA("urn:ogf:network:netherlight.net:2013:production7:surfnet-1?vlan=1700-1720");
           this.setStpZ("urn:ogf:network:netherlight.net:2013:production7:geant-1?vlan=2100-2102");
         }
     };
 
+    // Single internal STP in ERO.
+    private final static StpTestData test10 = new StpTestData() {
+        {   this.setStpA("urn:ogf:network:netherlight.net:2013:production7:surfnet-1?vlan=1700");
+            this.setStpZ("urn:ogf:network:netherlight.net:2013:production7:geant-1?vlan=2102");
+            StpListType ero = factory.createStpListType();
+            OrderedStpType internal1 = factory.createOrderedStpType();
+            internal1.setOrder(1);
+            internal1.setStp("urn:ogf:network:netherlight.net:2013:production7:internal1");
+            ero.getOrderedSTP().add(internal1);
+            this.setEro(ero);
+        }
+    };
+
+    // Two internal STP in ERO.
+    private final static StpTestData test11 = new StpTestData() {
+        {   this.setStpA("urn:ogf:network:netherlight.net:2013:production7:surfnet-1?vlan=1700");
+            this.setStpZ("urn:ogf:network:netherlight.net:2013:production7:geant-1?vlan=2102");
+            StpListType ero = factory.createStpListType();
+            OrderedStpType internal1 = factory.createOrderedStpType();
+            internal1.setOrder(1);
+            internal1.setStp("urn:ogf:network:netherlight.net:2013:production7:internal1");
+            ero.getOrderedSTP().add(internal1);
+            OrderedStpType internal2 = factory.createOrderedStpType();
+            internal2.setOrder(2);
+            internal2.setStp("urn:ogf:network:netherlight.net:2013:production7:internal2");
+            ero.getOrderedSTP().add(internal2);
+            this.setEro(ero);
+        }
+    };
+
+    // Two internal STP in ERO plus an external.
+    private final static StpTestData test12 = new StpTestData() {
+        {   this.setStpA("urn:ogf:network:kddilabs.jp:2013:topology:bi-ps?vlan=1782");
+            this.setStpZ("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1782");
+            StpListType ero = factory.createStpListType();
+
+            OrderedStpType internal1 = factory.createOrderedStpType();
+            internal1.setOrder(1);
+            internal1.setStp("urn:ogf:network:kddilabs.jp:2013:topology:internal1");
+            ero.getOrderedSTP().add(internal1);
+
+            OrderedStpType internal2 = factory.createOrderedStpType();
+            internal2.setOrder(2);
+            internal2.setStp("urn:ogf:network:kddilabs.jp:2013:topology:internal2");
+            ero.getOrderedSTP().add(internal2);
+
+            OrderedStpType edge = factory.createOrderedStpType();
+            edge.setOrder(3);
+            edge.setStp("urn:ogf:network:kddilabs.jp:2013:topology:bi-kddilabs-jgn-x?vlan=1782");
+            ero.getOrderedSTP().add(edge);
+
+            OrderedStpType interdomain = factory.createOrderedStpType();
+            interdomain.setOrder(3);
+            interdomain.setStp("urn:ogf:network:icair.org:2013:topology:netherlight?vlan=1780-1790");
+            ero.getOrderedSTP().add(interdomain);
+            this.setEro(ero);
+        }
+    };
+
+    // Two internal STP in each of src and dst network plus an external.
+    private final static StpTestData test13 = new StpTestData() {
+        {   this.setStpA("urn:ogf:network:kddilabs.jp:2013:topology:bi-ps?vlan=1782");
+            this.setStpZ("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1782");
+            StpListType ero = factory.createStpListType();
+
+            OrderedStpType internal1 = factory.createOrderedStpType();
+            internal1.setOrder(1);
+            internal1.setStp("urn:ogf:network:kddilabs.jp:2013:topology:internal1");
+            ero.getOrderedSTP().add(internal1);
+
+            OrderedStpType internal2 = factory.createOrderedStpType();
+            internal2.setOrder(2);
+            internal2.setStp("urn:ogf:network:kddilabs.jp:2013:topology:internal2");
+            ero.getOrderedSTP().add(internal2);
+
+            OrderedStpType edge1 = factory.createOrderedStpType();
+            edge1.setOrder(3);
+            edge1.setStp("urn:ogf:network:kddilabs.jp:2013:topology:bi-kddilabs-jgn-x?vlan=1782");
+            ero.getOrderedSTP().add(edge1);
+
+            OrderedStpType interdomain = factory.createOrderedStpType();
+            interdomain.setOrder(4);
+            interdomain.setStp("urn:ogf:network:icair.org:2013:topology:netherlight?vlan=1780-1790");
+            ero.getOrderedSTP().add(interdomain);
+
+            // We should allow this to be urn:ogf:network:uvalight.net:2013:topology:netherlight?vlan=1782.
+            OrderedStpType edge2 = factory.createOrderedStpType();
+            edge2.setOrder(5);
+            edge2.setStp("urn:ogf:network:netherlight.net:2013:production7:uva-1?vlan=1782");
+            ero.getOrderedSTP().add(edge2);
+            this.setEro(ero);
+
+            OrderedStpType internal3 = factory.createOrderedStpType();
+            internal3.setOrder(6);
+            internal3.setStp("urn:ogf:network:uvalight.net:2013:topology:internal3");
+            ero.getOrderedSTP().add(internal3);
+
+            OrderedStpType internal4 = factory.createOrderedStpType();
+            internal4.setOrder(7);
+            internal4.setStp("urn:ogf:network:uvalight.net:2013:topology:internal4");
+            ero.getOrderedSTP().add(internal4);
+        }
+    };
+
+    //        <sourceSTP>urn:ogf:network:uvalight.net:2013:topology:netherlight?vlan=1782</sourceSTP>
+    //        <destSTP>urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1782</destSTP>
     private final static List<StpTestData> testData = new ArrayList<StpTestData>() {
         private static final long serialVersionUID = 1L;
         {
@@ -116,6 +230,9 @@ public class FindPathEvtsSuccessTest {
             this.add(test7);
             this.add(test8);
             this.add(test9);
+            this.add(test10);
+            this.add(test11);
+            this.add(test13);
         }
     };
 
@@ -228,6 +345,9 @@ public class FindPathEvtsSuccessTest {
 
         // Format the destination STP.
         p2ps.setDestSTP(test.getStpZ());
+
+        // Add the ero.
+        p2ps.setEro(test.getEro());
 
         req.getAny().add(factory.createP2Ps(p2ps));
 

@@ -59,6 +59,7 @@ public enum NsiError {
     CAPACITY_UNAVAILABLE("00705", "CAPACITY_UNAVAILABLE", "Insufficient capacity available for reservation (%s)."),
     UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST("00706", "UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST", "A unidirectional STP was provided in a bidierctional request (%s)."),
     BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST("00707", "BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST", "A bidierctional STP was provided in a unidirectional request (%s)."),
+    INVALID_ERO("00708", "INVALID_ERO", "Invalid ERO member detected (%s)."),
 
     // Mark the end.
     END("99999", "END", "END");

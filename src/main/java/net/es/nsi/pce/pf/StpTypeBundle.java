@@ -33,6 +33,15 @@ public class StpTypeBundle {
         }
     }
 
+    public StpTypeBundle() {
+        stp = new SimpleStp();
+    }
+
+    public void addStpType(StpType stpType) {
+        bundle.put(stpType.getId(), stpType);
+        stp.addStpId(stpType.getId());
+    }
+
     public SimpleStp getSimpleStp() {
         return stp;
     }
@@ -82,5 +91,34 @@ public class StpTypeBundle {
 
     public Object[] toArray() {
         return bundle.values().toArray();
+    }
+
+    @Override
+    public boolean equals(Object object){
+        if (object == this) {
+            return true;
+        }
+
+        if((object == null) || (object.getClass() != this.getClass())) {
+            return false;
+        }
+
+        StpTypeBundle that = (StpTypeBundle) object;
+        if (!this.stp.equals(that.getSimpleStp())) {
+            return false;
+        }
+
+        return this.bundle.equals(that.getStpBundle());
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((stp == null) ? 0 : stp.hashCode());
+        result = prime * result
+                + ((bundle == null) ? 0 : bundle.hashCode());
+        return result;
     }
 }

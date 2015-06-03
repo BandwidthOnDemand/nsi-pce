@@ -25,6 +25,8 @@ public class SimpleStp {
     private static Pattern colonPattern = Pattern.compile(NSI_URN_SEPARATOR);
 
     public SimpleStp() {
+        networkId = null;
+        localId =  null;
     }
 
     public SimpleStp(String stpId, Set<SimpleLabel> labels) throws IllegalArgumentException {
@@ -51,6 +53,24 @@ public class SimpleStp {
         if (question.length > 1) {
             // We need to parse the label.
             this.labels = SimpleLabels.fromString(question[1]);
+        }
+    }
+
+    public void addStpId(String stpId) {
+        if (Strings.isNullOrEmpty(stpId)) {
+            return;
+        }
+
+        String[]  question = questionPattern.split(stpId);
+
+        if (networkId == null) {
+            parseId(question[0]);
+        }
+
+        // If a question mark is present then we have to process attached label.
+        if (question.length > 1) {
+            // We need to parse the label.
+            this.labels.addAll(SimpleLabels.fromString(question[1]));
         }
     }
 
