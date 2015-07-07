@@ -110,7 +110,7 @@ public class ReachabilityPCE implements PCEModule {
             ObjectAttrConstraint p2psObject = new ObjectAttrConstraint();
             p2psObject.setAttrName(Point2PointTypes.P2PS);
             p2psObject.setValue(p2ps);
-
+            cons.add(p2psObject);
             segment.setConstraints(cons);
         }
     }
@@ -281,7 +281,7 @@ public class ReachabilityPCE implements PCEModule {
 
     @VisibleForTesting
     protected Optional<Path> findForwardPath(final Stp sourceStp, final Stp destStp, final NsiTopology topology, Map<String, Map<String, Integer>> reachabilityTable, List<String> connectionTrace) {
-        logger.debug("Trying to find a forward path");
+        logger.debug("Trying to find a forward path for srcSTP=:" + sourceStp + ", destStp=" + destStp);
 
         final Optional<Reachability> forwardNsa = findCheapestForwardNsa(sourceStp, destStp, topology.getNsaMap(), reachabilityTable);
 
@@ -439,6 +439,7 @@ public class ReachabilityPCE implements PCEModule {
         public StpType toStpType() {
             StpType stpType = new StpType();
             stpType.setId(id);
+            stpType.setLocalId(id);
             stpType.setNetworkId(networkId);
             return stpType;
         }

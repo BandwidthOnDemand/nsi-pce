@@ -90,7 +90,7 @@ public class PolicyPCE implements PCEModule {
                     String networkId = SimpleStp.parseNetworkId(stp.getStp());
                     Optional<NetworkType> network = Optional.fromNullable(nsiTopology.getNetworkById(networkId));
                     if (!network.isPresent()) {
-                        log.error("stpPolicy: ERO contains STP without unknown networkId: " + stp.getStp());
+                        log.error("stpPolicy: ERO contains STP with unknown networkId: " + stp.getStp());
                         throw Exceptions.stpUnknownNetwork(stp.getStp());
                     }
                 }

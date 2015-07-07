@@ -21,12 +21,20 @@ public class TestConfig {
     private static final String DEFAULT_TOPOLOGY_FILE = CONFIG_DIR + "topology-dds.xml";
     private static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
 
-    private final Client client;
-    private final WebTarget target;
+    private Client client;
+    private WebTarget target;
 
     public TestConfig() {
+        testConfig(DEFAULT_TOPOLOGY_FILE);
+    }
+
+    public TestConfig(String ddsConfigFile) {
+        testConfig(ddsConfigFile);
+    }
+
+    private void testConfig(String ddsConfigFile) {
         System.setProperty(CONFIG_PATH, CONFIG_DIR);
-        System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, DEFAULT_TOPOLOGY_FILE);
+        System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, ddsConfigFile);
 
         try {
             if (ConfigurationManager.INSTANCE.isInitialized()) {

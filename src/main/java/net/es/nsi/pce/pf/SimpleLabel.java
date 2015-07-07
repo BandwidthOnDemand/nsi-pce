@@ -2,6 +2,8 @@ package net.es.nsi.pce.pf;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.ws.rs.WebApplicationException;
+import net.es.nsi.pce.path.api.Exceptions;
 
 /**
  *
@@ -27,13 +29,13 @@ public class SimpleLabel {
 
     }
 
-    public SimpleLabel(String type, String value) throws IllegalArgumentException {
+    public SimpleLabel(String type, String value) throws WebApplicationException {
         if (LABELS.contains(type)) {
             this.type = type;
             this.value = value;
         }
         else {
-            throw new IllegalArgumentException("Unknown label type " + type);
+            throw Exceptions.stpUnknownLabelType("Unknown label type " + type);
         }
     }
 
@@ -47,12 +49,12 @@ public class SimpleLabel {
     /**
      * @param type the type to set
      */
-    public void setType(String type) throws IllegalArgumentException {
+    public void setType(String type) throws WebApplicationException {
         if (LABELS.contains(type)) {
             this.type = type;
         }
         else {
-            throw new IllegalArgumentException("Unknown label type " + type);
+            throw Exceptions.stpUnknownLabelType("Unknown label type " + type);
         }
     }
 

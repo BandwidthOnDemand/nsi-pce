@@ -36,6 +36,24 @@ public class Exceptions {
         return new WebApplicationException(ex);
     }
 
+    public static WebApplicationException stpMissingLocalId(String stpId) {
+        FindPathErrorType error = NsiError.getFindPathError(NsiError.STP_MISSING_LOCAL_IDENTIFIER, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stpId);
+        Response ex = Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();
+        return new WebApplicationException(ex);
+    }
+
+    public static WebApplicationException stpUnknownLabelType(String stpId) {
+        FindPathErrorType error = NsiError.getFindPathError(NsiError.UNKNOWN_LABEL_TYPE, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stpId);
+        Response ex = Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();
+        return new WebApplicationException(ex);
+    }
+
+    public static WebApplicationException stpInvalidLabel(String stpId) {
+        FindPathErrorType error = NsiError.getFindPathError(NsiError.INVALID_LABEL, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stpId);
+        Response ex = Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();
+        return new WebApplicationException(ex);
+    }
+
     public static WebApplicationException unsupportedParameter(String namespace, String type, String parameter) {
         FindPathErrorType error = NsiError.getFindPathError(NsiError.UNSUPPORTED_PARAMETER, namespace, type, parameter);
         Response ex = Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();

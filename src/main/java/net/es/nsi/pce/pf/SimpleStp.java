@@ -7,12 +7,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import javax.ws.rs.WebApplicationException;
+import net.es.nsi.pce.path.api.Exceptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author hacksaw
  */
 public class SimpleStp {
+    private static final Logger log = LoggerFactory.getLogger(SimpleStp.class);
+
     public static final String NSI_URN_SEPARATOR = ":";
     public static final String NSI_LABEL_SEPARATOR = "?";
     public static final int NSI_NETWORK_LENGTH = 6;
@@ -29,30 +35,35 @@ public class SimpleStp {
         localId =  null;
     }
 
-    public SimpleStp(String stpId, Set<SimpleLabel> labels) throws IllegalArgumentException {
+    public SimpleStp(String stpId, Set<SimpleLabel> labels) throws WebApplicationException {
         parseId(stpId);
         this.labels = labels;
     }
 
-    public SimpleStp(String stpId, SimpleLabel label) throws IllegalArgumentException {
+    public SimpleStp(String stpId, SimpleLabel label) throws WebApplicationException {
         parseId(stpId);
         this.labels.add(label);
     }
 
-    public SimpleStp(String stpId) throws IllegalArgumentException {
+    public SimpleStp(String stpId) throws WebApplicationException {
         if (Strings.isNullOrEmpty(stpId)) {
             // An empty string gets an emtpy STP.
             return;
         }
 
         String[]  question = questionPattern.split(stpId);
-
         parseId(question[0]);
 
         // If a question mark is present then we have to process attached label.
         if (question.length > 1) {
             // We need to parse the label.
-            this.labels = SimpleLabels.fromString(question[1]);
+            try {
+                this.labels = SimpleLabels.fromString(question[1]);
+            }
+            catch (IllegalArgumentException ex) {
+                //log.error("SimpleStp: stpId=" + stpId, ex);
+                throw Exceptions.stpInvalidLabel(stpId);
+            }
         }
     }
 
@@ -70,7 +81,13 @@ public class SimpleStp {
         // If a question mark is present then we have to process attached label.
         if (question.length > 1) {
             // We need to parse the label.
-            this.labels.addAll(SimpleLabels.fromString(question[1]));
+            try {
+                this.labels.addAll(SimpleLabels.fromString(question[1]));
+            }
+            catch (IllegalArgumentException ex) {
+                //log.error("SimpleStp: stpId=" + stpId, ex);
+                throw Exceptions.stpInvalidLabel(stpId);
+            }
         }
     }
 
@@ -79,13 +96,9 @@ public class SimpleStp {
         return labels.size() != 1;
     }
 
-    public static String parseNetworkId(String id) throws IllegalArgumentException {
+    public static String parseNetworkId(String id) {
         StringBuilder sb = new StringBuilder();
         String[] components = colonPattern.split(id);
-
-        if (components.length <= NSI_NETWORK_LENGTH) {
-            throw new IllegalArgumentException("STP identifier does not contain a localId component " + id);
-        }
 
         for (int i = 0; i < NSI_NETWORK_LENGTH && i < components.length; i++) {
             sb.append(components[i]);
@@ -96,12 +109,13 @@ public class SimpleStp {
         return sb.toString();
     }
 
-    public static String parseLocalId(String id) throws IllegalArgumentException {
+    public static String parseLocalId(String id) throws WebApplicationException {
         StringBuilder sb = new StringBuilder();
         String[] components = colonPattern.split(id);
 
         if (components.length <= NSI_NETWORK_LENGTH) {
-            throw new IllegalArgumentException("STP identifier does not contain a localId component " + id);
+            //log.error("SimpleStp: STP missing local identifier component, stpId=" + id);
+            throw Exceptions.stpMissingLocalId(id);
         }
 
         for (int i = NSI_NETWORK_LENGTH; i < components.length; i++) {
@@ -113,12 +127,13 @@ public class SimpleStp {
         return sb.toString();
     }
 
-    private void parseId(String id) throws IllegalArgumentException {
+    private void parseId(String id) throws WebApplicationException {
         StringBuilder nsb = new StringBuilder();
         String[] components = colonPattern.split(id);
 
         if (components.length <= NSI_NETWORK_LENGTH) {
-            throw new IllegalArgumentException("STP identifier does not contain a localId component " + id);
+            //log.error("SimpleStp: STP missing local identifier component, stpId=" + id);
+            throw Exceptions.stpMissingLocalId(id);
         }
 
         for (int i = 0; i < NSI_NETWORK_LENGTH && i < components.length; i++) {

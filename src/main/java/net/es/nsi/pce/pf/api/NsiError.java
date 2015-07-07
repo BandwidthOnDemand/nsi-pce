@@ -15,6 +15,7 @@ import net.es.nsi.pce.schema.PathApiParser;
  */
 public enum NsiError {
     // Message content errors.
+// Message content errors.
     PAYLOAD_ERROR("00100", "PAYLOAD_ERROR", "Illegal message payload (%s)."),
     MISSING_PARAMETER("00101", "MISSING_PARAMETER", "Invalid or missing parameter (%s)."),
     UNSUPPORTED_PARAMETER("00102", "UNSUPPORTED_PARAMETER", "Parameter provided contains an unsupported value which MUST be processed (%s)."),
@@ -54,12 +55,16 @@ public enum NsiError {
     SERVICE_ERROR("00700", "SERVICE_ERROR", "A service specific error has occurred (%s)."),
     UNKNOWN_STP("00701", "UNKNOWN_STP", "Could not find STP in topology database (%s)."),
     STP_RESOLUTION_ERROR("00702", "STP_RESOLUTION_ERROR", "Could not resolve STP (%s)."),
-    VLANID_INTERCANGE_NOT_SUPPORTED("00703", "VLANID_INTERCANGE_NOT_SUPPORTED", "VLAN interchange not supported for requested path (%s)."),
+    VLANID_INTERCHANGE_NOT_SUPPORTED("00703", "VLANID_INTERCANGE_NOT_SUPPORTED", "VLAN interchange not supported for requested path (%s)."),
     STP_UNAVALABLE("00704", "STP_UNAVALABLE", "Specified STP already in use (%s)."),
     CAPACITY_UNAVAILABLE("00705", "CAPACITY_UNAVAILABLE", "Insufficient capacity available for reservation (%s)."),
     UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST("00706", "UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST", "A unidirectional STP was provided in a bidierctional request (%s)."),
     BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST("00707", "BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST", "A bidierctional STP was provided in a unidirectional request (%s)."),
     INVALID_ERO("00708", "INVALID_ERO", "Invalid ERO member detected (%s)."),
+    UNKNOWN_LABEL_TYPE("00709", "UNKNOWN_LABEL_TYPE", "Specified STP contains an unknown label type (%s)."),
+    INVALID_LABEL("00710", "INVALID_LABEL", "Specified STP contains an invalid label (%s)."),
+    STP_MISSING_LOCAL_IDENTIFIER("00711", "STP_MISSING_LOCAL_IDENTIFIER", "Specified STP missing local identifier component (%s)."),
+
 
     // Mark the end.
     END("99999", "END", "END");

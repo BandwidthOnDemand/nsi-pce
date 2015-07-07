@@ -1753,232 +1753,6 @@
                 </ns3:Topology>
             </content>
         </ns2:document>
-        <ns2:document id="urn:ogf:network:surfnet.nl:1990:netherlight7" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Asurfnet.nl%3A1990%3Ansa%3Abod7/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Asurfnet.nl%3A1990%3Anetherlight7" version="2015-05-28T15:26:33+02:00" expires="2016-05-27T15:52:58.62+02:00">
-            <nsa>urn:ogf:network:surfnet.nl:1990:nsa:bod7</nsa>
-            <type>vnd.ogf.nsi.topology.v2+xml</type>
-            <content>
-                <ns3:Topology id="urn:ogf:network:surfnet.nl:1990:netherlight7" version="2015-05-28T15:26:33+02:00">
-                    <ns3:name>netherlight7</ns3:name>
-                    <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-6">
-                        <ns3:name>Asd001A_5410_03 3/6 SURFnet (Asd001A_5410_01 5/8)</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-6-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-6-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-4-1">
-                        <ns3:name>Asd001A_5410_03 4/1 iperf1 (eth3)</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-4-1-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-4-1-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-4-5">
-                        <ns3:name>Asd001A_5410_03 4/5 RIX-Kentis</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-4-5-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-4-5-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-5">
-                        <ns3:name>Asd001A_5410_03 3/5 NORDUnet (nl-sar2-nordunet xe-0/0/3)</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-5-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-5-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-3">
-                        <ns3:name>Asd001A_5410_03 3/3 GEANT</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-3-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-3-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-2-32">
-                        <ns3:name>Asd001A_5410_03 2/32 iperf1 (eth2)</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-2-32-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-2-32-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-7-2">
-                        <ns3:name>Asd001A_5410_03 7/2 UvA (UvA Force10 6/0)</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-7-2-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-7-2-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-7-3">
-                        <ns3:name>Asd001A_5410_03 7/3 CzechLight (GEANT patch panel pp-nl-e10 tray4 p5+6)</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-7-3-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-7-3-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-8-9">
-                        <ns3:name>Asd001A_5410_03 8/9 iCAIR (ACE Zayo OGYX/068150/ZYO SL F10 12/2)</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-8-9-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-8-9-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-8-6">
-                        <ns3:name>Asd001A_5410_03 8/6 PIONIER (Asd001A_OME24 1/7/2 CBF to Hamburg)</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-8-6-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-8-6-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-5-7">
-                        <ns3:name>Asd001A_5410_03 5/7 MANLAN (8700_07 10/1) + iCAIR (8/1 GEANT 8700_07 Open)</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-5-7-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-5-7-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-9-10">
-                        <ns3:name>Asd001A_5410_03 9/10 ESnet (via Asd001A_8700_07 EEX) </ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-9-10-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-9-10-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns9:serviceDefinition id="urn:ogf:network:surfnet.nl:1990:netherlight7:servicedefinition:EVTS.A-GOLE">
-                        <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
-                    </ns9:serviceDefinition>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-6-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4094</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-6-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4094</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-4-1-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1700-2099</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-4-1-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1700-2099</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-4-5-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2050-2099</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-4-5-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2050-2099</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-5-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4094</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-5-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4094</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-3-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4094</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-3-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4094</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-2-32-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">3000-4000</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-2-32-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">3000-4000</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-7-2-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-7-2-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-7-3-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4095</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-7-3-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4095</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-8-9-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4095</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-8-9-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4095</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-8-6-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4095</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-8-6-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4095</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-5-7-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799,2779-2799</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-5-7-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799,2779-2799</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-9-10-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1000-1019</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-9-10-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1000-1019</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasService">
-                        <ns3:SwitchingService encoding="http://schemas.ogf.org/nml/2012/10/ethernet" labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:surfnet.nl:1990:netherlight7:servicedomain:A-GOLE-EVTS">
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-6-in"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-4-1-in"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-4-5-in"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-5-in"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-3-in"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-2-32-in"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-7-2-in"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-7-3-in"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-8-9-in"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-8-6-in"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-5-7-in"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-9-10-in"/>
-                            </ns3:Relation>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-6-out"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-4-1-out"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-4-5-out"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-5-out"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-3-3-out"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-2-32-out"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-7-2-out"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-7-3-out"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-8-9-out"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-8-6-out"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-5-7-out"/>
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:c3:46:00-9-10-out"/>
-                            </ns3:Relation>
-                            <ns9:serviceDefinition id="urn:ogf:network:surfnet.nl:1990:netherlight7:servicedefinition:EVTS.A-GOLE"/>
-                        </ns3:SwitchingService>
-                    </ns3:Relation>
-                </ns3:Topology>
-            </content>
-        </ns2:document>
         <ns2:document id="urn:ogf:network:oess.dcn.umnet.umich.edu:2013:" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Ansa%3Aoess.dcn.umnet.umich.edu/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Aoess.dcn.umnet.umich.edu%3A2013%3A" version="2015-03-20T13:12:00Z" expires="2016-03-20T13:12:00Z">
             <nsa>urn:ogf:network:nsa:oess.dcn.umnet.umich.edu</nsa>
             <type>vnd.ogf.nsi.topology.v2+xml</type>
@@ -2044,6 +1818,14 @@
                         <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:ps-in"/>
                         <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:ps-out"/>
                     </ns3:BidirectionalPort>
+                    
+                    <!-- Added as alternative route to Netherlight for PCE testing. -->
+                    <ns3:BidirectionalPort id="urn:ogf:network:jgn-x.jp:2013:topology:bi-netherlight">
+                        <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:netherlight-in"/>
+                        <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:netherlight-out"/>
+                    </ns3:BidirectionalPort>
+                    <!-- end -->
+                    
                     <ns3:BidirectionalPort id="urn:ogf:network:jgn-x.jp:2013:topology:bi-demo-ote">
                         <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:demo-ote-in"/>
                         <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:demo-ote-out"/>
@@ -2098,6 +1880,26 @@
                             <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
                         </ns3:PortGroup>
                     </ns3:Relation>
+                    
+                    <!-- Added as alternative route to Netherlight for PCE testing. -->
+                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:netherlight-in">
+                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
+                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:jgn-x-out"/>
+                            </ns3:Relation>
+                        </ns3:PortGroup>
+                    </ns3:Relation>
+                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:netherlight-out">
+                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
+                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:jgn-x-in"/>
+                            </ns3:Relation>
+                        </ns3:PortGroup>
+                    </ns3:Relation>
+                    <!-- end -->
+                    
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:demo-ote-in">
                             <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
@@ -2568,12 +2370,19 @@
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
                         <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
+                    
+                    <!-- The hasInboundPort relationship models a single inbound unidirectional
+                         port that is mappe to the NSI undirectional STP object. -->
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed7:1254-in"/>
                     </ns3:Relation>
+                    
+                    <!-- The hasOutboundPort relationship models a single outbound unidirectional
+                         port that is mappe to the NSI undirectional STP object. -->
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                         <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed7:1254-out"/>
                     </ns3:Relation>
+                    
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed7:2690-in">
                             <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">777</ns3:LabelGroup>
@@ -3424,269 +3233,6 @@
                         <ns3:PortGroup id="urn:ogf:network:cipo.rnp.br:2013::FLA:ge-2_3_4:+:out">
                             <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">200-299</ns3:LabelGroup>
                         </ns3:PortGroup>
-                    </ns3:Relation>
-                </ns3:Topology>
-            </content>
-        </ns2:document>
-        <ns2:document id="urn:ogf:network:netherlight.net:2013:SURFnet7" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Anetherlight.net%3A2013%3Ansa%3Abod/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Anetherlight.net%3A2013%3ASURFnet7" version="2015-03-05T10:46:19+01:00" expires="2016-03-04T10:46:24.766+01:00">
-            <nsa>urn:ogf:network:netherlight.net:2013:nsa:bod</nsa>
-            <type>vnd.ogf.nsi.topology.v2+xml</type>
-            <content>
-                <ns3:Topology id="urn:ogf:network:netherlight.net:2013:SURFnet7" version="2015-03-05T10:46:19+01:00">
-                    <ns3:name>SURFnet7</ns3:name>
-                    <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:SURFnet7:241">
-                        <ns3:name>port 18 no-equipement</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:241-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:241-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:SURFnet7:526">
-                        <ns3:name>UvA host port (0/6 of F25)</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:526-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:526-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:SURFnet7:manlan:1">
-                        <ns3:name>MANLAN via OME13</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:manlan:1-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:manlan:1-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:SURFnet7:nordu.net:1">
-                        <ns3:name>NORDUnet</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:nordu.net:1-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:nordu.net:1-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:SURFnet7:starlight-1">
-                        <ns3:name>ICair (formerly StarLight/StarTap)</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:starlight-1-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:starlight-1-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:SURFnet7:uva-1">
-                        <ns3:name>UvALight</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:uva-1-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:uva-1-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:SURFnet7:pionier-1">
-                        <ns3:name>PIONIER (aka the GLIF PSNC link; formerly geant:1)</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:pionier-1-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:pionier-1-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:SURFnet7:czechlight-1">
-                        <ns3:name>CzechLight</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:czechlight-1-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:czechlight-1-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:SURFnet7:pionier:1">
-                        <ns3:name>PIONIER (temporarily via  4T-1-1-3)</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:pionier:1-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:pionier:1-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:SURFnet7:surfnet-1">
-                        <ns3:name>SURFnet7</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:surfnet-1-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:surfnet-1-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:SURFnet7:dlp01">
-                        <ns3:name>DLP test host</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:dlp01-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:dlp01-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns9:serviceDefinition id="urn:ogf:network:netherlight.net:2013:SURFnet7:servicedefinition:EVTS.A-GOLE">
-                        <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
-                    </ns9:serviceDefinition>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:241-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1799</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:241-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1799</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:526-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1784</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:526-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1784</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:manlan:1-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013::sw.net.manlan.internet2.edu:4_5:+:out"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:manlan:1-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013::sw.net.manlan.internet2.edu:4_5:+:in"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:nordu.net:1-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1782,1785-1799</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:nordu.net:2013:netherlight-out"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:nordu.net:1-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1782,1785-1799</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:nordu.net:2013:netherlight-in"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:starlight-1-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1794,1797-1799</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:icair.org:2013:topology:netherlight-out"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:starlight-1-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1794,1797-1799</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:icair.org:2013:topology:netherlight-in"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:uva-1-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:uvalight.net:2013:topology:netherlight-out"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:uva-1-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:uvalight.net:2013:topology:netherlight-in"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:pionier-1-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:pionier.net.pl:2013:topology:netherlight-1-out"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:pionier-1-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:pionier.net.pl:2013:topology:netherlight-1-in"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:czechlight-1-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:topology:netherlight-out"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:czechlight-1-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:czechlight.cesnet.cz:2013:topology:netherlight-in"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:pionier:1-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:pionier.net.pl:2013:pionier-netherlight"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:pionier:1-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1780-1783</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:pionier.net.pl:2013:netherlight-pionier"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:surfnet-1-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4094</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:production7:netherlight-1-out"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:surfnet-1-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4094</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:production7:netherlight-1-in"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:dlp01-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4094</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:dummy:2013:dummy-out"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:dlp01-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4094</ns3:LabelGroup>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
-                                <ns3:PortGroup id="urn:ogf:network:dummy:2013:dummy-in"/>
-                            </ns3:Relation>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasService">
-                        <ns3:SwitchingService encoding="http://schemas.ogf.org/nml/2012/10/ethernet" labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:netherlight.net:2013:SURFnet7:servicedomain:A-GOLE-EVTS">
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:241"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:526"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:manlan:1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:nordu.net:1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:starlight-1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:uva-1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:pionier-1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:czechlight-1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:pionier:1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:surfnet-1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:dlp01"/>
-                            </ns3:Relation>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:241"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:526"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:manlan:1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:nordu.net:1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:starlight-1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:uva-1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:pionier-1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:czechlight-1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:pionier:1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:surfnet-1"/>
-                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:SURFnet7:dlp01"/>
-                            </ns3:Relation>
-                            <ns9:serviceDefinition id="urn:ogf:network:netherlight.net:2013:SURFnet7:servicedefinition:EVTS.A-GOLE"/>
-                        </ns3:SwitchingService>
                     </ns3:Relation>
                 </ns3:Topology>
             </content>
@@ -7408,6 +6954,15 @@
                         <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:surfnet-1-out"/>
                         <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:surfnet-1-in"/>
                     </ns3:BidirectionalPort>
+                    
+                    <!-- Added as alternative path for PCE testing. -->
+                    <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:production7:jgn-x">
+                        <ns3:name>This is a fake port to provide alternative routes for pathfinding tests.</ns3:name>
+                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:jgn-x-out"/>
+                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:jgn-x-in"/>
+                    </ns3:BidirectionalPort>
+                    <!-- end -->
+                    
                     <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:production7:geant-1">
                         <ns3:name>Asd001A_5410_03 3/3 GEANT</ns3:name>
                         <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:geant-1-out"/>
@@ -7483,6 +7038,26 @@
                             </ns3:Relation>
                         </ns3:PortGroup>
                     </ns3:Relation>
+
+                    <!-- Added as alternative route for PCE testing. -->
+                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:jgn-x-in">
+                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</ns3:LabelGroup>
+                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:netherlight-out"/>
+                            </ns3:Relation>
+                        </ns3:PortGroup>
+                    </ns3:Relation>
+                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+                        <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:jgn-x-out">
+                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1790</ns3:LabelGroup>
+                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                                <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:netherlight-in"/>
+                            </ns3:Relation>
+                        </ns3:PortGroup>
+                    </ns3:Relation>
+                    <!-- end -->
+                    
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:geant-1-in">
                             <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4094</ns3:LabelGroup>
@@ -7663,6 +7238,7 @@
                         <ns3:SwitchingService encoding="http://schemas.ogf.org/nml/2012/10/ethernet" labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:netherlight.net:2013:production7:servicedomain:A-GOLE-EVTS">
                             <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                                 <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:surfnet-1-in"/>
+                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:jgn-x-in"/>
                                 <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:geant-1-in"/>
                                 <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:nordunet-1-in"/>
                                 <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:czechlight-1-in"/>
@@ -7677,6 +7253,7 @@
                             </ns3:Relation>
                             <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                                 <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:surfnet-1-out"/>
+                                <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:jgn-x-out"/>
                                 <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:geant-1-out"/>
                                 <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:nordunet-1-out"/>
                                 <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:czechlight-1-out"/>
@@ -10165,45 +9742,6 @@
                     </interface>
                     <feature type="vnd.ogf.nsi.cs.v2.role.uPA"></feature>
                 </ns8:nsa>
-            </content>
-        </ns2:document>
-        <ns2:document id="urn:ogf:network:surfnet.nl:1990:netherlight7" href="https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Asurfnet.nl%3A1990%3Ansa%3Abod-acc/vnd.ogf.nsi.topology.v2%2Bxml/urn%3Aogf%3Anetwork%3Asurfnet.nl%3A1990%3Anetherlight7" version="2015-03-06T14:09:38+01:00" expires="2016-03-05T14:09:39.145+01:00">
-            <nsa>urn:ogf:network:surfnet.nl:1990:nsa:bod-acc</nsa>
-            <type>vnd.ogf.nsi.topology.v2+xml</type>
-            <content>
-                <ns3:Topology id="urn:ogf:network:surfnet.nl:1990:netherlight7" version="2015-03-06T14:09:38+01:00">
-                    <ns3:name>netherlight7</ns3:name>
-                    <ns3:BidirectionalPort id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:f2:9a:60-6">
-                        <ns3:name>Asd001A_3930-09T 6 Anrtisu 4-2</ns3:name>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:f2:9a:60-6-out"/>
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:f2:9a:60-6-in"/>
-                    </ns3:BidirectionalPort>
-                    <ns9:serviceDefinition id="urn:ogf:network:surfnet.nl:1990:netherlight7:servicedefinition:EVTS.A-GOLE">
-                        <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
-                    </ns9:serviceDefinition>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:f2:9a:60-6-in">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4095</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                        <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:f2:9a:60-6-out">
-                            <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4095</ns3:LabelGroup>
-                        </ns3:PortGroup>
-                    </ns3:Relation>
-                    <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasService">
-                        <ns3:SwitchingService encoding="http://schemas.ogf.org/nml/2012/10/ethernet" labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:surfnet.nl:1990:netherlight7:servicedomain:A-GOLE-EVTS">
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:f2:9a:60-6"/>
-                            </ns3:Relation>
-                            <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
-                                <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight7:00:03:18:f2:9a:60-6"/>
-                            </ns3:Relation>
-                            <ns9:serviceDefinition id="urn:ogf:network:surfnet.nl:1990:netherlight7:servicedefinition:EVTS.A-GOLE"/>
-                        </ns3:SwitchingService>
-                    </ns3:Relation>
-                </ns3:Topology>
             </content>
         </ns2:document>
     </ns2:documents>

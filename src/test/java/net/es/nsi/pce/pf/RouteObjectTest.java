@@ -125,25 +125,25 @@ public class RouteObjectTest {
         StpListType ero = pathFactory.createStpListType();
 
         // Set internal STP for first domain.
+        OrderedStpType internal0 = pathFactory.createOrderedStpType();
+        internal0.setOrder(0);
+        internal0.setStp("urn:ogf:network:czechlight.cesnet.cz:2013:topology:internal1");
+        ero.getOrderedSTP().add(internal0);
+
         OrderedStpType internal1 = pathFactory.createOrderedStpType();
         internal1.setOrder(1);
-        internal1.setStp("urn:ogf:network:czechlight.cesnet.cz:2013:topology:internal1");
+        internal1.setStp("urn:ogf:network:czechlight.cesnet.cz:2013:topology:internal2");
         ero.getOrderedSTP().add(internal1);
-
-        OrderedStpType internal2 = pathFactory.createOrderedStpType();
-        internal2.setOrder(2);
-        internal2.setStp("urn:ogf:network:czechlight.cesnet.cz:2013:topology:internal2");
-        ero.getOrderedSTP().add(internal2);
 
         // The interdomain edge for source domain.
         OrderedStpType edge = pathFactory.createOrderedStpType();
-        edge.setOrder(3);
+        edge.setOrder(2);
         edge.setStp("urn:ogf:network:czechlight.cesnet.cz:2013:topology:netherlight?vlan=1780-1790");
         ero.getOrderedSTP().add(edge);
 
         // An interdomain port in another domain.
         OrderedStpType interdomainStpType = pathFactory.createOrderedStpType();
-        interdomainStpType.setOrder(4);
+        interdomainStpType.setOrder(3);
         interdomainStpType.setStp("urn:ogf:network:netherlight.net:2013:production7:starlight-1?vlan=1791");
         ero.getOrderedSTP().add(interdomainStpType);
 

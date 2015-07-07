@@ -2,19 +2,30 @@ package net.es.nsi.pce.pf;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.Status;
+import javax.xml.bind.JAXBElement;
+import net.es.nsi.pce.path.jaxb.FindPathErrorType;
+import net.es.nsi.pce.pf.api.NsiError;
+import net.es.nsi.pce.util.Log4jHelper;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author hacksaw
  */
 public class SimpleStpTest {
+    private static Logger log;
 
     public SimpleStpTest() {
     }
@@ -28,7 +39,10 @@ public class SimpleStpTest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
+        // Configure Log4J and use logs from this point forward.
+        DOMConfigurator.configureAndWatch(Log4jHelper.getLog4jConfig("src/test/resources/config/log4j.xml"), 45 * 1000);
+        log = LoggerFactory.getLogger(SimpleStpTest.class);
     }
 
     @After
@@ -44,6 +58,10 @@ public class SimpleStpTest {
         stp = new SimpleStp("urn:ogf:network:cipo.rnp.br:2013:testbed:PMW:ge-2_3_4:+:out?vlan=1999");
         result = stp.getNetworkId();
         assertEquals("urn:ogf:network:cipo.rnp.br:2013:testbed", result);
+
+        String networkId = SimpleStp.parseNetworkId("urn:ogf:network:icair.org:2013:topology");
+        System.out.println(networkId);
+        assertEquals("urn:ogf:network:icair.org:2013:topology", networkId);
     }
 
     @Test
@@ -76,6 +94,38 @@ public class SimpleStpTest {
         answer.add(new SimpleLabel("vlan", "1802"));
         answer.add(new SimpleLabel("vlan", "1803"));
         assertEquals(answer, result);
+    }
+
+    @Test
+    public void testLabelTypeFail() {
+        try {
+            SimpleStp stp = new SimpleStp("urn:ogf:network:cipo.rnp.br:2013:testbed:PMW:ge-2_3_4:+:out?vlan-1800-1803");
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+            JAXBElement<FindPathErrorType> jaxb = (JAXBElement<FindPathErrorType>) ex.getResponse().getEntity();
+            FindPathErrorType error = jaxb.getValue();
+            assertEquals(NsiError.UNKNOWN_LABEL_TYPE.getCode(), error.getCode());
+            return;
+        }
+
+        fail();
+    }
+
+    @Test
+    public void testLabelRangeFail() {
+        try {
+            SimpleStp stp = new SimpleStp("urn:ogf:network:cipo.rnp.br:2013:testbed:PMW:ge-2_3_4:+:out?vlan=1803-1800");
+        }
+        catch (WebApplicationException ex) {
+            assertEquals(Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+            JAXBElement<FindPathErrorType> jaxb = (JAXBElement<FindPathErrorType>) ex.getResponse().getEntity();
+            FindPathErrorType error = jaxb.getValue();
+            assertEquals(NsiError.INVALID_LABEL.getCode(), error.getCode());
+            return;
+        }
+
+        fail();
     }
 
     @Test
@@ -120,12 +170,12 @@ public class SimpleStpTest {
         assertEquals(stp2.getLabels(), stp1.getLabels());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = WebApplicationException.class)
     public void testInvalidStpId() {
         SimpleStp stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013:bi-ps?vlan=1782");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = WebApplicationException.class)
     public void testInvalidLabelRange() {
         SimpleStp stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013::bi-ps?vlan=1782-1781");
         stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013::bi-ps?vlan=100-200,1782-1781");

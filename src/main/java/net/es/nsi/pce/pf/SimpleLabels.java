@@ -18,7 +18,7 @@ public class SimpleLabels {
     private static final Pattern commaPattern = Pattern.compile(SimpleLabel.COMMA);
     private static final Pattern hyphenPattern = Pattern.compile(SimpleLabel.HYPHEN);
 
-    public static Set<SimpleLabel> fromString(String labels) {
+    public static Set<SimpleLabel> fromString(String labels) throws IllegalArgumentException {
         Set<SimpleLabel> results = new HashSet<>();
 
         if (Strings.isNullOrEmpty(labels)) {

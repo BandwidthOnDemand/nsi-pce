@@ -119,17 +119,20 @@ public class Point2Point {
             ObjectAttrConstraint p2pObject = pathConstraints.removeObjectAttrConstraint(Point2PointTypes.P2PS);
             List<TypeValueType> attrConstraints = pathConstraints.removeStringAttrConstraints();
 
+            // Results go here...
+            ResolvedPathType pathObj = new ResolvedPathType();
+
             // Build our path finding results into an P2PS service.
-            P2PServiceBaseType p2psResult = p2pObject.getValue(P2PServiceBaseType.class);
-            p2psResult.getParameter().addAll(attrConstraints);
+            if (p2pObject != null) {
+                P2PServiceBaseType p2psResult = p2pObject.getValue(P2PServiceBaseType.class);
+                p2psResult.getParameter().addAll(attrConstraints);
+                pathObj.getAny().add(factory.createP2Ps(p2psResult));
+            }
 
             // Set the corresponding serviceType and add out EVTS results.
-            ResolvedPathType pathObj = new ResolvedPathType();
             if (serviceType != null) {
                 pathObj.setServiceType(serviceType.getValue());
             }
-
-            pathObj.getAny().add(factory.createP2Ps(p2psResult));
 
             pathObj.setNsa(segment.getNsaId());
             pathObj.setCsProviderURL(segment.getCsProviderURL());
