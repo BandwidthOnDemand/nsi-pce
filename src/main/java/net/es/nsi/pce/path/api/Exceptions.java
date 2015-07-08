@@ -49,7 +49,7 @@ public class Exceptions {
     }
 
     public static WebApplicationException stpInvalidLabel(String stpId) {
-        FindPathErrorType error = NsiError.getFindPathError(NsiError.INVALID_LABEL, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stpId);
+        FindPathErrorType error = NsiError.getFindPathError(NsiError.INVALID_LABEL_FORMAT, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stpId);
         Response ex = Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();
         return new WebApplicationException(ex);
     }
@@ -73,13 +73,13 @@ public class Exceptions {
     }
 
    public static WebApplicationException bidirectionalStpInUnidirectionalRequest(String stpId) {
-        FindPathErrorType error = NsiError.getFindPathError(NsiError.BIDIRECTIONAL_STP_IN_UNIDIRECTIONAL_REQUEST, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stpId);
+        FindPathErrorType error = NsiError.getFindPathError(NsiError.DIRECTIONALITY_MISMATCH, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stpId);
         Response ex = Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();
         return new WebApplicationException(ex);
     }
 
    public static WebApplicationException unidirectionalStpInBidirectionalRequest(String stpId) {
-        FindPathErrorType error = NsiError.getFindPathError(NsiError.UNIDIRECTIONAL_STP_IN_BIDIRECTIONAL_REQUEST, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stpId);
+        FindPathErrorType error = NsiError.getFindPathError(NsiError.DIRECTIONALITY_MISMATCH, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stpId);
         Response ex = Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();
         return new WebApplicationException(ex);
     }
@@ -91,7 +91,7 @@ public class Exceptions {
     }
 
     public static WebApplicationException invalidEroError(String stpId) {
-        FindPathErrorType error = NsiError.getFindPathError(NsiError.INVALID_ERO, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stpId);
+        FindPathErrorType error = NsiError.getFindPathError(NsiError.INVALID_ERO_FORMAT, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stpId);
         Response ex = Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();
         return new WebApplicationException(ex);
     }

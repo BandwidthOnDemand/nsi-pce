@@ -121,7 +121,7 @@ public class SimpleStpTest {
             assertEquals(Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
             JAXBElement<FindPathErrorType> jaxb = (JAXBElement<FindPathErrorType>) ex.getResponse().getEntity();
             FindPathErrorType error = jaxb.getValue();
-            assertEquals(NsiError.INVALID_LABEL.getCode(), error.getCode());
+            assertEquals(NsiError.INVALID_LABEL_FORMAT.getCode(), error.getCode());
             return;
         }
 
