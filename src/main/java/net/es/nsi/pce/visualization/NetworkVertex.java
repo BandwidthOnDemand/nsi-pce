@@ -11,9 +11,9 @@ import net.es.nsi.pce.topology.jaxb.NetworkType;
  * @author hacksaw
  */
 public class NetworkVertex extends NetworkType {
-    
+
     public NetworkVertex() {}
-    
+
     public NetworkVertex(NetworkType network) {
         this.id = network.getId();
         this.href = network.getHref();
@@ -25,7 +25,7 @@ public class NetworkVertex extends NetworkType {
         this.any = network.getAny();
         this.version = network.getVersion();
     }
-    
+
     @Override
     public String toString() {
         return this.getName();

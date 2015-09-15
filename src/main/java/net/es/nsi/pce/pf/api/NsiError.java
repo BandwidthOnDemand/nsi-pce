@@ -22,38 +22,46 @@ public enum NsiError {
 // Message content errors.
 // Message content errors.
 // Message content errors.
+// Message content errors.
+// Message content errors.
+// Message content errors.
+// Message content errors.
+// Message content errors.
+// Message content errors.
+// Message content errors.
+// Message content errors.
     PAYLOAD_ERROR("00100", "PAYLOAD_ERROR", "Illegal message payload (%s)."),
     MISSING_PARAMETER("00101", "MISSING_PARAMETER", "Invalid or missing parameter (%s)."),
-    UNSUPPORTED_PARAMETER("00102", "UNSUPPORTED_PARAMETER", "Parameter provided contains an unsupported value which MUST be processed (%s)."),
-    NOT_IMPLEMENTED("00103", "NOT_IMPLEMENTED", "Parameter is for a feature that has not been implemented (%s)."),
-    VERSION_NOT_SUPPORTED("00104", "VERSION_NOT_SUPPORTED", "The protocl version requested is not supported. (%s)."),
+    UNSUPPORTED_PARAMETER("00102", "UNSUPPORTED_PARAMETER", "Provided parameter contains an unsupported value that MUST be processed (%s)."),
+    NOT_IMPLEMENTED("00103", "NOT_IMPLEMENTED", "Provided parameter is for a feature that has not been implemented (%s)."),
+    VERSION_NOT_SUPPORTED("00104", "VERSION_NOT_SUPPORTED", "The protocol version requested is not supported (%s)."),
 
     // Connection errors.
-    CONNECTION_ERROR("00200", "CONNECTION_ERROR", "A connection error has occured (%s)."),
+    CONNECTION_ERROR("00200", "CONNECTION_ERROR", "A connection error has occurred (%s)."),
     INVALID_TRANSITION("00201", "INVALID_TRANSITION", "Connection state machine is in invalid state for received message (%s)."),
     CONNECTION_EXISTS("00202", "CONNECTION_EXISTS", "Schedule already exists for connectionId (%s)."),
     CONNECTION_NONEXISTENT("00203", "CONNECTION_NONEXISTENT", "Schedule does not exists for connectionId (%s)."),
-    CONNECTION_GONE("00204", "CONNECTION_GONE", "Requested connection does not exist (%s)."),
+    CONNECTION_GONE("00204", "CONNECTION_GONE", "Requested connection no longer exists (%s)."),
     CONNECTION_CREATE_ERROR("00205", "CONNECTION_CREATE_ERROR", "Failed to create connection (payload was ok, something went wrong) (%s)."),
 
     // Security errors.
     SECURITY_ERROR("00300", "SECURITY_ERROR", "A security error has occurred (%s)."),
     AUTHENTICATION_FAILURE("00301", "AUTHENTICATION_FAILURE", "Authentication failure (%s)."),
-    UNAUTHORIZED("00302", "UNAUTHORIZED", "Authorization failure (%s)."),
+    UNAUTHORIZED("00302", "UNAUTHORIZED", "Insufficient authorization to perform requested operation (%s)."),
 
     // Generic topology errors.
     TOPOLOGY_ERROR("00400", "TOPOLOGY_ERROR", "A topology error has occurred (%s)."),
     NO_PATH_FOUND("00403", "NO_PATH_FOUND", "Path computation failed (%s)."),
     UNKNOWN_NETWORK("00405", "UNKNOWN_NETWORK", "Unknown network for requested resource (%s)."),
-    INVALID_DISCOVERY_INFORMATION("00406", "INVALID_DISCOVERY_INFORMATION", "Cannot map networkId to service interface (%s)."),
-    NO_CONTROLPLANE_PATH_FOUND("00406", "NO_CONTROLPLANE_PATH_FOUND", "No control plane path for selected connection segements (%s)."),
+    INVALID_DISCOVERY("00406", "INVALID_DISCOVERY", "Cannot map networkId to service interface (%s)."),
+    NO_CONTROLPLANE_PATH_FOUND("00406", "NO_CONTROLPLANE_PATH_FOUND", "No control plane path for selected connection segments (%s)."),
 
     // Internal server errors.
     INTERNAL_ERROR("00500", "INTERNAL_ERROR", "An internal error has caused a message processing failure (%s)."),
     INTERNAL_NRM_ERROR("00501", "INTERNAL_NRM_ERROR", "An internal NRM error has caused a message processing failure (%s)."),
 
     // Resource availability errors.
-    RESOURCE_UNAVAILABLE("00600", "RESOURCE_UNAVAILABLE", "An internal error has caused a message processing failure (%s)."),
+    RESOURCE_UNAVAILABLE("00600", "RESOURCE_UNAVAILABLE", "A requested resource is not available (%s)."),
 
     // Control plane error group.
 
@@ -61,7 +69,7 @@ public enum NsiError {
     SERVICE_ERROR("00700", "SERVICE_ERROR", "A service specific error has occurred (%s)."),
     UNKNOWN_STP("00701", "UNKNOWN_STP", "Could not find STP in topology database (%s)."),
     STP_RESOLUTION_ERROR("00702", "STP_RESOLUTION_ERROR", "Could not resolve STP (%s)."),
-    VLANID_INTERCHANGE_NOT_SUPPORTED("00703", "VLANID_INTERCANGE_NOT_SUPPORTED", "VLAN interchange not supported for requested path (%s)."),
+    LABEL_SWAPPING_NOT_SUPPORTED("00703", "LABEL_SWAPPING_NOT_SUPPORTED", "VLAN interchange not supported for requested path (%s)."),
     STP_UNAVALABLE("00704", "STP_UNAVALABLE", "Specified STP already in use (%s)."),
     CAPACITY_UNAVAILABLE("00705", "CAPACITY_UNAVAILABLE", "Insufficient capacity available for reservation (%s)."),
     DIRECTIONALITY_MISMATCH("00706", "DIRECTIONALITY_MISMATCH", "Directionality of specified STP does not match request directionality (%s)."),

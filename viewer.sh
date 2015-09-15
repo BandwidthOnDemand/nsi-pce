@@ -16,11 +16,20 @@ done
 PRGDIR=`dirname "$PRG"`
 BASEDIR=`cd "$PRGDIR" >/dev/null; pwd`
 
-java -Xmx256m -Djava.net.preferIPv4Stack=true  \
-	-Dapp.home="$BASEDIR" \
-  	-Dbasedir="$BASEDIR" \
-	-Djava.util.logging.config.file="$BASEDIR/config/logging.properties" \
-	-Dcom.sun.xml.bind.v2.runtime.JAXBContextImpl.fastBoot=true \
-	-Djavax.net.ssl.trustStore=config/nsi-pce-truststore \
-	-Djavax.net.ssl.trustStorePassword=changeit \
-	-jar target/TopologyViewer.jar $*
+KEYSTORE=$BASEDIR/config/keystore.jks
+TRUSTSTORE=$BASEDIR/config/truststore.jks
+PASSWORD="changeit"
+
+java -Xmx1536m -XX:MaxPermSize=256m -Djava.net.preferIPv4Stack=true  \
+        -Dapp.home="$BASEDIR" \
+        -Dbasedir="$BASEDIR" \
+        -Djava.util.logging.config.file="$BASEDIR/config/logging.properties" \
+        -Dcom.sun.xml.bind.v2.runtime.JAXBContextImpl.fastBoot=true \
+        -Djavax.net.ssl.keyStore=$KEYSTORE \
+        -Djavax.net.ssl.keyStorePassword=$PASSWORD \
+        -Djavax.net.ssl.trustStore=$TRUSTSTORE \
+        -Djavax.net.ssl.trustStorePassword=$PASSWORD \
+	-jar target/TopologyViewer.jar \
+        -topologyConfigFile config/topology-dds.xml \
+        $*
+

@@ -20,7 +20,7 @@ KEYSTORE=$BASEDIR/config/keystore.jks
 TRUSTSTORE=$BASEDIR/config/truststore.jks
 PASSWORD="changeit"
 
-java -Xmx1536m -XX:MaxPermSize=256m -Djava.net.preferIPv4Stack=true  \
+java -Xmx2048m -XX:MaxPermSize=256m -XX:-UseConcMarkSweepGC -Djava.net.preferIPv4Stack=true  \
 	-Dapp.home="$BASEDIR" \
 	-Dbasedir="$BASEDIR" \
 	-Djava.util.logging.config.file="$BASEDIR/config/logging.properties" \

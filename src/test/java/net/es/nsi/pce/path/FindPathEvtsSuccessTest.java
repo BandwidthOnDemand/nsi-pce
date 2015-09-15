@@ -27,6 +27,7 @@ import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
 import net.es.nsi.pce.path.jaxb.ReplyToType;
 import net.es.nsi.pce.path.jaxb.StpListType;
 import net.es.nsi.pce.path.jaxb.TraceType;
+import net.es.nsi.pce.path.jaxb.TypeValueType;
 import net.es.nsi.pce.test.TestConfig;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -405,6 +406,11 @@ public class FindPathEvtsSuccessTest {
 
         // Add the ero.
         p2ps.setEro(test.getEro());
+
+        TypeValueType tvt = factory.createTypeValueType();
+        tvt.setType("Poopies");
+        tvt.setValue("Doodies");
+        p2ps.getParameter().add(tvt);
 
         req.getAny().add(factory.createP2Ps(p2ps));
 
