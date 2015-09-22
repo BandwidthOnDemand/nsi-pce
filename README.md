@@ -81,7 +81,7 @@ The prototype NSI-DDS implementation used by the topology service is currently e
 <top:topology xmlns:top="http://schemas.es.net/nsi/2013/08/pce/topology/configuration">
     <location>http://localhost:8400/discovery</location>
 	<auditInterval>300</auditInterval>
-    <defaultServiceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</defaultServiceType>
+    <defaultServiceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</defaultServiceType>
 </top:topology>
 ```
 
@@ -96,7 +96,7 @@ The prototype NSI-DDS implementation used by the topology service is currently e
 The NSI-PCE's internal NSI-DDS engine (NSI Document Discovery Service v1) is used for collection of NSA Description and NML Topology documents from all NSA with the network.  The DDS then makes these discovered documents available for application use thfought its RESTful API.  The NSI-PCE's internal topology services utilizes this DDS RESTful API for building a network topology view.
 
 The `nsi-pce/config/dds.xml` configuration file controls runtime configuration of the NSI-DDS discovery engine.  The following XML elements are supported in this configuration file:
-    
+
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <tns:discovery xmlns:tns="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration"
@@ -119,21 +119,21 @@ The `nsi-pce/config/dds.xml` configuration file controls runtime configuration o
     </peerURL>
 </tns:discovery>
 ```
-    
-* **nsaId** - The NSA identifier of the local NSA assocated with this DDS instance.  This value will be used to determine which documents in the DDS document space are associated with the `/local` URL query.  The NSI-PCE topology service utilizes the `/local` query to populate local NSA information. 
-            
+
+* **nsaId** - The NSA identifier of the local NSA assocated with this DDS instance.  This value will be used to determine which documents in the DDS document space are associated with the `/local` URL query.  The NSI-PCE topology service utilizes the `/local` query to populate local NSA information.
+
 * **documents** - The local directory the DDS will monitor for document file content to auto load into the DDS document space.  This directory is checked for new content every auditInterval.  This element is optional.
-                
+
 * **cache** - The local directory used to store discovered documents that will be reloaded after a restart of the DDS.  One reloaded an audit occurs to refresh any documents with new versions available.  This element is optional.
-            
+
 * **auditInterval** - The interval (in seconds) the DDS will audit all peer DDS servers, Gof3 NSA and topology documents, or A-GOLE topology.
-                    
+
 * **expiryInterval** - The number of seconds the DDS will maintain a document after the document's lifetime has been reached.
 
 * **actorPool** - The number of actors to instantiate per discovery type (DDS, Gof3, A-GOLE).
-                
+
 * **baseURL** - The base URL of the local DDS service that will be used when registering with peer DDS services.  Is only needed if a peerURL type of "application/vnd.ogf.nsi.dds.v1+xml" is configured.
-              
+
 * **peerURL** - Lists URL for peer data sources for the DDS service to utilize for document discovery. The following type of peerURL are supported (mixed types are supported):
 
 ```
@@ -141,7 +141,7 @@ application/vnd.ogf.nsi.dds.v1+xml
 ```
 
 - A peer DDS server supporting NSI-DDS v1.  Each peer DDS server must have its own peerURL entry.
-    
+
 ```
 application/vnd.ogf.nsi.nsa.v1+xml
 ```

@@ -26,6 +26,6 @@
     <baseURL>http://localhost:8400/topology</baseURL>
     <ddsURL>http://localhost:8401/dds</ddsURL>
     <auditInterval>3600</auditInterval>
-    <defaultServiceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</defaultServiceType>
+    <defaultServiceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</defaultServiceType>
 </top:topology>
 

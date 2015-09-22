@@ -177,7 +177,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:surfnet.nl:1990:SURFnet7-testbed:servicedefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:SURFnet7-testbed:1254-in"/>
@@ -599,7 +599,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:pionier.pl:2013:topologyServiceDefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                         <ns3:PortGroup id="urn:ogf:network:pionier.pl:2013:topology:MDVPN__lab__port-out">
@@ -713,7 +713,7 @@
                         <ns3:SwitchingService labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:pionier.pl:2013:topologyServiceDomain:a-gole:testbed:A-GOLE-EVTS">
                             <ns9:serviceDefinition id="urn:ogf:network:pionier.pl:2013:topologyServiceDefinition:EVTS.A-GOLE">
                                 <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                                <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                                <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                             </ns9:serviceDefinition>
                         </ns3:SwitchingService>
                     </ns3:Relation>
@@ -888,7 +888,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:surfnet.nl:1990:SURFnet7:servicedefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:SURFnet7:290-in"/>
@@ -1658,7 +1658,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:funet.fi:2013:topologyServiceDefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                         <ns3:PortGroup id="urn:ogf:network:funet.fi:2013:topology:test1-autobahn-2-out">
@@ -1746,7 +1746,7 @@
                         <ns3:SwitchingService labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:funet.fi:2013:topologyServiceDomain:a-gole:testbed:A-GOLE-EVTS">
                             <ns9:serviceDefinition id="urn:ogf:network:funet.fi:2013:topologyServiceDefinition:EVTS.A-GOLE">
                                 <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                                <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                                <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                             </ns9:serviceDefinition>
                         </ns3:SwitchingService>
                     </ns3:Relation>
@@ -1770,7 +1770,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:caltech.edu:2013::ServiceDefinition:EVTS.A-GOLE">
                         <ns9:name xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns2="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns4="http://schemas.ogf.org/nsi/2014/02/discovery/types">GLIF Automated GOLE Ethernet VLAN Transfer Service</ns9:name>
-                        <ns9:serviceType xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns2="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns4="http://schemas.ogf.org/nsi/2014/02/discovery/types">http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</ns9:serviceType>
+                        <ns9:serviceType xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns2="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns4="http://schemas.ogf.org/nsi/2014/02/discovery/types">http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</ns9:serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:oess.dcn.umnet.umich.edu:2013:stp1:in">
@@ -1818,14 +1818,14 @@
                         <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:ps-in"/>
                         <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:ps-out"/>
                     </ns3:BidirectionalPort>
-                    
+
                     <!-- Added as alternative route to Netherlight for PCE testing. -->
                     <ns3:BidirectionalPort id="urn:ogf:network:jgn-x.jp:2013:topology:bi-netherlight">
                         <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:netherlight-in"/>
                         <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:netherlight-out"/>
                     </ns3:BidirectionalPort>
                     <!-- end -->
-                    
+
                     <ns3:BidirectionalPort id="urn:ogf:network:jgn-x.jp:2013:topology:bi-demo-ote">
                         <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:demo-ote-in"/>
                         <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:demo-ote-out"/>
@@ -1880,7 +1880,7 @@
                             <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
                         </ns3:PortGroup>
                     </ns3:Relation>
-                    
+
                     <!-- Added as alternative route to Netherlight for PCE testing. -->
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:netherlight-in">
@@ -1899,7 +1899,7 @@
                         </ns3:PortGroup>
                     </ns3:Relation>
                     <!-- end -->
-                    
+
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:jgn-x.jp:2013:topology:demo-ote-in">
                             <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">1779-1799</ns3:LabelGroup>
@@ -2368,21 +2368,21 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:surfnet.nl:1990:testbed7:servicedefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
-                    
+
                     <!-- The hasInboundPort relationship models a single inbound unidirectional
                          port that is mappe to the NSI undirectional STP object. -->
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed7:1254-in"/>
                     </ns3:Relation>
-                    
+
                     <!-- The hasOutboundPort relationship models a single outbound unidirectional
                          port that is mappe to the NSI undirectional STP object. -->
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                         <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed7:1254-out"/>
                     </ns3:Relation>
-                    
+
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed7:2690-in">
                             <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">777</ns3:LabelGroup>
@@ -2881,7 +2881,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:cipo.rnp.br:2013::ServiceDefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasService">
                         <ns3:SwitchingService encoding="http://schemas.ogf.org/nml/2012/10/ethernet" labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:cipo.rnp.br:2013::ServiceDomain:EVTS.A-GOLE">
@@ -3343,7 +3343,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:grnet.gr:2013:topologyServiceDefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                         <ns3:PortGroup id="urn:ogf:network:grnet.gr:2013:topology:CLIENT_port_116-out">
@@ -3395,7 +3395,7 @@
                         <ns3:SwitchingService labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:grnet.gr:2013:topologyServiceDomain:a-gole:testbed:A-GOLE-EVTS">
                             <ns9:serviceDefinition id="urn:ogf:network:grnet.gr:2013:topologyServiceDefinition:EVTS.A-GOLE">
                                 <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                                <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                                <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                             </ns9:serviceDefinition>
                         </ns3:SwitchingService>
                     </ns3:Relation>
@@ -3517,7 +3517,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:cipo.rnp.br:2014:ServiceDefinition:EVTS.A-GOLE">
                         <ns6:name xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns5="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns8="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" xmlns:ns7="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns9="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:ns2="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns4="urn:ietf:params:xml:ns:vcard-4.0">GLIF Automated GOLE Ethernet VLAN Transfer Service</ns6:name>
-                        <ns6:serviceType xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns5="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns8="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" xmlns:ns7="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns9="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:ns2="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns4="urn:ietf:params:xml:ns:vcard-4.0">http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</ns6:serviceType>
+                        <ns6:serviceType xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns5="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns8="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" xmlns:ns7="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns9="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:ns2="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:ns4="urn:ietf:params:xml:ns:vcard-4.0">http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</ns6:serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:cipo.rnp.br:2014:rjo-1:in">
@@ -3720,7 +3720,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:caltech.edu:2013::ServiceDefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasService">
                         <ns3:SwitchingService encoding="http://schemas.ogf.org/nml/2012/10/ethernet" labelSwapping="false" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:caltech.edu:2013::ServiceDomain:EVTS.A-GOLE">
@@ -4300,7 +4300,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:surfnet.nl:1990:testbed:servicedefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed:290-in"/>
@@ -5426,7 +5426,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:geant.net:2013:topologyServiceDefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                         <ns3:PortGroup id="urn:ogf:network:geant.net:2013:topology:Ubuntunet__port-out">
@@ -5686,7 +5686,7 @@
                         <ns3:SwitchingService labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:geant.net:2013:topologyServiceDomain:a-gole:testbed:A-GOLE-EVTS">
                             <ns9:serviceDefinition id="urn:ogf:network:geant.net:2013:topologyServiceDefinition:EVTS.A-GOLE">
                                 <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                                <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                                <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                             </ns9:serviceDefinition>
                         </ns3:SwitchingService>
                     </ns3:Relation>
@@ -6029,7 +6029,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:oess.dcn.umnet.umich.edu:2013::ServiceDefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasService">
                         <ns3:SwitchingService encoding="http://schemas.ogf.org/nml/2012/10/ethernet" labelSwapping="false" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:oess.dcn.umnet.umich.edu:2013::ServiceDomain:EVTS.A-GOLE">
@@ -6186,7 +6186,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:heanet.ie:2013:topologyServiceDefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                         <ns3:PortGroup id="urn:ogf:network:heanet.ie:2013:topology:exemplar_switch_cliPort-out">
@@ -6400,7 +6400,7 @@
                         <ns3:SwitchingService labelSwapping="false" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:heanet.ie:2013:topologyServiceDomain:a-gole:testbed:A-GOLE-EVTS">
                             <ns9:serviceDefinition id="urn:ogf:network:heanet.ie:2013:topologyServiceDefinition:EVTS.A-GOLE">
                                 <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                                <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                                <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                             </ns9:serviceDefinition>
                         </ns3:SwitchingService>
                     </ns3:Relation>
@@ -6625,7 +6625,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:nordu.net:2013:topologyServiceDefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                         <ns3:PortGroup id="urn:ogf:network:nordu.net:2013:topology:funet-out">
@@ -6731,7 +6731,7 @@
                         <ns3:SwitchingService labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:nordu.net:2013:topologyServiceDomain:a-gole:testbed:A-GOLE-EVTS">
                             <ns9:serviceDefinition id="urn:ogf:network:nordu.net:2013:topologyServiceDefinition:EVTS.A-GOLE">
                                 <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                                <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                                <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                             </ns9:serviceDefinition>
                         </ns3:SwitchingService>
                     </ns3:Relation>
@@ -6894,7 +6894,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:deic.dk:2013:topologyServiceDefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                         <ns3:PortGroup id="urn:ogf:network:deic.dk:2013:topology:funet-geant-out">
@@ -6936,7 +6936,7 @@
                         <ns3:SwitchingService labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:deic.dk:2013:topologyServiceDomain:a-gole:testbed:A-GOLE-EVTS">
                             <ns9:serviceDefinition id="urn:ogf:network:deic.dk:2013:topologyServiceDefinition:EVTS.A-GOLE">
                                 <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                                <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                                <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                             </ns9:serviceDefinition>
                         </ns3:SwitchingService>
                     </ns3:Relation>
@@ -6954,7 +6954,7 @@
                         <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:surfnet-1-out"/>
                         <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:surfnet-1-in"/>
                     </ns3:BidirectionalPort>
-                    
+
                     <!-- Added as alternative path for PCE testing. -->
                     <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:production7:jgn-x">
                         <ns3:name>This is a fake port to provide alternative routes for pathfinding tests.</ns3:name>
@@ -6962,7 +6962,7 @@
                         <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:jgn-x-in"/>
                     </ns3:BidirectionalPort>
                     <!-- end -->
-                    
+
                     <ns3:BidirectionalPort id="urn:ogf:network:netherlight.net:2013:production7:geant-1">
                         <ns3:name>Asd001A_5410_03 3/3 GEANT</ns3:name>
                         <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:geant-1-out"/>
@@ -7020,7 +7020,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:netherlight.net:2013:production7:servicedefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:surfnet-1-in">
@@ -7057,7 +7057,7 @@
                         </ns3:PortGroup>
                     </ns3:Relation>
                     <!-- end -->
-                    
+
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:geant-1-in">
                             <ns3:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2-4094</ns3:LabelGroup>
@@ -7439,7 +7439,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:ja.net:2013:topologyServiceDefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                         <ns3:PortGroup id="urn:ogf:network:ja.net:2013:topology:bonfire-1-out">
@@ -7511,7 +7511,7 @@
                         <ns3:SwitchingService labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:ja.net:2013:topologyServiceDomain:a-gole:testbed:A-GOLE-EVTS">
                             <ns9:serviceDefinition id="urn:ogf:network:ja.net:2013:topologyServiceDefinition:EVTS.A-GOLE">
                                 <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                                <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                                <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                             </ns9:serviceDefinition>
                         </ns3:SwitchingService>
                     </ns3:Relation>
@@ -7774,7 +7774,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:es.net:2013::ServiceDefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasService">
                         <ns3:SwitchingService encoding="http://schemas.ogf.org/nml/2012/10/ethernet" labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:es.net:2013::ServiceDomain:EVTS.A-GOLE">
@@ -8762,7 +8762,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:surfnet.nl:1990:production7:servicedefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:production7:237-in">
@@ -9178,7 +9178,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:surfnet.nl:1990:netherlight-testbed7:servicedefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight-testbed7:00:03:18:f2:9a:60-6-in">
@@ -9260,7 +9260,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:manlan.internet2.edu:2013::ServiceDefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasService">
                         <ns3:SwitchingService encoding="http://schemas.ogf.org/nml/2012/10/ethernet" labelSwapping="false" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:manlan.internet2.edu:2013::ServiceDomain:EVTS.A-GOLE">
@@ -9440,7 +9440,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:pionier.net.pl:2013:topologyServiceDefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
                         <ns3:PortGroup id="urn:ogf:network:pionier.net.pl:2013:topology:PORT_TO_PIONIER-out">
@@ -9584,7 +9584,7 @@
                         <ns3:SwitchingService labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:pionier.net.pl:2013:topologyServiceDomain:a-gole:testbed:A-GOLE-EVTS">
                             <ns9:serviceDefinition id="urn:ogf:network:pionier.net.pl:2013:topologyServiceDefinition:EVTS.A-GOLE">
                                 <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                                <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                                <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                             </ns9:serviceDefinition>
                         </ns3:SwitchingService>
                     </ns3:Relation>
@@ -9616,7 +9616,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:manlan.internet2.edu:2013:ServiceDefinition:EVTS.A-GOLE">
                         <ns6:name xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns5="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns8="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" xmlns:ns7="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns9="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:ns2="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns4="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns3="http://schemas.ogf.org/nsi/2013/09/topology#">GLIF Automated GOLE Ethernet VLAN Transfer Service</ns6:name>
-                        <ns6:serviceType xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns5="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns8="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" xmlns:ns7="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns9="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:ns2="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns4="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns3="http://schemas.ogf.org/nsi/2013/09/topology#">http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</ns6:serviceType>
+                        <ns6:serviceType xmlns:ns6="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:ns5="http://schemas.ogf.org/nsi/2014/02/discovery/types" xmlns:ns8="http://schemas.es.net/nsi/2014/03/pce/discovery/configuration" xmlns:ns7="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:ns9="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:ns2="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns4="urn:ietf:params:xml:ns:vcard-4.0" xmlns:ns3="http://schemas.ogf.org/nsi/2013/09/topology#">http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</ns6:serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:manlan.internet2.edu:2013:es:in">

@@ -343,7 +343,7 @@
                     </ns3:BidirectionalPort>
                     <ns9:serviceDefinition id="urn:ogf:network:netherlight.net:2013:production7:servicedefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
                     </ns9:serviceDefinition>
                     <ns3:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns3:PortGroup id="urn:ogf:network:netherlight.net:2013:production7:surfnet-1-in">
