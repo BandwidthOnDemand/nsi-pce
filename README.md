@@ -81,7 +81,7 @@ The prototype NSI-DDS implementation used by the topology service is currently e
 <top:topology xmlns:top="http://schemas.es.net/nsi/2013/08/pce/topology/configuration">
     <location>http://localhost:8400/discovery</location>
 	<auditInterval>300</auditInterval>
-    <defaultServiceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</defaultServiceType>
+    <defaultServiceType>http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE</defaultServiceType>
 </top:topology>
 ```
 

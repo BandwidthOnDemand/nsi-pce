@@ -23,5 +23,5 @@
     <baseURL>http://localhost:8400/topology</baseURL>
     <ddsURL>src/test/resources/config/testDocuments.xml</ddsURL>
     <auditInterval>300</auditInterval>
-    <defaultServiceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</defaultServiceType>
+    <defaultServiceType>http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE</defaultServiceType>
 </top:topology>

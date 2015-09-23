@@ -96,7 +96,7 @@
         <!-- NSI CS Services offered by this Network. -->
         <sd:serviceDefinition id="urn:ogf:network:netherlight.net:2013:ServiceDefinition:EVTS.A-GOLE">
             <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-            <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
+            <serviceType>http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE</serviceType>
         </sd:serviceDefinition>
 
         <Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">

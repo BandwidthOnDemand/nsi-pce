@@ -71,7 +71,7 @@ public class SdpTest {
         }
 
         NsiTopologyFactory nsiFactory = new NsiTopologyFactory();
-        nsiFactory.setDefaultServiceType("http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE");
+        nsiFactory.setDefaultServiceType("http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE");
         nsiFactory.setBaseURL("http://localhost:8400/topology");
         topology = nsiFactory.createNsiTopology(localNsaDocuments, nsaDocuments, localTopologyDocuments, topologyDocuments);
 

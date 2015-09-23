@@ -29,7 +29,7 @@
                     </ns1:BidirectionalPort>
                     <ns6:serviceDefinition id="urn:ogf:network:netherlight.net:2013:topology:servicedefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE</serviceType>
                     </ns6:serviceDefinition>
                     <ns1:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns1:PortGroup id="urn:ogf:network:netherlight.net:2013:topology:1751-in">
@@ -247,7 +247,7 @@
                     </ns1:BidirectionalPort>
                     <ns6:serviceDefinition id="urn:ogf:network:surfnet.nl:1990:testbed7:servicedefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE</serviceType>
                     </ns6:serviceDefinition>
                     <ns1:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns1:PortGroup id="urn:ogf:network:surfnet.nl:1990:testbed7:2690-in">
@@ -807,7 +807,7 @@
                     </ns1:BidirectionalPort>
                     <ns6:serviceDefinition id="urn:ogf:network:surfnet.nl:1990:netherlight-testbed7:servicedefinition:EVTS.A-GOLE">
                         <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
-                        <serviceType>http://services.ogf.org/nsi/2013/12/definitions/EVTS.A-GOLE</serviceType>
+                        <serviceType>http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE</serviceType>
                     </ns6:serviceDefinition>
                     <ns1:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
                         <ns1:PortGroup id="urn:ogf:network:surfnet.nl:1990:netherlight-testbed7:00:03:18:f2:9a:60-6-in">
