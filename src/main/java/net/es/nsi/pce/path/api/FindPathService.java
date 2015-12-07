@@ -20,9 +20,6 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
-import net.es.nsi.pce.jersey.RestClient;
-import net.es.nsi.pce.jersey.RestServer;
-import net.es.nsi.pce.jersey.Utilities;
 import net.es.nsi.pce.jaxb.path.FindPathAlgorithmType;
 import net.es.nsi.pce.jaxb.path.FindPathRequestType;
 import net.es.nsi.pce.jaxb.path.FindPathResponseType;
@@ -32,6 +29,9 @@ import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.jaxb.path.ReplyToType;
 import net.es.nsi.pce.jaxb.path.ResolvedPathType;
 import net.es.nsi.pce.jaxb.path.TraceType;
+import net.es.nsi.pce.jersey.RestClient;
+import net.es.nsi.pce.jersey.RestServer;
+import net.es.nsi.pce.jersey.Utilities;
 import net.es.nsi.pce.path.services.Point2Point;
 import net.es.nsi.pce.path.services.Service;
 import net.es.nsi.pce.pf.Algorithms;
@@ -177,7 +177,7 @@ public class FindPathService {
                 if (services.contains(inService)) {
                     // Invoke the service specific path finder.
                     if (inService.equals(Service.P2PS) && jaxb.getValue() instanceof P2PServiceBaseType) {
-                        P2PServiceBaseType p2ps = (P2PServiceBaseType) jaxb.getValue();
+                        P2PServiceBaseType p2ps = P2PServiceBaseType.class.cast(jaxb.getValue());
                         Point2Point p2p = new Point2Point();
 
                         // Convert the findPath API to constraints.

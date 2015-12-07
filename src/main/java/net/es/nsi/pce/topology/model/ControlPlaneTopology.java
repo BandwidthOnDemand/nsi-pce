@@ -1,5 +1,6 @@
 package net.es.nsi.pce.topology.model;
 
+import com.google.common.base.Strings;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SortedSparseMultigraph;
@@ -8,14 +9,14 @@ import edu.uci.ics.jung.graph.util.Pair;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.es.nsi.pce.pf.NsaEdge;
-import net.es.nsi.pce.pf.NsaVertex;
-import net.es.nsi.pce.pf.api.NsiError;
-import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.jaxb.topology.NsaFeatureType;
 import net.es.nsi.pce.jaxb.topology.NsaType;
 import net.es.nsi.pce.jaxb.topology.PeerRoleEnum;
 import net.es.nsi.pce.jaxb.topology.PeersWithType;
+import net.es.nsi.pce.pf.NsaEdge;
+import net.es.nsi.pce.pf.NsaVertex;
+import net.es.nsi.pce.pf.api.NsiError;
+import net.es.nsi.pce.schema.NsiConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +36,16 @@ public class ControlPlaneTopology {
     }
 
     public String findNextNsa(String sourceNsa, String destNsa) {
+        if (Strings.isNullOrEmpty(sourceNsa)) {
+            throw new IllegalArgumentException("findNextNsa: sourceNsa not provided for control plane path finding");
+        } else if (Strings.isNullOrEmpty(destNsa)) {
+            throw new IllegalArgumentException("findNextNsa: destNsa not provided for control plane path finding");
+        }
+
         // The graph does not handle edges looping back on the same vertex so we
         // have special handling code.  Assume if it is asked for that the NSA
         // is a uPA.
-        if (sourceNsa.equalsIgnoreCase(destNsa)) {
+        if (destNsa.equalsIgnoreCase(sourceNsa)) {
             return sourceNsa;
         }
 

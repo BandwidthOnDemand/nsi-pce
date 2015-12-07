@@ -55,6 +55,7 @@ public enum NsiError {
     UNKNOWN_NETWORK("00405", "UNKNOWN_NETWORK", "Unknown network for requested resource (%s)."),
     INVALID_DISCOVERY("00406", "INVALID_DISCOVERY", "Cannot map networkId to service interface (%s)."),
     NO_CONTROLPLANE_PATH_FOUND("00406", "NO_CONTROLPLANE_PATH_FOUND", "No control plane path for selected connection segments (%s)."),
+    NO_LOCAL_NSA_IDENTIFER("00407", "NO_LOCAL_NSA_IDENTIFER", "No local NSA identifier discovered for PCE (%s)."),
 
     // Internal server errors.
     INTERNAL_ERROR("00500", "INTERNAL_ERROR", "An internal error has caused a message processing failure (%s)."),

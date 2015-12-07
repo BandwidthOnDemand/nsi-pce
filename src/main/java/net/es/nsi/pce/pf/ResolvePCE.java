@@ -1,10 +1,13 @@
 package net.es.nsi.pce.pf;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import javax.ws.rs.WebApplicationException;
+import net.es.nsi.pce.jaxb.topology.NetworkType;
+import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.PathSegment;
-import net.es.nsi.pce.jaxb.topology.NetworkType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.provider.DdsTopologyProvider;
 import org.slf4j.Logger;
@@ -27,13 +30,13 @@ public class ResolvePCE implements PCEModule {
      * @return
      */
     @Override
-    public PCEData apply(PCEData pceData) {
+    public PCEData apply(PCEData pceData) throws WebApplicationException {
         NsiTopology topology = pceData.getTopology();
         DdsTopologyProvider tp = DdsTopologyProvider.getInstance();
 
-        if (topology.getLocalNsaId() == null || topology.getLocalNsaId().isEmpty()) {
+        if (Strings.isNullOrEmpty(topology.getLocalNsaId())) {
             log.error("ResolvePCE: local NSA identifier is not assigned so cannot resolve control plane routes.");
-            return pceData;
+            throw Exceptions.noLocalNsaIdentifier("local NSA identifier is not assigned so cannot resolve control plane routes.");
         }
 
         for (PathSegment segment : pceData.getPath().getPathSegments()) {
