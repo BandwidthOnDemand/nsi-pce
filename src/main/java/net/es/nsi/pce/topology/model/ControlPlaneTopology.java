@@ -12,10 +12,10 @@ import net.es.nsi.pce.pf.NsaEdge;
 import net.es.nsi.pce.pf.NsaVertex;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.schema.NsiConstants;
-import net.es.nsi.pce.topology.jaxb.NsaFeatureType;
-import net.es.nsi.pce.topology.jaxb.NsaType;
-import net.es.nsi.pce.topology.jaxb.PeerRoleEnum;
-import net.es.nsi.pce.topology.jaxb.PeersWithType;
+import net.es.nsi.pce.jaxb.topology.NsaFeatureType;
+import net.es.nsi.pce.jaxb.topology.NsaType;
+import net.es.nsi.pce.jaxb.topology.PeerRoleEnum;
+import net.es.nsi.pce.jaxb.topology.PeersWithType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

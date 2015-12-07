@@ -1,8 +1,8 @@
 package net.es.nsi.pce.visualization;
 
 import com.google.common.base.Optional;
-import net.es.nsi.pce.topology.jaxb.NsaLocationType;
-import net.es.nsi.pce.topology.jaxb.NsaType;
+import net.es.nsi.pce.jaxb.topology.NsaLocationType;
+import net.es.nsi.pce.jaxb.topology.NsaType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.apache.commons.collections15.Transformer;
 

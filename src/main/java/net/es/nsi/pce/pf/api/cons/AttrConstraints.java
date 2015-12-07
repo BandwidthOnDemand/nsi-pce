@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import net.es.nsi.pce.path.jaxb.TypeValueType;
+import net.es.nsi.pce.jaxb.path.TypeValueType;
 
 /**
  * Models a set of attribute constraints.

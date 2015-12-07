@@ -8,23 +8,23 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
-import net.es.nsi.pce.management.jaxb.TimerStatusType;
+import net.es.nsi.pce.jaxb.management.TimerStatusType;
 import net.es.nsi.pce.spring.SpringApplicationContext;
 import org.quartz.Job;
+import static org.quartz.JobBuilder.newJob;
 import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import static org.quartz.JobKey.jobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import org.quartz.SimpleTrigger;
-import static org.quartz.TriggerBuilder.*;
-import static org.quartz.SimpleScheduleBuilder.*;
-import static org.quartz.JobBuilder.*;
-import org.quartz.JobExecutionContext;
-import static org.quartz.JobKey.*;
-import static org.quartz.TriggerKey.*;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
+import static org.quartz.TriggerBuilder.newTrigger;
 import org.quartz.TriggerKey;
+import static org.quartz.TriggerKey.triggerKey;
 import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class PCEScheduler {
     private Scheduler scheduler = null;
 
     // Our registered scheduler items.
-    private Map<String, SchedulerItem> schedulerItems = new ConcurrentHashMap<>();
+    private final Map<String, SchedulerItem> schedulerItems = new ConcurrentHashMap<>();
 
     /**
      * Private constructor loads the scheduler once and prevents

@@ -1,6 +1,6 @@
 package net.es.nsi.pce.pf;
 
-import net.es.nsi.pce.topology.jaxb.NsaType;
+import net.es.nsi.pce.jaxb.topology.NsaType;
 
 /**
  * A vertex for the directed control plane graph.

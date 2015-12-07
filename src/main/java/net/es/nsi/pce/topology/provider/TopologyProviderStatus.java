@@ -4,7 +4,7 @@
  */
 package net.es.nsi.pce.topology.provider;
 
-import net.es.nsi.pce.management.jaxb.TopologyStatusType;
+import net.es.nsi.pce.jaxb.management.TopologyStatusType;
 
 /**
  *

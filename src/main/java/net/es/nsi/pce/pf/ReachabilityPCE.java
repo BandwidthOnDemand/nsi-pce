@@ -19,7 +19,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
+import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.path.services.Point2Point;
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.api.NsiError;
@@ -30,12 +30,12 @@ import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
-import net.es.nsi.pce.topology.jaxb.DemarcationType;
-import net.es.nsi.pce.topology.jaxb.NsaType;
-import net.es.nsi.pce.topology.jaxb.ResourceRefType;
-import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
-import net.es.nsi.pce.topology.jaxb.SdpType;
-import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.jaxb.topology.DemarcationType;
+import net.es.nsi.pce.jaxb.topology.NsaType;
+import net.es.nsi.pce.jaxb.topology.ResourceRefType;
+import net.es.nsi.pce.jaxb.topology.SdpDirectionalityType;
+import net.es.nsi.pce.jaxb.topology.SdpType;
+import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
 public class ReachabilityPCE implements PCEModule {
 
     private static final Logger logger = LoggerFactory.getLogger(ReachabilityPCE.class);
-    private final net.es.nsi.pce.path.jaxb.ObjectFactory factory = new net.es.nsi.pce.path.jaxb.ObjectFactory();
+    private final net.es.nsi.pce.jaxb.path.ObjectFactory factory = new net.es.nsi.pce.jaxb.path.ObjectFactory();
 
     private final static Ordering<Entry<String, Map<String, Integer>>> REACHABILITY_TABLE_ORDERING = Ordering.from(new Comparator<Entry<String, Map<String, Integer>>>() {
         @Override

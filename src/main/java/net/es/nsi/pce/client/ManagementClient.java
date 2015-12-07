@@ -5,12 +5,12 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import net.es.nsi.pce.jaxb.management.LogListType;
+import net.es.nsi.pce.jaxb.management.LogType;
+import net.es.nsi.pce.jaxb.management.StatusType;
+import net.es.nsi.pce.jaxb.management.TimerListType;
+import net.es.nsi.pce.jaxb.management.TimerType;
 import net.es.nsi.pce.jersey.RestClient;
-import net.es.nsi.pce.management.jaxb.LogListType;
-import net.es.nsi.pce.management.jaxb.LogType;
-import net.es.nsi.pce.management.jaxb.StatusType;
-import net.es.nsi.pce.management.jaxb.TimerListType;
-import net.es.nsi.pce.management.jaxb.TimerType;
 import org.glassfish.jersey.client.ClientConfig;
 
 /**

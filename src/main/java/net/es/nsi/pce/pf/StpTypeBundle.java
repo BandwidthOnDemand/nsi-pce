@@ -8,10 +8,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import net.es.nsi.pce.path.api.Exceptions;
-import net.es.nsi.pce.path.jaxb.DirectionalityType;
-import net.es.nsi.pce.topology.jaxb.SdpType;
-import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
-import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.jaxb.path.DirectionalityType;
+import net.es.nsi.pce.jaxb.topology.SdpType;
+import net.es.nsi.pce.jaxb.topology.StpDirectionalityType;
+import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
 /**

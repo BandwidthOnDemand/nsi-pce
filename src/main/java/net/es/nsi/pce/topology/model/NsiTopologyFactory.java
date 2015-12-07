@@ -1,6 +1,7 @@
 package net.es.nsi.pce.topology.model;
 
-import com.google.common.base.Optional;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,37 +9,44 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import net.es.nsi.pce.jaxb.dds.ContentType;
+import net.es.nsi.pce.jaxb.dds.DocumentListType;
+import net.es.nsi.pce.jaxb.dds.DocumentType;
+import net.es.nsi.pce.jaxb.topology.NetworkType;
+import net.es.nsi.pce.jaxb.topology.NmlBidirectionalPortType;
+import net.es.nsi.pce.jaxb.topology.NmlLabelGroupType;
+import net.es.nsi.pce.jaxb.topology.NmlLabelType;
+import net.es.nsi.pce.jaxb.topology.NmlNetworkObject;
+import net.es.nsi.pce.jaxb.topology.NmlPortGroupRelationType;
+import net.es.nsi.pce.jaxb.topology.NmlPortGroupType;
+import net.es.nsi.pce.jaxb.topology.NmlPortRelationType;
+import net.es.nsi.pce.jaxb.topology.NmlPortType;
+import net.es.nsi.pce.jaxb.topology.NmlSwitchingServiceRelationType;
+import net.es.nsi.pce.jaxb.topology.NmlSwitchingServiceType;
+import net.es.nsi.pce.jaxb.topology.NmlTopologyRelationType;
+import net.es.nsi.pce.jaxb.topology.NmlTopologyType;
+import net.es.nsi.pce.jaxb.topology.NsaNsaType;
+import net.es.nsi.pce.jaxb.topology.NsaType;
+import net.es.nsi.pce.jaxb.topology.ObjectFactory;
+import net.es.nsi.pce.jaxb.topology.ServiceDefinitionType;
+import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
+import net.es.nsi.pce.jaxb.topology.ServiceType;
+import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
+import net.es.nsi.pce.schema.NmlParser;
+import net.es.nsi.pce.schema.NsaParser;
 import net.es.nsi.pce.schema.XmlUtilities;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
-import net.es.nsi.pce.topology.jaxb.NetworkType;
-import net.es.nsi.pce.topology.jaxb.NmlBidirectionalPortType;
-import net.es.nsi.pce.topology.jaxb.NmlLabelGroupType;
-import net.es.nsi.pce.topology.jaxb.NmlLabelType;
-import net.es.nsi.pce.topology.jaxb.NmlNetworkObject;
-import net.es.nsi.pce.topology.jaxb.NmlPortGroupRelationType;
-import net.es.nsi.pce.topology.jaxb.NmlPortGroupType;
-import net.es.nsi.pce.topology.jaxb.NmlPortRelationType;
-import net.es.nsi.pce.topology.jaxb.NmlPortType;
-import net.es.nsi.pce.topology.jaxb.NmlSwitchingServiceRelationType;
-import net.es.nsi.pce.topology.jaxb.NmlSwitchingServiceType;
-import net.es.nsi.pce.topology.jaxb.NmlTopologyRelationType;
-import net.es.nsi.pce.topology.jaxb.NmlTopologyType;
-import net.es.nsi.pce.topology.jaxb.NsaNsaType;
-import net.es.nsi.pce.topology.jaxb.NsaType;
-import net.es.nsi.pce.topology.jaxb.ObjectFactory;
-import net.es.nsi.pce.topology.jaxb.ServiceDefinitionType;
-import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
-import net.es.nsi.pce.topology.jaxb.ServiceType;
-import net.es.nsi.pce.topology.jaxb.StpType;
 import net.es.nsi.pce.topology.provider.DdsWrapper;
+import net.es.nsi.pce.util.Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 /**
  *
@@ -92,7 +100,7 @@ public class NsiTopologyFactory {
         this.baseURL = baseURL;
     }
 
-    public NsiTopology createNsiTopology(DdsDocumentListType localNsaDocuments, Map<String, DdsWrapper> nsaDocuments, DdsDocumentListType localTopologyDocuments, Map<String, DdsWrapper> topologyDocuments) throws Exception {
+    public NsiTopology createNsiTopology(DocumentListType localNsaDocuments, Map<String, DdsWrapper> nsaDocuments, DocumentListType localTopologyDocuments, Map<String, DdsWrapper> topologyDocuments) throws Exception {
         log.debug("createNsiTopology: **** STARTING NML TOPOLOGY PROCESSING ****");
 
         // Create the NSI topology.
@@ -109,7 +117,7 @@ public class NsiTopologyFactory {
 
         // Add the local network identifiers.
         List<String> networkIds = new ArrayList<>();
-        for (DdsDocumentType topology : localTopologyDocuments.getDocument()) {
+        for (DocumentType topology : localTopologyDocuments.getDocument()) {
             log.debug("createNsiTopology: local networkId=" + topology.getId());
             networkIds.add(topology.getId());
         }
@@ -211,7 +219,7 @@ public class NsiTopologyFactory {
                 uniPortMap.values().stream().forEach((port) -> {
                     Map<String, StpType> uniStps = NsiStpFactory.createUniStps(port, nsiNetwork);
                     uniStp.putAll(uniStps);
-                    newNsiTopology.addStpBundle(port.getId(), uniStp);
+                    newNsiTopology.addStpBundle(port.getId(), uniStps);
                 });
 
                 // Add the port references to the Network resource.
@@ -264,26 +272,42 @@ public class NsiTopologyFactory {
         return newNsiTopology;
     }
 
-    private NsaNsaType getNsaDocument(DdsDocumentType document) {
-        for (Object any : document.getContent().getAny()) {
-            if (any instanceof JAXBElement && ((JAXBElement) any).getValue() instanceof NsaNsaType) {
-                @SuppressWarnings("unchecked")
-                JAXBElement<NsaNsaType> element = (JAXBElement<NsaNsaType>) any;
-
-                return element.getValue();
+    private NsaNsaType getNsaDocument(DocumentType document) {
+        Optional<ContentType> content = Optional.ofNullable(document.getContent());
+        if (content.isPresent()) {
+            try {
+                Document dom = Decoder.decode(
+                        content.get().getContentTransferEncoding(),
+                        content.get().getContentType(),
+                        content.get().getValue());
+                return NsaParser.getInstance().dom2Nsa(dom);
+            } catch (UnsupportedEncodingException ex) {
+                log.error("getNsaDocument: document was encoded with an unsupported encoding scheme", ex);
+            } catch (IOException | JAXBException ex) {
+                log.error("getNsaDocument: document could not be parsed", ex);
+            } catch (RuntimeException ex) {
+                log.error("getNsaDocument: an unrecoverable internal error has occured", ex);
             }
         }
 
         return null;
     }
 
-    private NmlTopologyType getTopologyDocument(DdsDocumentType document) {
-        for (Object any : document.getContent().getAny()) {
-            if (any instanceof JAXBElement && ((JAXBElement) any).getValue() instanceof NmlTopologyType) {
-                @SuppressWarnings("unchecked")
-                JAXBElement<NmlTopologyType> element = (JAXBElement<NmlTopologyType>) any;
-
-                return element.getValue();
+    private NmlTopologyType getTopologyDocument(DocumentType document) {
+        Optional<ContentType> content = Optional.ofNullable(document.getContent());
+        if (content.isPresent()) {
+            try {
+                Document dom = Decoder.decode(
+                        content.get().getContentTransferEncoding(),
+                        content.get().getContentType(),
+                        content.get().getValue());
+                return NmlParser.getInstance().dom2Nml(dom);
+            } catch (UnsupportedEncodingException ex) {
+                log.error("getTopologyDocument: document was encoded with an unsupported encoding scheme", ex);
+            } catch (IOException | JAXBException ex) {
+                log.error("getTopologyDocument: document could not be parsed", ex);
+            } catch (RuntimeException ex) {
+                log.error("getTopologyDocument: an unrecoverable internal error has occured", ex);
             }
         }
 
@@ -329,11 +353,11 @@ public class NsiTopologyFactory {
                     // Extract the labels associated with this port.  We
                     // currently expect a single labelType with a range of
                     // values.  VLAN labels is all we currently know about.
-                    Optional<String> labelType = Optional.absent();
+                    Optional<String> labelType = Optional.empty();
                     Set<NmlLabelType> labels = new LinkedHashSet<>();
                     for (NmlLabelGroupType labelGroup : portGroup.getLabelGroup()) {
                         // We break out the vlan specific label.
-                        labelType = Optional.fromNullable(labelGroup.getLabeltype());
+                        labelType = Optional.ofNullable(labelGroup.getLabeltype());
                         if (NmlEthernet.isVlanLabel(labelType)) {
                             labels.addAll(NmlEthernet.labelGroupToLabels(labelGroup));
                         }
@@ -363,7 +387,7 @@ public class NsiTopologyFactory {
                     nmlPort.setTopologyId(nmlTopology.getId());
                     nmlPort.setId(portGroup.getId());
                     nmlPort.setName(portGroup.getName());
-                    nmlPort.setEncoding(Optional.fromNullable(portGroup.getEncoding()));
+                    nmlPort.setEncoding(Optional.ofNullable(portGroup.getEncoding()));
                     nmlPort.setLabelType(labelType);
                     nmlPort.setOrientation(orientation);
                     nmlPort.setVersion(nsa.getVersion());
@@ -399,7 +423,7 @@ public class NsiTopologyFactory {
                     nmlPort.setTopologyId(nmlTopology.getId());
                     nmlPort.setId(port.getId());
                     nmlPort.setName(port.getName());
-                    nmlPort.setEncoding(Optional.fromNullable(port.getEncoding()));
+                    nmlPort.setEncoding(Optional.ofNullable(port.getEncoding()));
                     nmlPort.setOrientation(orientation);
                     nmlPort.setVersion(nsa.getVersion());
                     nmlPort.setDiscovered(getLastDiscovered());
@@ -663,8 +687,8 @@ public class NsiTopologyFactory {
 
     private NmlSwitchingServiceType populateWildcardSwitchingService(NmlSwitchingServiceType switchingService, Map<String, NmlPort> portMap) {
         log.debug("Found empty SwitchingService, id=" + switchingService.getId() + ", populating based on wildcard rules.");
-        Optional<String> encoding = Optional.fromNullable(switchingService.getEncoding());
-        Optional<String> labelType = Optional.fromNullable(switchingService.getLabelType());
+        Optional<String> encoding = Optional.ofNullable(switchingService.getEncoding());
+        Optional<String> labelType = Optional.ofNullable(switchingService.getLabelType());
 
         log.debug("encoding = " + encoding);
         log.debug("labelType = " + labelType);

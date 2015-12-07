@@ -11,15 +11,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.es.nsi.pce.path.jaxb.DirectionalityType;
-import net.es.nsi.pce.path.jaxb.OrderedStpType;
-import net.es.nsi.pce.path.jaxb.StpListType;
-import net.es.nsi.pce.schema.NmlParser;
-import net.es.nsi.pce.topology.jaxb.DdsCollectionType;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
-import net.es.nsi.pce.topology.jaxb.ObjectFactory;
-import net.es.nsi.pce.topology.jaxb.SdpType;
+import net.es.nsi.pce.jaxb.dds.CollectionType;
+import net.es.nsi.pce.jaxb.dds.DocumentListType;
+import net.es.nsi.pce.jaxb.dds.DocumentType;
+import net.es.nsi.pce.jaxb.dds.ObjectFactory;
+import net.es.nsi.pce.jaxb.path.DirectionalityType;
+import net.es.nsi.pce.jaxb.path.OrderedStpType;
+import net.es.nsi.pce.jaxb.path.StpListType;
+import net.es.nsi.pce.jaxb.topology.SdpType;
+import net.es.nsi.pce.schema.DdsParser;
 import net.es.nsi.pce.topology.model.NsiSdpFactory;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.model.NsiTopologyFactory;
@@ -63,13 +63,13 @@ public class RouteObjectTest {
         DOMConfigurator.configureAndWatch(Log4jHelper.getLog4jConfig("src/test/resources/config/log4j.xml"), 45 * 1000);
         log = LoggerFactory.getLogger(SdpTest.class);
 
-        DdsCollectionType collection = NmlParser.getInstance().parseDdsCollectionFromFile("src/test/resources/config/eroTest.xml");
+        CollectionType collection = DdsParser.getInstance().readCollection("src/test/resources/config/eroTest.xml");
 
-        DdsDocumentListType localNsaDocuments = factory.createDdsDocumentListType();
-        DdsDocumentListType localTopologyDocuments = factory.createDdsDocumentListType();
+        DocumentListType localNsaDocuments = factory.createDocumentListType();
+        DocumentListType localTopologyDocuments = factory.createDocumentListType();
 
         if (collection.getLocal() != null) {
-            for (DdsDocumentType document : collection.getLocal().getDocument()) {
+            for (DocumentType document : collection.getLocal().getDocument()) {
                 if (DDS_NSA_DOCUMENT_TYPE.equalsIgnoreCase(document.getType())) {
                     localNsaDocuments.getDocument().add(document);
                 }
@@ -83,7 +83,7 @@ public class RouteObjectTest {
         Map<String, DdsWrapper> topologyDocuments = new HashMap<>();
 
         if (collection.getDocuments() != null) {
-            for (DdsDocumentType document : collection.getDocuments().getDocument()) {
+            for (DocumentType document : collection.getDocuments().getDocument()) {
                 if (DDS_NSA_DOCUMENT_TYPE.equalsIgnoreCase(document.getType())) {
                     DdsWrapper wrapper = new DdsWrapper();
                     wrapper.setDocument(document);
@@ -121,7 +121,7 @@ public class RouteObjectTest {
         System.out.println("getRoutes");
         SimpleStp srcStpId = new SimpleStp("urn:ogf:network:czechlight.cesnet.cz:2013:topology:brno?vlan=1790");
         SimpleStp dstStpId = new SimpleStp("urn:ogf:network:icair.org:2013:topology:showfloor?vlan=1790");
-        net.es.nsi.pce.path.jaxb.ObjectFactory pathFactory = new net.es.nsi.pce.path.jaxb.ObjectFactory();
+        net.es.nsi.pce.jaxb.path.ObjectFactory pathFactory = new net.es.nsi.pce.jaxb.path.ObjectFactory();
         StpListType ero = pathFactory.createStpListType();
 
         // Set internal STP for first domain.

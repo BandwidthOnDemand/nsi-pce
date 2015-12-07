@@ -7,11 +7,11 @@ package net.es.nsi.pce.pf;
 
 import java.util.HashMap;
 import java.util.Map;
-import net.es.nsi.pce.path.jaxb.DirectionalityType;
-import net.es.nsi.pce.topology.jaxb.ObjectFactory;
-import net.es.nsi.pce.topology.jaxb.ResourceRefType;
-import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
-import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.jaxb.path.DirectionalityType;
+import net.es.nsi.pce.jaxb.topology.ObjectFactory;
+import net.es.nsi.pce.jaxb.topology.ResourceRefType;
+import net.es.nsi.pce.jaxb.topology.StpDirectionalityType;
+import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.util.Log4jHelper;
 import org.apache.log4j.xml.DOMConfigurator;

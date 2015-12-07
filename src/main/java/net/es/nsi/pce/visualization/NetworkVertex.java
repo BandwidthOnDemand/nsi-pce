@@ -4,7 +4,7 @@
  */
 package net.es.nsi.pce.visualization;
 
-import net.es.nsi.pce.topology.jaxb.NetworkType;
+import net.es.nsi.pce.jaxb.topology.NetworkType;
 
 /**
  *

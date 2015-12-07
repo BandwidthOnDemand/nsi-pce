@@ -62,6 +62,18 @@
             <version>${jersey.version}</version>
         </dependency>
 
+        <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>javax.mail-api</artifactId>
+                <version>1.5.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+
         <!-- SLF and Log4j for logging infrestructure. -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -208,6 +220,19 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics</artifactId>
+            <version>0.9.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jvnet.jaxb2.maven2</groupId>
+            <artifactId>maven-jaxb2-plugin</artifactId>
+            <version>0.13.0</version>
+        </dependency>
+
      </dependencies>
 
     <build>
@@ -224,61 +249,267 @@
             </plugin>
 
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxb2-maven-plugin</artifactId>
-                <version>1.5</version>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+                <version>0.13.0</version>
                 <executions>
+                    <!-- We break the schema up into bundles for compile.  This
+                      allows us to load schema by package name and reduce the
+                      namespace polution when serializing. -->
                   <execution>
                     <id>pce.rest.api</id>
                     <goals>
-                        <goal>xjc</goal>
+                        <goal>generate</goal>
                     </goals>
                     <configuration>
-                        <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
-                        <schemaFiles>pce-messages.xsd, ogf_nsi_services_p2p_v2_0.xsd, ogf_nsi_services_types_v2_0.xsd</schemaFiles>
-                        <packageName>net.es.nsi.pce.path.jaxb</packageName>
-                        <staleFile>${project.build.directory}/jaxb2/.pathXjcStaleFlag</staleFile>
-                    </configuration>
-                  </execution>
-                  <execution>
-                    <id>topology</id>
-                    <goals>
-                        <goal>xjc</goal>
-                    </goals>
-                    <configuration>
+                        <args>
+                            <arg>-Xfluent-api</arg>
+                            <arg>-Xequals</arg>
+                            <arg>-XhashCode</arg>
+                            <arg>-XtoString</arg>
+                        </args>
                         <bindingDirectory>${basedir}/src/main/xsd</bindingDirectory>
-                        <bindingFiles>project.xjb</bindingFiles>
-                        <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
-                        <schemaFiles>nsi-topology.xsd, ogf_nsi_services_definition_v2_0.xsd, nmlbase.xsd, nsi-ext.xsd, ogf_nsi_discovery_protocol_v1_0.xsd, ogf_nsi_discovery_nsa_v1_0.xsd, gnsbod.xsd</schemaFiles>
-                        <packageName>net.es.nsi.pce.topology.jaxb</packageName>
-                        <staleFile>${project.build.directory}/jaxb2/.sdXjcStaleFlag</staleFile>
-                        <clearOutputDir>false</clearOutputDir>
+                        <bindingIncludes>
+                            <bindingInclude>pce.xjb</bindingInclude>
+                        </bindingIncludes>
+                        <schemas>
+                            <schema>
+                                <fileset>
+                                    <directory>${basedir}/src/main/xsd</directory>
+                                    <includes>
+                                        <include>pce-messages.xsd</include>
+                                        <include>ogf_nsi_services_p2p_v2_0.xsd</include>
+                                        <include>ogf_nsi_services_types_v2_0.xsd</include>
+                                    </includes>
+                                </fileset>
+                            </schema>
+                        </schemas>
+                        <generatePackage>net.es.nsi.pce.jaxb.path</generatePackage>
+                        <generateDirectory>${project.build.directory}/generated-sources/pce</generateDirectory>
+                        <clearOutputDir>true</clearOutputDir>
+                        <markGenerated>true</markGenerated>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-basics</artifactId>
+                                <version>0.9.4</version>
+                            </plugin>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-fluent-api</artifactId>
+                                <version>3.0</version>
+                            </plugin>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-namespace-prefix</artifactId>
+                                <version>1.1</version>
+                            </plugin>
+                        </plugins>
                     </configuration>
                   </execution>
+
                   <execution>
-                    <id>management</id>
+                    <id>topology.rest.api</id>
                     <goals>
-                        <goal>xjc</goal>
+                        <goal>generate</goal>
                     </goals>
                     <configuration>
-                        <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
-                        <schemaFiles>pce-management.xsd</schemaFiles>
-                        <packageName>net.es.nsi.pce.management.jaxb</packageName>
-                        <staleFile>${project.build.directory}/jaxb2/.mgntXjcStaleFlag</staleFile>
-                        <clearOutputDir>false</clearOutputDir>
+                        <args>
+                            <arg>-Xfluent-api</arg>
+                            <arg>-Xequals</arg>
+                            <arg>-XhashCode</arg>
+                            <arg>-XtoString</arg>
+                        </args>
+                        <bindingDirectory>${basedir}/src/main/xsd</bindingDirectory>
+                        <bindingIncludes>
+                            <bindingInclude>topology.xjb</bindingInclude>
+                        </bindingIncludes>
+                        <schemas>
+                            <schema>
+                                <fileset>
+                                    <directory>${basedir}/src/main/xsd</directory>
+                                    <includes>
+                                        <include>nsi-topology.xsd</include>
+                                        <include>ogf_nsi_services_definition_v2_0.xsd</include>
+                                        <include>nmlbase.xsd</include>
+                                        <include>nml-ethernet.xsd</include>
+                                        <include>ogf_nsi_discovery_nsa_v1_0.xsd</include>
+                                        <include>gnsbod.xsd</include>
+                                    </includes>
+                                </fileset>
+                            </schema>
+                        </schemas>
+                        <generatePackage>net.es.nsi.pce.jaxb.topology</generatePackage>
+                        <generateDirectory>${project.build.directory}/generated-sources/topology</generateDirectory>
+                        <clearOutputDir>true</clearOutputDir>
+                        <markGenerated>true</markGenerated>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-basics</artifactId>
+                                <version>0.9.4</version>
+                            </plugin>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-fluent-api</artifactId>
+                                <version>3.0</version>
+                            </plugin>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-namespace-prefix</artifactId>
+                                <version>1.1</version>
+                            </plugin>
+                        </plugins>
                     </configuration>
                   </execution>
+
+                  <execution>
+                    <id>dds.rest.api</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    <configuration>
+                        <args>
+                            <arg>-Xfluent-api</arg>
+                            <arg>-Xequals</arg>
+                            <arg>-XhashCode</arg>
+                            <arg>-XtoString</arg>
+                        </args>
+                        <bindingDirectory>${basedir}/src/main/xsd</bindingDirectory>
+                        <bindingIncludes>
+                            <bindingInclude>dds.xjb</bindingInclude>
+                        </bindingIncludes>
+                        <schemas>
+                            <schema>
+                                <fileset>
+                                    <directory>${basedir}/src/main/xsd</directory>
+                                    <includes>
+                                        <include>ogf_nsi_discovery_protocol_v1_0.xsd</include>
+                                    </includes>
+                                </fileset>
+                            </schema>
+                        </schemas>
+                        <generatePackage>net.es.nsi.pce.jaxb.dds</generatePackage>
+                        <generateDirectory>${project.build.directory}/generated-sources/dds</generateDirectory>
+                        <clearOutputDir>true</clearOutputDir>
+                        <markGenerated>true</markGenerated>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-basics</artifactId>
+                                <version>0.9.4</version>
+                            </plugin>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-fluent-api</artifactId>
+                                <version>3.0</version>
+                            </plugin>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-namespace-prefix</artifactId>
+                                <version>1.1</version>
+                            </plugin>
+                        </plugins>
+                    </configuration>
+                  </execution>
+
                   <execution>
                     <id>topology-config</id>
-                    <goals>
-                        <goal>xjc</goal>
-                    </goals>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
                     <configuration>
-                        <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
-                        <schemaFiles>pce-topology-configuration.xsd</schemaFiles>
-                        <packageName>net.es.nsi.pce.config.jaxb</packageName>
-                        <staleFile>${project.build.directory}/jaxb2/.configXjcStaleFlag</staleFile>
-                        <clearOutputDir>false</clearOutputDir>
+                        <args>
+                            <arg>-Xfluent-api</arg>
+                            <arg>-Xequals</arg>
+                            <arg>-XhashCode</arg>
+                            <arg>-XtoString</arg>
+                        </args>
+                        <bindingDirectory>${basedir}/src/main/xsd</bindingDirectory>
+                        <bindingIncludes>
+                            <bindingInclude>topology-config.xjb</bindingInclude>
+                        </bindingIncludes>
+                        <schemas>
+                            <schema>
+                                <fileset>
+                                    <directory>${basedir}/src/main/xsd</directory>
+                                    <includes>
+                                        <include>pce-topology-configuration.xsd</include>
+                                    </includes>
+                                </fileset>
+                            </schema>
+                        </schemas>
+                        <generatePackage>net.es.nsi.pce.jaxb.config</generatePackage>
+                        <generateDirectory>${project.build.directory}/generated-sources/config</generateDirectory>
+                        <clearOutputDir>true</clearOutputDir>
+                        <markGenerated>true</markGenerated>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-basics</artifactId>
+                                <version>0.9.4</version>
+                            </plugin>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-fluent-api</artifactId>
+                                <version>3.0</version>
+                            </plugin>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-namespace-prefix</artifactId>
+                                <version>1.1</version>
+                            </plugin>
+                        </plugins>
+                    </configuration>
+                  </execution>
+
+                  <execution>
+                    <id>management</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    <configuration>
+                        <args>
+                            <arg>-Xfluent-api</arg>
+                            <arg>-Xequals</arg>
+                            <arg>-XhashCode</arg>
+                            <arg>-XtoString</arg>
+                        </args>
+                        <bindingDirectory>${basedir}/src/main/xsd</bindingDirectory>
+                        <bindingIncludes>
+                            <bindingInclude>management.xjb</bindingInclude>
+                        </bindingIncludes>
+                        <schemas>
+                            <schema>
+                                <fileset>
+                                    <directory>${basedir}/src/main/xsd</directory>
+                                    <includes>
+                                        <include>pce-management.xsd</include>
+                                    </includes>
+                                </fileset>
+                            </schema>
+                        </schemas>
+                        <generatePackage>net.es.nsi.pce.jaxb.management</generatePackage>
+                        <generateDirectory>${project.build.directory}/generated-sources/management</generateDirectory>
+                        <clearOutputDir>true</clearOutputDir>
+                        <markGenerated>true</markGenerated>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-basics</artifactId>
+                                <version>0.9.4</version>
+                            </plugin>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-fluent-api</artifactId>
+                                <version>3.0</version>
+                            </plugin>
+                            <plugin>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-namespace-prefix</artifactId>
+                                <version>1.1</version>
+                            </plugin>
+                        </plugins>
                     </configuration>
                   </execution>
                 </executions>

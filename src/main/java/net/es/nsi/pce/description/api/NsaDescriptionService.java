@@ -22,7 +22,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.gson.JsonProxy;
 import net.es.nsi.pce.spring.SpringContext;
 import net.es.nsi.pce.topology.dao.TopologyConfiguration;
-import net.es.nsi.pce.topology.jaxb.NsaType;
+import net.es.nsi.pce.jaxb.topology.NsaType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 import org.apache.http.client.utils.DateUtils;

@@ -4,12 +4,12 @@
  */
 package net.es.nsi.pce.topology.model;
 
-import com.google.common.base.Optional;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
-import net.es.nsi.pce.topology.jaxb.NmlLabelGroupType;
-import net.es.nsi.pce.topology.jaxb.NmlLabelType;
+import net.es.nsi.pce.jaxb.topology.NmlLabelGroupType;
+import net.es.nsi.pce.jaxb.topology.NmlLabelType;
 
 /**
  *
@@ -28,7 +28,7 @@ public class NmlEthernet {
 
     public static Set<NmlLabelType> labelGroupToLabels(NmlLabelGroupType labelGroup) {
 
-        Optional<String> labelType = Optional.fromNullable(labelGroup.getLabeltype());
+        Optional<String> labelType = Optional.ofNullable(labelGroup.getLabeltype());
         if (!isVlanLabel(labelType)) {
             throw new IllegalArgumentException("Invalid vlan label: " + labelGroup.getLabeltype());
         }

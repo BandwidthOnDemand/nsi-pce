@@ -4,7 +4,7 @@
  */
 package net.es.nsi.pce.topology.provider;
 
-import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
+import net.es.nsi.pce.jaxb.dds.DocumentType;
 
 /**
  *
@@ -12,7 +12,7 @@ import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
  */
 public class DdsWrapper {
     private long discovered;
-    private DdsDocumentType document;
+    private DocumentType document;
 
     /**
      * @return the discovered
@@ -31,14 +31,14 @@ public class DdsWrapper {
     /**
      * @return the document
      */
-    public DdsDocumentType getDocument() {
+    public DocumentType getDocument() {
         return document;
     }
 
     /**
      * @param document the document to set
      */
-    public void setDocument(DdsDocumentType document) {
+    public void setDocument(DocumentType document) {
         this.document = document;
     }
 }

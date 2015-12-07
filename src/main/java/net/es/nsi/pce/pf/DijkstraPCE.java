@@ -13,9 +13,9 @@ import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.WebApplicationException;
 import net.es.nsi.pce.path.api.Exceptions;
-import net.es.nsi.pce.path.jaxb.DirectionalityType;
-import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
-import net.es.nsi.pce.path.jaxb.StpListType;
+import net.es.nsi.pce.jaxb.path.DirectionalityType;
+import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
+import net.es.nsi.pce.jaxb.path.StpListType;
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.path.services.Service;
 import net.es.nsi.pce.pf.api.PCEConstraints;
@@ -25,9 +25,9 @@ import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
-import net.es.nsi.pce.topology.jaxb.ResourceRefType;
-import net.es.nsi.pce.topology.jaxb.SdpType;
-import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.jaxb.topology.ResourceRefType;
+import net.es.nsi.pce.jaxb.topology.SdpType;
+import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.apache.commons.collections15.Transformer;
 import org.slf4j.Logger;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DijkstraPCE implements PCEModule {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private final net.es.nsi.pce.path.jaxb.ObjectFactory factory = new net.es.nsi.pce.path.jaxb.ObjectFactory();
+    private final net.es.nsi.pce.jaxb.path.ObjectFactory factory = new net.es.nsi.pce.jaxb.path.ObjectFactory();
 
     /**
      * This path computation module supports pathfinding for the P2PS service

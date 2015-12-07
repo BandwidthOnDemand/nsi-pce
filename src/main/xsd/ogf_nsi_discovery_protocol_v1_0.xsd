@@ -37,13 +37,14 @@ or as required to translate it into languages other than English.
 The limited permissions granted above are perpetual and will not be revoked by
 the OGF or its successors or assignees.
 
-Open Grid Forum NSI Discovery Service Protocol v1.0.
+Open Grid Forum NSI Document Distribution Service Protocol v1.0.
 
-Description: This is the NSI Discovery Service Protocol types schema for the
-reference web services implementation of the OGF NSI Discovery Service v1.0.
-Comments and questions can be directed to the mailing list group mailing list
-(nsi-wg@ogf.org).
-
+Description: This is the NSI Document Distribution Protocol types schema for
+the reference web services implementation of the OGF NSI Document Distribution
+Service v1.0.  The Document Distribution Service provides the primary mechanism
+for information discovery within the Network Service Framwork suite of protocols.
+Comments and questions can be directed to the mailing list group
+mailing list (nsi-wg@ogf.org).
 -->
 <xsd:schema targetNamespace="http://schemas.ogf.org/nsi/2014/02/discovery/types"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -53,8 +54,8 @@ Comments and questions can be directed to the mailing list group mailing list
     <xsd:annotation>
         <xsd:appinfo>ogf_nsi_discovery_protocol_v1_0.xsd 2014-02-20</xsd:appinfo>
         <xsd:documentation xml:lang="en">
-            This is an XML schema document describing the OGF NSI Discovery
-            Service Protocol v1.0.
+            This is an XML schema document describing the OGF NSI Document
+            Distribution Service Protocol v1.0.
         </xsd:documentation>
     </xsd:annotation>
 
@@ -615,7 +616,7 @@ Comments and questions can be directed to the mailing list group mailing list
         </xsd:annotation>
         <xsd:sequence>
             <xsd:element name="discovered" type="xsd:dateTime" />
-            <xsd:element name="event" type="tns:DocumentEventType" />
+            <xsd:element name="event"      type="tns:DocumentEventType" />
             <xsd:element name="document"   type="tns:DocumentType" />
             <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
@@ -993,9 +994,25 @@ Comments and questions can be directed to the mailing list group mailing list
                 Elements:
 
                 nsa	- The source NSA associated with the generation and management
-                of the document within the network.
+                of the document within the network. This is assumed to be the NSA
+                to which the document relates, however, there may be situations
+                such as proxy publishing where this assumption is not true.
+                
+                For example, if the document being generated is the NSA Description
+                Document for NSA “urn:ogf:network:example.com:2013:nsa:vixen”, then
+                the nsa element should contain is the NSA identifier
+                “urn:ogf:network:example.com:2013:nsa:vixen”.
 
                 type - The unique string identifying the type of this document.
+                A document type is defined by the type and release of a data
+                document.  For example, NSI Topology version 1.0 and a NSI
+                Topology version 2.0 would be considered two different document
+                types:
+                    - vnd.ogf.nsi.topology.v1+xml
+                    - vnd.ogf.nsi.topology.v2+xml
+                
+                The NSA Description Document 1.0 is defined as the type:
+                    - vnd.ogf.nsi.nsa.v1+xml
 
                 signature - The OPTIONAL digital signature of the document
                 contents.
@@ -1010,15 +1027,15 @@ Comments and questions can be directed to the mailing list group mailing list
                 Attributes:
 
                 id - The identifier of the document.  This value must be unique
-                in the context of the nsa and type values.
+                in the context of the nsa and type element values.
 
-                version	- The version of the document.  Typically the date this
-                version of the document was created.  Any updates to the document
-                must be tagged with a new version.
+                version	- The version of the document, or more specifically, the
+                date this version of the document was created.  Any updates to the
+                document must be tagged with a new version.
 
-                expires	- The date this version of the document expires and should
-                be deleted from the NSA (document server) and any clients caching
-                the document.
+                expires	- The date this version of the document expires and
+                should be deleted from the Global Document Space by an NSA and
+                any clients caching the document.
 
                 other - Provides a flexible mechanism allowing additional attributes
                 to be provided from other namespaces without needing to update
@@ -1028,31 +1045,58 @@ Comments and questions can be directed to the mailing list group mailing list
         <xsd:sequence>
             <xsd:element name="nsa"       type="xsd:anyURI" />
             <xsd:element name="type"      type="xsd:string" />
-            <xsd:element name="signature" type="tns:AnyType" minOccurs="0" />
-            <xsd:element name="content"   type="tns:AnyType" minOccurs="0" />
+            <xsd:element name="signature" type="tns:ContentType" minOccurs="0" />
+            <xsd:element name="content"   type="tns:ContentType" minOccurs="0" />
             <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
-        <xsd:attribute name="id" use="required" type="xsd:string" />
-        <xsd:attribute name="href" use="optional" type="xsd:anyURI" />
+        <xsd:attribute name="id"      use="required" type="xsd:string" />
+        <xsd:attribute name="href"    use="optional" type="xsd:anyURI" />
         <xsd:attribute name="version" use="required" type="xsd:dateTime" />
         <xsd:attribute name="expires" use="required" type="xsd:dateTime" />
         <xsd:anyAttribute namespace="##other" processContents="lax" />
     </xsd:complexType>
+    
+    <xsd:complexType name="ContentType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="contentType"             use="optional" type="xsd:string" />
+                <xsd:attribute name="contentTransferEncoding" use="optional" type="xsd:string" />
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
 
-    <xsd:complexType name="AnyType">
+    <xsd:complexType name="AnyHolderType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
-                This type is used to hold a document or signature within the
-                document metadata.
+                This type is used to hold a document contents or digital
+                signature within the document metadata.  Basic types without
+                a dedicated element definition can be referenced within this
+                "##any" using the "value" element defined below.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
-        <xsd:anyAttribute namespace="##other" processContents="lax" />
+        <xsd:attribute name="id"                      use="optional" type="xsd:string" />
+        <xsd:attribute name="contentType"             use="optional" type="xsd:string" />
+        <xsd:attribute name="contentTransferEncoding" use="optional" type="xsd:string" />
+        <xsd:anyAttribute namespace="##any" processContents="lax" />
     </xsd:complexType>
+    
+    <xsd:element name="value" type="xsd:anyType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                A simple element allowing for the inclusion of values from the
+                basic xml types (string, int, etc) within the signature and
+                content elements without needing to define an external
+                dedicated element type.  Values with their own schema definitions
+                should be included directly in the signature/content any
+                definition and not within this value element.
+            </xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
 
-    <xsd:element name="error"     type="tns:ErrorType">
+    <xsd:element name="error" type="tns:ErrorType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
                 The error element is returned in an HTTP response when an error
@@ -1064,7 +1108,8 @@ Comments and questions can be directed to the mailing list group mailing list
     <xsd:complexType name="ErrorType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
-                This type models errors returned from Discovery Service operations.
+                This type models errors returned from Document Distribution
+                Service operations.
 
                 Elements:
 
@@ -1089,7 +1134,7 @@ Comments and questions can be directed to the mailing list group mailing list
             <xsd:element name="description" type="xsd:string" />
             <xsd:element name="resource"    type="xsd:anyURI" />
         </xsd:sequence>
-        <xsd:attribute name="id"   type="xsd:string" use="required" />
-        <xsd:attribute name="date" type="xsd:dateTime" use="required" />
+        <xsd:attribute name="id"   use="required" type="xsd:string" />
+        <xsd:attribute name="date" use="required" type="xsd:dateTime" />
     </xsd:complexType>
 </xsd:schema>

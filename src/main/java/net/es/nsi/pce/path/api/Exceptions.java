@@ -9,8 +9,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
-import net.es.nsi.pce.path.jaxb.FindPathErrorType;
-import net.es.nsi.pce.path.jaxb.ObjectFactory;
+import net.es.nsi.pce.jaxb.path.FindPathErrorType;
+import net.es.nsi.pce.jaxb.path.ObjectFactory;
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.api.NsiError;
 

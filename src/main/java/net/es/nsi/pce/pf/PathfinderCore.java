@@ -2,7 +2,7 @@ package net.es.nsi.pce.pf;
 
 import java.util.List;
 import java.util.Set;
-import net.es.nsi.pce.path.jaxb.FindPathAlgorithmType;
+import net.es.nsi.pce.jaxb.path.FindPathAlgorithmType;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;

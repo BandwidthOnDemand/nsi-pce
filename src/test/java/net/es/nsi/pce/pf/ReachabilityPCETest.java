@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.WebApplicationException;
 import javax.xml.datatype.DatatypeConfigurationException;
-import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
+import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.ReachabilityPCE.Reachability;
 import net.es.nsi.pce.pf.ReachabilityPCE.Stp;
@@ -23,12 +23,12 @@ import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.schema.XmlUtilities;
-import net.es.nsi.pce.topology.jaxb.DemarcationType;
-import net.es.nsi.pce.topology.jaxb.NsaInterfaceType;
-import net.es.nsi.pce.topology.jaxb.NsaType;
-import net.es.nsi.pce.topology.jaxb.ResourceRefType;
-import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
-import net.es.nsi.pce.topology.jaxb.SdpType;
+import net.es.nsi.pce.jaxb.topology.DemarcationType;
+import net.es.nsi.pce.jaxb.topology.NsaInterfaceType;
+import net.es.nsi.pce.jaxb.topology.NsaType;
+import net.es.nsi.pce.jaxb.topology.ResourceRefType;
+import net.es.nsi.pce.jaxb.topology.SdpDirectionalityType;
+import net.es.nsi.pce.jaxb.topology.SdpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -437,7 +437,7 @@ public class ReachabilityPCETest {
 
     private Set<Constraint> getReservationConstraints(String sourceStp, String destStp) throws DatatypeConfigurationException {
         Set<Constraint> constraints = new HashSet<>();
-        net.es.nsi.pce.path.jaxb.ObjectFactory objFactory = new net.es.nsi.pce.path.jaxb.ObjectFactory();
+        net.es.nsi.pce.jaxb.path.ObjectFactory objFactory = new net.es.nsi.pce.jaxb.path.ObjectFactory();
         ObjectAttrConstraint p2pConstraint = new ObjectAttrConstraint();
         P2PServiceBaseType p2p = objFactory.createP2PServiceBaseType();
         p2p.setSourceSTP(sourceStp);

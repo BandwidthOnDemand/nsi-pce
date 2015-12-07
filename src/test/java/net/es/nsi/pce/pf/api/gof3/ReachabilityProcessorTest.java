@@ -18,10 +18,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import net.es.nsi.pce.topology.jaxb.NsaType;
-import net.es.nsi.pce.topology.jaxb.ReachabilityType;
-import net.es.nsi.pce.topology.jaxb.ResourceRefType;
-import net.es.nsi.pce.topology.jaxb.VectorType;
+import net.es.nsi.pce.jaxb.topology.NsaType;
+import net.es.nsi.pce.jaxb.topology.ReachabilityType;
+import net.es.nsi.pce.jaxb.topology.ResourceRefType;
+import net.es.nsi.pce.jaxb.topology.VectorType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 

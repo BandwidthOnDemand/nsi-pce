@@ -1,6 +1,6 @@
 package net.es.nsi.pce.pf.api;
 
-import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.jaxb.topology.StpType;
 
 /**
  * Defines a pair of STP (A and Z end) used in the PCE path composition.

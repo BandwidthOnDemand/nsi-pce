@@ -3,15 +3,15 @@ package net.es.nsi.pce.client;
 
 import java.net.URI;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import net.es.nsi.pce.path.jaxb.FindPathResponseType;
 import net.es.nsi.pce.config.http.HttpConfig;
+import net.es.nsi.pce.jaxb.dds.NotificationListType;
+import net.es.nsi.pce.jaxb.path.FindPathResponseType;
+import net.es.nsi.pce.jersey.JsonMoxyConfigurationContextResolver;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.moxy.json.MoxyJsonFeature;
 import org.glassfish.jersey.moxy.xml.MoxyXmlFeature;
-import net.es.nsi.pce.jersey.JsonMoxyConfigurationContextResolver;
-import net.es.nsi.pce.topology.jaxb.DdsNotificationListType;
-import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.server.ResourceConfig;
 
 public enum TestServer {
@@ -19,21 +19,21 @@ public enum TestServer {
 
     private static HttpServer server = null;
     private static FindPathResponseType findPathResponse = null;
-    private static ConcurrentLinkedQueue<DdsNotificationListType> notificationQueue = new ConcurrentLinkedQueue<>();
+    private static final ConcurrentLinkedQueue<NotificationListType> notificationQueue = new ConcurrentLinkedQueue<>();
 
-    public boolean pushDiscoveryNotification(DdsNotificationListType notify) {
+    public boolean pushDiscoveryNotification(NotificationListType notify) {
         return notificationQueue.add(notify);
     }
 
-    public DdsNotificationListType popDiscoveryNotification() {
+    public NotificationListType popDiscoveryNotification() {
         return notificationQueue.remove();
     }
 
-    public DdsNotificationListType peekDiscoveryNotification() {
+    public NotificationListType peekDiscoveryNotification() {
         return notificationQueue.peek();
     }
 
-    public DdsNotificationListType pollDiscoveryNotification() {
+    public NotificationListType pollDiscoveryNotification() {
         return notificationQueue.poll();
     }
 

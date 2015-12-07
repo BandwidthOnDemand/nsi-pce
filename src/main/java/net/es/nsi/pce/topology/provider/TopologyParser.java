@@ -7,7 +7,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import net.es.nsi.pce.topology.jaxb.ObjectFactory;
+import net.es.nsi.pce.jaxb.topology.ObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ public class TopologyParser {
     private TopologyParser() {
         try {
             // Load a JAXB context for the NML NSAType parser.
-            jaxbContext = JAXBContext.newInstance("net.es.nsi.pce.topology.jaxb", net.es.nsi.pce.topology.jaxb.ObjectFactory.class.getClassLoader());
+            jaxbContext = JAXBContext.newInstance("net.es.nsi.pce.jaxb.topology", net.es.nsi.pce.jaxb.topology.ObjectFactory.class.getClassLoader());
         }
         catch (JAXBException jaxb) {
             log.error("NmlParser: Failed to load JAXB instance", jaxb);

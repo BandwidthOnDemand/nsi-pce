@@ -3,14 +3,14 @@ package net.es.nsi.pce.pf;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import net.es.nsi.pce.path.jaxb.OrderedStpType;
+import net.es.nsi.pce.jaxb.path.OrderedStpType;
 
 /**
  *
  * @author hacksaw
  */
 public class Route {
-    private final net.es.nsi.pce.path.jaxb.ObjectFactory factory = new net.es.nsi.pce.path.jaxb.ObjectFactory();
+    private final net.es.nsi.pce.jaxb.path.ObjectFactory factory = new net.es.nsi.pce.jaxb.path.ObjectFactory();
 
     private StpTypeBundle bundleA;
     private StpTypeBundle bundleZ;

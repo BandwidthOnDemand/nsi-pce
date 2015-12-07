@@ -1,0 +1,50 @@
+<nsa:nsa id="urn:ogf:network:netherlight.net:2013:nsa:safnari" version="2015-12-01T17:42:31.143+01:00" xmlns:gns="http://nordu.net/namespaces/2013/12/gnsbod" xmlns:nsa="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" xmlns:vcard="urn:ietf:params:xml:ns:vcard-4.0">
+      <name>NetherLight Safnari</name>
+      <softwareVersion>1.0-SNAPSHOT (0423723)</softwareVersion>
+      <startTime>2015-11-16T21:39:47.748+01:00</startTime>
+      <adminContact>
+        <vcard:vcard>
+          <vcard:uid>
+            <vcard:uri>https://agg.netherlight.net/nsi-v2/ConnectionServiceProvider#adminContact</vcard:uri>
+          </vcard:uid>
+          <vcard:prodid>
+            <vcard:text>safnari </vcard:text>
+          </vcard:prodid>
+          <vcard:rev>
+            <vcard:timestamp>20151116T213947Z</vcard:timestamp>
+          </vcard:rev>
+          <vcard:kind>
+            <vcard:text>individual</vcard:text>
+          </vcard:kind>
+          <vcard:fn>
+            <vcard:text>Hans Trompert</vcard:text>
+          </vcard:fn>
+          <vcard:n>
+            <vcard:surname>Trompert</vcard:surname>
+            <vcard:given>Hans</vcard:given>
+          </vcard:n>
+        </vcard:vcard>
+      </adminContact>
+      <location>
+        <longitude>4.954585</longitude>
+        <latitude>52.3567</latitude>
+      </location>
+      
+      
+      <interface>
+        <type>application/vnd.ogf.nsi.dds.v1+xml</type>
+        <href>https://agg.netherlight.net/dds</href>
+      </interface>
+      <interface>
+        <type>application/vnd.ogf.nsi.cs.v2.requester+soap</type>
+        <href>https://agg.netherlight.net/nsi-v2/ConnectionServiceRequester</href>
+      </interface>
+      <interface>
+        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+        <href>https://agg.netherlight.net/nsi-v2/ConnectionServiceProvider</href>
+      </interface>
+      
+      <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"/>
+      <peersWith>urn:ogf:network:surfnet.nl:1990:nsa:bod7</peersWith><peersWith>urn:ogf:network:netherlight.net:2013:nsa:bod</peersWith><peersWith>urn:ogf:network:czechlight.cesnet.cz:2013:nsa</peersWith><peersWith>urn:ogf:network:uvalight.net:2013:nsa</peersWith><peersWith>urn:ogf:network:icair.org:2013:nsa</peersWith><peersWith>urn:ogf:network:es.net:2013:nsa:nsi-aggr-west</peersWith><peersWith>urn:ogf:network:aist.go.jp:2013:nsa</peersWith><peersWith>urn:ogf:network:aist.go.jp:2013:nsa:nsi-aggr</peersWith><peersWith>urn:ogf:network:southernlight.net.br:2013:nsa</peersWith><peersWith>urn:ogf:network:nordu.net:2013:nsa</peersWith><peersWith>urn:ogf:network:ampath.net:2013:nsa</peersWith><peersWith>urn:ogf:network:surfnet.nl:1990:nsa:bod-acc</peersWith><peersWith>urn:ogf:network:icair.org:2013:nsa:nsi-am-sl</peersWith><peersWith>urn:ogf:network:geant.net:2013:nsa</peersWith>
+      
+</nsa:nsa>

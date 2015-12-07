@@ -4,7 +4,7 @@
  */
 package net.es.nsi.pce.pf;
 
-import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
+import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
 
 /**
  *

@@ -2,8 +2,8 @@ package net.es.nsi.pce.services;
 
 import net.es.nsi.pce.path.services.Point2Point;
 import java.util.Set;
-import net.es.nsi.pce.path.jaxb.DirectionalityType;
-import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
+import net.es.nsi.pce.jaxb.path.DirectionalityType;
+import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.path.services.EthernetTypes;
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.api.cons.BooleanAttrConstraint;

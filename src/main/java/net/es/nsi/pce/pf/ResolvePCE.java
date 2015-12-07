@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.PathSegment;
-import net.es.nsi.pce.topology.jaxb.NetworkType;
+import net.es.nsi.pce.jaxb.topology.NetworkType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.provider.DdsTopologyProvider;
 import org.slf4j.Logger;

@@ -1,13 +1,13 @@
 package net.es.nsi.pce.topology.model;
 
-import com.google.common.base.Optional;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import net.es.nsi.pce.topology.jaxb.NmlLabelType;
+import net.es.nsi.pce.jaxb.topology.NmlLabelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +22,8 @@ public class NmlPort {
     private String nsaId;
     private String topologyId;
     private String name;
-    private Optional<String> encoding = Optional.absent();
-    private Optional<String> labelType = Optional.absent();
+    private Optional<String> encoding = Optional.empty();
+    private Optional<String> labelType = Optional.empty();
     private Orientation orientation;
     private Set<NmlLabelType> labels = new LinkedHashSet<>();
     private String connectedTo;

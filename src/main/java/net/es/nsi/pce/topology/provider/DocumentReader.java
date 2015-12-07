@@ -8,7 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
+import net.es.nsi.pce.jaxb.dds.DocumentListType;
 
 /**
  *
@@ -31,7 +31,7 @@ public interface DocumentReader {
     /**
      * @return the localDocuments
      */
-    DdsDocumentListType getLocalDocuments();
+    DocumentListType getLocalDocuments();
 
     /**
      * Set the last modified date of the cached remote topology document.

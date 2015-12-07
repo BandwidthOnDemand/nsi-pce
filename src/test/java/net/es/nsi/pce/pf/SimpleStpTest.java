@@ -5,7 +5,7 @@ import java.util.Set;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBElement;
-import net.es.nsi.pce.path.jaxb.FindPathErrorType;
+import net.es.nsi.pce.jaxb.path.FindPathErrorType;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.util.Log4jHelper;
 import org.apache.log4j.xml.DOMConfigurator;

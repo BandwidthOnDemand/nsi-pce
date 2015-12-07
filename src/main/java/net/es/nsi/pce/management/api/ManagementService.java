@@ -22,17 +22,17 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.config.ConfigurationManager;
+import net.es.nsi.pce.jaxb.management.LogEnumType;
+import net.es.nsi.pce.jaxb.management.LogListType;
+import net.es.nsi.pce.jaxb.management.LogType;
+import net.es.nsi.pce.jaxb.management.ObjectFactory;
+import net.es.nsi.pce.jaxb.management.StatusType;
+import net.es.nsi.pce.jaxb.management.TimerListType;
+import net.es.nsi.pce.jaxb.management.TimerStatusType;
+import net.es.nsi.pce.jaxb.management.TimerType;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.management.logs.PceLogs;
-import net.es.nsi.pce.management.jaxb.LogEnumType;
-import net.es.nsi.pce.management.jaxb.LogListType;
-import net.es.nsi.pce.management.jaxb.LogType;
-import net.es.nsi.pce.management.jaxb.StatusType;
-import net.es.nsi.pce.management.jaxb.ObjectFactory;
-import net.es.nsi.pce.management.jaxb.TimerListType;
-import net.es.nsi.pce.management.jaxb.TimerStatusType;
-import net.es.nsi.pce.management.jaxb.TimerType;
 import net.es.nsi.pce.sched.PCEScheduler;
 import net.es.nsi.pce.sched.SchedulerItem;
 import net.es.nsi.pce.schema.XmlUtilities;
@@ -79,7 +79,7 @@ public class ManagementService {
         if (providerStatus.getLastAuditDuration() != -1) {
             status.setLastAuditDuration(providerStatus.getLastAuditDuration() / 1000);
         }
-        
+
         String date = DateUtils.formatDate(new Date(providerStatus.getLastAudit()), DateUtils.PATTERN_RFC1123);
         return Response.ok().header("Last-Modified", date).entity(new GenericEntity<JAXBElement<StatusType>>(managementFactory.createStatus(status)) {}).build();
     }

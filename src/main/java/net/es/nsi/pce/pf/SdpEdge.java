@@ -4,7 +4,7 @@
  */
 package net.es.nsi.pce.pf;
 
-import net.es.nsi.pce.topology.jaxb.SdpType;
+import net.es.nsi.pce.jaxb.topology.SdpType;
 
 /**
  *

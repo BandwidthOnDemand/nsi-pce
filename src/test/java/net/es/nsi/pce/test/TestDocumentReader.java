@@ -7,10 +7,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.schema.NmlParser;
-import net.es.nsi.pce.topology.jaxb.DdsCollectionType;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
+import net.es.nsi.pce.jaxb.dds.CollectionType;
+import net.es.nsi.pce.jaxb.dds.DocumentListType;
+import net.es.nsi.pce.jaxb.dds.DocumentType;
+import net.es.nsi.pce.schema.DdsParser;
 import net.es.nsi.pce.topology.provider.DdsWrapper;
 import net.es.nsi.pce.topology.provider.DocumentReader;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class TestDocumentReader implements DocumentReader {
     private final Map<String, DdsWrapper> ddsDocuments = new ConcurrentHashMap<>();
 
     // Documents of the specified type discovered as local to this DDS service.
-    private final DdsDocumentListType localDocuments = new DdsDocumentListType();
+    private final DocumentListType localDocuments = new DocumentListType();
 
     /**
      * Class constructor takes the remote location URL from which to load the
@@ -85,11 +85,11 @@ public class TestDocumentReader implements DocumentReader {
         this.lastModified = lastModified;
     }
 
-    private DdsCollectionType collection = null;
+    private CollectionType collection = null;
     private boolean read() throws NotFoundException, JAXBException, UnsupportedEncodingException {
         if (collection == null) {
             try {
-                collection = NmlParser.getInstance().parseDdsCollectionFromFile(target);
+                collection = DdsParser.getInstance().readCollection(target);
             } catch (IOException ex) {
                 log.error("File not found " + target, ex);
                 throw new NotFoundException("File does not exist " + target);
@@ -100,14 +100,14 @@ public class TestDocumentReader implements DocumentReader {
         }
 
         // Read and store local documents.
-        for (DdsDocumentType document : collection.getLocal().getDocument()) {
+        for (DocumentType document : collection.getLocal().getDocument()) {
             if (type.equals(document.getType().trim())) {
                 localDocuments.getDocument().add(document);
             }
         }
 
         long currentTime = System.currentTimeMillis();
-        for (DdsDocumentType document : collection.getDocuments().getDocument()) {
+        for (DocumentType document : collection.getDocuments().getDocument()) {
             if (type.equals(document.getType().trim())) {
                 DdsWrapper wrapper = new DdsWrapper();
                 wrapper.setDocument(document);
@@ -139,7 +139,7 @@ public class TestDocumentReader implements DocumentReader {
      * @return the localDocuments
      */
     @Override
-    public DdsDocumentListType getLocalDocuments() {
+    public DocumentListType getLocalDocuments() {
         return localDocuments;
     }
 }

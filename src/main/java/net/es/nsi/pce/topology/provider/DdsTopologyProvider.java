@@ -5,14 +5,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.ws.rs.NotFoundException;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.management.jaxb.TopologyStatusType;
+import net.es.nsi.pce.jaxb.dds.DocumentListType;
+import net.es.nsi.pce.jaxb.management.TopologyStatusType;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.management.logs.PceLogs;
 import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.spring.SpringApplicationContext;
 import net.es.nsi.pce.topology.dao.TopologyConfiguration;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
 import net.es.nsi.pce.topology.model.ControlPlaneTopology;
 import net.es.nsi.pce.topology.model.NsiSdpFactory;
 import net.es.nsi.pce.topology.model.NsiTopology;
@@ -39,12 +39,12 @@ public class DdsTopologyProvider implements TopologyProvider {
     // List of discovered NSA documents published in the DDS.
     private DocumentReader nsaDocumentReader;
     private Map<String, DdsWrapper> nsaDocuments;
-    private DdsDocumentListType localNsaDocuments;
+    private DocumentListType localNsaDocuments;
 
     // List of discovered topology documents published in the DDS.
     private DocumentReader topologyDocumentReader;
     private Map<String, DdsWrapper> topologyDocuments = new ConcurrentHashMap<>();
-    private DdsDocumentListType localTopologyDocuments;
+    private DocumentListType localTopologyDocuments;
 
     // The NSI Topology model used by path finding.
     private NsiTopology nsiTopology = new NsiTopology();
@@ -58,13 +58,13 @@ public class DdsTopologyProvider implements TopologyProvider {
     private TopologyProviderStatus providerStatus = null;
     private long auditTime = 0;
 
-    private PceLogger pceLogger = PceLogger.getLogger();
+    private final PceLogger pceLogger = PceLogger.getLogger();
 
     /**
      * Class constructor takes the remote location URL from which to load the
      * NSA's associated NML topology.
      *
-     * @param target Location of the NSA's XML based NML topology.
+     * @param configuration
      */
     public DdsTopologyProvider(TopologyConfiguration configuration) {
         this.configuration = configuration;
@@ -199,7 +199,6 @@ public class DdsTopologyProvider implements TopologyProvider {
      * For this provider we read the topology source from an XML configuration
      * file.
      *
-     * @param source Path to the XML configuration file.
      */
     @Override
     public void setConfiguration(TopologyConfiguration configuration) {

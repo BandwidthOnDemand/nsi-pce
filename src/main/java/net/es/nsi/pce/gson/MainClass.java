@@ -6,7 +6,7 @@ package net.es.nsi.pce.gson;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.es.nsi.pce.topology.jaxb.NsaType;
+import net.es.nsi.pce.jaxb.topology.NsaType;
 
 /**
  *

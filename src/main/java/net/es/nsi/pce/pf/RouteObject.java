@@ -11,11 +11,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import net.es.nsi.pce.path.api.Exceptions;
-import net.es.nsi.pce.path.jaxb.DirectionalityType;
-import net.es.nsi.pce.path.jaxb.OrderedStpType;
-import net.es.nsi.pce.path.jaxb.StpListType;
-import net.es.nsi.pce.topology.jaxb.SdpType;
-import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.jaxb.path.DirectionalityType;
+import net.es.nsi.pce.jaxb.path.OrderedStpType;
+import net.es.nsi.pce.jaxb.path.StpListType;
+import net.es.nsi.pce.jaxb.topology.SdpType;
+import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RouteObject {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private final net.es.nsi.pce.path.jaxb.ObjectFactory factory = new net.es.nsi.pce.path.jaxb.ObjectFactory();
+    private final net.es.nsi.pce.jaxb.path.ObjectFactory factory = new net.es.nsi.pce.jaxb.path.ObjectFactory();
     List<Route> routes = new ArrayList<>();
 
     public RouteObject(NsiTopology topology, SimpleStp srcStpId,

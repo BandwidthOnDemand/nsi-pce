@@ -15,17 +15,17 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.es.nsi.pce.pf.StpTypeBundle;
 import net.es.nsi.pce.schema.NsiConstants;
-import net.es.nsi.pce.topology.jaxb.NetworkType;
-import net.es.nsi.pce.topology.jaxb.NsaInterfaceType;
-import net.es.nsi.pce.topology.jaxb.NsaType;
-import net.es.nsi.pce.topology.jaxb.ReachabilityType;
-import net.es.nsi.pce.topology.jaxb.ResourceRefType;
-import net.es.nsi.pce.topology.jaxb.SdpType;
-import net.es.nsi.pce.topology.jaxb.ServiceAdaptationType;
-import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
-import net.es.nsi.pce.topology.jaxb.ServiceType;
-import net.es.nsi.pce.topology.jaxb.StpType;
-import net.es.nsi.pce.topology.jaxb.VectorType;
+import net.es.nsi.pce.jaxb.topology.NetworkType;
+import net.es.nsi.pce.jaxb.topology.NsaInterfaceType;
+import net.es.nsi.pce.jaxb.topology.NsaType;
+import net.es.nsi.pce.jaxb.topology.ReachabilityType;
+import net.es.nsi.pce.jaxb.topology.ResourceRefType;
+import net.es.nsi.pce.jaxb.topology.SdpType;
+import net.es.nsi.pce.jaxb.topology.ServiceAdaptationType;
+import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
+import net.es.nsi.pce.jaxb.topology.ServiceType;
+import net.es.nsi.pce.jaxb.topology.StpType;
+import net.es.nsi.pce.jaxb.topology.VectorType;
 
 /**
  *

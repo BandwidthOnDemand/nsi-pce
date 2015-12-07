@@ -6,8 +6,8 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.topology.jaxb.ObjectFactory;
-import net.es.nsi.pce.topology.jaxb.TopologyErrorType;
+import net.es.nsi.pce.jaxb.topology.ObjectFactory;
+import net.es.nsi.pce.jaxb.topology.TopologyErrorType;
 import net.es.nsi.pce.topology.provider.TopologyParser;
 
 /**

@@ -7,8 +7,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import net.es.nsi.pce.topology.jaxb.NsiResourceType;
-import net.es.nsi.pce.topology.jaxb.ServiceAdaptationType;
+import net.es.nsi.pce.jaxb.topology.NsiResourceType;
+import net.es.nsi.pce.jaxb.topology.ServiceAdaptationType;
 import org.apache.http.client.utils.DateUtils;
 
 /**

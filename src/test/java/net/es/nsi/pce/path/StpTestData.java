@@ -4,7 +4,7 @@
  */
 package net.es.nsi.pce.path;
 
-import net.es.nsi.pce.path.jaxb.StpListType;
+import net.es.nsi.pce.jaxb.path.StpListType;
 
 /**
  *

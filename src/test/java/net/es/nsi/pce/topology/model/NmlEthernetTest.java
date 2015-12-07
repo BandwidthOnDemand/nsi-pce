@@ -4,15 +4,16 @@
  */
 package net.es.nsi.pce.topology.model;
 
+import java.util.Optional;
 import java.util.Set;
-import com.google.common.base.Optional;
-import net.es.nsi.pce.topology.jaxb.NmlLabelGroupType;
-import net.es.nsi.pce.topology.jaxb.NmlLabelType;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import net.es.nsi.pce.jaxb.topology.NmlLabelGroupType;
+import net.es.nsi.pce.jaxb.topology.NmlLabelType;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
-
-import static org.mockito.Mockito.*;
+import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 
 /**
@@ -32,7 +33,7 @@ public class NmlEthernetTest {
         when(mockLG.getLabeltype()).thenReturn("http://schemas.ogf.org/nml/2012/10/ethernet#vlan");
         when(mockLG.getValue()).thenReturn("200-299,1801-1821");
 
-        Optional<String> labelType = Optional.fromNullable(mockLG.getLabeltype());
+        Optional<String> labelType = Optional.ofNullable(mockLG.getLabeltype());
         assertTrue(NmlEthernet.isVlanLabel(labelType));
 
         Set<NmlLabelType> labels = NmlEthernet.labelGroupToLabels(mockLG);

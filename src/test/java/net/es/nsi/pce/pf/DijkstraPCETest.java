@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.WebApplicationException;
 import javax.xml.datatype.DatatypeConfigurationException;
-import net.es.nsi.pce.path.jaxb.P2PServiceBaseType;
+import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.api.PCEConstraints;
 import net.es.nsi.pce.pf.api.PCEData;
@@ -18,14 +18,14 @@ import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
 import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.schema.XmlUtilities;
-import net.es.nsi.pce.topology.jaxb.DemarcationType;
-import net.es.nsi.pce.topology.jaxb.ObjectFactory;
-import net.es.nsi.pce.topology.jaxb.ResourceRefType;
-import net.es.nsi.pce.topology.jaxb.SdpDirectionalityType;
-import net.es.nsi.pce.topology.jaxb.SdpType;
-import net.es.nsi.pce.topology.jaxb.ServiceDomainType;
-import net.es.nsi.pce.topology.jaxb.StpDirectionalityType;
-import net.es.nsi.pce.topology.jaxb.StpType;
+import net.es.nsi.pce.jaxb.topology.DemarcationType;
+import net.es.nsi.pce.jaxb.topology.ObjectFactory;
+import net.es.nsi.pce.jaxb.topology.ResourceRefType;
+import net.es.nsi.pce.jaxb.topology.SdpDirectionalityType;
+import net.es.nsi.pce.jaxb.topology.SdpType;
+import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
+import net.es.nsi.pce.jaxb.topology.StpDirectionalityType;
+import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.util.Log4jHelper;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -99,7 +99,7 @@ public class DijkstraPCETest {
         // Build the reservation contraint list.
         Set<Constraint> constraints = new HashSet<>();
 
-        net.es.nsi.pce.path.jaxb.ObjectFactory objFactory = new net.es.nsi.pce.path.jaxb.ObjectFactory();
+        net.es.nsi.pce.jaxb.path.ObjectFactory objFactory = new net.es.nsi.pce.jaxb.path.ObjectFactory();
         ObjectAttrConstraint p2pConstraint = new ObjectAttrConstraint();
         P2PServiceBaseType p2p = objFactory.createP2PServiceBaseType();
         p2p.setSourceSTP("urn:ogf:network:surfnet.nl:1990:src-testbed:start");
@@ -131,7 +131,7 @@ public class DijkstraPCETest {
         // Build the reservation contraint list.
         Set<Constraint> constraints = new HashSet<>();
 
-        net.es.nsi.pce.path.jaxb.ObjectFactory objFactory = new net.es.nsi.pce.path.jaxb.ObjectFactory();
+        net.es.nsi.pce.jaxb.path.ObjectFactory objFactory = new net.es.nsi.pce.jaxb.path.ObjectFactory();
         ObjectAttrConstraint p2pConstraint = new ObjectAttrConstraint();
         P2PServiceBaseType p2p = objFactory.createP2PServiceBaseType();
         p2p.setSourceSTP("urn:ogf:network:surfnet.nl:1990:src-testbed:start");

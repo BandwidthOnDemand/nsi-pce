@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.xml.bind.JAXBException;
-import net.es.nsi.pce.config.jaxb.TopologyConfigurationType;
+import net.es.nsi.pce.jaxb.config.TopologyConfigurationType;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.schema.TopologyConfigurationParser;

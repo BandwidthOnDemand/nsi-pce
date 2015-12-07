@@ -3,12 +3,12 @@ package net.es.nsi.pce.topology.model;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import net.es.nsi.pce.schema.NmlParser;
-import net.es.nsi.pce.topology.jaxb.DdsCollectionType;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
-import net.es.nsi.pce.topology.jaxb.ObjectFactory;
-import net.es.nsi.pce.topology.jaxb.SdpType;
+import net.es.nsi.pce.jaxb.dds.CollectionType;
+import net.es.nsi.pce.jaxb.dds.DocumentListType;
+import net.es.nsi.pce.jaxb.dds.DocumentType;
+import net.es.nsi.pce.jaxb.dds.ObjectFactory;
+import net.es.nsi.pce.jaxb.topology.SdpType;
+import net.es.nsi.pce.schema.DdsParser;
 import net.es.nsi.pce.topology.provider.DdsWrapper;
 import net.es.nsi.pce.util.Log4jHelper;
 import org.apache.log4j.xml.DOMConfigurator;
@@ -36,13 +36,13 @@ public class SdpTest {
         log = LoggerFactory.getLogger(SdpTest.class);
 
         ObjectFactory factory = new ObjectFactory();
-        DdsCollectionType collection = NmlParser.getInstance().parseDdsCollectionFromFile("src/test/resources/config/sdpTest.xml");
+        CollectionType collection = DdsParser.getInstance().readCollection("src/test/resources/config/sdpTest.xml");
 
-        DdsDocumentListType localNsaDocuments = factory.createDdsDocumentListType();
-        DdsDocumentListType localTopologyDocuments = factory.createDdsDocumentListType();
+        DocumentListType localNsaDocuments = factory.createDocumentListType();
+        DocumentListType localTopologyDocuments = factory.createDocumentListType();
 
         if (collection.getLocal() != null) {
-            for (DdsDocumentType document : collection.getLocal().getDocument()) {
+            for (DocumentType document : collection.getLocal().getDocument()) {
                 if (DDS_NSA_DOCUMENT_TYPE.equalsIgnoreCase(document.getType())) {
                     localNsaDocuments.getDocument().add(document);
                 }
@@ -56,7 +56,7 @@ public class SdpTest {
         Map<String, DdsWrapper> topologyDocuments = new HashMap<>();
 
         if (collection.getDocuments() != null) {
-            for (DdsDocumentType document : collection.getDocuments().getDocument()) {
+            for (DocumentType document : collection.getDocuments().getDocument()) {
                 if (DDS_NSA_DOCUMENT_TYPE.equalsIgnoreCase(document.getType())) {
                     DdsWrapper wrapper = new DdsWrapper();
                     wrapper.setDocument(document);
@@ -94,8 +94,6 @@ public class SdpTest {
 
     @Test
     public void badSdpTest() throws Exception {
-        //assertNotNull(topology.getSdp("urn:ogf:network:czechlight.cesnet.cz:2013:topology:netherlight-out?vlan=1779::urn:ogf:network:netherlight.net:2013:production7:czechlight-1-in?vlan=1779"));
-        //assertNotNull(topology.getSdp("urn:ogf:network:netherlight.net:2013:production7:czechlight-1-out?vlan=1779::urn:ogf:network:czechlight.cesnet.cz:2013:topology:netherlight-in?vlan=1779"));
         assertNull(topology.getSdp("urn:ogf:network:czechlight.cesnet.cz:2013:topology:netherlight?vlan=1779::urn:ogf:network:netherlight.net:2013:production7:czechlight-1?vlan=1779"));
     }
 }

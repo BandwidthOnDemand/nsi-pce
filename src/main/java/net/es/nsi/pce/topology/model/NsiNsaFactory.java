@@ -8,20 +8,19 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import net.es.nsi.pce.topology.jaxb.TopologyReachabilityType;
-import net.es.nsi.pce.topology.jaxb.TopologyType;
-import net.es.nsi.pce.topology.jaxb.NsaHolderType;
-import net.es.nsi.pce.topology.jaxb.NsaNsaType;
-import net.es.nsi.pce.topology.jaxb.NsaPeerRoleEnum;
-import net.es.nsi.pce.topology.jaxb.NsaPeersWithType;
-import net.es.nsi.pce.topology.jaxb.NsaType;
-import net.es.nsi.pce.topology.jaxb.NsiResourceType;
-import net.es.nsi.pce.topology.jaxb.ObjectFactory;
-import net.es.nsi.pce.topology.jaxb.PeerRoleEnum;
-import net.es.nsi.pce.topology.jaxb.PeersWithType;
-import net.es.nsi.pce.topology.jaxb.ReachabilityType;
-import net.es.nsi.pce.topology.jaxb.ResourceRefType;
-import net.es.nsi.pce.topology.jaxb.VectorType;
+import net.es.nsi.pce.jaxb.topology.NsaHolderType;
+import net.es.nsi.pce.jaxb.topology.NsaNsaType;
+import net.es.nsi.pce.jaxb.topology.NsaPeerRoleEnum;
+import net.es.nsi.pce.jaxb.topology.NsaPeersWithType;
+import net.es.nsi.pce.jaxb.topology.NsaType;
+import net.es.nsi.pce.jaxb.topology.NsiResourceType;
+import net.es.nsi.pce.jaxb.topology.PeerRoleEnum;
+import net.es.nsi.pce.jaxb.topology.PeersWithType;
+import net.es.nsi.pce.jaxb.topology.ReachabilityType;
+import net.es.nsi.pce.jaxb.topology.ResourceRefType;
+import net.es.nsi.pce.jaxb.topology.TopologyReachabilityType;
+import net.es.nsi.pce.jaxb.topology.TopologyType;
+import net.es.nsi.pce.jaxb.topology.VectorType;
 import org.apache.http.client.utils.DateUtils;
 
 /**
@@ -29,15 +28,18 @@ import org.apache.http.client.utils.DateUtils;
  * @author hacksaw
  */
 public class NsiNsaFactory {
+    private static final net.es.nsi.pce.jaxb.topology.ObjectFactory tFactory = new net.es.nsi.pce.jaxb.topology.ObjectFactory();
+
     /**
      * Create a NSI NSA resource object from an NML JAXB object.
      *
-     * @param nmlNsa NML JAXB object.
+     * @param nsa
+     * @param baseURL
      * @return
      */
     public static NsaType createNsaType(NsaNsaType nsa, String baseURL) {
-        ObjectFactory factory = new ObjectFactory();
-        NsaType nsiNsa = factory.createNsaType();
+
+        NsaType nsiNsa = tFactory.createNsaType();
         nsiNsa.setId(nsa.getId());
         nsiNsa.setName(nsa.getName());
         nsiNsa.setVersion(nsa.getVersion());
@@ -59,7 +61,7 @@ public class NsiNsaFactory {
         }
 
         for (NsaPeersWithType peersWith : nsa.getPeersWith()) {
-            PeersWithType peer = factory.createPeersWithType();
+            PeersWithType peer = tFactory.createPeersWithType();
 
             peer.setId(peersWith.getValue().trim());
             peer.setHref(NsiPathURI.getURL(baseURL, NsiPathURI.NSI_ROOT_NSAS, peer.getId()));
@@ -81,7 +83,7 @@ public class NsiNsaFactory {
                 if (any instanceof JAXBElement && ((JAXBElement) any).getValue() instanceof TopologyReachabilityType) {
                     @SuppressWarnings("unchecked")
                     JAXBElement<TopologyReachabilityType> element = (JAXBElement<TopologyReachabilityType>) any;
-                    ReachabilityType reachability = factory.createReachabilityType();
+                    ReachabilityType reachability = tFactory.createReachabilityType();
                     // Assume there is only one networkId until Gof3 fix their
                     // modelling issue.
                     List<String> networkId = nsa.getNetworkId();
@@ -89,7 +91,7 @@ public class NsiNsaFactory {
                         reachability.setId(networkId.get(0));
                     }
                     for (TopologyType topology : element.getValue().getTopology()) {
-                        VectorType vector = factory.createVectorType();
+                        VectorType vector = tFactory.createVectorType();
                         vector.setId(topology.getId());
                         vector.setCost(topology.getCost());
                         reachability.getVector().add(vector);

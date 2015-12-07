@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<nml:Topology xmlns:nml="http://schemas.ogf.org/nml/2013/05/base#" xmlns:ns3="http://schemas.ogf.org/nsi/2013/12/services/definition" xmlns:nsi="http://schemas.ogf.org/nsi/2013/09/topology#" xmlns:vc="urn:ietf:params:xml:ns:vcard-4.0" id="urn:ogf:network:ja.net:2013:topology" version="2015-12-02T05:26:58.087Z">
+    <nml:name>ja.net</nml:name>
+    <nml:BidirectionalPort id="urn:ogf:network:ja.net:2013:topology:bonfire-1">
+        <nml:name>bonfire-1</nml:name>
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:bonfire-1-in"/>
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:bonfire-1-out"/>
+    </nml:BidirectionalPort>
+    <nml:BidirectionalPort id="urn:ogf:network:ja.net:2013:topology:caliban-ethfib">
+        <nml:name>caliban-ethfib</nml:name>
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:caliban-ethfib-in"/>
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:caliban-ethfib-out"/>
+    </nml:BidirectionalPort>
+    <nml:BidirectionalPort id="urn:ogf:network:ja.net:2013:topology:p-to-janet">
+        <nml:name>p-to-janet</nml:name>
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:p-to-janet-in"/>
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:p-to-janet-out"/>
+    </nml:BidirectionalPort>
+    <nml:BidirectionalPort id="urn:ogf:network:ja.net:2013:topology:ganymede-ethfib">
+        <nml:name>ganymede-ethfib</nml:name>
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:ganymede-ethfib-in"/>
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:ganymede-ethfib-out"/>
+    </nml:BidirectionalPort>
+    <nml:BidirectionalPort id="urn:ogf:network:ja.net:2013:topology:ge-1__0__1">
+        <nml:name>ge-1__0__1</nml:name>
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:ge-1__0__1-in"/>
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:ge-1__0__1-out"/>
+    </nml:BidirectionalPort>
+    <nml:BidirectionalPort id="urn:ogf:network:ja.net:2013:topology:ge-1__1__5">
+        <nml:name>ge-1__1__5</nml:name>
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:ge-1__1__5-in"/>
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:ge-1__1__5-out"/>
+    </nml:BidirectionalPort>
+    <ns3:serviceDefinition id="urn:ogf:network:ja.net:2013:topologyServiceDefinition:EVTS.A-GOLE">
+        <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
+        <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+    </ns3:serviceDefinition>
+    <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:bonfire-1-out">
+            <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">940-951</nml:LabelGroup>
+        </nml:PortGroup>
+    </nml:Relation>
+    <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:bonfire-1-in">
+            <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">940-951</nml:LabelGroup>
+        </nml:PortGroup>
+    </nml:Relation>
+    <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:caliban-ethfib-out">
+            <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2003-2020</nml:LabelGroup>
+        </nml:PortGroup>
+    </nml:Relation>
+    <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:caliban-ethfib-in">
+            <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2003-2020</nml:LabelGroup>
+        </nml:PortGroup>
+    </nml:Relation>
+    <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:p-to-janet-out">
+            <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2003-2020</nml:LabelGroup>
+            <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                <nml:PortGroup id="urn:ogf:network:geant.net:2013:topology:p-to-geant-in"/>
+            </nml:Relation>
+        </nml:PortGroup>
+    </nml:Relation>
+    <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:p-to-janet-in">
+            <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2003-2020</nml:LabelGroup>
+            <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#isAlias">
+                <nml:PortGroup id="urn:ogf:network:geant.net:2013:topology:p-to-geant-out"/>
+            </nml:Relation>
+        </nml:PortGroup>
+    </nml:Relation>
+    <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:ganymede-ethfib-out">
+            <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2003-2020</nml:LabelGroup>
+        </nml:PortGroup>
+    </nml:Relation>
+    <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:ganymede-ethfib-in">
+            <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2003-2020</nml:LabelGroup>
+        </nml:PortGroup>
+    </nml:Relation>
+    <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:ge-1__0__1-out">
+            <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2003-2022</nml:LabelGroup>
+        </nml:PortGroup>
+    </nml:Relation>
+    <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:ge-1__0__1-in">
+            <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2003-2022</nml:LabelGroup>
+        </nml:PortGroup>
+    </nml:Relation>
+    <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasOutboundPort">
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:ge-1__1__5-out">
+            <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2003-2022</nml:LabelGroup>
+        </nml:PortGroup>
+    </nml:Relation>
+    <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasInboundPort">
+        <nml:PortGroup id="urn:ogf:network:ja.net:2013:topology:ge-1__1__5-in">
+            <nml:LabelGroup labeltype="http://schemas.ogf.org/nml/2012/10/ethernet#vlan">2003-2022</nml:LabelGroup>
+        </nml:PortGroup>
+    </nml:Relation>
+    <nml:Relation type="http://schemas.ogf.org/nml/2013/05/base#hasService">
+        <nml:SwitchingService labelSwapping="true" labelType="http://schemas.ogf.org/nml/2012/10/ethernet#vlan" id="urn:ogf:network:ja.net:2013:topologyServiceDomain:a-gole:testbed:A-GOLE-EVTS">
+            <ns3:serviceDefinition id="urn:ogf:network:ja.net:2013:topologyServiceDefinition:EVTS.A-GOLE">
+                <name>GLIF Automated GOLE Ethernet VLAN Transfer Service</name>
+                <serviceType>http://services.ogf.org/nsi/2013/07/definitions/EVTS.A-GOLE</serviceType>
+            </ns3:serviceDefinition>
+        </nml:SwitchingService>
+    </nml:Relation>
+</nml:Topology>
+

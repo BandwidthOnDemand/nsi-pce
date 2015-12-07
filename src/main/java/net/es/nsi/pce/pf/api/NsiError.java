@@ -3,9 +3,9 @@ package net.es.nsi.pce.pf.api;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.JAXBElement;
-import net.es.nsi.pce.path.jaxb.FindPathErrorType;
-import net.es.nsi.pce.path.jaxb.ObjectFactory;
-import net.es.nsi.pce.path.jaxb.VariableType;
+import net.es.nsi.pce.jaxb.path.FindPathErrorType;
+import net.es.nsi.pce.jaxb.path.ObjectFactory;
+import net.es.nsi.pce.jaxb.path.VariableType;
 import net.es.nsi.pce.schema.PathApiParser;
 
 /**

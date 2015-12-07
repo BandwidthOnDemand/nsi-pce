@@ -16,12 +16,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConstants;
+import net.es.nsi.pce.jaxb.dds.DocumentListType;
+import net.es.nsi.pce.jaxb.dds.DocumentType;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
 import net.es.nsi.pce.schema.NsiConstants;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentListType;
-import net.es.nsi.pce.topology.jaxb.DdsDocumentType;
 import net.es.nsi.pce.util.UrlHelper;
 import org.apache.http.client.utils.DateUtils;
 import org.glassfish.jersey.client.ChunkedInput;
@@ -45,7 +45,7 @@ public class DdsDocumentReader implements DocumentReader {
     private final Map<String, DdsWrapper> ddsDocuments = new ConcurrentHashMap<>();
 
     // Documents of the specified type discovered as local to this DDS service.
-    private DdsDocumentListType localDocuments = new DdsDocumentListType();
+    private DocumentListType localDocuments = new DocumentListType();
 
     private final RestClient restClient;
 
@@ -54,6 +54,7 @@ public class DdsDocumentReader implements DocumentReader {
      * NSA's associated NML topology.
      *
      * @param target Location of the NSA's XML based NML topology.
+     * @param type
      */
     public DdsDocumentReader(String target, String type) {
         this.target = target;
@@ -102,7 +103,7 @@ public class DdsDocumentReader implements DocumentReader {
         // Read and store local documents.
         localDocuments = readLocal();
 
-        DdsDocumentListType documents = readSummary();
+        DocumentListType documents = readSummary();
 
         // If we did not get back any documents then clear previous results.
         if (documents == null || documents.getDocument() == null || documents.getDocument().isEmpty()) {
@@ -118,7 +119,7 @@ public class DdsDocumentReader implements DocumentReader {
         // version than what we currently have.
         HashSet<String> delete = Sets.newHashSet(ddsDocuments.keySet());
 
-        for (DdsDocumentType discovered : documents.getDocument()) {
+        for (DocumentType discovered : documents.getDocument()) {
 
             DdsWrapper current = ddsDocuments.get(discovered.getId());
             long currentTime = System.currentTimeMillis();
@@ -128,7 +129,7 @@ public class DdsDocumentReader implements DocumentReader {
                 log.debug("read: new document " + discovered.getId());
 
                 // This is a new entry so we need to retrieve the full entry.
-                DdsDocumentType entry;
+                DocumentType entry;
                 try {
                     entry = readDetails(discovered.getHref());
                 }
@@ -153,7 +154,7 @@ public class DdsDocumentReader implements DocumentReader {
                 log.debug("read: new version of existing document " + discovered.getId());
 
                 // This is a newer version so replace the current one.
-                DdsDocumentType entry;
+                DocumentType entry;
                 try {
                     entry = readDetails(discovered.getHref());
                 }
@@ -194,7 +195,7 @@ public class DdsDocumentReader implements DocumentReader {
         return isChanged;
     }
 
-    private DdsDocumentListType readSummary() throws NotFoundException, JAXBException, UnsupportedEncodingException {
+    private DocumentListType readSummary() throws NotFoundException, JAXBException, UnsupportedEncodingException {
         // Use the REST client to retrieve the master topology as a string.
         Client client = restClient.get();
         final WebTarget webGet = client.target(target).path("documents");
@@ -229,9 +230,9 @@ public class DdsDocumentReader implements DocumentReader {
             setLastModified(lastMod.getTime());
         }
 
-        DdsDocumentListType documents = null;
-        try (final ChunkedInput<DdsDocumentListType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<DdsDocumentListType>>() {})) {
-            DdsDocumentListType chunk;
+        DocumentListType documents = null;
+        try (final ChunkedInput<DocumentListType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<DocumentListType>>() {})) {
+            DocumentListType chunk;
             while ((chunk = chunkedInput.read()) != null) {
                 documents = chunk;
             }
@@ -242,7 +243,7 @@ public class DdsDocumentReader implements DocumentReader {
         return documents;
     }
 
-    private DdsDocumentType readDetails(String href) throws NotFoundException, JAXBException, UnsupportedEncodingException {
+    private DocumentType readDetails(String href) throws NotFoundException, JAXBException, UnsupportedEncodingException {
         // Determine of the provided URL is a fully qualified (absolute) URI,
         // or if it is relative and required appending of host information.
         Client client = restClient.get();
@@ -285,9 +286,9 @@ public class DdsDocumentReader implements DocumentReader {
             setLastModified(lastMod.getTime());
         }
 
-        DdsDocumentType document = null;
-        try (final ChunkedInput<DdsDocumentType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<DdsDocumentType>>() {})) {
-            DdsDocumentType chunk;
+        DocumentType document = null;
+        try (final ChunkedInput<DocumentType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<DocumentType>>() {})) {
+            DocumentType chunk;
             while ((chunk = chunkedInput.read()) != null) {
                 document = chunk;
             }
@@ -298,7 +299,7 @@ public class DdsDocumentReader implements DocumentReader {
         return document;
     }
 
-    private DdsDocumentListType readLocal() throws NotFoundException, JAXBException, UnsupportedEncodingException {
+    private DocumentListType readLocal() throws NotFoundException, JAXBException, UnsupportedEncodingException {
          // Use the REST client to retrieve the document.
         Client client = restClient.get();
 
@@ -326,9 +327,9 @@ public class DdsDocumentReader implements DocumentReader {
             throw new NotFoundException("Failed to retrieve document (" + response.getStatus() + ") from target=" + webGet.getUri().toASCIIString() + ", path=local/" + encode);
         }
 
-        DdsDocumentListType documents = null;
-        try (final ChunkedInput<DdsDocumentListType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<DdsDocumentListType>>() {})) {
-            DdsDocumentListType chunk;
+        DocumentListType documents = null;
+        try (final ChunkedInput<DocumentListType> chunkedInput = response.readEntity(new GenericType<ChunkedInput<DocumentListType>>() {})) {
+            DocumentListType chunk;
             while ((chunk = chunkedInput.read()) != null) {
                 documents = chunk;
             }
@@ -358,7 +359,7 @@ public class DdsDocumentReader implements DocumentReader {
      * @return the localDocuments
      */
     @Override
-    public DdsDocumentListType getLocalDocuments() {
+    public DocumentListType getLocalDocuments() {
         return localDocuments;
     }
 }
