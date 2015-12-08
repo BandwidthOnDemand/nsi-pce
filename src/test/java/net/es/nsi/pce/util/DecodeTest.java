@@ -59,6 +59,58 @@ public class DecodeTest {
         assertEquals("urn:ogf:network:netherlight.net:2013:nsa:safnari", dom2Nsa.getId());
     }
 
+
+    @Test(expected=IOException.class)
+    public void decodeOldTest() throws JAXBException, RuntimeException, IOException {
+        System.out.println("Test");
+        String document = "<ns0:document xmlns:ns6=\"http://schemas.ogf.org/nsi/2013/12/services/definition\" \n" +
+"        xmlns:ns5=\"http://nordu.net/namespaces/2013/12/gnsbod\" \n" +
+"        xmlns:ns7=\"http://schemas.ogf.org/nsi/2013/09/topology#\" \n" +
+"        xmlns:ns0=\"http://schemas.ogf.org/nsi/2014/02/discovery/types\" \n" +
+"        xmlns:ns2=\"http://schemas.es.net/nsi/2014/03/dds/configuration\" \n" +
+"        xmlns:ns1=\"http://schemas.ogf.org/nml/2013/05/base#\" \n" +
+"        xmlns:ns4=\"http://schemas.ogf.org/nsi/2014/02/discovery/nsa\" \n" +
+"        xmlns:ns3=\"urn:ietf:params:xml:ns:vcard-4.0\"\n" +
+"    id=\"urn:ogf:network:icair.org:2013:nsa\" href=\"https://nsi-aggr-west.es.net/discovery/documents/urn%3Aogf%3Anetwork%3Aicair.org%3A2013%3Ansa/vnd.ogf.nsi.nsa.v1%2Bxml/urn%3Aogf%3Anetwork%3Aicair.org%3A2013%3Ansa\" version=\"2015-12-08T09:01:03Z\" expires=\"2016-12-07T01:07:46.863-08:00\">\n" +
+"    <nsa>urn:ogf:network:icair.org:2013:nsa</nsa>\n" +
+"    <type>vnd.ogf.nsi.nsa.v1+xml</type>\n" +
+"    <content>\n" +
+"        <ns4:nsa id=\"urn:ogf:network:icair.org:2013:nsa\" version=\"2015-12-08T09:01:03Z\">\n" +
+"            <name>icair.org</name>\n" +
+"            <softwareVersion>OpenNSA-git-20151208</softwareVersion>\n" +
+"            <startTime>2015-12-08T09:01:03Z</startTime>\n" +
+"            <networkId>urn:ogf:network:icair.org:2013:topology</networkId>\n" +
+"            <interface>\n" +
+"                <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>\n" +
+"                <href>\n" +
+"                    https://pmri061.it.northwestern.edu:9443/NSI/services/CS2\n" +
+"                </href>\n" +
+"            </interface>\n" +
+"            <interface>\n" +
+"                <type>application/vnd.org.ogf.nsi.cs.v2+soap</type>\n" +
+"                <href>\n" +
+"                    https://pmri061.it.northwestern.edu:9443/NSI/services/CS2\n" +
+"                </href>\n" +
+"            </interface>\n" +
+"            <interface>\n" +
+"                <type>application/vnd.ogf.nsi.topology.v2+xml</type>\n" +
+"                <href>\n" +
+"                    https://pmri061.it.northwestern.edu:9443/NSI/icair.org:2013.nml.xml\n" +
+"                </href>\n" +
+"            </interface>\n" +
+"            <feature type=\"vnd.ogf.nsi.cs.v2.role.aggregator\"/>\n" +
+"            <feature type=\"vnd.ogf.nsi.cs.v2.role.uPA\"/>\n" +
+"            <peersWith>urn:ogf:network:netherlight.net:2013:nsa:safnari</peersWith>\n" +
+"            <peersWith>urn:ogf:network:ampath.net:2013:nsa</peersWith>\n" +
+"        </ns4:nsa>\n" +
+"    </content>\n" +
+"</ns0:document>";
+
+        DocumentType doc = DdsParser.getInstance().xml2Jaxb(DocumentType.class, document);
+        Document decoded = Decoder.decode(doc.getContent().getContentTransferEncoding(), doc.getContent().getContentType(), doc.getContent().getValue());
+    }
+
+
     @Test
     public void decodeDdsCollectionTest() throws JAXBException, IOException {
         CollectionType collection = DdsParser.getInstance().readCollection("src/test/resources/config/testDocuments.xml");

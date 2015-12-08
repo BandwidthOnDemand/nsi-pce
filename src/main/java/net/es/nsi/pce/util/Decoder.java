@@ -5,6 +5,7 @@
  */
 package net.es.nsi.pce.util;
 
+import com.google.common.base.Strings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -25,6 +26,14 @@ public class Decoder {
 
     public static Document decode(String contentTransferEncoding,
             String contentType, String source) throws IOException, UnsupportedEncodingException, RuntimeException {
+        if (Strings.isNullOrEmpty(contentTransferEncoding)) {
+            contentTransferEncoding = ContentTransferEncoding._7BIT;
+        }
+
+        if (Strings.isNullOrEmpty(contentType)) {
+            contentType = ContentType.TEXT;
+        }
+
         try {
             InputStream cteis = ContentTransferEncoding.decode(contentTransferEncoding, source);
             InputStream ctis = ContentType.decode(contentType, cteis);
