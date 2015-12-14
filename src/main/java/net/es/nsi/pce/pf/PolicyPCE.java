@@ -1,17 +1,17 @@
 package net.es.nsi.pce.pf;
 
-
-import com.google.common.base.Optional;
 import java.util.List;
-import net.es.nsi.pce.path.api.Exceptions;
+import java.util.Optional;
+import javax.ws.rs.WebApplicationException;
 import net.es.nsi.pce.jaxb.path.OrderedStpType;
 import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.jaxb.path.StpListType;
+import net.es.nsi.pce.jaxb.topology.NetworkType;
+import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.path.services.Service;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
-import net.es.nsi.pce.jaxb.topology.NetworkType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +30,10 @@ public class PolicyPCE implements PCEModule {
      *
      * @param pceData
      * @return
-     * @throws Exception
+     * @throws WebApplicationException
      */
     @Override
-    public PCEData apply(PCEData pceData) throws Exception {
+    public PCEData apply(PCEData pceData) throws WebApplicationException {
         // Get constraints this PCE module supports.
         AttrConstraints constraints = new AttrConstraints(pceData.getConstraints());
 
@@ -55,7 +55,7 @@ public class PolicyPCE implements PCEModule {
      * @return
      * @throws Exception
      */
-    private PCEData stpPolicy(AttrConstraints constraints, PCEData pceData) throws Exception {
+    private PCEData stpPolicy(AttrConstraints constraints, PCEData pceData) throws WebApplicationException {
         // Get the network topology.
         NsiTopology nsiTopology = pceData.getTopology();
 
@@ -70,25 +70,25 @@ public class PolicyPCE implements PCEModule {
         SimpleStp dstStp = new SimpleStp(PfUtils.getDestinationStpOrFail(p2p));
 
         // Make sure these STP are from known networks.
-        Optional<NetworkType> srcNetwork = Optional.fromNullable(nsiTopology.getNetworkById(srcStp.getNetworkId()));
+        Optional<NetworkType> srcNetwork = Optional.ofNullable(nsiTopology.getNetworkById(srcStp.getNetworkId()));
         if (!srcNetwork.isPresent()) {
             log.error("stpPolicy: source STP has unknown networkId: " + srcStp.getId());
             throw Exceptions.stpUnknownNetwork(srcStpId);
         }
 
-        Optional<NetworkType> dstNetwork = Optional.fromNullable(nsiTopology.getNetworkById(dstStp.getNetworkId()));
+        Optional<NetworkType> dstNetwork = Optional.ofNullable(nsiTopology.getNetworkById(dstStp.getNetworkId()));
         if (!dstNetwork.isPresent()) {
             log.error("stpPolicy: destination STP has unknown networkId: " + dstStp.getId());
             throw Exceptions.stpUnknownNetwork(dstStpId);
         }
 
         // Validate all members of the ERO are also of known networks.
-        Optional<StpListType> ero = Optional.fromNullable(p2p.getEro());
+        Optional<StpListType> ero = Optional.ofNullable(p2p.getEro());
         if (ero.isPresent()) {
             for (OrderedStpType stp : ero.get().getOrderedSTP()) {
                 try {
                     String networkId = SimpleStp.parseNetworkId(stp.getStp());
-                    Optional<NetworkType> network = Optional.fromNullable(nsiTopology.getNetworkById(networkId));
+                    Optional<NetworkType> network = Optional.ofNullable(nsiTopology.getNetworkById(networkId));
                     if (!network.isPresent()) {
                         log.error("stpPolicy: ERO contains STP with unknown networkId: " + stp.getStp());
                         throw Exceptions.stpUnknownNetwork(stp.getStp());

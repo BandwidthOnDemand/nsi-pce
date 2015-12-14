@@ -2,8 +2,9 @@ package net.es.nsi.pce.pf;
 
 import java.util.List;
 import java.util.Set;
+import javax.ws.rs.WebApplicationException;
 import net.es.nsi.pce.jaxb.path.FindPathAlgorithmType;
-import net.es.nsi.pce.pf.api.NsiError;
+import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.Path;
@@ -46,9 +47,9 @@ public class PathfinderCore {
      * @param contraints The list of path constraints.
      * @param trace
      * @return Resolved path if one exists, otherwise an exception.
-     * @throws Exception An exception carrying an XML encoded findPathErrorType.
+     * @throws WebApplicationException
      */
-    public Path findPath(FindPathAlgorithmType algorithm, Set<Constraint> contraints, List<String> trace) throws Exception {
+    public Path findPath(FindPathAlgorithmType algorithm, Set<Constraint> contraints, List<String> trace) throws WebApplicationException {
         // Build the path computation request.
         PCEData pceData = new PCEData();
 
@@ -75,8 +76,7 @@ public class PathfinderCore {
 
         // TODO: I don't think this can ever occur.
         if (result == null || result.getPath() == null) {
-            String error = NsiError.getFindPathErrorString(NsiError.NO_PATH_FOUND, "No path found using provided criteria");
-            throw new Exception(error);
+            throw Exceptions.noPathFound("No path found using provided criteria");
         }
 
         return result.getPath();

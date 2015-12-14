@@ -90,6 +90,12 @@ public class Exceptions {
         return new WebApplicationException(ex);
     }
 
+   public static WebApplicationException noControlPlanePathFound(String description) {
+        FindPathErrorType error = NsiError.getFindPathError(NsiError.NO_CONTROLPLANE_PATH_FOUND, description);
+        Response ex = Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();
+        return new WebApplicationException(ex);
+    }
+
     public static WebApplicationException invalidEroError(String stpId) {
         FindPathErrorType error = NsiError.getFindPathError(NsiError.INVALID_ERO_FORMAT, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stpId);
         Response ex = Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();

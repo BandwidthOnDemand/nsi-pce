@@ -9,13 +9,15 @@ import edu.uci.ics.jung.graph.util.Pair;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import javax.ws.rs.WebApplicationException;
 import net.es.nsi.pce.jaxb.topology.NsaFeatureType;
 import net.es.nsi.pce.jaxb.topology.NsaType;
 import net.es.nsi.pce.jaxb.topology.PeerRoleEnum;
 import net.es.nsi.pce.jaxb.topology.PeersWithType;
+import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.pf.NsaEdge;
 import net.es.nsi.pce.pf.NsaVertex;
-import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.schema.NsiConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +37,7 @@ public class ControlPlaneTopology {
         graph(tp);
     }
 
-    public String findNextNsa(String sourceNsa, String destNsa) {
+    public String findNextNsa(String sourceNsa, String destNsa) throws WebApplicationException {
         if (Strings.isNullOrEmpty(sourceNsa)) {
             throw new IllegalArgumentException("findNextNsa: sourceNsa not provided for control plane path finding");
         } else if (Strings.isNullOrEmpty(destNsa)) {
@@ -51,19 +53,29 @@ public class ControlPlaneTopology {
 
         DijkstraShortestPath<NsaVertex, NsaEdge> alg = new DijkstraShortestPath<>(controlPlane, true);
 
+        Optional<NsaVertex> sourceVertex = Optional.ofNullable(verticies.get(sourceNsa));
+        Optional<NsaVertex> destVertex = Optional.ofNullable(verticies.get(destNsa));
+
+        if (!sourceVertex.isPresent() ) {
+            log.error("findNextNsa: source NSA " + sourceNsa + " not present in control plane graph.");
+            throw Exceptions.noControlPlanePathFound("source NSA " + sourceNsa + " not present in control plane graph.");
+        }
+        else if (!destVertex.isPresent()) {
+            log.error("findNextNsa: destination NSA " + sourceNsa + " not present in control plane graph.");
+            throw Exceptions.noControlPlanePathFound("destination NSA " + destNsa + " not present in control plane graph.");
+        }
+
         List<NsaEdge> path;
         try {
-            path = alg.getPath(verticies.get(sourceNsa), verticies.get(destNsa));
-        } catch (IllegalArgumentException ex) {
-            String error = NsiError.getFindPathErrorString(NsiError.NO_CONTROLPLANE_PATH_FOUND, sourceNsa + " to " + destNsa);
-            log.error(error, ex);
-            throw new IllegalArgumentException(error);
+            path = alg.getPath(sourceVertex.get(), destVertex.get());
+        } catch (Exception ex) {
+            log.error("findNextNsa: no control plane path from " + sourceNsa + " to " + destNsa);
+            throw Exceptions.noControlPlanePathFound(sourceNsa + " to " + destNsa);
         }
 
         if (path == null || path.isEmpty()) {
-            String error = NsiError.getFindPathErrorString(NsiError.NO_CONTROLPLANE_PATH_FOUND, sourceNsa + " to " + destNsa);
-            log.error(error);
-            return destNsa;
+            log.error("findNextNsa: no control plane path from " + sourceNsa + " to " + destNsa);
+            throw Exceptions.noControlPlanePathFound(sourceNsa + " to " + destNsa);
         }
 
         return path.get(0).getDestinationNsa().getId();

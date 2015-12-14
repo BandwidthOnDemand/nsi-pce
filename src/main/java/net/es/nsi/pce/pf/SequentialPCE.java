@@ -1,9 +1,9 @@
 package net.es.nsi.pce.pf;
 
+import java.util.List;
+import javax.ws.rs.WebApplicationException;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
-
-import java.util.List;
 
 /**
  * The SequentialPCE will take a list of Path Computation Modules and
@@ -26,7 +26,7 @@ public class SequentialPCE implements PCEModule {
      * @throws Exception
      */
     @Override
-    public PCEData apply(PCEData pceData) throws Exception {
+    public PCEData apply(PCEData pceData) throws WebApplicationException {
         for (PCEModule mod : moduleList) {
             pceData = mod.apply(pceData);
         }

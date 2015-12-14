@@ -39,17 +39,17 @@ public class NmlParser extends JaxbParser {
     }
 
     public NmlTopologyType readTopology(String filename) throws FileNotFoundException, JAXBException, IOException {
-        return getInstance().parseFile(NmlTopologyType.class, filename);
+        return this.parseFile(NmlTopologyType.class, filename);
     }
 
     public void writeTopology(String file, NmlTopologyType nml) throws JAXBException, IOException {
         // Parse the specified file.
         JAXBElement<NmlTopologyType> element = factory.createTopology(nml);
-        getInstance().writeFile(element, file);
+        this.writeFile(element, file);
     }
 
     public NmlTopologyType dom2Nml(Document doc) throws JAXBException {
-        JAXBElement<?> dom2Jaxb = getInstance().dom2Jaxb(doc);
+        JAXBElement<?> dom2Jaxb = this.dom2Jaxb(doc);
         if (dom2Jaxb.getValue() instanceof NmlTopologyType) {
             return NmlTopologyType.class.cast(dom2Jaxb.getValue());
         }
@@ -58,6 +58,6 @@ public class NmlParser extends JaxbParser {
     }
 
     public NmlTopologyType xml2Nml(String xml) throws JAXBException {
-        return getInstance().xml2Jaxb(NmlTopologyType.class, xml);
+        return this.xml2Jaxb(NmlTopologyType.class, xml);
     }
 }
