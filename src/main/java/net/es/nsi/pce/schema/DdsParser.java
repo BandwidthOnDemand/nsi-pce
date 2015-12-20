@@ -4,6 +4,7 @@ import java.io.IOException;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.jaxb.dds.CollectionType;
+import net.es.nsi.pce.jaxb.dds.DocumentListType;
 import net.es.nsi.pce.jaxb.dds.DocumentType;
 import net.es.nsi.pce.jaxb.dds.ObjectFactory;
 
@@ -38,17 +39,24 @@ public class DdsParser extends JaxbParser {
     }
 
     public DocumentType readDocument(String filename) throws JAXBException, IOException {
-        return getInstance().parseFile(DocumentType.class, filename);
+        return this.parseFile(DocumentType.class, filename);
     }
 
     public void writeDocument(String file, DocumentType document) throws JAXBException, IOException {
         // Parse the specified file.
         JAXBElement<DocumentType> element = factory.createDocument(document);
-        getInstance().writeFile(element, file);
+        this.writeFile(element, file);
     }
 
-
     public CollectionType readCollection(String filename) throws JAXBException, IOException {
-        return getInstance().parseFile(CollectionType.class, filename);
+        return this.parseFile(CollectionType.class, filename);
+    }
+
+    public String xmlFormatter(DocumentType document) throws JAXBException {
+        return this.jaxb2XmlFormatter(factory.createDocument(document));
+    }
+
+    public String xmlFormatter(DocumentListType documents) throws JAXBException {
+        return this.jaxb2XmlFormatter(factory.createDocuments(documents));
     }
 }

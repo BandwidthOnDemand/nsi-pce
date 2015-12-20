@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package net.es.nsi.pce.util;
 
 import com.google.common.base.Strings;
@@ -24,7 +19,27 @@ import org.xml.sax.SAXException;
 public class Decoder {
     private final static Logger log = LoggerFactory.getLogger(Decoder.class);
 
-    public static Document decode(String contentTransferEncoding,
+    public static Document decode2Dom(String contentTransferEncoding,
+            String contentType, String source) throws IOException, UnsupportedEncodingException, RuntimeException {
+        if (Strings.isNullOrEmpty(contentTransferEncoding)) {
+            contentTransferEncoding = ContentTransferEncoding._8BIT;
+        }
+
+        if (Strings.isNullOrEmpty(contentType)) {
+            contentType = ContentType.TEXT;
+        }
+
+        try (InputStream ctis = ContentType.decode(contentType, ContentTransferEncoding.decode(contentTransferEncoding, source))) {
+            return DomParser.xml2Dom(ctis);
+        } catch (MessagingException ex) {
+            throw new RuntimeException(ex);
+        } catch (ParserConfigurationException | SAXException ex) {
+            log.error("decode: failed to parse document", ex);
+            throw new IOException(ex.getMessage(), ex.getCause());
+        }
+    }
+
+    public static String decode2String(String contentTransferEncoding,
             String contentType, String source) throws IOException, UnsupportedEncodingException, RuntimeException {
         if (Strings.isNullOrEmpty(contentTransferEncoding)) {
             contentTransferEncoding = ContentTransferEncoding._7BIT;
@@ -34,15 +49,27 @@ public class Decoder {
             contentType = ContentType.TEXT;
         }
 
-        try {
-            InputStream cteis = ContentTransferEncoding.decode(contentTransferEncoding, source);
-            InputStream ctis = ContentType.decode(contentType, cteis);
-            return DomParser.xml2Dom(ctis);
+        try (InputStream ctes = ContentTransferEncoding.decode(contentTransferEncoding, source)) {
+            return ContentType.decode2String(contentType, ctes);
         } catch (MessagingException ex) {
             throw new RuntimeException(ex);
-        } catch (ParserConfigurationException | SAXException ex) {
-            log.error("decode: failed to parse document", ex);
-            throw new IOException(ex.getMessage(), ex.getCause());
+        }
+    }
+
+    public static byte[] decode2ByteArray(String contentTransferEncoding,
+            String contentType, String source) throws IOException, UnsupportedEncodingException, RuntimeException {
+        if (Strings.isNullOrEmpty(contentTransferEncoding)) {
+            contentTransferEncoding = ContentTransferEncoding._7BIT;
+        }
+
+        if (Strings.isNullOrEmpty(contentType)) {
+            contentType = ContentType.TEXT;
+        }
+
+        try (InputStream ctes = ContentTransferEncoding.decode(contentTransferEncoding, source)) {
+            return ContentType.decode2ByteArray(contentType, ctes);
+        } catch (MessagingException ex) {
+            throw new RuntimeException(ex);
         }
     }
 }

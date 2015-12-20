@@ -276,7 +276,7 @@ public class NsiTopologyFactory {
         Optional<ContentType> content = Optional.ofNullable(document.getContent());
         if (content.isPresent()) {
             try {
-                Document dom = Decoder.decode(
+                Document dom = Decoder.decode2Dom(
                         content.get().getContentTransferEncoding(),
                         content.get().getContentType(),
                         content.get().getValue());
@@ -297,7 +297,7 @@ public class NsiTopologyFactory {
         Optional<ContentType> content = Optional.ofNullable(document.getContent());
         if (content.isPresent()) {
             try {
-                Document dom = Decoder.decode(
+                Document dom = Decoder.decode2Dom(
                         content.get().getContentTransferEncoding(),
                         content.get().getContentType(),
                         content.get().getValue());
