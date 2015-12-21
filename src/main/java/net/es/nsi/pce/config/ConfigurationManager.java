@@ -103,10 +103,12 @@ public enum ConfigurationManager {
 
             pceScheduler = (PCEScheduler) context.getBean("pceScheduler");
             if (success) {
+                log.debug("initialize: Scheduling full audit.");
                 pceScheduler.add(TopologyAudit.FULL_JOBNAME, TopologyAudit.JOBGROUP, TopologyAudit.class, getTopologyProvider().getAuditInterval()*1000);
             }
             else {
-                pceScheduler.add(TopologyAudit.QUICK_JOBNAME, TopologyAudit.JOBGROUP, TopologyAudit.class, getTopologyProvider().getAuditInterval()*1000);
+                log.debug("initialize: Scheduling quick audit.");
+                pceScheduler.add(TopologyAudit.QUICK_JOBNAME, TopologyAudit.JOBGROUP, TopologyAudit.class, 2*60*1000);
             }
             pceScheduler.start();
 
