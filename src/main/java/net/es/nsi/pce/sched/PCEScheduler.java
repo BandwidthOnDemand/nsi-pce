@@ -14,6 +14,7 @@ import org.quartz.Job;
 import static org.quartz.JobBuilder.newJob;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
 import static org.quartz.JobKey.jobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -95,6 +96,10 @@ public class PCEScheduler {
         scheduler.start();
     }
 
+    public String getId(String jobName, String jobGroup) {
+        return jobName + ":" + jobGroup;
+    }
+
     /**
      * Get the scheduler item associated with the supplied identifier.
      *
@@ -117,7 +122,8 @@ public class PCEScheduler {
      * @throws SchedulerException Is there is an issue scheduling the new job.
      */
     public String add(String jobName, String jobGroup, Class<? extends Job> jobClass, long interval) throws SchedulerException {
-        String id = jobName + ":" + jobGroup;
+        String id = getId(jobName, jobGroup);
+
         SchedulerItem item = schedulerItems.get(id);
         if (item != null) {
             throw new SchedulerException("Scheduler job (" + id + ") already exists in scheduler.");
@@ -165,6 +171,16 @@ public class PCEScheduler {
         }
 
         return scheduler.deleteJob(jobKey(item.getJobName(), item.getJobGroup()));
+    }
+
+    public boolean remove(JobKey key) throws SchedulerException, NotFoundException {
+        String id = getId(key.getName(), key.getGroup());
+        SchedulerItem item = schedulerItems.remove(id);
+        if (item == null) {
+            throw new NotFoundException("Job (" + id + ") does not exists in scheduler.");
+        }
+
+        return scheduler.deleteJob(key);
     }
 
     /**
@@ -280,7 +296,7 @@ public class PCEScheduler {
                 .withIntervalInMilliseconds(interval)
                 .withRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY))
                 .build();
-        return (scheduler.rescheduleJob(oldTrigger.getKey(), newTrigger) == null) ? false : true;
+        return (scheduler.rescheduleJob(oldTrigger.getKey(), newTrigger) != null);
     }
 
     /**

@@ -97,7 +97,7 @@ public class DdsTopologyProvider implements TopologyProvider {
     }
 
     @Override
-    public synchronized void loadTopology() throws Exception {
+    public synchronized boolean loadTopology() throws Exception {
         boolean changed = false;
 
         // Identify that we have started an audit.
@@ -112,7 +112,7 @@ public class DdsTopologyProvider implements TopologyProvider {
             // Identify that we have failed the audit.
             ddsAuditError();
             log.error("loadNetworkTopology: Failed to load NSA discovery documents from DDS.", ex);
-            throw ex;
+            return false;
         }
 
         // See if the NSA document list has changed.
@@ -123,10 +123,17 @@ public class DdsTopologyProvider implements TopologyProvider {
         }
 
         // Check to see if we have NSA discovery documents.
+        if (localNsaDocuments.getDocument().isEmpty()) {
+            ddsAuditError();
+            log.error("loadNetworkTopology: No local NSA discovery documents found in DDS.");
+            return false;
+        }
+
+        // Check to see if we have NSA discovery documents.
         if (nsaDocuments == null) {
             ddsAuditError();
             log.error("loadNetworkTopology: No NSA discovery documents found in DDS.");
-            return;
+            return false;
         }
 
         // Get an updated copy of the Topology documents.
@@ -138,7 +145,7 @@ public class DdsTopologyProvider implements TopologyProvider {
             // Identify that we have failed the audit.
             ddsAuditError();
             log.error("loadNetworkTopology: Failed to load topology documents.", ex);
-            throw ex;
+            return false;
         }
 
         // See if the topology document list has changed.
@@ -153,14 +160,14 @@ public class DdsTopologyProvider implements TopologyProvider {
             // Identify that we have failed the audit.
             ddsAuditError();
             log.error("loadNetworkTopology: Failed to load Topology documents.");
-            throw new NotFoundException("Failed to load topology documents.");
+            return false;
         }
 
         // If no change then get out of here.
         if (!changed) {
             log.debug("loadNetworkTopology: no change in topology.");
             ddsAuditSuccess();
-            return;
+            return true;
         }
 
         // Now that we have a new set of documents (at least some were new or
@@ -179,6 +186,7 @@ public class DdsTopologyProvider implements TopologyProvider {
 
         // We are done so update the map with the new view.
         nsiTopology = newTopology;
+        return true;
     }
 
     private NsiTopology consolidateGlobalTopology(NsiTopology topology) {

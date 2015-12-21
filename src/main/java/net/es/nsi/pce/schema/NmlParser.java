@@ -6,6 +6,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import net.es.nsi.pce.jaxb.topology.NmlTopologyType;
 import net.es.nsi.pce.jaxb.topology.ObjectFactory;
+import net.es.nsi.pce.jaxb.topology.TopologyErrorType;
 import org.w3c.dom.Document;
 
 /**
@@ -59,5 +60,10 @@ public class NmlParser extends JaxbParser {
 
     public NmlTopologyType xml2Nml(String xml) throws JAXBException {
         return this.xml2Jaxb(NmlTopologyType.class, xml);
+    }
+
+    public String topologyError2Xml(TopologyErrorType error) throws JAXBException {
+        JAXBElement<TopologyErrorType> errorElement = factory.createTopologyError(error);
+        return this.jaxb2Xml(errorElement);
     }
 }

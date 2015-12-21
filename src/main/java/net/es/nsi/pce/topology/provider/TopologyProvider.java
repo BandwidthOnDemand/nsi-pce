@@ -1,7 +1,7 @@
 package net.es.nsi.pce.topology.provider;
 
-import net.es.nsi.pce.topology.model.ControlPlaneTopology;
 import net.es.nsi.pce.topology.dao.TopologyConfiguration;
+import net.es.nsi.pce.topology.model.ControlPlaneTopology;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
 /**
@@ -14,6 +14,7 @@ public interface TopologyProvider {
     /**
      * Initialize the NSI topology provider.
      *
+     * @throws java.lang.Exception
      * @Exception Will throw an exception if the provider cannot be initialized.
      */
     public void init() throws Exception;
@@ -55,9 +56,10 @@ public interface TopologyProvider {
      * Load topology from the defined source.  This is also invoked by the
      * PCE schedule to perform an audit.
      *
+     * @return
      * @throws Exception If topology discovery fails.
      */
-    public void loadTopology() throws Exception;
+    public boolean loadTopology() throws Exception;
 
     //public long getLastAudit();
 

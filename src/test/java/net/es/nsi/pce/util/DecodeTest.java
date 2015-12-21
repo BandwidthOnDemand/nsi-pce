@@ -62,7 +62,6 @@ public class DecodeTest {
 
     @Test(expected=IOException.class)
     public void decodeOldTest() throws JAXBException, RuntimeException, IOException {
-        System.out.println("Test");
         String document = "<ns0:document xmlns:ns6=\"http://schemas.ogf.org/nsi/2013/12/services/definition\" \n" +
 "        xmlns:ns5=\"http://nordu.net/namespaces/2013/12/gnsbod\" \n" +
 "        xmlns:ns7=\"http://schemas.ogf.org/nsi/2013/09/topology#\" \n" +

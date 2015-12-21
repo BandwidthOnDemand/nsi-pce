@@ -1,10 +1,10 @@
 package net.es.nsi.pce.config;
 
-import net.es.nsi.pce.spring.SpringContext;
-import net.es.nsi.pce.topology.provider.TopologyProvider;
 import net.es.nsi.pce.sched.PCEScheduler;
 import net.es.nsi.pce.sched.TopologyAudit;
 import net.es.nsi.pce.server.PCEServer;
+import net.es.nsi.pce.spring.SpringContext;
+import net.es.nsi.pce.topology.provider.TopologyProvider;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.quartz.SchedulerException;
 import org.slf4j.LoggerFactory;
@@ -91,17 +91,23 @@ public enum ConfigurationManager {
             pceServer = (PCEServer) context.getBean("pceServer");
             pceServer.start();
 
-            // Start the NIS network topology build.
+            // Start the NSI network topology build.
             topologyProvider = (TopologyProvider) context.getBean("topologyProvider");
+            boolean success = false;
             try {
-                topologyProvider.loadTopology();
+                success = topologyProvider.loadTopology();
             }
             catch (Exception ex) {
                 log.error("Failed to load topology.", ex);
             }
 
             pceScheduler = (PCEScheduler) context.getBean("pceScheduler");
-            pceScheduler.add(TopologyAudit.JOBNAME, TopologyAudit.JOBGROUP, TopologyAudit.class, getTopologyProvider().getAuditInterval()*1000);
+            if (success) {
+                pceScheduler.add(TopologyAudit.FULL_JOBNAME, TopologyAudit.JOBGROUP, TopologyAudit.class, getTopologyProvider().getAuditInterval()*1000);
+            }
+            else {
+                pceScheduler.add(TopologyAudit.QUICK_JOBNAME, TopologyAudit.JOBGROUP, TopologyAudit.class, getTopologyProvider().getAuditInterval()*1000);
+            }
             pceScheduler.start();
 
             setInitialized(true);
