@@ -123,6 +123,7 @@ public class FindPathEvtsFailedTest {
             System.err.println("oneTimeSetUp: failed to start HTTP server " + ex.getLocalizedMessage());
             fail();
         }
+        System.out.println("*************************************** FindPathEvtsFailedTest HTTP server started ***********************************");
         testConfig = new TestConfig();
         target = testConfig.getTarget();
         System.out.println("*************************************** FindPathEvtsFailedTest oneTimeSetUp done ***********************************");

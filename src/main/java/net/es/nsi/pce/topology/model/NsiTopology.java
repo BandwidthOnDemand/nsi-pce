@@ -13,8 +13,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import net.es.nsi.pce.pf.StpTypeBundle;
-import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.jaxb.topology.NetworkType;
 import net.es.nsi.pce.jaxb.topology.NsaInterfaceType;
 import net.es.nsi.pce.jaxb.topology.NsaType;
@@ -26,6 +24,9 @@ import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
 import net.es.nsi.pce.jaxb.topology.ServiceType;
 import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.jaxb.topology.VectorType;
+import net.es.nsi.pce.pf.SimpleStp;
+import net.es.nsi.pce.pf.StpTypeBundle;
+import net.es.nsi.pce.schema.NsiConstants;
 
 /**
  *
@@ -43,7 +44,7 @@ public class NsiTopology {
     private final ConcurrentHashMap<String, NetworkType> networks = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, NsaType> nsas = new ConcurrentHashMap<>();
 
-    private final ConcurrentSkipListMap<String, Map<String, StpType>> stpBundle = new ConcurrentSkipListMap<>();
+    private final ConcurrentSkipListMap<String, StpTypeBundle> stpTypeBundle = new ConcurrentSkipListMap<>();
 
     // The time of the most recent discovered item.
     private long lastDiscovered = 0L;
@@ -96,20 +97,12 @@ public class NsiTopology {
         stps.putAll(stpList);
     }
 
-    /**
-     * Add an STP object to the topology indexed by stpId.
-     *
-     * @param stpBundleId
-     * @param stpBundle
-     * @return NULL if this is the first object with this id, otherwise the STP
-     * bundle map replaced.
-     */
-    public Map<String, StpType> addStpBundle(String stpBundleId, Map<String, StpType> stpBundle) {
-        return this.stpBundle.put(stpBundleId, stpBundle);
+    public StpTypeBundle addStpTypeBundle(SimpleStp stp, Map<String, StpType> stpBundle) {
+        return this.stpTypeBundle.put(stp.getId(), new StpTypeBundle(stp, stpBundle));
     }
 
-    public Map<String, StpType> getStpBundle(String stpBundleId) {
-        return this.stpBundle.get(stpBundleId);
+    public StpTypeBundle getStpTypeBundle(String stpBundleId) {
+        return this.stpTypeBundle.get(stpBundleId);
     }
 
     /**
@@ -600,7 +593,7 @@ public class NsiTopology {
 
     public Set<String> getExclusionSdp(StpTypeBundle stpBundle) {
         Set<String> exclusionSdp = new HashSet<>();
-        Optional<Map<String, StpType>> bundle = Optional.fromNullable(this.getStpBundle(stpBundle.getSimpleStp().getId()));
+        Optional<StpTypeBundle> bundle = Optional.fromNullable(this.getStpTypeBundle(stpBundle.getSimpleStp().getId()));
         if (bundle.isPresent()) {
             for (StpType anStp : bundle.get().values()) {
                 Optional<ResourceRefType> sdpRef = Optional.fromNullable(anStp.getSdp());

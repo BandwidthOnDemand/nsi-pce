@@ -12,22 +12,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.WebApplicationException;
-import net.es.nsi.pce.path.api.Exceptions;
-import net.es.nsi.pce.jaxb.path.DirectionalityType;
 import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
-import net.es.nsi.pce.jaxb.path.StpListType;
+import net.es.nsi.pce.jaxb.topology.ResourceRefType;
+import net.es.nsi.pce.jaxb.topology.SdpType;
+import net.es.nsi.pce.jaxb.topology.StpType;
+import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.path.services.Point2PointTypes;
-import net.es.nsi.pce.path.services.Service;
-import net.es.nsi.pce.pf.api.PCEConstraints;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
-import net.es.nsi.pce.jaxb.topology.ResourceRefType;
-import net.es.nsi.pce.jaxb.topology.SdpType;
-import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.apache.commons.collections15.Transformer;
 import org.slf4j.Logger;
@@ -42,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class DijkstraPCE implements PCEModule {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final net.es.nsi.pce.jaxb.path.ObjectFactory factory = new net.es.nsi.pce.jaxb.path.ObjectFactory();
-
+    
     /**
      * This path computation module supports pathfinding for the P2PS service
      * specification restricted to bidirectional symmetricPath services with
@@ -60,68 +56,40 @@ public class DijkstraPCE implements PCEModule {
     public PCEData apply(PCEData pceData) {
         checkNotNull(pceData.getTopology(), "DijkstraPCE: No topology was provided");
 
-        // Get constraints this PCE module supports.
-        AttrConstraints constraints = pceData.getAttrConstraints();
+        // Extract the request data we need.
+        Request request = new Request(pceData);
 
-        // We currently implement P2PS policies in the PCE.  Reject any path
-        // finding requests for services we do not understand.
-        String serviceType = PfUtils.getServiceTypeOrFail(constraints);
-        List<Service> serviceByType = Service.getServiceByType(serviceType);
-        if (!serviceByType.contains(Service.P2PS)) {
-            throw Exceptions.unsupportedParameter(PCEConstraints.NAMESPACE, PCEConstraints.SERVICETYPE, serviceType);
+        // Find a path satisfying the requested criteria.
+        List<GraphEdge> path = route(request);
+
+        // Check to see if there is a valid path.
+        if (path.isEmpty()) {
+            throw Exceptions.noPathFound("No path found using provided criteria");
         }
 
-        // Generic reservation information is in string constraint attributes,
-        // but the P2PS specific constraints are in the P2PS P2PServiceBaseType.
-        P2PServiceBaseType p2p = PfUtils.getP2PServiceBaseTypeOrFail(constraints);
+        // Consolidate the path segment results.
+        List<GraphEdge> consolidatedPath = consolidatePath(request.getNsiTopology(), path);
+        List<StpPair> individualSegments = getIndividualSegments(request.getNsiTopology(), consolidatedPath);
 
-        // Determine directionality of service request, default to bidirectional if not present.
-        DirectionalityType directionality = PfUtils.getDirectionality(p2p);
-
-        // Determine path symmetry.
-        boolean symmetricPath = PfUtils.getSymmetricPath(p2p);
-
-        // Get source stpId.
-        String sourceStp = PfUtils.getSourceStpOrFail(p2p);
-
-        // Get destination stpId.
-        String destStp = PfUtils.getDestinationStpOrFail(p2p);
-
-        // Get the optional ERO object.
-        Optional<StpListType> ero = PfUtils.getEro(p2p);
-
-        // Parse the source STP to make sure it is valid.
-        SimpleStp srcStpId = PfUtils.getSimpleStpOrFail(sourceStp);
-
-        // Parse the destination STP to make sure it is valid.
-        SimpleStp dstStpId = PfUtils.getSimpleStpOrFail(destStp);
-
-        // Get the topology model used for routing.
-        NsiTopology nsiTopology = pceData.getTopology();
-
-        // Log topologies applied to this request.
-        log.debug("localId " + nsiTopology.getLocalNsaId());
-        nsiTopology.getNetworkIds().stream().forEach((networkId) -> {
-            log.debug("networkId " + networkId);
-        });
-
-        // Segment the request into subroutes if an ERO is provided.
-        RouteObject ro = new RouteObject(nsiTopology, srcStpId, dstStpId, directionality, ero);
-
+        // Build a path response for each segment in the the computed path.
+        return build(request, individualSegments);
+    }
+    
+    private List<GraphEdge> route(Request request) {
         // Perform pathfinding on each computed route.
         List<GraphEdge> path = new ArrayList<>();
         Optional<StpType> nextStp = Optional.absent();
-        Iterator<Route> iterator = ro.getRoutes().iterator();
+        Iterator<Route> iterator = request.getRo().getRoutes().iterator();
         while (iterator.hasNext()) {
             // We will process this route now.
             Route route = iterator.next();
 
-            // Manipulate the sourceBundle if we had a previous iteration that
-            // has restricted the STP's available on this bundle.
-            StpTypeBundle sourceBundle = route.getBundleA().getPeerRestrictedBundle(nsiTopology, nextStp, directionality);
+            // Manipulate the sourceBundle if we had a previous iteration has
+            // restricted the STP's available on this bundle.
+            StpTypeBundle sourceBundle = route.getBundleA().getPeerRestrictedBundle(request.getNsiTopology(), nextStp, request.getDirectionality());
 
             // Compute the shortest path.
-            List<GraphEdge> edges = getShortestPath(sourceBundle, route.getBundleZ(), pceData, nsiTopology);
+            List<GraphEdge> edges = getShortestPath(sourceBundle, route.getBundleZ(), request.getPceData(), request.getNsiTopology());
 
             // Check to see if we found a valid path.
             if (edges.isEmpty()) {
@@ -144,68 +112,9 @@ public class DijkstraPCE implements PCEModule {
             // Add edges from this path computation to our result set.
             path.addAll(edges);
         }
-
-        // Check to see if there is a valid path.
-        if (path.isEmpty()) {
-            throw Exceptions.noPathFound("No path found using provided criteria");
-        }
-
-        // Consolidate the path segment results.
-        List<GraphEdge> consolidatedPath = consolidatePath(nsiTopology, path);
-
-        // Build a path response for each segment in the the computed path.
-        List<StpPair> segments = pullIndividualSegmentsOut(consolidatedPath, nsiTopology);
-        for (int i = 0; i < segments.size(); i++) {
-            StpPair pair = segments.get(i);
-
-            String stpIdA = pair.getA().getId();
-            String stpIdZ = pair.getZ().getId();
-
-            log.debug("Pair: " + stpIdA + " -- " + stpIdZ);
-
-            // Map the A and Z ends of the original request back to their initial
-            // form just in case they were underspecified.
-            String baseA = SimpleStp.getId(stpIdA);
-            if (srcStpId.getId().equalsIgnoreCase(baseA)) {
-                stpIdA = sourceStp;
-            }
-            else if (dstStpId.getId().equalsIgnoreCase(baseA)) {
-                stpIdA = destStp;
-            }
-
-            String baseZ = SimpleStp.getId(stpIdZ);
-            if (srcStpId.getId().equalsIgnoreCase(baseZ)) {
-                stpIdZ = sourceStp;
-            }
-            else if (dstStpId.getId().equalsIgnoreCase(baseZ)) {
-                stpIdZ = destStp;
-            }
-
-            // Copy the applicable attribute constraints into this path.
-            AttrConstraints newConstraints = new AttrConstraints(pceData.getConstraints());
-            newConstraints.removeObjectAttrConstraint(Point2PointTypes.P2PS);
-
-            // Create a new P2PS constraint for this segment.
-            P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();
-            p2ps.setCapacity(p2p.getCapacity());
-            p2ps.setDirectionality(directionality);
-            p2ps.setEro(ro.getInternalERO(SimpleStp.parseNetworkId(stpIdA)));
-            p2ps.setSymmetricPath(symmetricPath);
-            p2ps.setSourceSTP(stpIdA);
-            p2ps.setDestSTP(stpIdZ);
-            ObjectAttrConstraint p2psObject = new ObjectAttrConstraint();
-            p2psObject.setAttrName(Point2PointTypes.P2PS);
-            p2psObject.setValue(p2ps);
-            newConstraints.add(p2psObject);
-
-            PathSegment pathSegment = new PathSegment(pair);
-            pathSegment.setConstraints(newConstraints);
-            pceData.getPath().getPathSegments().add(i, pathSegment);
-        }
-
-        return pceData;
+        
+        return path;
     }
-
 
     private List<GraphEdge> getShortestPath(StpTypeBundle srcBundle,
             StpTypeBundle dstBundle, PCEData pceData, NsiTopology nsiTopology)
@@ -273,46 +182,6 @@ public class DijkstraPCE implements PCEModule {
         return shortestPath;
     }
 
-    protected List<StpPair> pullIndividualSegmentsOut(List<GraphEdge> path, NsiTopology nsiTopology) {
-        List<StpPair> segments = new ArrayList<>();
-
-        Optional<StpType> start = Optional.absent();
-        for (GraphEdge edge: path) {
-            if (edge instanceof StpEdge) {
-                StpEdge stpEdge = (StpEdge) edge;
-
-                if (!start.isPresent()) {
-                    // Source STP in the path.
-                    start = Optional.of(stpEdge.getStp());
-                }
-                else {
-                    // Destimnation STP in the path.
-                    segments.add(new StpPair(start.get(), stpEdge.getStp()));
-                }
-            }
-            else if (edge instanceof SdpEdge) {
-                SdpEdge sdpEdge = (SdpEdge) edge;
-
-                // SDP along the path.
-                StpType stpA = nsiTopology.getStp(sdpEdge.getSdp().getDemarcationA().getStp().getId());
-                StpType stpZ = nsiTopology.getStp(sdpEdge.getSdp().getDemarcationZ().getStp().getId());
-
-                StpPair pathPair;
-                if (start.get().getNetworkId().equalsIgnoreCase(stpA.getNetworkId())) {
-                    pathPair = new StpPair(start.get(), stpA);
-                    start = Optional.of(stpZ);
-                }
-                else {
-                    pathPair = new StpPair(start.get(), stpZ);
-                    start = Optional.of(stpA);
-                }
-                segments.add(pathPair);
-            }
-        }
-
-        return segments;
-    }
-
     private List<GraphEdge> consolidatePath(NsiTopology topology, List<GraphEdge> path) {
         // We now consolidate adjacent STP at ERO breakpoints back into SDP.
         List<GraphEdge> consolidatedPath = new ArrayList<>();
@@ -351,5 +220,101 @@ public class DijkstraPCE implements PCEModule {
         }
 
         return consolidatedPath;
+    }
+
+    protected List<StpPair> getIndividualSegments(NsiTopology topology, List<GraphEdge> path) {
+        List<StpPair> segments = new ArrayList<>();
+
+        Optional<StpType> start = Optional.absent();
+        for (GraphEdge edge: path) {
+            if (edge instanceof StpEdge) {
+                StpEdge stpEdge = (StpEdge) edge;
+
+                if (!start.isPresent()) {
+                    // Source STP in the path.
+                    start = Optional.of(stpEdge.getStp());
+                }
+                else {
+                    // Destination STP in the path.
+                    segments.add(new StpPair(start.get(), stpEdge.getStp()));
+                }
+            }
+            else if (edge instanceof SdpEdge) {
+                SdpEdge sdpEdge = (SdpEdge) edge;
+
+                // SDP along the path.
+                StpType stpA = topology.getStp(sdpEdge.getSdp().getDemarcationA().getStp().getId());
+                StpType stpZ = topology.getStp(sdpEdge.getSdp().getDemarcationZ().getStp().getId());
+
+                StpPair pathPair;
+                if (start.get().getNetworkId().equalsIgnoreCase(stpA.getNetworkId())) {
+                    pathPair = new StpPair(start.get(), stpA);
+                    start = Optional.of(stpZ);
+                }
+                else {
+                    pathPair = new StpPair(start.get(), stpZ);
+                    start = Optional.of(stpA);
+                }
+                segments.add(pathPair);
+            }
+        }
+
+        return segments;
+    }
+    
+    public PCEData build(Request request, List<StpPair> segments) {
+        for (int i = 0; i < segments.size(); i++) {
+            StpPair pair = segments.get(i);
+
+            String stpIdA = pair.getA().getId();
+            String stpIdZ = pair.getZ().getId();
+
+            log.debug("Pair: " + stpIdA + " -- " + stpIdZ);
+
+            // Map the A and Z ends of the original request back to their initial
+            // form just in case they were underspecified.
+            String baseA = SimpleStp.getId(stpIdA);
+            if (request.getSrcStpId().getId().equalsIgnoreCase(baseA)) {
+                stpIdA = request.getSourceStp();
+            }
+            else if (request.getDstStpId().getId().equalsIgnoreCase(baseA)) {
+                stpIdA = request.getDestStp();
+            }
+
+            String baseZ = SimpleStp.getId(stpIdZ);
+            if (request.getSrcStpId().getId().equalsIgnoreCase(baseZ)) {
+                stpIdZ = request.getSourceStp();
+            }
+            else if (request.getDstStpId().getId().equalsIgnoreCase(baseZ)) {
+                stpIdZ = request.getDestStp();
+            }
+
+            // Copy the applicable attribute constraints into this path.
+            AttrConstraints newConstraints = new AttrConstraints(request.getPceData().getConstraints());
+            newConstraints.removeObjectAttrConstraint(Point2PointTypes.P2PS);
+
+            // Create a new P2PS constraint for this segment.
+            P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();
+            p2ps.setCapacity(request.getP2p().getCapacity());
+            p2ps.setDirectionality(request.getDirectionality());
+            p2ps.setEro(request.getRo().getInternalERO(SimpleStp.parseNetworkId(stpIdA)));
+            p2ps.setSymmetricPath(request.isSymmetricPath());
+            p2ps.setSourceSTP(stpIdA);
+            p2ps.setDestSTP(stpIdZ);
+            ObjectAttrConstraint p2psObject = new ObjectAttrConstraint();
+            p2psObject.setAttrName(Point2PointTypes.P2PS);
+            p2psObject.setValue(p2ps);
+            newConstraints.add(p2psObject);
+
+            PathSegment pathSegment = new PathSegment.Builder()
+                    .withA(stpIdA)
+                    .withZ(stpIdZ)
+                    .withNetworkId(pair.getA().getNetworkId())
+                    .withConstraints(newConstraints)
+                    .build();
+            request.getPceData().getPath().getPathSegments().add(i, pathSegment);
+        }
+
+        return request.getPceData();
     }
 }

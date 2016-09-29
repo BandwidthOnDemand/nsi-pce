@@ -3,13 +3,14 @@ package net.es.nsi.pce.client;
 
 import java.net.URI;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.Logger;
 import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.jaxb.dds.NotificationListType;
 import net.es.nsi.pce.jaxb.path.FindPathResponseType;
 import net.es.nsi.pce.jersey.JsonMoxyConfigurationContextResolver;
 import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.moxy.json.MoxyJsonFeature;
 import org.glassfish.jersey.moxy.xml.MoxyXmlFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -89,14 +90,14 @@ public enum TestServer {
     }
 
     public ResourceConfig getConfig(String packageName) throws IllegalStateException {
-
         return new ResourceConfig()
                 .packages(packageName)
                 .register(DdsNotificationCallback.class) // Remove this if packages gets fixed.
                 .register(FindPathResponseService.class) // Remove this if packages gets fixed.
                 .register(new MoxyXmlFeature())
                 .register(new MoxyJsonFeature())
-                .register(new LoggingFilter(java.util.logging.Logger.getGlobal(), true))
+                //.register(new LoggingFilter(java.util.logging.Logger.getGlobal(), true))
+                .register(new LoggingFeature(Logger.getLogger(TestServer.class.getName()), LoggingFeature.Verbosity.PAYLOAD_ANY))
                 .registerInstances(new JsonMoxyConfigurationContextResolver());
     }
 }

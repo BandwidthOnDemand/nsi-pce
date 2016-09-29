@@ -24,6 +24,8 @@ public class PathfinderCore {
     private final TopologyProvider topologyProvider;
     private final net.es.nsi.pce.pf.SequentialPCE chainPCE;
     private final net.es.nsi.pce.pf.SequentialPCE treePCE;
+    private final net.es.nsi.pce.pf.SequentialPCE sequentialPCE;
+
     /**
      * Default constructor for this class.  Performs lookups on the Spring
      * beans for required services.
@@ -31,11 +33,16 @@ public class PathfinderCore {
      * @param topologyProvider
      * @param chainPCE
      * @param treePCE
+     * @param sequentialPCE
      */
-    public PathfinderCore(TopologyProvider topologyProvider, net.es.nsi.pce.pf.SequentialPCE chainPCE, net.es.nsi.pce.pf.SequentialPCE treePCE) {
+    public PathfinderCore(TopologyProvider topologyProvider,
+            net.es.nsi.pce.pf.SequentialPCE chainPCE,
+            net.es.nsi.pce.pf.SequentialPCE treePCE,
+            net.es.nsi.pce.pf.SequentialPCE sequentialPCE) {
         this.topologyProvider = topologyProvider;
         this.chainPCE = chainPCE;
         this.treePCE = treePCE;
+        this.sequentialPCE = sequentialPCE;
     }
 
     /**
@@ -63,12 +70,14 @@ public class PathfinderCore {
         pceData.setTrace(trace);
 
         // Determine the path computation module to invoke.
-        PCEModule pce;
-        if (algorithm != null && algorithm.equals(FindPathAlgorithmType.CHAIN)) {
-            pce = chainPCE;
-        }
-        else {
-            pce = treePCE;
+        PCEModule pce = treePCE;
+        if (algorithm != null) {
+            if (algorithm.equals(FindPathAlgorithmType.CHAIN)) {
+                pce = chainPCE;
+            }
+            else if (algorithm.equals(FindPathAlgorithmType.SEQUENTIAL)) {
+                pce = sequentialPCE;
+            }
         }
 
         // Invoke the path computation sequence on this request.

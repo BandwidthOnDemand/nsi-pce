@@ -1,24 +1,38 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * NSI Path Computation Element (NSI-PCE) Copyright (c) 2013 - 2016,
+ * The Regents of the University of California, through Lawrence
+ * Berkeley National Laboratory (subject to receipt of any required
+ * approvals from the U.S. Dept. of Energy).  All rights reserved.
+ *
+ * If you have questions about your rights to use or distribute this
+ * software, please contact Berkeley Lab's Innovation & Partnerships
+ * Office at IPO@lbl.gov.
+ *
+ * NOTICE.  This Software was developed under funding from the
+ * U.S. Department of Energy and the U.S. Government consequently retains
+ * certain rights. As such, the U.S. Government has been granted for
+ * itself and others acting on its behalf a paid-up, nonexclusive,
+ * irrevocable, worldwide license in the Software to reproduce,
+ * distribute copies to the public, prepare derivative works, and perform
+ * publicly and display publicly, and to permit other to do so.
+ *
  */
 package net.es.nsi.pce.pf;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import net.es.nsi.pce.path.api.Exceptions;
+import java.util.Optional;
 import net.es.nsi.pce.jaxb.path.DirectionalityType;
 import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.jaxb.path.StpListType;
+import net.es.nsi.pce.jaxb.topology.ResourceRefType;
+import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
+import net.es.nsi.pce.jaxb.topology.StpType;
+import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.path.services.Point2PointTypes;
 import net.es.nsi.pce.pf.api.PCEConstraints;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
 import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
-import net.es.nsi.pce.jaxb.topology.ResourceRefType;
-import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
-import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +58,7 @@ public class PfUtils {
     }
 
     public static String getSourceStpOrFail(P2PServiceBaseType p2ps) {
-        Optional<String> sourceStp = Optional.fromNullable(Strings.emptyToNull(p2ps.getSourceSTP()));
+        Optional<String> sourceStp = Optional.ofNullable(Strings.emptyToNull(p2ps.getSourceSTP()));
         if (sourceStp.isPresent()) {
             return sourceStp.get();
         }
@@ -62,7 +76,7 @@ public class PfUtils {
     }
 
     public static String getDestinationStpOrFail(P2PServiceBaseType p2ps) {
-        Optional<String> destStp = Optional.fromNullable(Strings.emptyToNull(p2ps.getDestSTP()));
+        Optional<String> destStp = Optional.ofNullable(Strings.emptyToNull(p2ps.getDestSTP()));
         if (destStp.isPresent()) {
             return destStp.get();
         }
@@ -71,24 +85,24 @@ public class PfUtils {
     }
 
     public static DirectionalityType getDirectionality(P2PServiceBaseType p2ps) {
-        Optional<DirectionalityType> directionality = Optional.fromNullable(p2ps.getDirectionality());
-        return directionality.or(DirectionalityType.BIDIRECTIONAL);
+        Optional<DirectionalityType> directionality = Optional.ofNullable(p2ps.getDirectionality());
+        return directionality.orElse(DirectionalityType.BIDIRECTIONAL);
     }
 
     public static boolean getSymmetricPath(P2PServiceBaseType p2ps) {
-        Optional<Boolean> symmetricPath = Optional.fromNullable(p2ps.isSymmetricPath());
-        return symmetricPath.or(Boolean.TRUE);
+        Optional<Boolean> symmetricPath = Optional.ofNullable(p2ps.isSymmetricPath());
+        return symmetricPath.orElse(Boolean.TRUE);
     }
 
     public static Optional<StpListType> getEro(P2PServiceBaseType p2ps) {
-        Optional<StpListType> ero = Optional.fromNullable(p2ps.getEro());
+        Optional<StpListType> ero = Optional.ofNullable(p2ps.getEro());
         return ero;
     }
 
     public static P2PServiceBaseType getP2PServiceBaseTypeOrFail(AttrConstraints constraints) {
         // Generic reservation information are in string constraint attributes,
         // but the P2PS specific constraints are in the P2PS P2PServiceBaseType.
-        Optional<ObjectAttrConstraint> p2pObject = Optional.fromNullable(constraints.getObjectAttrConstraint(Point2PointTypes.P2PS));
+        Optional<ObjectAttrConstraint> p2pObject = Optional.ofNullable(constraints.getObjectAttrConstraint(Point2PointTypes.P2PS));
         if (p2pObject.isPresent()) {
             return p2pObject.get().getValue(P2PServiceBaseType.class);
         }
@@ -99,7 +113,7 @@ public class PfUtils {
     public static P2PServiceBaseType removeP2PServiceBaseTypeOrFail(AttrConstraints constraints) {
         // Generic reservation information are in string constraint attributes,
         // but the P2PS specific constraints are in the P2PS P2PServiceBaseType.
-        Optional<ObjectAttrConstraint> p2pObject = Optional.fromNullable(constraints.removeObjectAttrConstraint(Point2PointTypes.P2PS));
+        Optional<ObjectAttrConstraint> p2pObject = Optional.ofNullable(constraints.removeObjectAttrConstraint(Point2PointTypes.P2PS));
         if (p2pObject.isPresent()) {
             return p2pObject.get().getValue(P2PServiceBaseType.class);
         }
@@ -123,9 +137,9 @@ public class PfUtils {
 
 
     public static ServiceDomainType getServiceDomainOrFail(NsiTopology topology, StpType stp) {
-        Optional<ResourceRefType> serviceDomain = Optional.fromNullable(stp.getServiceDomain());
+        Optional<ResourceRefType> serviceDomain = Optional.ofNullable(stp.getServiceDomain());
         if (serviceDomain.isPresent()) {
-            Optional<ServiceDomainType> sd = Optional.fromNullable(topology.getServiceDomain(stp.getServiceDomain().getId()));
+            Optional<ServiceDomainType> sd = Optional.ofNullable(topology.getServiceDomain(stp.getServiceDomain().getId()));
             if (sd.isPresent()) {
                 return sd.get();
             }
@@ -145,9 +159,9 @@ public class PfUtils {
 
     private static Optional<String> getValue(StringAttrConstraint constraint) {
         if (constraint == null) {
-            return Optional.absent();
+            return Optional.empty();
         }
 
-        return Optional.fromNullable(Strings.emptyToNull(constraint.getValue()));
+        return Optional.ofNullable(Strings.emptyToNull(constraint.getValue()));
     }
 }

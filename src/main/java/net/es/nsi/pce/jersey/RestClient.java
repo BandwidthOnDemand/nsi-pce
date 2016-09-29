@@ -44,8 +44,9 @@ public class RestClient {
         // Configure the JerseyTest client for communciations with PCE.
         clientConfig.register(new MoxyXmlFeature());
         clientConfig.register(new MoxyJsonFeature());
-        clientConfig.register(new LoggingFilter(java.util.logging.Logger.getGlobal(), true));
         clientConfig.register(FollowRedirectFilter.class);
+        clientConfig.register(new LoggingFilter(java.util.logging.Logger.getGlobal(), true));
+        //clientConfig.register(new LoggingFeature(java.util.logging.Logger.getLogger(RestClient.class.getName()), LoggingFeature.Verbosity.PAYLOAD_ANY));
         clientConfig.property(MarshallerProperties.NAMESPACE_PREFIX_MAPPER, Utilities.getNameSpace());
         clientConfig.property(MarshallerProperties.JSON_ATTRIBUTE_PREFIX, "@");
         clientConfig.property(MarshallerProperties.JSON_NAMESPACE_SEPARATOR, '.');

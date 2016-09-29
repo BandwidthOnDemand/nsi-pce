@@ -41,7 +41,7 @@ public class ResolvePCE implements PCEModule {
 
         for (PathSegment segment : pceData.getPath().getPathSegments()) {
             // Find the NSA managing this segment.
-            String networkId = segment.getStpPair().getA().getNetworkId();
+            String networkId = segment.getNetworkId();
             NetworkType network = topology.getNetworkById(networkId);
 
             // Find a path to this NSA through the control plane.

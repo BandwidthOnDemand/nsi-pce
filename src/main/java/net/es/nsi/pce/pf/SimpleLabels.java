@@ -7,13 +7,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author hacksaw
  */
 public class SimpleLabels {
-
+    private static final Logger log = LoggerFactory.getLogger(SimpleStp.class);
     private static final Pattern equalsPattern = Pattern.compile(SimpleLabel.EQUALS);
     private static final Pattern commaPattern = Pattern.compile(SimpleLabel.COMMA);
     private static final Pattern hyphenPattern = Pattern.compile(SimpleLabel.HYPHEN);

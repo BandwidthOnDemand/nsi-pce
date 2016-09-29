@@ -7,7 +7,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import net.es.nsi.pce.gson.JsonProxy;
-import net.es.nsi.pce.test.TestConfig;
 import net.es.nsi.pce.jaxb.topology.CollectionType;
 import net.es.nsi.pce.jaxb.topology.NetworkType;
 import net.es.nsi.pce.jaxb.topology.NsaType;
@@ -18,6 +17,7 @@ import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
 import net.es.nsi.pce.jaxb.topology.ServiceType;
 import net.es.nsi.pce.jaxb.topology.StpDirectionalityType;
 import net.es.nsi.pce.jaxb.topology.StpType;
+import net.es.nsi.pce.test.TestConfig;
 import org.apache.http.client.utils.DateUtils;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -76,7 +76,7 @@ public class TopologyTest {
         // Verify the complete topology retrieval matches the individual ones.
 
         // Get a list of NSA.
-        System.out.println("\n\n\n\n\n\n\n\n\n****************************************************************");
+        System.out.println("****************************************************************");
         response = topology.path("nsas").request(MediaType.APPLICATION_JSON).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         List<NsaType> nsas = proxy.deserializeList(response, NsaType.class);

@@ -27,7 +27,6 @@ import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import net.es.nsi.pce.pf.api.Path;
 import net.es.nsi.pce.pf.api.PathSegment;
-import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
 import net.es.nsi.pce.jaxb.topology.DemarcationType;
@@ -104,8 +103,8 @@ public class ReachabilityPCE implements PCEModule {
             p2ps.setDirectionality(PfUtils.getDirectionality(orig));
             p2ps.setEro(orig.getEro());
             p2ps.setSymmetricPath(PfUtils.getSymmetricPath(orig));
-            p2ps.setSourceSTP(segment.getStpPair().getA().getId());
-            p2ps.setDestSTP(segment.getStpPair().getZ().getId());
+            p2ps.setSourceSTP(segment.getA());
+            p2ps.setDestSTP(segment.getZ());
 
             ObjectAttrConstraint p2psObject = new ObjectAttrConstraint();
             p2psObject.setAttrName(Point2PointTypes.P2PS);
@@ -166,7 +165,13 @@ public class ReachabilityPCE implements PCEModule {
 
         Optional<String> localProviderUrl = topology.getLocalProviderUrl();
         if (localProviderUrl.isPresent()) {
-            return Optional.of(new Path(new PathSegment(new StpPair(sourceStp.toStpType(), destStp.toStpType())).withNsa(topology.getLocalNsaId(), localProviderUrl.get())));
+            return Optional.of(new Path(
+                    new PathSegment.Builder()
+                        .withA(sourceStp.getId())
+                        .withZ(destStp.getId())
+                        .withNsaId(topology.getLocalNsaId())
+                        .withCsProviderURL(localProviderUrl.get())
+                        .build()));
         } else {
             logger.warn("Could not find local provider url (nsaId: {})", topology.getLocalNsaId());
             return Optional.absent();
@@ -197,15 +202,24 @@ public class ReachabilityPCE implements PCEModule {
         Stp remoteIntermediateStp = findOtherStpFromSdp(connectingSdp.get(), localIntermediateStp);
         logger.debug("found remote intermediate stp {}", remoteIntermediateStp.getId());
 
-        StpPair localStpPair = new StpPair(localStp.toStpType(), localIntermediateStp.toStpType());
-        StpPair remoteStpPair = new StpPair(remoteIntermediateStp.toStpType(), remoteStp.toStpType());
-
         Optional<String> localProviderUrl = topology.getLocalProviderUrl();
         Optional<String> remoteProviderUrl = topology.getProviderUrl(remoteNsaId);
 
         if (localProviderUrl.isPresent() && remoteProviderUrl.isPresent()) {
-            PathSegment localSegment = new PathSegment(localStpPair).withNsa(topology.getLocalNsaId(), localProviderUrl.get());
-            PathSegment forwardSegment = new PathSegment(remoteStpPair).withNsa(remoteNsaId, remoteProviderUrl.get());
+            PathSegment localSegment = new PathSegment.Builder()
+                    .withA(localStp.getId())
+                    .withZ(localIntermediateStp.getId())
+                    .withNetworkId(localStp.getNetworkId())
+                    .withNsaId(topology.getLocalNsaId())
+                    .withCsProviderURL(localProviderUrl.get())
+                    .build();
+            PathSegment forwardSegment = new PathSegment.Builder()
+                    .withA(remoteIntermediateStp.getId())
+                    .withZ(remoteStp.getId())
+                    .withNetworkId(remoteIntermediateStp.getNetworkId())
+                    .withNsaId(remoteNsaId)
+                    .withCsProviderURL(remoteProviderUrl.get())
+                    .build();
 
             return Optional.of(new Path(localSegment, forwardSegment));
         } else {
@@ -300,7 +314,13 @@ public class ReachabilityPCE implements PCEModule {
             return Optional.absent();
         }
 
-        PathSegment segment = new PathSegment(new StpPair(sourceStp.toStpType(), destStp.toStpType())).withNsa(forwardNsaId, providerUrl.get());
+        PathSegment segment = new PathSegment.Builder()
+                .withA(sourceStp.id)
+                .withZ(destStp.id)
+                .withNetworkId(sourceStp.getNetworkId())
+                .withNsaId(forwardNsaId)
+                .withCsProviderURL(providerUrl.get())
+                .build();
         return Optional.of(new Path(segment));
     }
 

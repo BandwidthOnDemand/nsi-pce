@@ -37,8 +37,10 @@
         <constructor-arg index="0" ref="topologyProvider"/>
     </bean>
 
-    <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE" scope="prototype" />
     <bean id="dijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="prototype" />
+    <bean id="underspecifiedPCE" class="net.es.nsi.pce.pf.UnderspecifiedPCE" scope="prototype" />
+
+    <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE" scope="prototype" />
     <bean id="authPCE" class="net.es.nsi.pce.pf.AuthPCE" scope="prototype" />
     <bean id="policyPCE" class="net.es.nsi.pce.pf.PolicyPCE" scope="prototype" />
     <bean id="resolvePCE" class="net.es.nsi.pce.pf.ResolvePCE" scope="prototype" />
@@ -62,9 +64,22 @@
         </property>
     </bean>
 
+    <bean id="sequentialPCE" class="net.es.nsi.pce.pf.SequentialPCE">
+        <property name="moduleList">
+            <list>
+                <ref bean="authPCE" />
+                <ref bean="policyPCE" />
+                <ref bean="dijkstraPCE" />
+                <ref bean="underspecifiedPCE" />
+                <ref bean="resolvePCE" />
+            </list>
+        </property>
+    </bean>
+
     <bean id="pathfinderCore" class="net.es.nsi.pce.pf.PathfinderCore" scope="prototype">
         <constructor-arg index="0" ref="topologyProvider"/>
         <constructor-arg index="1" ref="chainPCE"/>
         <constructor-arg index="2" ref="treePCE"/>
+        <constructor-arg index="3" ref="sequentialPCE"/>
     </bean>
 </beans>

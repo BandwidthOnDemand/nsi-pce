@@ -1,5 +1,6 @@
 package net.es.nsi.pce.topology.model;
 
+import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.GregorianCalendar;
@@ -26,7 +27,6 @@ import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
 import net.es.nsi.pce.jaxb.topology.ServiceType;
 import net.es.nsi.pce.jaxb.topology.StpType;
 import org.apache.http.client.utils.DateUtils;
-import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +54,9 @@ public class NsiServiceDomainFactory {
 
         // We map the SwitchingService Id to the Service Domain Id.
         nsiServiceDomain.setId(switchingService.getId());
+
+        // We maintain the labelSwapping attribute for informational purposes.
+        nsiServiceDomain.setLabelSwapping(switchingService.isLabelSwapping());
 
         // Use the SwitchingService name if provided otherwise the Id.
         String name = switchingService.getName();

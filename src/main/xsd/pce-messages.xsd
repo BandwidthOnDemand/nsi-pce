@@ -32,7 +32,7 @@
             </xsd:documentation>
         </xsd:annotation>
     </xsd:element>
-    
+
     <xsd:element name="findPathResponse" type="tns:FindPathResponseType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
@@ -46,35 +46,35 @@
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
                 Type definition for the path resolution request.
-                
+
                 Elements:
-                
+
                 correlationId - The correlation identifier for the request.
                 This will be referenced in the response.
-                
+
                 replyTo - The endpoint of the requesting client (aggregator).
                 When path computation is completed an HTTP POST is expected to
                 this url with the resulting path information.
-                
+
                 algorithm - The path finding algorithm to utilize when resolving
                 this request.
-                
+
                 startTime - Reservation start time. If not specified then
                 the reservation is to start immediately reservation.
-                
+
                 endTime - Reservation end time.  If endTime is not specified
                 then the schedule end is indefinite.
-                
-                serviceType - The specific service type of this reservation. 
+
+                serviceType - The specific service type of this reservation.
                 This service type string maps into the list of supported
                 service descriptions defined by the network providers, and in
-                turn, to the specific service elements carried in this request.  
-                
+                turn, to the specific service elements carried in this request.
+
                 constraints - Constraints placed on the path finder for this
                 path resolution request.
-                
+
                 trace - The reservation request trace through the control plane.
-                
+
                 any - Additional elements not defined in this name space such
                 as service specific element definitions.
             </xsd:documentation>
@@ -96,18 +96,18 @@
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
                 Type definition for the path resolution response.
-                
+
                 Elements:
-                
+
                 correlationId - The correlation identifier corresponding to the
                 original path resolution request.
-                
+
                 status - Indicated whether the path request was a success,
                 failure, or is in-progress.
-                
+
                 findPathError - An optional error indicating the reason for a
                 status of FAILED.
-                
+
                 path - The individual path segments resolved for the path
                 request.
             </xsd:documentation>
@@ -119,21 +119,21 @@
             <xsd:element ref="tns:findPathError" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
-    
+
     <xsd:complexType name="FindPathErrorType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
                 Returned when an error is discovered in the format of the
                 findPathRequest.
-                
+
                 Elements:
-                
+
                 code - The error code for the specific error.
-                
+
                 label - A character string label for the error.
-                
+
                 description - A detailed description of error.
-                
+
                 resource - The resource that caused the error.
             </xsd:documentation>
         </xsd:annotation>
@@ -144,18 +144,18 @@
             <xsd:element name="variable"    type="tns:VariableType" minOccurs="0" />
         </xsd:sequence>
     </xsd:complexType>
-    
+
     <xsd:complexType name="ReplyToType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
                 Type definition for the path resolution response.
-                
+
                 Elements:
-                
+
                 url - The HTTP endpoint of the client receiving the reply.
-                
+
                 mediaType - The media type that should be used for encoding
-                the response. 
+                the response.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
@@ -163,20 +163,20 @@
             <xsd:element name="mediaType" type="xsd:string" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
-    
+
     <xsd:complexType name="ResolvedPathType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
                 Type definition for information related to the resolved path segment.
-                
+
                 Elements:
-                
+
                 nsa - The target NSA managing the resolved path segment.
-                
+
                 csProviderURL - Connection services provider endpoint for the target NSA.
-                
+
                 serviceType - The type of service for this resolved path segment.
-                
+
                 any - The service specific schema for this resolved path segment.
             </xsd:documentation>
         </xsd:annotation>
@@ -198,6 +198,7 @@
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="TREE"/>
             <xsd:enumeration value="CHAIN"/>
+            <xsd:enumeration value="SEQUENTIAL"/>
         </xsd:restriction>
     </xsd:simpleType>
 
@@ -213,17 +214,17 @@
             <xsd:enumeration value="INPROGRESS"/>
         </xsd:restriction>
     </xsd:simpleType>
-    
+
     <xsd:complexType name="ConstraintListType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
                 Type definition for a list of incusion and exclusion contrains.
-                
+
                 Elements:
-                
+
                 include - A list of zero or more constraints that must be
                 included in the resulting path.
-                
+
                 exclude - A list of zero or more constraints that must be
                 excluded from the resulting path.
             </xsd:documentation>
@@ -233,19 +234,19 @@
             <xsd:element name="exclude" type="tns:ConstraintType" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>
-    
+
     <xsd:complexType name="ConstraintType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
                 Type definition for path constraints within the network.  This type
                 is left underspecified so that new values can be defined as additional
                 constraints are needed.
-                
+
                 Attributes:
-                
+
                 type - Identifies the type of constraint modeled by the supplied
                 value.
-                
+
                 value - The optional string value associated with the type.
             </xsd:documentation>
         </xsd:annotation>
@@ -255,16 +256,16 @@
             </xsd:extension>
         </xsd:simpleContent>
     </xsd:complexType>
-    
+
     <xsd:complexType name="TraceType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
                 Type definition for an ordered trace element.
-                
+
                 Attributes:
-                
+
                 index - Identifies the ordering of the list of items in the sequence.
-                
+
                 value - The trace value.
             </xsd:documentation>
         </xsd:annotation>
@@ -274,22 +275,22 @@
             </xsd:extension>
         </xsd:simpleContent>
     </xsd:complexType>
-    
+
     <xsd:complexType name="VariableType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">
                 Definition for a simple string type/value pair.  Includes a
                 namespace attribute is included to provide context where
                 needed.
-                
+
                 Elements:
                 value - A string value corresponding to type.
-                
+
                 Attributes:
                 type - A string representing the name of the type.
-                
+
                 namespace - An optional URL to qualify the name space of the
-                capability. 
+                capability.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:simpleContent>

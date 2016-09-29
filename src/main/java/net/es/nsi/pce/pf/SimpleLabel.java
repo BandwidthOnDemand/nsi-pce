@@ -17,6 +17,8 @@ public class SimpleLabel {
         LABELS.add(NSI_EVTS_LABEL_TYPE);
     };
 
+    public final static String HASH = "#";
+    public final static String QUESTION = "?";
     public final static String EQUALS = "=";
     public final static String HYPHEN = "-";
     public final static String COMMA = ",";

@@ -5,12 +5,12 @@
  */
 package net.es.nsi.pce.pf;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import net.es.nsi.pce.jaxb.dds.CollectionType;
 import net.es.nsi.pce.jaxb.dds.DocumentListType;
 import net.es.nsi.pce.jaxb.dds.DocumentType;

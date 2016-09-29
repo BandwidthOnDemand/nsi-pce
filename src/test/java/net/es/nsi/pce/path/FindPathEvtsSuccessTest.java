@@ -40,13 +40,13 @@ public class FindPathEvtsSuccessTest {
     private static TestConfig testConfig;
     private static WebTarget target;
 
-    private final static HttpConfig testServer = new HttpConfig() {
+    private final static HttpConfig TEST_SERVER = new HttpConfig() {
         { setUrl("http://localhost:8401/"); setPackageName("net.es.nsi.pce.client"); }
     };
 
-    private final static String callbackURL = testServer.getUrl() + "aggregator/path";
+    private final static String CALLBACK_URL = TEST_SERVER.getUrl() + "aggregator/path";
 
-    private final static ObjectFactory factory = new ObjectFactory();
+    private final static ObjectFactory FACTORY = new ObjectFactory();
 
         // urn:ogf:network:netherlight.net:2013:production7:starlight-1?vlan=1782, stpZ=urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1782
 
@@ -59,8 +59,8 @@ public class FindPathEvtsSuccessTest {
     private final static StpTestData test1 = new StpTestData() {
         {   this.setStpA("urn:ogf:network:kddilabs.jp:2013:topology:bi-ps?vlan=1782");
             this.setStpZ("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1782");
-            StpListType ero = factory.createStpListType();
-            OrderedStpType interdomain = factory.createOrderedStpType();
+            StpListType ero = FACTORY.createStpListType();
+            OrderedStpType interdomain = FACTORY.createOrderedStpType();
             interdomain.setOrder(0);
             interdomain.setStp("urn:ogf:network:icair.org:2013:topology:netherlight?vlan=1780-1790");
             ero.getOrderedSTP().add(interdomain);
@@ -107,6 +107,20 @@ public class FindPathEvtsSuccessTest {
         }
     };
 
+
+    // Two underspecified STP.
+    private final static StpTestData test7b = new StpTestData() {
+        { this.setStpA("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1780-1785");
+          this.setStpZ("urn:ogf:network:es.net:2013::sunn-cr5:10_1_6:+?vlan=1780-1785");
+            StpListType ero = FACTORY.createStpListType();
+            OrderedStpType intermediate = FACTORY.createOrderedStpType();
+            intermediate.setOrder(0);
+            intermediate.setStp("urn:ogf:network:netherlight.net:2013:production7:esnet-1?vlan=1005-1010");
+            ero.getOrderedSTP().add(intermediate);
+            this.setEro(ero);
+        }
+    };
+
     // One underspecified STP.
     private final static StpTestData test8 = new StpTestData() {
         { this.setStpA("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1780");
@@ -125,8 +139,8 @@ public class FindPathEvtsSuccessTest {
     private final static StpTestData test10 = new StpTestData() {
         {   this.setStpA("urn:ogf:network:netherlight.net:2013:production7:surfnet-1?vlan=1700");
             this.setStpZ("urn:ogf:network:netherlight.net:2013:production7:geant-1?vlan=2102");
-            StpListType ero = factory.createStpListType();
-            OrderedStpType internal1 = factory.createOrderedStpType();
+            StpListType ero = FACTORY.createStpListType();
+            OrderedStpType internal1 = FACTORY.createOrderedStpType();
             internal1.setOrder(0);
             internal1.setStp("urn:ogf:network:netherlight.net:2013:production7:internal1");
             ero.getOrderedSTP().add(internal1);
@@ -138,12 +152,12 @@ public class FindPathEvtsSuccessTest {
     private final static StpTestData test11 = new StpTestData() {
         {   this.setStpA("urn:ogf:network:netherlight.net:2013:production7:surfnet-1?vlan=1700");
             this.setStpZ("urn:ogf:network:netherlight.net:2013:production7:geant-1?vlan=2102");
-            StpListType ero = factory.createStpListType();
-            OrderedStpType internal1 = factory.createOrderedStpType();
+            StpListType ero = FACTORY.createStpListType();
+            OrderedStpType internal1 = FACTORY.createOrderedStpType();
             internal1.setOrder(0);
             internal1.setStp("urn:ogf:network:netherlight.net:2013:production7:internal1");
             ero.getOrderedSTP().add(internal1);
-            OrderedStpType internal2 = factory.createOrderedStpType();
+            OrderedStpType internal2 = FACTORY.createOrderedStpType();
             internal2.setOrder(1);
             internal2.setStp("urn:ogf:network:netherlight.net:2013:production7:internal2");
             ero.getOrderedSTP().add(internal2);
@@ -155,24 +169,24 @@ public class FindPathEvtsSuccessTest {
     private final static StpTestData test12 = new StpTestData() {
         {   this.setStpA("urn:ogf:network:kddilabs.jp:2013:topology:bi-ps?vlan=1782");
             this.setStpZ("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1782");
-            StpListType ero = factory.createStpListType();
+            StpListType ero = FACTORY.createStpListType();
 
-            OrderedStpType internal1 = factory.createOrderedStpType();
+            OrderedStpType internal1 = FACTORY.createOrderedStpType();
             internal1.setOrder(1);
             internal1.setStp("urn:ogf:network:kddilabs.jp:2013:topology:internal1");
             ero.getOrderedSTP().add(internal1);
 
-            OrderedStpType internal2 = factory.createOrderedStpType();
+            OrderedStpType internal2 = FACTORY.createOrderedStpType();
             internal2.setOrder(2);
             internal2.setStp("urn:ogf:network:kddilabs.jp:2013:topology:internal2");
             ero.getOrderedSTP().add(internal2);
 
-            OrderedStpType edge = factory.createOrderedStpType();
+            OrderedStpType edge = FACTORY.createOrderedStpType();
             edge.setOrder(3);
             edge.setStp("urn:ogf:network:kddilabs.jp:2013:topology:bi-kddilabs-jgn-x?vlan=1782");
             ero.getOrderedSTP().add(edge);
 
-            OrderedStpType interdomain = factory.createOrderedStpType();
+            OrderedStpType interdomain = FACTORY.createOrderedStpType();
             interdomain.setOrder(3);
             interdomain.setStp("urn:ogf:network:icair.org:2013:topology:netherlight?vlan=1780-1790");
             ero.getOrderedSTP().add(interdomain);
@@ -184,40 +198,40 @@ public class FindPathEvtsSuccessTest {
     private final static StpTestData test13 = new StpTestData() {
         {   this.setStpA("urn:ogf:network:kddilabs.jp:2013:topology:bi-ps?vlan=1782");
             this.setStpZ("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1782");
-            StpListType ero = factory.createStpListType();
+            StpListType ero = FACTORY.createStpListType();
 
-            OrderedStpType internal1 = factory.createOrderedStpType();
+            OrderedStpType internal1 = FACTORY.createOrderedStpType();
             internal1.setOrder(0);
             internal1.setStp("urn:ogf:network:kddilabs.jp:2013:topology:internalA");
             ero.getOrderedSTP().add(internal1);
 
-            OrderedStpType internal2 = factory.createOrderedStpType();
+            OrderedStpType internal2 = FACTORY.createOrderedStpType();
             internal2.setOrder(1);
             internal2.setStp("urn:ogf:network:kddilabs.jp:2013:topology:internalB");
             ero.getOrderedSTP().add(internal2);
 
-            OrderedStpType edge1 = factory.createOrderedStpType();
+            OrderedStpType edge1 = FACTORY.createOrderedStpType();
             edge1.setOrder(2);
             edge1.setStp("urn:ogf:network:kddilabs.jp:2013:topology:bi-kddilabs-jgn-x?vlan=1782");
             ero.getOrderedSTP().add(edge1);
 
-            OrderedStpType interdomain = factory.createOrderedStpType();
+            OrderedStpType interdomain = FACTORY.createOrderedStpType();
             interdomain.setOrder(3);
             interdomain.setStp("urn:ogf:network:icair.org:2013:topology:netherlight?vlan=1780-1790");
             ero.getOrderedSTP().add(interdomain);
 
             // We should allow this to be urn:ogf:network:uvalight.net:2013:topology:netherlight?vlan=1782.
-            OrderedStpType edge2 = factory.createOrderedStpType();
+            OrderedStpType edge2 = FACTORY.createOrderedStpType();
             edge2.setOrder(4);
             edge2.setStp("urn:ogf:network:netherlight.net:2013:production7:uva-3?vlan=1782");
             ero.getOrderedSTP().add(edge2);
 
-            OrderedStpType internal3 = factory.createOrderedStpType();
+            OrderedStpType internal3 = FACTORY.createOrderedStpType();
             internal3.setOrder(5);
             internal3.setStp("urn:ogf:network:uvalight.net:2013:topology:internalA");
             ero.getOrderedSTP().add(internal3);
 
-            OrderedStpType internal4 = factory.createOrderedStpType();
+            OrderedStpType internal4 = FACTORY.createOrderedStpType();
             internal4.setOrder(6);
             internal4.setStp("urn:ogf:network:uvalight.net:2013:topology:internalB");
             ero.getOrderedSTP().add(internal4);
@@ -229,15 +243,15 @@ public class FindPathEvtsSuccessTest {
     private final static StpTestData test14 = new StpTestData() {
         {   this.setStpA("urn:ogf:network:kddilabs.jp:2013:topology:bi-ps?vlan=1782");
             this.setStpZ("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1782");
-            StpListType ero = factory.createStpListType();
+            StpListType ero = FACTORY.createStpListType();
 
-            OrderedStpType internal1 = factory.createOrderedStpType();
+            OrderedStpType internal1 = FACTORY.createOrderedStpType();
             internal1.setOrder(0);
             internal1.setStp("urn:ogf:network:netherlight.net:2013:production7:internalA");
             ero.getOrderedSTP().add(internal1);
 
             // We should allow this to be urn:ogf:network:uvalight.net:2013:topology:netherlight?vlan=1782.
-            OrderedStpType internal2 = factory.createOrderedStpType();
+            OrderedStpType internal2 = FACTORY.createOrderedStpType();
             internal2.setOrder(1);
             internal2.setStp("urn:ogf:network:netherlight.net:2013:production7:internalB");
             ero.getOrderedSTP().add(internal2);
@@ -249,8 +263,8 @@ public class FindPathEvtsSuccessTest {
         {   this.setStpA("urn:ogf:network:kddilabs.jp:2013:topology:bi-ps?vlan=1780-1790");
             this.setStpZ("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1780-1790");
 
-            StpListType ero = factory.createStpListType();
-            OrderedStpType intermediate = factory.createOrderedStpType();
+            StpListType ero = FACTORY.createStpListType();
+            OrderedStpType intermediate = FACTORY.createOrderedStpType();
             intermediate.setOrder(0);
             intermediate.setStp("urn:ogf:network:icair.org:2013:topology:netherlight?vlan=1780-1790");
             ero.getOrderedSTP().add(intermediate);
@@ -262,8 +276,8 @@ public class FindPathEvtsSuccessTest {
         {   this.setStpA("urn:ogf:network:kddilabs.jp:2013:topology:bi-ps?vlan=1780-1790");
             this.setStpZ("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1780-1790");
 
-            StpListType ero = factory.createStpListType();
-            OrderedStpType intermediate = factory.createOrderedStpType();
+            StpListType ero = FACTORY.createStpListType();
+            OrderedStpType intermediate = FACTORY.createOrderedStpType();
             intermediate.setOrder(0);
             intermediate.setStp("urn:ogf:network:icair.org:2013:topology");
             ero.getOrderedSTP().add(intermediate);
@@ -282,6 +296,7 @@ public class FindPathEvtsSuccessTest {
             this.add(test5);
             this.add(test6);
             this.add(test7);
+            this.add(test7b);
             this.add(test8);
             this.add(test9);
             this.add(test10);
@@ -299,7 +314,7 @@ public class FindPathEvtsSuccessTest {
         System.out.println("*************************************** FindPathEvtsSuccessTest oneTimeSetUp ***********************************");
         // Configure the local test client callback server.
         try {
-            TestServer.INSTANCE.start(testServer);
+            TestServer.INSTANCE.start(TEST_SERVER);
         }
         catch (Exception ex) {
             System.err.println("oneTimeSetUp: failed to start HTTP server " + ex.getLocalizedMessage());
@@ -329,32 +344,39 @@ public class FindPathEvtsSuccessTest {
     @Test
     public void testXmlFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testSuccessfulPath(MediaType.APPLICATION_XML, test);
+            testSuccessfulPath(MediaType.APPLICATION_XML, test, FindPathAlgorithmType.TREE);
         }
     }
 
     @Test
     public void testJsonFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testSuccessfulPath(MediaType.APPLICATION_JSON, test);
+            testSuccessfulPath(MediaType.APPLICATION_JSON, test, FindPathAlgorithmType.TREE);
         }
     }
 
     @Test
     public void testVersionedXmlFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testSuccessfulPath("application/vnd.net.es.pce.v1+xml", test);
+            testSuccessfulPath("application/vnd.net.es.pce.v1+xml", test, FindPathAlgorithmType.TREE);
         }
     }
 
     @Test
     public void testVersionedJsonFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testSuccessfulPath("application/vnd.net.es.pce.v1+json", test);
+            testSuccessfulPath("application/vnd.net.es.pce.v1+json", test, FindPathAlgorithmType.TREE);
         }
     }
 
-    public void testSuccessfulPath(String mediaType, StpTestData test) throws Exception {
+    @Test
+    public void testXmlFindPathWithSequential() throws Exception {
+        for (StpTestData test : testData) {
+            testSuccessfulPath(MediaType.APPLICATION_XML, test, FindPathAlgorithmType.SEQUENTIAL);
+        }
+    }
+
+    public void testSuccessfulPath(String mediaType, StpTestData test, FindPathAlgorithmType algorithm) throws Exception {
         System.out.println("*************************************** testSuccessfulPath(" + mediaType + ") ***********************************");
         System.out.println("Endpoints: " + test.getStpA() + ", " + test.getStpZ());
 
@@ -365,10 +387,10 @@ public class FindPathEvtsSuccessTest {
         req.setCorrelationId(UUID.randomUUID().toString());
 
         ReplyToType reply = new ReplyToType();
-        reply.setUrl(callbackURL);
+        reply.setUrl(CALLBACK_URL);
         reply.setMediaType(mediaType);
         req.setReplyTo(reply);
-        req.setAlgorithm(FindPathAlgorithmType.TREE);
+        req.setAlgorithm(algorithm);
 
         // Reservation start time is 2 minutes from now.
         GregorianCalendar startTime = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
@@ -393,7 +415,7 @@ public class FindPathEvtsSuccessTest {
         req.getTrace().addAll(trace);
 
         // We want an P2PS service element for this test.
-        P2PServiceBaseType p2ps = factory.createP2PServiceBaseType();
+        P2PServiceBaseType p2ps = FACTORY.createP2PServiceBaseType();
         p2ps.setCapacity(100L);
         p2ps.setDirectionality(DirectionalityType.BIDIRECTIONAL);
         p2ps.setSymmetricPath(Boolean.TRUE);
@@ -407,14 +429,14 @@ public class FindPathEvtsSuccessTest {
         // Add the ero.
         p2ps.setEro(test.getEro());
 
-        TypeValueType tvt = factory.createTypeValueType();
+        TypeValueType tvt = FACTORY.createTypeValueType();
         tvt.setType("Poopies");
         tvt.setValue("Doodies");
         p2ps.getParameter().add(tvt);
 
-        req.getAny().add(factory.createP2Ps(p2ps));
+        req.getAny().add(FACTORY.createP2Ps(p2ps));
 
-        JAXBElement<FindPathRequestType> jaxbRequest = factory.createFindPathRequest(req);
+        JAXBElement<FindPathRequestType> jaxbRequest = FACTORY.createFindPathRequest(req);
 
         // Reset our results for this run.
         TestServer.INSTANCE.setFindPathResponse(null);
@@ -437,7 +459,7 @@ public class FindPathEvtsSuccessTest {
     }
 
     private TraceType traceType(int index, String value) {
-        TraceType trace = factory.createTraceType();
+        TraceType trace = FACTORY.createTraceType();
         trace.setIndex(index);
         trace.setValue(value);
         return trace;

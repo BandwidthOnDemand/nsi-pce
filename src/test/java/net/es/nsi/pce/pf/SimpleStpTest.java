@@ -154,6 +154,15 @@ public class SimpleStpTest {
     }
 
     @Test
+    public void testLabelIntersection() {
+        SimpleStp stpA = new SimpleStp("urn:ogf:network:cipo.rnp.br:2013:testbed:PMW:ge-2_3_4:+:out?vlan=1800,1803,1805");
+        SimpleStp stpZ = new SimpleStp("urn:ogf:network:cipo.rnp.br:2013:testbed:PMW:ge-2_3_4:+:out?vlan=1800-1805");
+        boolean result = stpZ.intersectLabels(stpA.getLabels());
+        assertTrue(result);
+        assertEquals(stpA, stpZ);
+    }
+
+    @Test
     public void testStaticCreation() {
         SimpleStp stp1 = new SimpleStp("urn:ogf:network:cipo.rnp.br:2013:testbed:PMW:ge-2_3_4:+:out?vlan=1800-1803,1806-1807");
         Set<SimpleLabel> label = new HashSet<>();

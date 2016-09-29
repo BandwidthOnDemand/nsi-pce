@@ -7,11 +7,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.jaxb.path.DirectionalityType;
 import net.es.nsi.pce.jaxb.topology.SdpType;
 import net.es.nsi.pce.jaxb.topology.StpDirectionalityType;
 import net.es.nsi.pce.jaxb.topology.StpType;
+import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.topology.model.NsiTopology;
 
 /**
@@ -32,6 +32,11 @@ public class StpTypeBundle {
                 bundle.put(stpId, stpType.get());
             }
         }
+    }
+
+    public StpTypeBundle(SimpleStp stp, Map<String, StpType> stpBundle) {
+        this.stp = stp;
+        bundle.putAll(stpBundle);
     }
 
     public StpTypeBundle() {

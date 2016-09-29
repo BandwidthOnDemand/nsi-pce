@@ -11,6 +11,10 @@ public class Path {
         this.pathSegments.addAll(Arrays.asList(pathSegments));
     }
 
+    public Path(List<PathSegment> pathSegments) {
+        this.pathSegments.addAll(pathSegments);
+    }
+
     public List<PathSegment> getPathSegments() {
         return pathSegments;
     }

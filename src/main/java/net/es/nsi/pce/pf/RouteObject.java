@@ -1,21 +1,35 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * NSI Path Computation Element (NSI-PCE) Copyright (c) 2013 - 2016,
+ * The Regents of the University of California, through Lawrence
+ * Berkeley National Laboratory (subject to receipt of any required
+ * approvals from the U.S. Dept. of Energy).  All rights reserved.
+ *
+ * If you have questions about your rights to use or distribute this
+ * software, please contact Berkeley Lab's Innovation & Partnerships
+ * Office at IPO@lbl.gov.
+ *
+ * NOTICE.  This Software was developed under funding from the
+ * U.S. Department of Energy and the U.S. Government consequently retains
+ * certain rights. As such, the U.S. Government has been granted for
+ * itself and others acting on its behalf a paid-up, nonexclusive,
+ * irrevocable, worldwide license in the Software to reproduce,
+ * distribute copies to the public, prepare derivative works, and perform
+ * publicly and display publicly, and to permit other to do so.
+ *
  */
 package net.es.nsi.pce.pf;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import net.es.nsi.pce.path.api.Exceptions;
+import java.util.Optional;
 import net.es.nsi.pce.jaxb.path.DirectionalityType;
 import net.es.nsi.pce.jaxb.path.OrderedStpType;
 import net.es.nsi.pce.jaxb.path.StpListType;
 import net.es.nsi.pce.jaxb.topology.SdpType;
 import net.es.nsi.pce.jaxb.topology.StpType;
+import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +43,21 @@ public class RouteObject {
     private final net.es.nsi.pce.jaxb.path.ObjectFactory factory = new net.es.nsi.pce.jaxb.path.ObjectFactory();
     List<Route> routes = new ArrayList<>();
 
-    public RouteObject(NsiTopology topology, SimpleStp srcStpId,
-            SimpleStp dstStpId, DirectionalityType directionality,
+    /**
+     * Segment the path request into individual path segments that will need
+     * to be satisfied based on supplied ERO information.
+     *
+     * @param topology The NSI network topology used to create route object.
+     * @param srcStpId The source STP identifier for the route.
+     * @param dstStpId The destination STP identifier for the route.
+     * @param directionality The directionality of the route (uni or bi).
+     * @param ero The intermediate points that must be in the resulting path.
+     */
+    public RouteObject(
+            NsiTopology topology,
+            SimpleStp srcStpId,
+            SimpleStp dstStpId,
+            DirectionalityType directionality,
             Optional<StpListType> ero) {
 
         Route route = new Route();

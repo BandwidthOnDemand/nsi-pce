@@ -66,19 +66,19 @@ public class PolicyPCE implements PCEModule {
         String srcStpId = PfUtils.getSourceStpOrFail(p2p);
         String dstStpId = PfUtils.getDestinationStpOrFail(p2p);
 
-        SimpleStp srcStp = new SimpleStp(PfUtils.getSourceStpOrFail(p2p));
-        SimpleStp dstStp = new SimpleStp(PfUtils.getDestinationStpOrFail(p2p));
+        SimpleStp srcStp = new SimpleStp(srcStpId);
+        SimpleStp dstStp = new SimpleStp(dstStpId);
 
         // Make sure these STP are from known networks.
         Optional<NetworkType> srcNetwork = Optional.ofNullable(nsiTopology.getNetworkById(srcStp.getNetworkId()));
         if (!srcNetwork.isPresent()) {
-            log.error("stpPolicy: source STP has unknown networkId: " + srcStp.getId());
+            log.error("stpPolicy: source STP has unknown networkId: " + srcStp.getNetworkId());
             throw Exceptions.stpUnknownNetwork(srcStpId);
         }
 
         Optional<NetworkType> dstNetwork = Optional.ofNullable(nsiTopology.getNetworkById(dstStp.getNetworkId()));
         if (!dstNetwork.isPresent()) {
-            log.error("stpPolicy: destination STP has unknown networkId: " + dstStp.getId());
+            log.error("stpPolicy: destination STP has unknown networkId: " + dstStp.getNetworkId());
             throw Exceptions.stpUnknownNetwork(dstStpId);
         }
 

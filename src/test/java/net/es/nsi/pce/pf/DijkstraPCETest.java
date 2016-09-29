@@ -29,27 +29,27 @@ import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.util.Log4jHelper;
 import org.apache.log4j.xml.DOMConfigurator;
-import static org.hamcrest.CoreMatchers.is;
 import org.junit.After;
 import org.junit.AfterClass;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class DijkstraPCETest {
     private static Logger log;
     private static final ObjectFactory factory = new ObjectFactory();
-    private NsiTopology mockedTopology;
+    private NsiTopology nsiTopology;
     private List<GraphEdge> path;
 
     @BeforeClass
@@ -65,7 +65,7 @@ public class DijkstraPCETest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        buildMockedTopology();
+        nsiTopology = getMockedTopology();
     }
 
     @After
@@ -73,18 +73,21 @@ public class DijkstraPCETest {
     }
 
     @Test
-    public void testPullIndividualSegmentsOut() {
-        log.debug("testPullIndividualSegmentsOut");
+    public void testgetIndividualSegments() {
+        log.debug("getIndividualSegments: start");
+
         // given
         DijkstraPCE subject = new DijkstraPCE();
 
-        // when
-        List<StpPair> segments = subject.pullIndividualSegmentsOut(path, mockedTopology);
+        // when   
+        List<StpPair> segments = subject.getIndividualSegments(nsiTopology, path);
 
         // then
         assertThat(segments.size(), is(3));
         assertThat(segments.get(0).getA().getId(), is("urn:ogf:network:surfnet.nl:1990:src-testbed:start"));
         assertThat(segments.get(2).getZ().getId(), is("urn:ogf:network:surfnet.nl:1990:dst-testbed:end"));
+        
+        log.debug("getIndividualSegments: done");
     }
 
     /**
@@ -117,7 +120,7 @@ public class DijkstraPCETest {
 
         PCEData pceData = new PCEData();
         pceData.addConstraints(constraints);
-        pceData.setTopology(mockedTopology);
+        pceData.setTopology(nsiTopology);
 
         DijkstraPCE subect = new DijkstraPCE();
         PCEData result = subect.apply(pceData);
@@ -159,14 +162,14 @@ public class DijkstraPCETest {
 
         PCEData pceData = new PCEData();
         pceData.addConstraints(constraints);
-        pceData.setTopology(mockedTopology);
+        pceData.setTopology(nsiTopology);
 
         DijkstraPCE subect = new DijkstraPCE();
         subect.apply(pceData);
     }
 
-    private void buildMockedTopology() {
-        mockedTopology = mock(NsiTopology.class);
+    private NsiTopology getMockedTopology() {
+        NsiTopology mockedTopology = mock(NsiTopology.class);
 
         // Create service domains for all three domains.
         ServiceDomainType srcServiceDomain = factory.createServiceDomainType();
@@ -281,7 +284,7 @@ public class DijkstraPCETest {
         // mock for method for getServiceDomains
         when(mockedTopology.getSdps()).thenReturn(sdps.values());
 
-
+        return mockedTopology;
     }
 
     private StpType createStp(String id, String networkId, String localId) {

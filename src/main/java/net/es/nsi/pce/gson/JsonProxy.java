@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JsonProxy {
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private Gson serializer;
+    private final Gson serializer;
 
     public JsonProxy() {
         GsonBuilder gson = new GsonBuilder();
@@ -54,12 +54,12 @@ public class JsonProxy {
     public <T extends Object> T deserialize(Response response, Class<T> classOfT) {
         final ChunkedInput<String> chunkedInput = response.readEntity(new GenericType<ChunkedInput<String>>() {});
         String chunk;
-        String finalChunk = null;
+        StringBuilder buffer = new StringBuilder();
         while ((chunk = chunkedInput.read()) != null) {
-            finalChunk = chunk;
+            buffer.append(chunk);
         }
         response.close();
-        return serializer.fromJson(finalChunk, classOfT);
+        return serializer.fromJson(buffer.toString(), classOfT);
     }
 
     public <T extends Object> String serializeList(Object obj, Class<T> classOfT) {
@@ -75,17 +75,17 @@ public class JsonProxy {
     public <T extends Object> List<T> deserializeList(Response response, Class<T> classOfT) {
         final ChunkedInput<String> chunkedInput = response.readEntity(new GenericType<ChunkedInput<String>>() {});
         String chunk;
-        String finalChunk = null;
+        StringBuilder buffer = new StringBuilder();
         while ((chunk = chunkedInput.read()) != null) {
-            finalChunk = chunk;
+            buffer.append(chunk);
         }
         response.close();
-        return deserializeList(finalChunk, classOfT);
+        return deserializeList(buffer.toString(), classOfT);
     }
 
     private static class ListParameterizedType implements ParameterizedType {
 
-        private Type type;
+        private final Type type;
 
         private ListParameterizedType(Type type) {
             this.type = type;

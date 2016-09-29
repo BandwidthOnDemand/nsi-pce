@@ -407,8 +407,8 @@ public class ReachabilityPCETest {
     }
 
     private void assertPathSegment(PathSegment segment, String stpIdA, String stpIdZ, String nsaId) {
-        assertEquals(stpIdA, segment.getStpPair().getA().getId());
-        assertEquals(stpIdZ, segment.getStpPair().getZ().getId());
+        assertEquals(stpIdA, segment.getA());
+        assertEquals(stpIdZ, segment.getZ());
         assertEquals(nsaId, segment.getNsaId());
     }
 

@@ -137,6 +137,7 @@
                     <xsd:element name="bidirectionalStp" type="tns:ResourceRefType" minOccurs="0" maxOccurs="unbounded" />
                     <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
                 </xsd:sequence>
+                <xsd:attribute name="labelSwapping" type="xsd:boolean" use="required"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>

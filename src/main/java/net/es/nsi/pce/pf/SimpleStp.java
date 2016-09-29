@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.ws.rs.WebApplicationException;
+import net.es.nsi.pce.jaxb.topology.NmlLabelType;
 import net.es.nsi.pce.path.api.Exceptions;
+import net.es.nsi.pce.topology.model.NmlPort;
+import net.es.nsi.pce.topology.model.NsiStpFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +19,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author hacksaw
  */
-public class SimpleStp {
+public final class SimpleStp {
     private static final Logger log = LoggerFactory.getLogger(SimpleStp.class);
 
     public static final String NSI_URN_SEPARATOR = ":";
@@ -67,6 +70,18 @@ public class SimpleStp {
         }
     }
 
+    public SimpleStp(NmlPort nmlPort) throws WebApplicationException {
+        parseId(nmlPort.getId());
+
+        // Generate the STP identifiers associated with each port and label.
+        if (nmlPort.getLabels() != null) {
+            for (NmlLabelType label : nmlPort.getLabels()) {
+                String stpId = NsiStpFactory.createStpId(nmlPort.getId(), label);
+                this.addStpId(stpId);
+            }
+        }
+    }
+
     public void addStpId(String stpId) {
         if (Strings.isNullOrEmpty(stpId)) {
             return;
@@ -92,7 +107,6 @@ public class SimpleStp {
     }
 
     public boolean isUnderSpecified() {
-        System.out.println(labels.size());
         return labels.size() != 1;
     }
 
@@ -114,7 +128,6 @@ public class SimpleStp {
         String[] components = colonPattern.split(id);
 
         if (components.length <= NSI_NETWORK_LENGTH) {
-            //log.error("SimpleStp: STP missing local identifier component, stpId=" + id);
             throw Exceptions.stpMissingLocalId(id);
         }
 
@@ -195,6 +208,12 @@ public class SimpleStp {
         return sb.toString();
     }
 
+    /**
+     * Return the STP identifier component consisting of the networkId and
+     * localId portion.
+     *
+     * @return
+     */
     public String getId() {
         StringBuilder sb = new StringBuilder(networkId);
         sb.append(NSI_URN_SEPARATOR);
@@ -202,6 +221,13 @@ public class SimpleStp {
         return sb.toString();
     }
 
+    /**
+     * Parse the provide STP identifier and return the STP identifier component
+     * consisting of the networkId and localId portion.
+     *
+     * @param stpId
+     * @return
+     */
     public static String getId(String stpId) {
         String[] components = questionPattern.split(stpId);
         return components[0];
@@ -213,12 +239,14 @@ public class SimpleStp {
             result.add(getId());
         }
         else {
-            for (SimpleLabel label : labels) {
+            labels.stream().map((label) -> {
                 StringBuilder sb = new StringBuilder(getId());
                 sb.append(NSI_LABEL_SEPARATOR);
                 sb.append(label.toString());
+                return sb;
+            }).forEach((sb) -> {
                 result.add(sb.toString());
-            }
+            });
         }
         return result;
     }
@@ -235,11 +263,25 @@ public class SimpleStp {
      */
     public void setLabels(Set<SimpleLabel> labels) {
         this.labels.clear();
-        this.getLabels().addAll(labels);
+        this.labels.addAll(labels);
     }
 
-    public void addLabels(SimpleLabel label) {
+    /**
+     * Perform an intersection of the labels within this STP with the Set of provided labels.
+     *
+     * @param labels
+     * @return true if the label set changed as a result of the intersection.
+     */
+    public boolean intersectLabels(Set<SimpleLabel> labels) {
+        return this.labels.retainAll(labels);
+    }
+
+    public void addLabel(SimpleLabel label) {
         this.labels.add(label);
+    }
+
+    public void addLabels(Set<SimpleLabel> labels) {
+        this.labels.addAll(labels);
     }
 
     public static SimpleStp getSimpleStp(String stpId) {

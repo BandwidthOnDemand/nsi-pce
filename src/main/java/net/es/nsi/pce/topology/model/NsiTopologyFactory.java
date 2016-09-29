@@ -39,6 +39,7 @@ import net.es.nsi.pce.jaxb.topology.ServiceType;
 import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
+import net.es.nsi.pce.pf.SimpleStp;
 import net.es.nsi.pce.schema.NmlParser;
 import net.es.nsi.pce.schema.NsaParser;
 import net.es.nsi.pce.schema.XmlUtilities;
@@ -201,65 +202,72 @@ public class NsiTopologyFactory {
                     nsiNetwork.getService().add(service.getSelf());
                 });
 
-                // Unidirectional ports are modelled using Relations.
-                log.debug("createNsiTopology: Get unidirectional ports for " + networkId);
-                Map<String, NmlPort> uniPortMap = getNmlPortsFromRelations(nmlTopology, nsiNsa);
+                // If we fail to parse ports we can just drop the topology and proceed to next.
+                try {
+                    // Unidirectional ports are modelled using Relations.
+                    log.debug("createNsiTopology: Get unidirectional ports for " + networkId);
+                    Map<String, NmlPort> uniPortMap = getNmlPortsFromRelations(nmlTopology, nsiNsa);
 
-                // Bidirectional ports are stored in separate group element and
-                // reference individual undirectional Ports or PortGroups.
-                Map<String, NmlPort> biPortMap = getNmlPortsFromBidirectionalPorts(nmlTopology, uniPortMap, nsiNsa);
+                    // Bidirectional ports are stored in separate group element and
+                    // reference individual undirectional Ports or PortGroups.
+                    Map<String, NmlPort> biPortMap = getNmlPortsFromBidirectionalPorts(nmlTopology, uniPortMap, nsiNsa);
 
-                Map<String, NmlPort> portMap = new HashMap<>();
-                portMap.putAll(uniPortMap);
-                portMap.putAll(biPortMap);
+                    Map<String, NmlPort> portMap = new HashMap<>();
+                    portMap.putAll(uniPortMap);
+                    portMap.putAll(biPortMap);
 
-                // Now we convert the unidirectional NML Ports to STP.
-                log.debug("createNsiTopology: Converting unidirectional ports to STPs for " + networkId);
-                Map<String, StpType> uniStp = new ConcurrentHashMap<>();
-                uniPortMap.values().stream().forEach((port) -> {
-                    Map<String, StpType> uniStps = NsiStpFactory.createUniStps(port, nsiNetwork);
-                    uniStp.putAll(uniStps);
-                    newNsiTopology.addStpBundle(port.getId(), uniStps);
-                });
+                    // Now we convert the unidirectional NML Ports to STP.
+                    log.debug("createNsiTopology: Converting unidirectional ports to STPs for " + networkId);
+                    Map<String, StpType> uniStp = new ConcurrentHashMap<>();
+                    uniPortMap.values().stream().forEach((port) -> {
+                        Map<String, StpType> uniStps = NsiStpFactory.createUniStps(port, nsiNetwork);
+                        uniStp.putAll(uniStps);
+                        SimpleStp simpleStp = new SimpleStp(port);
+                        newNsiTopology.addStpTypeBundle(simpleStp, uniStps);
+                    });
 
-                // Add the port references to the Network resource.
-                log.debug("createNsiTopology: Add unidirectional STP references to network resource " + networkId);
-                uniStp.values().stream().forEach((stp) -> {
-                    nsiNetwork.getStp().add(stp.getSelf());
-                });
+                    // Add the port references to the Network resource.
+                    log.debug("createNsiTopology: Add unidirectional STP references to network resource " + networkId);
+                    uniStp.values().stream().forEach((stp) -> {
+                        nsiNetwork.getStp().add(stp.getSelf());
+                    });
 
-                log.debug("createNsiTopology: adding " + uniStp.size() + " unidirectional STP.");
-                newNsiTopology.putAllStp(uniStp);
+                    log.debug("createNsiTopology: adding " + uniStp.size() + " unidirectional STP.");
+                    newNsiTopology.putAllStp(uniStp);
 
-                // Now we convert the bidirectional NML Ports to STP.
-                log.debug("createNsiTopology: Convert bidirectional ports to STP for " + networkId);
-                Map<String, StpType> biStp = new ConcurrentHashMap<>();
-                biPortMap.values().stream().forEach((port) -> {
-                    Map<String, StpType> biStps = NsiStpFactory.createBiStps(port, nsiNetwork, uniStp);
-                    biStp.putAll(biStps);
-                    newNsiTopology.addStpBundle(port.getId(), biStps);
-                });
+                    // Now we convert the bidirectional NML Ports to STP.
+                    log.debug("createNsiTopology: Convert bidirectional ports to STP for " + networkId);
+                    Map<String, StpType> biStp = new ConcurrentHashMap<>();
+                    biPortMap.values().stream().forEach((port) -> {
+                        Map<String, StpType> biStps = NsiStpFactory.createBiStps(port, nsiNetwork, uniStp);
+                        biStp.putAll(biStps);
+                        newNsiTopology.addStpTypeBundle(new SimpleStp(port), biStps);
+                    });
 
-                // Add the port references to the Network resource.
-                log.debug("createNsiTopology: Add bidirectional STP references to network resource " + networkId);
-                biStp.values().stream().forEach((stp) -> {
-                    nsiNetwork.getStp().add(stp.getSelf());
-                });
+                    // Add the port references to the Network resource.
+                    log.debug("createNsiTopology: Add bidirectional STP references to network resource " + networkId);
+                    biStp.values().stream().forEach((stp) -> {
+                        nsiNetwork.getStp().add(stp.getSelf());
+                    });
 
-                log.debug("createNsiTopology: adding " + biStp.size() + " bidirectional STP.");
-                newNsiTopology.putAllStp(biStp);
+                    log.debug("createNsiTopology: adding " + biStp.size() + " bidirectional STP.");
+                    newNsiTopology.putAllStp(biStp);
 
-                // SwitchingServices are modelled using Relations.
-                log.debug("createNsiTopology: Convert SwitchingService to NSI ServiceDomains for " + networkId);
-                Collection<ServiceDomainType> nsiServiceDomains = getServiceDomainsFromSwitchingServices(nmlTopology, portMap, nsiNetwork, newNsiTopology);
-                log.debug("createNsiTopology: adding " + nsiServiceDomains.size() + " Service Domains.");
-                newNsiTopology.addAllServiceDomains(nsiServiceDomains);
+                    // SwitchingServices are modelled using Relations.
+                    log.debug("createNsiTopology: Convert SwitchingService to NSI ServiceDomains for " + networkId);
+                    Collection<ServiceDomainType> nsiServiceDomains = getServiceDomainsFromSwitchingServices(nmlTopology, portMap, nsiNetwork, newNsiTopology);
+                    log.debug("createNsiTopology: adding " + nsiServiceDomains.size() + " Service Domains.");
+                    newNsiTopology.addAllServiceDomains(nsiServiceDomains);
 
-                // Add the ServiceDomain references to the Network resource.
-                log.debug("createNsiTopology: Add ServiceDomains references to " + networkId);
-                nsiServiceDomains.stream().forEach((sd) -> {
-                    nsiNetwork.getServiceDomain().add(sd.getSelf());
-                });
+                    // Add the ServiceDomain references to the Network resource.
+                    log.debug("createNsiTopology: Add ServiceDomains references to " + networkId);
+                    nsiServiceDomains.stream().forEach((sd) -> {
+                        nsiNetwork.getServiceDomain().add(sd.getSelf());
+                    });
+                } catch (Exception ex) {
+                    log.error("createNsiTopology: Failed to parse topology for networkId=" + networkId, ex);
+                    continue;
+                }
 
                 log.debug("createNsiTopology: completed processing networkId " + networkId);
             }
