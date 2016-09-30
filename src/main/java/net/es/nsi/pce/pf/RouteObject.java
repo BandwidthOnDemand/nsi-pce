@@ -98,6 +98,10 @@ public class RouteObject {
                     StpTypeBundle lastBundle = new StpTypeBundle();
                     for (StpType member : nextBundle.values()) {
                         SdpType sdp = topology.getSdp(member.getSdp().getId());
+                        if (sdp == null) {
+                            log.error("RouteObject: ERO STP not associated with valid SDP in context of request: " + stp.getStp());
+                            throw Exceptions.invalidEroMember(stp.getStp());
+                        }
                         if (member.getId().equalsIgnoreCase(sdp.getDemarcationA().getStp().getId())) {
                             lastBundle.addStpType(topology.getStp(sdp.getDemarcationZ().getStp().getId()));
                         }

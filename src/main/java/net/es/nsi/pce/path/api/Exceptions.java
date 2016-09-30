@@ -102,12 +102,18 @@ public class Exceptions {
         return new WebApplicationException(ex);
     }
 
+    public static WebApplicationException invalidEroMember(String stpId) {
+        FindPathErrorType error = NsiError.getFindPathError(NsiError.INVALID_ERO_MEMBER, Point2PointTypes.getSourceStp().getNamespace(), Point2PointTypes.getSourceStp().getType(), stpId);
+        Response ex = Response.status(Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();
+        return new WebApplicationException(ex);
+    }
+
    public static WebApplicationException noLocalNsaIdentifier(String description) {
         FindPathErrorType error = NsiError.getFindPathError(NsiError.NO_LOCAL_NSA_IDENTIFER, description);
         Response ex = Response.status(Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();
         return new WebApplicationException(ex);
     }
-   
+
    public static WebApplicationException internalServerError(String description) {
         FindPathErrorType error = NsiError.getFindPathError(NsiError.INTERNAL_ERROR, description);
         Response ex = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new GenericEntity<JAXBElement<FindPathErrorType>>(factory.createFindPathError(error)) {}).build();

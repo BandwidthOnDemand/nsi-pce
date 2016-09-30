@@ -21,8 +21,11 @@ import net.es.nsi.pce.jaxb.path.FindPathRequestType;
 import net.es.nsi.pce.jaxb.path.FindPathResponseType;
 import net.es.nsi.pce.jaxb.path.FindPathStatusType;
 import net.es.nsi.pce.jaxb.path.ObjectFactory;
+import net.es.nsi.pce.jaxb.path.OrderedStpType;
 import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.jaxb.path.ReplyToType;
+import net.es.nsi.pce.jaxb.path.StpListType;
+import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.test.TestConfig;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -31,7 +34,7 @@ import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class FindPathEvtsFailedTest {
+public class FindPathEvtsErrTest {
     private static TestConfig testConfig;
     private static WebTarget target;
 
@@ -98,6 +101,20 @@ public class FindPathEvtsFailedTest {
         }
     };
 
+    // An invalid ERO.
+    private final static StpTestData test9 = new StpTestData() {
+        { this.setStpA("urn:ogf:network:netherlight.net:2013:production7:surfnet-1?vlan=2000-2200");
+          this.setStpZ("urn:ogf:network:netherlight.net:2013:production7:nordunet-1?vlan=1000-1200");
+
+          StpListType ero = factory.createStpListType();
+          OrderedStpType interdomain = factory.createOrderedStpType();
+          interdomain.setOrder(0);
+          interdomain.setStp("urn:ogf:network:netherlight.net:2013:production7:geant-1?vlan=3750-4000");
+          ero.getOrderedSTP().add(interdomain);
+          this.setEro(ero);
+        }
+    };
+
     private final static List<StpTestData> testData = new ArrayList<StpTestData>() {
         private static final long serialVersionUID = 1L;
         {
@@ -146,32 +163,38 @@ public class FindPathEvtsFailedTest {
     @Test
     public void testXmlFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testPCE(MediaType.APPLICATION_XML, test);
+            testPCE(MediaType.APPLICATION_XML, test, FindPathAlgorithmType.TREE);
         }
     }
 
     @Test
     public void testJsonFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testPCE(MediaType.APPLICATION_JSON, test);
+            testPCE(MediaType.APPLICATION_JSON, test, FindPathAlgorithmType.TREE);
         }
     }
 
     @Test
     public void testVersionedXmlFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testPCE("application/vnd.net.es.pce.v1+xml", test);
+            testPCE("application/vnd.net.es.pce.v1+xml", test, FindPathAlgorithmType.TREE);
         }
     }
 
     @Test
     public void testVersionedJsonFindPath() throws Exception {
         for (StpTestData test : testData) {
-            testPCE("application/vnd.net.es.pce.v1+json", test);
+            testPCE("application/vnd.net.es.pce.v1+json", test, FindPathAlgorithmType.TREE);
         }
     }
 
-    public void testPCE(String mediaType, StpTestData test) throws Exception {
+    @Test
+    public void testJsonIllegalERO() throws Exception {
+        FindPathResponseType response = testPCE(MediaType.APPLICATION_JSON, test9, FindPathAlgorithmType.SEQUENTIAL);
+        assertEquals(NsiError.INVALID_ERO_MEMBER.getCode(), response.getFindPathError().getCode());
+    }
+
+    public FindPathResponseType testPCE(String mediaType, StpTestData test, FindPathAlgorithmType algorithm) throws Exception {
         System.out.println("*************************************** testPCE (" + mediaType + ") ***********************************");
         System.out.println("Endpoints: " + test.getStpA() + ", " + test.getStpZ());
 
@@ -211,6 +234,9 @@ public class FindPathEvtsFailedTest {
         // Format the destination STP.
         p2ps.setDestSTP(test.getStpZ());
 
+        // Add the ero.
+        p2ps.setEro(test.getEro());
+
         req.getAny().add(factory.createP2Ps(p2ps));
 
         JAXBElement<FindPathRequestType> jaxbRequest = factory.createFindPathRequest(req);
@@ -235,5 +261,6 @@ public class FindPathEvtsFailedTest {
         System.out.println(findPathResponse.getFindPathError().getCode() + ":" + findPathResponse.getFindPathError().getLabel());
 
         System.out.println("*************************************** testPCE done ***********************************");
+        return findPathResponse;
     }
 }
