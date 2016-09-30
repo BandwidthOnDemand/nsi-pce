@@ -25,6 +25,7 @@ import net.es.nsi.pce.jaxb.path.ObjectFactory;
 import net.es.nsi.pce.jaxb.path.OrderedStpType;
 import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.jaxb.path.ReplyToType;
+import net.es.nsi.pce.jaxb.path.ResolvedPathType;
 import net.es.nsi.pce.jaxb.path.StpListType;
 import net.es.nsi.pce.jaxb.path.TraceType;
 import net.es.nsi.pce.jaxb.path.TypeValueType;
@@ -32,6 +33,7 @@ import net.es.nsi.pce.test.TestConfig;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -376,7 +378,98 @@ public class FindPathEvtsSuccessTest {
         }
     }
 
-    public void testSuccessfulPath(String mediaType, StpTestData test, FindPathAlgorithmType algorithm) throws Exception {
+    @Test
+    public void testJsonFindPathWithSequential() throws Exception {
+        for (StpTestData test : testData) {
+            testSuccessfulPath(MediaType.APPLICATION_JSON, test, FindPathAlgorithmType.SEQUENTIAL);
+        }
+    }
+
+    @Test
+    public void testJsonFindPathForParameters() throws Exception {
+        FindPathResponseType response = testSuccessfulPath(MediaType.APPLICATION_JSON, test7b, FindPathAlgorithmType.TREE);
+        for (ResolvedPathType path : response.getPath()) {
+            for (Object any : path.getAny()) {
+                if (any instanceof javax.xml.bind.JAXBElement) {
+                    javax.xml.bind.JAXBElement jaxb = javax.xml.bind.JAXBElement.class.cast(any);
+                    if (jaxb.getValue() instanceof P2PServiceBaseType) {
+                        P2PServiceBaseType cast = P2PServiceBaseType.class.cast(jaxb.getValue());
+                        List<TypeValueType> parameter = cast.getParameter();
+                        assertNotNull(parameter);
+                        assertEquals(1, parameter.size());
+                        assertEquals("Poopies", parameter.get(0).getType());
+                        assertEquals("Doodies", parameter.get(0).getValue());
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testJsonFindPathForUnderspecifiedSequential() throws Exception {
+        String NETHERLIGHT = "urn:ogf:network:netherlight.net:2013:production7:esnet-1?vlan=1000-1019";
+        String ESNET = "urn:ogf:network:es.net:2013::amst-cr5:3_1_1:+?vlan=1000-1019";
+        boolean foundESnet = false;
+        boolean foundNetherlight = false;
+
+        FindPathResponseType response = testSuccessfulPath(MediaType.APPLICATION_JSON, test7, FindPathAlgorithmType.SEQUENTIAL);
+        for (ResolvedPathType path : response.getPath()) {
+            for (Object any : path.getAny()) {
+                if (any instanceof javax.xml.bind.JAXBElement) {
+                    javax.xml.bind.JAXBElement jaxb = javax.xml.bind.JAXBElement.class.cast(any);
+                    if (jaxb.getValue() instanceof P2PServiceBaseType) {
+                        P2PServiceBaseType cast = P2PServiceBaseType.class.cast(jaxb.getValue());
+                        if (ESNET.equalsIgnoreCase(cast.getSourceSTP()) ||
+                                ESNET.equalsIgnoreCase(cast.getDestSTP())) {
+                            foundESnet = true;
+                        }
+
+                        if (NETHERLIGHT.equalsIgnoreCase(cast.getSourceSTP()) ||
+                                NETHERLIGHT.equalsIgnoreCase(cast.getDestSTP())) {
+                            foundNetherlight = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        assertTrue(foundESnet);
+        assertTrue(foundNetherlight);
+    }
+
+    @Test
+    public void testJsonFindPathForUnderspecifiedSequentialWithERO() throws Exception {
+        String NETHERLIGHT = "urn:ogf:network:netherlight.net:2013:production7:esnet-1?vlan=1005-1010";
+        String ESNET = "urn:ogf:network:es.net:2013::amst-cr5:3_1_1:+?vlan=1005-1010";
+        boolean foundESnet = false;
+        boolean foundNetherlight = false;
+
+        FindPathResponseType response = testSuccessfulPath(MediaType.APPLICATION_JSON, test7b, FindPathAlgorithmType.SEQUENTIAL);
+        for (ResolvedPathType path : response.getPath()) {
+            for (Object any : path.getAny()) {
+                if (any instanceof javax.xml.bind.JAXBElement) {
+                    javax.xml.bind.JAXBElement jaxb = javax.xml.bind.JAXBElement.class.cast(any);
+                    if (jaxb.getValue() instanceof P2PServiceBaseType) {
+                        P2PServiceBaseType cast = P2PServiceBaseType.class.cast(jaxb.getValue());
+                        if (ESNET.equalsIgnoreCase(cast.getSourceSTP()) ||
+                                ESNET.equalsIgnoreCase(cast.getDestSTP())) {
+                            foundESnet = true;
+                        }
+
+                        if (NETHERLIGHT.equalsIgnoreCase(cast.getSourceSTP()) ||
+                                NETHERLIGHT.equalsIgnoreCase(cast.getDestSTP())) {
+                            foundNetherlight = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        assertTrue(foundESnet);
+        assertTrue(foundNetherlight);
+    }
+
+    public FindPathResponseType testSuccessfulPath(String mediaType, StpTestData test, FindPathAlgorithmType algorithm) throws Exception {
         System.out.println("*************************************** testSuccessfulPath(" + mediaType + ") ***********************************");
         System.out.println("Endpoints: " + test.getStpA() + ", " + test.getStpZ());
 
@@ -456,6 +549,7 @@ public class FindPathEvtsSuccessTest {
         assertEquals(FindPathStatusType.SUCCESS, findPathResponse.getStatus());
 
         System.out.println("*************************************** testSuccessfulPath done ***********************************");
+        return findPathResponse;
     }
 
     private TraceType traceType(int index, String value) {

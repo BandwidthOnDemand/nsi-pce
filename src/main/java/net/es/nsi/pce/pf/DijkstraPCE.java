@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class DijkstraPCE implements PCEModule {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final net.es.nsi.pce.jaxb.path.ObjectFactory factory = new net.es.nsi.pce.jaxb.path.ObjectFactory();
-    
+
     /**
      * This path computation module supports pathfinding for the P2PS service
      * specification restricted to bidirectional symmetricPath services with
@@ -74,7 +74,7 @@ public class DijkstraPCE implements PCEModule {
         // Build a path response for each segment in the the computed path.
         return build(request, individualSegments);
     }
-    
+
     private List<GraphEdge> route(Request request) {
         // Perform pathfinding on each computed route.
         List<GraphEdge> path = new ArrayList<>();
@@ -112,7 +112,7 @@ public class DijkstraPCE implements PCEModule {
             // Add edges from this path computation to our result set.
             path.addAll(edges);
         }
-        
+
         return path;
     }
 
@@ -261,7 +261,7 @@ public class DijkstraPCE implements PCEModule {
 
         return segments;
     }
-    
+
     public PCEData build(Request request, List<StpPair> segments) {
         for (int i = 0; i < segments.size(); i++) {
             StpPair pair = segments.get(i);
@@ -301,6 +301,8 @@ public class DijkstraPCE implements PCEModule {
             p2ps.setSymmetricPath(request.isSymmetricPath());
             p2ps.setSourceSTP(stpIdA);
             p2ps.setDestSTP(stpIdZ);
+            // Assumes all parameters are copied over (even if we do not understand them).
+            p2ps.getParameter().addAll(request.getP2p().getParameter());
             ObjectAttrConstraint p2psObject = new ObjectAttrConstraint();
             p2psObject.setAttrName(Point2PointTypes.P2PS);
             p2psObject.setValue(p2ps);

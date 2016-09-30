@@ -185,9 +185,13 @@ public class FindPathService {
                         contraints.addAll(PCEConstraints.getConstraints(request.getStartTime(), request.getEndTime(), serviceType, request.getConstraints()));
 
                         // Now the service specific constraints.
+                        // -- We stopped modelling individual P2P constraints due to
+                        //    complexity of ERO.  Instead we now add the P2PServiceBaseType
+                        //    directly as a constraint.
                         //Set<Constraint> addConstraints = p2p.addConstraints(p2ps);
                         //contraints.addAll(addConstraints);
 
+                        // Add the P2PServiceBaseType object as a constraint.
                         Constraint p2pContstraint = p2p.addConstraint(p2ps);
                         contraints.add(p2pContstraint);
 
