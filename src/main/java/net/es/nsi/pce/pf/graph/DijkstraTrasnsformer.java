@@ -1,4 +1,4 @@
-package net.es.nsi.pce.pf;
+package net.es.nsi.pce.pf.graph;
 
 import net.es.nsi.pce.pf.api.PCEData;
 import org.apache.commons.collections15.Transformer;

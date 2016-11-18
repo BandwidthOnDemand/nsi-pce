@@ -1,5 +1,7 @@
 package net.es.nsi.pce.pf;
 
+import net.es.nsi.pce.pf.simple.SimpleLabel;
+import net.es.nsi.pce.pf.simple.SimpleStp;
 import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.WebApplicationException;

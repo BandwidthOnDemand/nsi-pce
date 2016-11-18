@@ -19,6 +19,7 @@
  */
 package net.es.nsi.pce.pf;
 
+import net.es.nsi.pce.pf.simple.SimpleStp;
 import com.google.common.base.Strings;
 import java.util.Optional;
 import net.es.nsi.pce.jaxb.path.DirectionalityType;

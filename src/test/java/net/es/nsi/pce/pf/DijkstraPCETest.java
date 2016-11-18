@@ -1,5 +1,8 @@
 package net.es.nsi.pce.pf;
 
+import net.es.nsi.pce.pf.graph.GraphEdge;
+import net.es.nsi.pce.pf.graph.SdpEdge;
+import net.es.nsi.pce.pf.graph.StpEdge;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;

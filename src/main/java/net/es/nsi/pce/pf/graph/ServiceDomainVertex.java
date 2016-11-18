@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package net.es.nsi.pce.pf;
+package net.es.nsi.pce.pf.graph;
 
+import net.es.nsi.pce.pf.graph.GraphVertex;
 import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
 
 /**

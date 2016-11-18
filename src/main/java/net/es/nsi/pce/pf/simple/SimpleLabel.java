@@ -1,4 +1,4 @@
-package net.es.nsi.pce.pf;
+package net.es.nsi.pce.pf.simple;
 
 import java.util.HashSet;
 import java.util.Set;

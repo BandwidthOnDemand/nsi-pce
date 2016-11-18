@@ -1,5 +1,6 @@
-package net.es.nsi.pce.pf;
+package net.es.nsi.pce.pf.graph;
 
+import net.es.nsi.pce.pf.graph.GraphEdge;
 import net.es.nsi.pce.pf.api.PCEData;
 import org.apache.commons.collections15.Transformer;
 import org.slf4j.Logger;

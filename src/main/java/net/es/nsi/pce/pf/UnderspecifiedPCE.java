@@ -19,6 +19,8 @@
  */
 package net.es.nsi.pce.pf;
 
+import net.es.nsi.pce.pf.route.StpTypeBundle;
+import net.es.nsi.pce.pf.simple.SimpleStp;
 import static com.google.common.base.Preconditions.checkNotNull;
 import java.util.HashMap;
 import java.util.List;

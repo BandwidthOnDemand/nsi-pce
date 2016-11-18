@@ -39,7 +39,7 @@ import net.es.nsi.pce.jaxb.topology.ServiceType;
 import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.management.logs.PceErrors;
 import net.es.nsi.pce.management.logs.PceLogger;
-import net.es.nsi.pce.pf.SimpleStp;
+import net.es.nsi.pce.pf.simple.SimpleStp;
 import net.es.nsi.pce.schema.NmlParser;
 import net.es.nsi.pce.schema.NsaParser;
 import net.es.nsi.pce.schema.XmlUtilities;

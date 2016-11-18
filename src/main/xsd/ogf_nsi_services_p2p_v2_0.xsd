@@ -104,6 +104,8 @@
             <xsd:element name="destSTP"         type="types:StpIdType" />
             <xsd:element name="ero"             type="types:StpListType" minOccurs="0" />
             <xsd:element name="parameter"       type="types:TypeValueType" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="inclusion"       type="types:ClusionType" minOccurs="0" maxOccurs="unbounded" />
+            <xsd:element name="exclusion"       type="types:ClusionType" minOccurs="0" maxOccurs="unbounded" />
             <xsd:any     namespace="##other"  processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>

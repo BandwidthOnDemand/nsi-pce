@@ -1,5 +1,7 @@
-package net.es.nsi.pce.pf;
+package net.es.nsi.pce.pf.graph;
 
+import net.es.nsi.pce.pf.graph.SdpEdge;
+import net.es.nsi.pce.pf.graph.StpEdge;
 import com.google.common.base.Optional;
 import edu.uci.ics.jung.graph.Graph;
 import java.util.Collection;
@@ -10,6 +12,8 @@ import net.es.nsi.pce.jaxb.topology.SdpDirectionalityType;
 import net.es.nsi.pce.jaxb.topology.SdpType;
 import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
 import net.es.nsi.pce.jaxb.topology.StpType;
+import net.es.nsi.pce.pf.PfUtils;
+import net.es.nsi.pce.pf.route.StpTypeBundle;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

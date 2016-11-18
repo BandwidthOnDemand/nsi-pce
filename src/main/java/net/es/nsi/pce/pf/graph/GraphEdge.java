@@ -17,7 +17,9 @@
  * publicly and display publicly, and to permit other to do so.
  *
  */
-package net.es.nsi.pce.pf;
+package net.es.nsi.pce.pf.graph;
+
+import net.es.nsi.pce.pf.graph.SortedGraphObject;
 
 /**
  *

@@ -5,6 +5,8 @@
  */
 package net.es.nsi.pce.pf;
 
+import net.es.nsi.pce.pf.simple.SimpleStp;
+import net.es.nsi.pce.pf.simple.SimpleLabels;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

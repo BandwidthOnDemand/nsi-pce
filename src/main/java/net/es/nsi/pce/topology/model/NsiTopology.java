@@ -24,8 +24,8 @@ import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
 import net.es.nsi.pce.jaxb.topology.ServiceType;
 import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.jaxb.topology.VectorType;
-import net.es.nsi.pce.pf.SimpleStp;
-import net.es.nsi.pce.pf.StpTypeBundle;
+import net.es.nsi.pce.pf.simple.SimpleStp;
+import net.es.nsi.pce.pf.route.StpTypeBundle;
 import net.es.nsi.pce.schema.NsiConstants;
 
 /**

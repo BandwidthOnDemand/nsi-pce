@@ -1,4 +1,4 @@
-package net.es.nsi.pce.pf;
+package net.es.nsi.pce.pf.simple;
 
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;

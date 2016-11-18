@@ -92,6 +92,55 @@ Open Grid Forum NSI Connection Services Protocol v2.0 - Service specific type sc
         </xsd:simpleContent>
     </xsd:complexType>
     
+    <xsd:complexType name="ClusionType">
+        <xsd:annotation>
+            <xsd:documentation xml:lang="en">
+                This type definition is used to model pathfinding inclusions/
+                exclusions in a point-to-point service request.
+                
+                Inclusions provide pathfinders with a specific set of resources
+                to use in path computation.  Different from an ERO in that an
+                ERO provides a specific path through the network, while
+                inclusions specifies the starting set of resources to be used in
+                pathfinding (not all of the resources need be used).
+                
+                Exclusions provide a mechanism allowing an RA to specify a set of
+                resources that must be excluded when computing a path.
+                
+                If an inclusion(s) is present it is used to build the initial
+                routing graph, otherwise the complete set of resources are used.
+                
+                If an exclusion(s) is present then the specified exclusion(s) are
+                pruned from the graph.
+                
+                Any ERO is applied during pathfinding using the resulting graph.
+                
+                Elements:
+                
+                lt - less than contitional element.
+                lte - less than equal to conditional element.
+                gt - greater than conditional element.
+                gte - greater than equal to conditional eement.
+                eq - equal conditional element.
+                
+                Attributes:
+                type - A string representing the name of the parameter.     
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:choice>
+                <xsd:element name="lt"  type="xsd:anyType" minOccurs="0" />
+                <xsd:element name="lte" type="xsd:anyType" minOccurs="0" />
+            </xsd:choice>
+            <xsd:choice>
+                <xsd:element name="gt"  type="xsd:anyType" minOccurs="0" />
+                <xsd:element name="gte" type="xsd:anyType" minOccurs="0" />
+            </xsd:choice>
+            <xsd:element name="eq"  type="xsd:anyType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute   name="type" type="xsd:string" use="required" />
+    </xsd:complexType>
+    
     <xsd:simpleType name="DirectionalityType">
         <xsd:annotation>
             <xsd:documentation xml:lang="en">

@@ -17,8 +17,9 @@
  * publicly and display publicly, and to permit other to do so.
  *
  */
-package net.es.nsi.pce.pf;
+package net.es.nsi.pce.pf.graph;
 
+import net.es.nsi.pce.pf.simple.SimpleLabel;
 import net.es.nsi.pce.jaxb.topology.SdpType;
 import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
 import net.es.nsi.pce.jaxb.topology.StpType;

@@ -5,6 +5,8 @@
  */
 package net.es.nsi.pce.pf;
 
+import net.es.nsi.pce.pf.route.StpTypeBundle;
+import net.es.nsi.pce.pf.simple.SimpleStp;
 import java.util.HashMap;
 import java.util.Map;
 import net.es.nsi.pce.jaxb.path.DirectionalityType;

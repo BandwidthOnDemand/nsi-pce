@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -33,6 +34,7 @@ import net.es.nsi.pce.test.TestConfig;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
@@ -387,22 +389,43 @@ public class FindPathEvtsSuccessTest {
 
     @Test
     public void testJsonFindPathForParameters() throws Exception {
-        FindPathResponseType response = testSuccessfulPath(MediaType.APPLICATION_JSON, test7b, FindPathAlgorithmType.TREE);
-        for (ResolvedPathType path : response.getPath()) {
-            for (Object any : path.getAny()) {
-                if (any instanceof javax.xml.bind.JAXBElement) {
-                    javax.xml.bind.JAXBElement jaxb = javax.xml.bind.JAXBElement.class.cast(any);
-                    if (jaxb.getValue() instanceof P2PServiceBaseType) {
-                        P2PServiceBaseType cast = P2PServiceBaseType.class.cast(jaxb.getValue());
-                        List<TypeValueType> parameter = cast.getParameter();
-                        assertNotNull(parameter);
-                        assertEquals(1, parameter.size());
-                        assertEquals("Poopies", parameter.get(0).getType());
-                        assertEquals("Doodies", parameter.get(0).getValue());
-                    }
-                }
-            }
+        for (StpTestData test : testData) {
+            testFindPathForParameters(MediaType.APPLICATION_JSON, test, FindPathAlgorithmType.TREE);
+            testFindPathForParameters(MediaType.APPLICATION_JSON, test, FindPathAlgorithmType.SEQUENTIAL);
         }
+    }
+
+    private void testFindPathForParameters(String mediaType, StpTestData test, FindPathAlgorithmType algorithm) throws Exception {
+        FindPathResponseType response = testSuccessfulPath(mediaType, test, algorithm);
+
+        response.getPath().stream().map((path) -> path.getAny())
+                .filter((any) -> (any instanceof javax.xml.bind.JAXBElement))
+                .map((any) -> javax.xml.bind.JAXBElement.class.cast(any))
+                .filter((jaxb) -> (jaxb.getValue() instanceof P2PServiceBaseType))
+                .map((jaxb) -> P2PServiceBaseType.class.cast(jaxb.getValue()))
+                .map((cast) -> cast.getParameter())
+                .map((parameters) -> {
+                    assertNotNull(parameters);
+                    assertEquals(2, parameters.size());
+                    return parameters;
+                })
+                .map((parameters) -> {
+                    HashMap<String, String> parametersMap = new HashMap<>();
+                    parameters.stream().forEach((p) -> {
+                        assertNull(parametersMap.put(p.getType(), p.getValue()));
+                    });
+                    return parametersMap;
+                })
+                .map((parametersMap) -> {
+                    String protection = parametersMap.get("protection");
+                    assertEquals("PROTECTED", protection);
+                    return parametersMap;
+                })
+                .map((parametersMap) -> {
+                    String pca = parametersMap.get("pathComputationAlgorithm");
+                    assertEquals(algorithm.value(), pca);
+                    return parametersMap;
+                });
     }
 
     @Test
@@ -522,10 +545,15 @@ public class FindPathEvtsSuccessTest {
         // Add the ero.
         p2ps.setEro(test.getEro());
 
-        TypeValueType tvt = FACTORY.createTypeValueType();
-        tvt.setType("Poopies");
-        tvt.setValue("Doodies");
-        p2ps.getParameter().add(tvt);
+        TypeValueType tvtProtection = FACTORY.createTypeValueType();
+        tvtProtection.setType("protection");
+        tvtProtection.setValue("PROTECTED");
+        p2ps.getParameter().add(tvtProtection);
+
+        TypeValueType tvtPCA = FACTORY.createTypeValueType();
+        tvtPCA.setType("pathComputationAlgorithm");
+        tvtPCA.setValue(algorithm.value());
+        p2ps.getParameter().add(tvtPCA);
 
         req.getAny().add(FACTORY.createP2Ps(p2ps));
 

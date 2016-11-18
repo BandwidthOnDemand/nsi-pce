@@ -1,4 +1,4 @@
-package net.es.nsi.pce.pf;
+package net.es.nsi.pce.pf.simple;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Ordering;
