@@ -1,6 +1,9 @@
 package net.es.nsi.pce.sched;
 
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.MemoryUsage;
 import net.es.nsi.pce.config.ConfigurationManager;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
 import org.quartz.DisallowConcurrentExecution;
@@ -34,7 +37,10 @@ public class TopologyAudit implements Job {
      */
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        log.info("TopologyAudit: running " + jobExecutionContext.getJobDetail().getKey().getName());
+        MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+
+        log.info("TopologyAudit: running " + jobExecutionContext.getJobDetail().getKey().getName()
+            + ", " + memStats(memoryBean));
 
         // Invoke the topology audit.
         try {
@@ -47,7 +53,12 @@ public class TopologyAudit implements Job {
                 log.error("TopologyAudit: failed, scheduling early audit");
                 scheduleQuick(jobExecutionContext);
             }
-        } catch (Exception ex) {
+        }
+        catch (OutOfMemoryError ex) {
+            log.error("TopologyAudit: " + memStats(memoryBean), ex);
+            System.exit(-1);
+        }
+        catch (Exception ex) {
             log.error("TopologyAudit: failed to audit topology", ex);
             try {
                 scheduleQuick(jobExecutionContext);
@@ -55,7 +66,16 @@ public class TopologyAudit implements Job {
                log.error("TopologyAudit: failed to reschedule audit", ex1);
             }
         }
-        log.info("TopologyAudit: completed!");
+
+        log.info("TopologyAudit: completed - " + memStats(memoryBean));
+    }
+
+    private static final int MEGABYTE = (1024*1024);
+    private String memStats(MemoryMXBean memoryBean) {
+        MemoryUsage heapUsage = memoryBean.getHeapMemoryUsage();
+        long maxMemory = heapUsage.getMax() / MEGABYTE;
+        long usedMemory = heapUsage.getUsed() / MEGABYTE;
+        return "Memory use :" + usedMemory + "M/" + maxMemory + "M";
     }
 
     private void scheduleFull(JobExecutionContext jobExecutionContext) throws SchedulerException {

@@ -52,8 +52,6 @@ public class FindPathEvtsSuccessTest {
 
     private final static ObjectFactory FACTORY = new ObjectFactory();
 
-        // urn:ogf:network:netherlight.net:2013:production7:starlight-1?vlan=1782, stpZ=urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1782
-
     private final static StpTestData test0 = new StpTestData() {
         {   this.setStpA("urn:ogf:network:netherlight.net:2013:production7:starlight-1?vlan=1782");
             this.setStpZ("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1782");

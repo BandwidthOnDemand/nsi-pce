@@ -74,6 +74,9 @@
                 path resolution request.
 
                 trace - The reservation request trace through the control plane.
+                
+                nsaId - The NSA requesting the path finding request to provide
+                control plane context for resolved path segments.
 
                 any - Additional elements not defined in this name space such
                 as service specific element definitions.
@@ -88,6 +91,7 @@
             <xsd:element name="serviceType"      type="xsd:string"/>
             <xsd:element name="constraints"      type="tns:ConstraintListType" minOccurs="0" />
             <xsd:element name="trace"            type="tns:TraceType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="nsaId"            type="xsd:string" minOccurs="0" />
             <xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>
