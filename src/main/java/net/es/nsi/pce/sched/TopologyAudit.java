@@ -63,7 +63,8 @@ public class TopologyAudit implements Job {
             try {
                 scheduleQuick(jobExecutionContext);
             } catch (SchedulerException ex1) {
-               log.error("TopologyAudit: failed to reschedule audit", ex1);
+               log.error("TopologyAudit: failed to reschedule audit, exiting", ex1);
+               System.exit(-1);
             }
         }
 

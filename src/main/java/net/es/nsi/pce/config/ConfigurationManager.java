@@ -97,6 +97,10 @@ public enum ConfigurationManager {
             try {
                 success = topologyProvider.loadTopology();
             }
+            catch (OutOfMemoryError ex) {
+                log.error("Fatal error on inital topology load", ex);
+                System.exit(-1);
+            }
             catch (Exception ex) {
                 log.error("Failed to load topology.", ex);
             }
