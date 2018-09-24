@@ -4,9 +4,7 @@ import net.es.nsi.pce.pf.simple.SimpleStp;
 import java.util.List;
 import java.util.Optional;
 import javax.ws.rs.WebApplicationException;
-import net.es.nsi.pce.jaxb.path.OrderedStpType;
 import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
-import net.es.nsi.pce.jaxb.path.StpListType;
 import net.es.nsi.pce.jaxb.topology.NetworkType;
 import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.path.services.Service;
@@ -84,6 +82,7 @@ public class PolicyPCE implements PCEModule {
         }
 
         // Validate all members of the ERO are also of known networks.
+        /** Remove this code to allow ERO STP without a known network.
         Optional<StpListType> ero = Optional.ofNullable(p2p.getEro());
         if (ero.isPresent()) {
             for (OrderedStpType stp : ero.get().getOrderedSTP()) {
@@ -101,6 +100,7 @@ public class PolicyPCE implements PCEModule {
                 }
             }
         }
+        * **/
 
         // Now we restrict routing of two enpoints in the same domain to only
         // route within that domain, otherwise use the full topology.

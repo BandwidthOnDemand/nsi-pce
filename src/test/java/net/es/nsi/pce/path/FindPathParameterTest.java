@@ -9,19 +9,18 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
-import net.es.nsi.pce.jaxb.path.ObjectFactory;
+import net.es.nsi.pce.client.TestServer;
+import net.es.nsi.pce.config.http.HttpConfig;
 import net.es.nsi.pce.jaxb.path.DirectionalityType;
 import net.es.nsi.pce.jaxb.path.FindPathAlgorithmType;
 import net.es.nsi.pce.jaxb.path.FindPathRequestType;
+import net.es.nsi.pce.jaxb.path.ObjectFactory;
 import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.jaxb.path.ReplyToType;
 import net.es.nsi.pce.jaxb.path.TypeValueType;
-import net.es.nsi.pce.config.http.HttpConfig;
-import net.es.nsi.pce.client.TestServer;
 import net.es.nsi.pce.test.TestConfig;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -39,7 +38,7 @@ public class FindPathParameterTest {
     private static WebTarget target;
 
     private final static HttpConfig testServer = new HttpConfig() {
-        { setUrl("http://localhost:8401/"); setPackageName("net.es.nsi.pce.client"); }
+        { setUrl("http://localhost:8491/"); setPackageName("net.es.nsi.pce.client"); }
     };
 
     private final static String callbackURL = testServer.getUrl() + "aggregator/path";

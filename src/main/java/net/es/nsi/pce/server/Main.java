@@ -1,5 +1,9 @@
 package net.es.nsi.pce.server;
 
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+import net.es.nsi.pce.config.ConfigurationManager;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -8,8 +12,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.LoggerFactory;
-
-import net.es.nsi.pce.config.ConfigurationManager;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 /**
  * This is the main execution thread for the PAth Computation Engine.  The
@@ -58,6 +61,11 @@ public class Main {
      * @throws Exception If anything fails during initialization.
      */
     public static void main(String[] args) throws Exception {
+      LogManager.getLogManager().reset();
+      SLF4JBridgeHandler.removeHandlersForRootLogger();
+      SLF4JBridgeHandler.install();
+      Logger.getLogger("global").setLevel(Level.FINEST);
+
         // Create Options object to hold our command line options.
         Options options = new Options();
 

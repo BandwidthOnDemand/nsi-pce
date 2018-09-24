@@ -38,7 +38,7 @@ public class FindPathEvtsChainTest {
     private static WebTarget target;
 
     private final static HttpConfig testServer = new HttpConfig() {
-        { setUrl("http://localhost:8401/"); setPackageName("net.es.nsi.pce.client"); }
+        { setUrl("http://localhost:8491/"); setPackageName("net.es.nsi.pce.client"); }
     };
 
     private final static String callbackURL = testServer.getUrl() + "aggregator/path";

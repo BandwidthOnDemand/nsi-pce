@@ -45,7 +45,7 @@ public class FindPathEvtsSuccessTest {
     private static WebTarget target;
 
     private final static HttpConfig TEST_SERVER = new HttpConfig() {
-        { setUrl("http://localhost:8401/"); setPackageName("net.es.nsi.pce.client"); }
+        { setUrl("http://localhost:8491/"); setPackageName("net.es.nsi.pce.client"); }
     };
 
     private final static String CALLBACK_URL = TEST_SERVER.getUrl() + "aggregator/path";
