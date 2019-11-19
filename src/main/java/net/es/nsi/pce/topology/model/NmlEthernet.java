@@ -17,7 +17,7 @@ import net.es.nsi.pce.jaxb.topology.NmlLabelType;
  */
 public class NmlEthernet {
     public final static String VLAN_LABEL = "http://schemas.ogf.org/nml/2012/10/ethernet#vlan";
-    final static String VLAN = "vlan";
+    public final static String VLAN = "vlan";
 
     public static boolean isVlanLabel(Optional<String> label) {
         if (!label.isPresent()) {

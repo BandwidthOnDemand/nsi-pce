@@ -93,6 +93,12 @@
             <version>${log4j.version}</version>
         </dependency>
 
+        <dependency>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok</artifactId>
+          <version>1.18.10</version>
+        </dependency>
+
         <!-- Google JSON parsers for reading configuration data from files. -->
         <dependency>
             <groupId>com.google.code.gson</groupId>

@@ -1,14 +1,5 @@
 package net.es.nsi.pce.pf;
 
-import net.es.nsi.pce.pf.graph.EdgeTrasnsformer;
-import net.es.nsi.pce.pf.route.StpTypeBundle;
-import net.es.nsi.pce.pf.graph.GraphEdge;
-import net.es.nsi.pce.pf.graph.GraphUtils;
-import net.es.nsi.pce.pf.graph.GraphVertex;
-import net.es.nsi.pce.pf.graph.SdpEdge;
-import net.es.nsi.pce.pf.graph.StpEdge;
-import net.es.nsi.pce.pf.route.Route;
-import net.es.nsi.pce.pf.simple.SimpleStp;
 import com.google.common.base.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
@@ -33,6 +24,15 @@ import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.pf.api.StpPair;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
+import net.es.nsi.pce.pf.graph.EdgeTrasnsformer;
+import net.es.nsi.pce.pf.graph.GraphEdge;
+import net.es.nsi.pce.pf.graph.GraphUtils;
+import net.es.nsi.pce.pf.graph.GraphVertex;
+import net.es.nsi.pce.pf.graph.SdpEdge;
+import net.es.nsi.pce.pf.graph.StpEdge;
+import net.es.nsi.pce.pf.route.Route;
+import net.es.nsi.pce.pf.route.StpTypeBundle;
+import net.es.nsi.pce.pf.simple.SimpleStp;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.apache.commons.collections15.Transformer;
 import org.slf4j.Logger;
@@ -95,14 +95,18 @@ public class DijkstraPCE implements PCEModule {
 
             // Manipulate the sourceBundle if we had a previous iteration has
             // restricted the STP's available on this bundle.
-            StpTypeBundle sourceBundle = route.getBundleA().getPeerRestrictedBundle(request.getNsiTopology(), nextStp, request.getDirectionality());
+            StpTypeBundle sourceBundle = route.getBundleA().getPeerRestrictedBundle(request.getNsiTopology(),
+                    nextStp, request.getDirectionality());
 
             // Compute the shortest path.
-            List<GraphEdge> edges = getShortestPath(sourceBundle, route.getBundleZ(), request.getPceData(), request.getNsiTopology());
+            List<GraphEdge> edges = getShortestPath(sourceBundle, route.getBundleZ(), request.getPceData(),
+                    request.getNsiTopology());
 
             // Check to see if we found a valid path.
             if (edges.isEmpty()) {
-                throw Exceptions.noPathFound("No path found using provided criteria sourceStp=" + route.getBundleA().getSimpleStp().getId() + ", and destStp=" + route.getBundleZ().getSimpleStp().getId());
+                throw Exceptions.noPathFound("No path found using provided criteria sourceStp=" +
+                        route.getBundleA().getSimpleStp().getId() + ", and destStp=" +
+                        route.getBundleZ().getSimpleStp().getId());
             }
 
             // Extract the computed destination STP here so we can get the

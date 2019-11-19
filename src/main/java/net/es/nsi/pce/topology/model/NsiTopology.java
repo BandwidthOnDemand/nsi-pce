@@ -24,8 +24,8 @@ import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
 import net.es.nsi.pce.jaxb.topology.ServiceType;
 import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.jaxb.topology.VectorType;
-import net.es.nsi.pce.pf.simple.SimpleStp;
 import net.es.nsi.pce.pf.route.StpTypeBundle;
+import net.es.nsi.pce.pf.simple.SimpleStp;
 import net.es.nsi.pce.schema.NsiConstants;
 
 /**
@@ -43,7 +43,6 @@ public class NsiTopology {
     private final ConcurrentHashMap<String, ServiceType> services = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, NetworkType> networks = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, NsaType> nsas = new ConcurrentHashMap<>();
-
     private final ConcurrentSkipListMap<String, StpTypeBundle> stpTypeBundle = new ConcurrentSkipListMap<>();
 
     // The time of the most recent discovered item.

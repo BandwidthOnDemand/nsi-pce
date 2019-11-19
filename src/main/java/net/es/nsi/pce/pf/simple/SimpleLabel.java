@@ -1,9 +1,9 @@
 package net.es.nsi.pce.pf.simple;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
 import javax.ws.rs.WebApplicationException;
 import net.es.nsi.pce.path.api.Exceptions;
+import net.es.nsi.pce.topology.model.NmlEthernet;
 
 /**
  *
@@ -12,9 +12,10 @@ import net.es.nsi.pce.path.api.Exceptions;
 public class SimpleLabel {
     public static final String NSI_EVTS_LABEL_TYPE = "vlan";
 
-    public final static Set<String> LABELS = new HashSet<>();
+    public final static HashMap<String, String> LABELS = new HashMap<>();
     static {
-        LABELS.add(NSI_EVTS_LABEL_TYPE);
+        LABELS.put(NmlEthernet.VLAN, NmlEthernet.VLAN);
+        LABELS.put(NmlEthernet.VLAN_LABEL, NmlEthernet.VLAN);
     };
 
     public final static String HASH = "#";
@@ -32,13 +33,14 @@ public class SimpleLabel {
     }
 
     public SimpleLabel(String type, String value) throws WebApplicationException {
-        if (LABELS.contains(type)) {
-            this.type = type;
-            this.value = value;
-        }
-        else {
-            throw Exceptions.stpUnknownLabelType("Unknown label type " + type);
-        }
+      String get = LABELS.get(type);
+      if (get != null) {
+          this.type = get;
+          this.value = value;
+      }
+      else {
+          throw Exceptions.stpUnknownLabelType("Unknown label type " + type);
+      }
     }
 
     /**
@@ -52,12 +54,13 @@ public class SimpleLabel {
      * @param type the type to set
      */
     public void setType(String type) throws WebApplicationException {
-        if (LABELS.contains(type)) {
-            this.type = type;
-        }
-        else {
-            throw Exceptions.stpUnknownLabelType("Unknown label type " + type);
-        }
+      String get = LABELS.get(type);
+      if (get != null) {
+          this.type = get;
+      }
+      else {
+          throw Exceptions.stpUnknownLabelType("Unknown label type " + type);
+      }
     }
 
     /**

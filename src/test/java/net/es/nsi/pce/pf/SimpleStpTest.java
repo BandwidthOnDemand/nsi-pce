@@ -1,7 +1,5 @@
 package net.es.nsi.pce.pf;
 
-import net.es.nsi.pce.pf.simple.SimpleLabel;
-import net.es.nsi.pce.pf.simple.SimpleStp;
 import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.WebApplicationException;
@@ -9,11 +7,14 @@ import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBElement;
 import net.es.nsi.pce.jaxb.path.FindPathErrorType;
 import net.es.nsi.pce.pf.api.NsiError;
+import net.es.nsi.pce.pf.simple.SimpleLabel;
+import net.es.nsi.pce.pf.simple.SimpleStp;
 import net.es.nsi.pce.util.Log4jHelper;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import org.junit.Before;
@@ -197,6 +198,24 @@ public class SimpleStpTest {
     public void testIsUnderSpecified() {
         SimpleStp stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013::bi-ps?vlan=1782-1790");
         assertTrue(stp.isUnderSpecified());
+
+        stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013::bi-ps?vlan=1782");
+        assertFalse(stp.isUnderSpecified());
+
+        stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013::bi-ps");
+        assertTrue(stp.isUnderSpecified());
+    }
+
+    @Test
+    public void testIsRoot() {
+        SimpleStp stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013::bi-ps?vlan=1782-1790");
+        assertFalse(stp.isRoot());
+
+        stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013::bi-ps?vlan=1782");
+        assertFalse(stp.isRoot());
+
+        stp = new SimpleStp("urn:ogf:network:kddilabs.jp:2013::bi-ps");
+        assertTrue(stp.isRoot());
     }
 
     @Test

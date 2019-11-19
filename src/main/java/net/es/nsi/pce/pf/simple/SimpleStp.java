@@ -48,6 +48,12 @@ public final class SimpleStp {
         this.labels.add(label);
     }
 
+    /**
+     * Constructor for an STP string.
+     *
+     * @param stpId
+     * @throws WebApplicationException
+     */
     public SimpleStp(String stpId) throws WebApplicationException {
         if (Strings.isNullOrEmpty(stpId)) {
             // An empty string gets an emtpy STP.
@@ -64,7 +70,6 @@ public final class SimpleStp {
                 this.labels = SimpleLabels.fromString(question[1]);
             }
             catch (IllegalArgumentException ex) {
-                //log.error("SimpleStp: stpId=" + stpId, ex);
                 throw Exceptions.stpInvalidLabel(stpId);
             }
         }
@@ -108,6 +113,10 @@ public final class SimpleStp {
 
     public boolean isUnderSpecified() {
         return labels.size() != 1;
+    }
+
+    public boolean isRoot() {
+        return labels.isEmpty();
     }
 
     public static String parseNetworkId(String id) {

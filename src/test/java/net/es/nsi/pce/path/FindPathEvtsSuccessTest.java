@@ -137,7 +137,7 @@ public class FindPathEvtsSuccessTest {
         }
     };
 
-    // Single internal STP in ERO.
+    // Single internal STP in ERO - Failure case since internal STP is not bounded.
     private final static StpTestData test10 = new StpTestData() {
         {   this.setStpA("urn:ogf:network:netherlight.net:2013:production7:surfnet-1?vlan=1700");
             this.setStpZ("urn:ogf:network:netherlight.net:2013:production7:geant-1?vlan=2102");
@@ -150,7 +150,7 @@ public class FindPathEvtsSuccessTest {
         }
     };
 
-    // Two internal STP in ERO.
+    // Two internal STP in ERO - Failure case since internal STP is not bounded.
     private final static StpTestData test11 = new StpTestData() {
         {   this.setStpA("urn:ogf:network:netherlight.net:2013:production7:surfnet-1?vlan=1700");
             this.setStpZ("urn:ogf:network:netherlight.net:2013:production7:geant-1?vlan=2102");
@@ -249,13 +249,13 @@ public class FindPathEvtsSuccessTest {
 
             OrderedStpType internal1 = FACTORY.createOrderedStpType();
             internal1.setOrder(0);
-            internal1.setStp("urn:ogf:network:netherlight.net:2013:production7:internalA");
+            internal1.setStp("urn:ogf:network:kddilabs.jp:2013:topology:internalA");
             ero.getOrderedSTP().add(internal1);
 
             // We should allow this to be urn:ogf:network:uvalight.net:2013:topology:netherlight?vlan=1782.
             OrderedStpType internal2 = FACTORY.createOrderedStpType();
             internal2.setOrder(1);
-            internal2.setStp("urn:ogf:network:netherlight.net:2013:production7:internalB");
+            internal2.setStp("urn:ogf:network:uvalight.net:2013:topology:internalB");
             ero.getOrderedSTP().add(internal2);
             this.setEro(ero);
         }
@@ -274,6 +274,7 @@ public class FindPathEvtsSuccessTest {
         }
     };
 
+    // Single intermediate STP - This is also a failure case since too underspecified.
     private final static StpTestData test16 = new StpTestData() {
         {   this.setStpA("urn:ogf:network:kddilabs.jp:2013:topology:bi-ps?vlan=1780-1790");
             this.setStpZ("urn:ogf:network:uvalight.net:2013:topology:ps?vlan=1780-1790");
@@ -301,13 +302,13 @@ public class FindPathEvtsSuccessTest {
             this.add(test7b);
             this.add(test8);
             this.add(test9);
-            this.add(test10);
-            this.add(test11);
+            //this.add(test10);
+            //this.add(test11);
             this.add(test12);
             this.add(test13);
             this.add(test14);
             this.add(test15);
-            /*this.add(test16);*/
+            //this.add(test16);
         }
     };
 

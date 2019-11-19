@@ -1,26 +1,15 @@
 package net.es.nsi.pce.pf;
 
-import net.es.nsi.pce.pf.graph.GraphEdge;
-import net.es.nsi.pce.pf.graph.SdpEdge;
-import net.es.nsi.pce.pf.graph.StpEdge;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListMap;
 import javax.ws.rs.WebApplicationException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
-import net.es.nsi.pce.path.services.Point2PointTypes;
-import net.es.nsi.pce.pf.api.PCEConstraints;
-import net.es.nsi.pce.pf.api.PCEData;
-import net.es.nsi.pce.pf.api.StpPair;
-import net.es.nsi.pce.pf.api.cons.Constraint;
-import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
-import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
-import net.es.nsi.pce.schema.NsiConstants;
-import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.jaxb.topology.DemarcationType;
 import net.es.nsi.pce.jaxb.topology.ObjectFactory;
 import net.es.nsi.pce.jaxb.topology.ResourceRefType;
@@ -29,25 +18,39 @@ import net.es.nsi.pce.jaxb.topology.SdpType;
 import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
 import net.es.nsi.pce.jaxb.topology.StpDirectionalityType;
 import net.es.nsi.pce.jaxb.topology.StpType;
+import net.es.nsi.pce.path.services.Point2PointTypes;
+import net.es.nsi.pce.pf.api.PCEConstraints;
+import net.es.nsi.pce.pf.api.PCEData;
+import net.es.nsi.pce.pf.api.StpPair;
+import net.es.nsi.pce.pf.api.cons.Constraint;
+import net.es.nsi.pce.pf.api.cons.ObjectAttrConstraint;
+import net.es.nsi.pce.pf.api.cons.StringAttrConstraint;
+import net.es.nsi.pce.pf.graph.GraphEdge;
+import net.es.nsi.pce.pf.graph.SdpEdge;
+import net.es.nsi.pce.pf.graph.StpEdge;
+import net.es.nsi.pce.pf.route.StpTypeBundle;
+import net.es.nsi.pce.pf.simple.SimpleStp;
+import net.es.nsi.pce.schema.NsiConstants;
+import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.util.Log4jHelper;
 import org.apache.log4j.xml.DOMConfigurator;
+import static org.hamcrest.CoreMatchers.is;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class DijkstraPCETest {
     private static Logger log;
@@ -82,14 +85,14 @@ public class DijkstraPCETest {
         // given
         DijkstraPCE subject = new DijkstraPCE();
 
-        // when   
+        // when
         List<StpPair> segments = subject.getIndividualSegments(nsiTopology, path);
 
         // then
         assertThat(segments.size(), is(3));
         assertThat(segments.get(0).getA().getId(), is("urn:ogf:network:surfnet.nl:1990:src-testbed:start"));
         assertThat(segments.get(2).getZ().getId(), is("urn:ogf:network:surfnet.nl:1990:dst-testbed:end"));
-        
+
         log.debug("getIndividualSegments: done");
     }
 
@@ -248,6 +251,24 @@ public class DijkstraPCETest {
         sdps.put(interSdp1.getId(), interSdp1);
         sdps.put(interSdp2.getId(), interSdp2);
 
+        ConcurrentSkipListMap<String, StpTypeBundle> stpTypeBundle = new ConcurrentSkipListMap<>();
+
+        Map<String, StpType> stp1Bundle = new HashMap<>();
+        stp1Bundle.put(srcStp1.getId(), srcStp1);
+        stpTypeBundle.put(srcStp1.getId(), new StpTypeBundle(new SimpleStp(srcStp1.getId()), stp1Bundle));
+
+        Map<String, StpType> stp2Bundle = new HashMap<>();
+        stp2Bundle.put(srcStp2.getId(), srcStp2);
+        stpTypeBundle.put(srcStp2.getId(), new StpTypeBundle(new SimpleStp(srcStp2.getId()), stp2Bundle));
+
+        Map<String, StpType> dstStp1Bundle = new HashMap<>();
+        dstStp1Bundle.put(dstStp1.getId(), dstStp1);
+        stpTypeBundle.put(dstStp1.getId(), new StpTypeBundle(new SimpleStp(dstStp1.getId()), dstStp1Bundle));
+
+        Map<String, StpType> dstStp2Bundle = new HashMap<>();
+        dstStp2Bundle.put(dstStp2.getId(), dstStp2);
+        stpTypeBundle.put(dstStp2.getId(), new StpTypeBundle(new SimpleStp(dstStp2.getId()), dstStp2Bundle));
+
         // mock for method for getServiceDomains
         when(mockedTopology.getLocalNsaId()).thenReturn("urn:ogf:network:surfnet.nl:1990:nsa");
 
@@ -275,6 +296,20 @@ public class DijkstraPCETest {
                     String key = (String) arguments[0];
                     if (serviceDomains.containsKey(key)) {
                         return serviceDomains.get(key);
+                    }
+                }
+                return null;
+            }
+        });
+
+        when(mockedTopology.getStpTypeBundle(anyString())).thenAnswer(new Answer<StpTypeBundle>() {
+            @Override
+            public StpTypeBundle answer(InvocationOnMock invocation) throws Throwable {
+                Object[] arguments = invocation.getArguments();
+                if (arguments != null && arguments.length > 0 && arguments[0] != null) {
+                    String key = (String) arguments[0];
+                    if (stpTypeBundle.containsKey(key)) {
+                        return stpTypeBundle.get(key);
                     }
                 }
                 return null;

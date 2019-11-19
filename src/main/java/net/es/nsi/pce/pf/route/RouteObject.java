@@ -19,18 +19,19 @@
  */
 package net.es.nsi.pce.pf.route;
 
-import net.es.nsi.pce.pf.simple.SimpleStp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import javax.ws.rs.WebApplicationException;
 import net.es.nsi.pce.jaxb.path.DirectionalityType;
 import net.es.nsi.pce.jaxb.path.OrderedStpType;
 import net.es.nsi.pce.jaxb.path.StpListType;
 import net.es.nsi.pce.jaxb.topology.SdpType;
 import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.path.api.Exceptions;
+import net.es.nsi.pce.pf.simple.SimpleStp;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,15 @@ public class RouteObject {
      * Segment the path request into individual path segments that will need
      * to be satisfied based on supplied ERO information.
      *
+     * Here are the ERO rules that have been implemented:
+     *   - An internal STP is considered any STP that is not discoverable in
+     *     topology.  If an internal STP is specified in an ERO then it must be
+     *     bounded by two external STP discoverable from topology.
+     *   - An intermediate STP is specified in and ERO relative to the SRC STP.
+     *     An intermediate STP is always considered an egress STP so take care
+     *     when specifying to avoid weird hair pinning or non-optimal paths.
+     *   - At the moment an intermediate STP must be a fully qualified STP.
+     *
      * @param topology The NSI network topology used to create route object.
      * @param srcStpId The source STP identifier for the route.
      * @param dstStpId The destination STP identifier for the route.
@@ -59,69 +69,96 @@ public class RouteObject {
             SimpleStp srcStpId,
             SimpleStp dstStpId,
             DirectionalityType directionality,
-            Optional<StpListType> ero) {
+            Optional<StpListType> ero) throws WebApplicationException {
 
-        Route route = new Route();
+      // Each segment of the a path is assigned a route object with an A and Z end.
+      Route route = new Route();
 
-        // Get the set of possible source and destination ports.
-        StpTypeBundle srcBundle = new StpTypeBundle(topology, srcStpId, directionality);
-        if (srcBundle.isEmpty()) {
-            log.error("RouteObject: source STP does not exist in topology: " + srcStpId.toString());
-            throw Exceptions.stpResolutionError(srcStpId.toString());
-        }
+      // Get the set of possible source STP identifiers (a range could be provided).
+      StpTypeBundle srcBundle = new StpTypeBundle(topology, srcStpId, directionality);
+      if (srcBundle.isEmpty()) {
+          log.error("RouteObject: source STP does not exist in topology: " + srcStpId.toString());
+          throw Exceptions.stpResolutionError(srcStpId.toString());
+      }
 
-        route.setBundleA(srcBundle);
+      route.setBundleA(srcBundle);
 
-        if (ero.isPresent()) {
-            List<OrderedStpType> orderedSTP = ero.get().getOrderedSTP();
-            Collections.sort(orderedSTP, new CustomComparator());
-            SimpleStp lastStp = srcStpId;
-            for (OrderedStpType stp : orderedSTP) {
-                log.debug("RouteObject: order=" + stp.getOrder() + ", stpId=" + stp.getStp());
-                SimpleStp nextStp = new SimpleStp(stp.getStp());
-                StpTypeBundle nextBundle = new StpTypeBundle(topology, nextStp, directionality);
+      // Now we process any ERO elements if present.
+      if (ero.isPresent()) {
+        // We need to process the ERO in order that it was specified.
+        List<OrderedStpType> orderedSTP = ero.get().getOrderedSTP();
+        Collections.sort(orderedSTP, new CustomComparator());
 
-                if (nextBundle.isEmpty()) {
-                    if (!nextStp.getNetworkId().equalsIgnoreCase(lastStp.getNetworkId())) {
-                        log.error("RouteObject: Internal STP not bounded by external: " + stp.getStp());
-                        //throw Exceptions.stpResolutionError(stp.getStp());
-                    }
+        // Our first processed segment starts with our source STP.
+        SimpleStp lastStp = srcStpId;
 
-                    // Must be an internal STP.
-                    route.addInternalStp(stp.getStp());
-                }
-                else {
-                    // We have an inter-domain STP so save it and get SDP.
-                    route.setBundleZ(nextBundle);
-                    routes.add(route);
-                    route = new Route();
+        for (OrderedStpType stp : orderedSTP) {
+          // Parse this STP and generate a bundle enumerating all the STP.  The
+          // specified STP must exist in topology for a bundle to be generated.
+          SimpleStp nextStp = new SimpleStp(stp.getStp());
+          StpTypeBundle nextBundle = new StpTypeBundle(topology, nextStp, directionality);
 
-                    StpTypeBundle lastBundle = new StpTypeBundle();
-                    for (StpType member : nextBundle.values()) {
-                        SdpType sdp = topology.getSdp(member.getSdp().getId());
-                        if (sdp == null) {
-                            log.error("RouteObject: ERO STP not associated with valid SDP in context of request: " + stp.getStp());
-                            throw Exceptions.invalidEroMember(stp.getStp());
-                        }
-                        if (member.getId().equalsIgnoreCase(sdp.getDemarcationA().getStp().getId())) {
-                            lastBundle.addStpType(topology.getStp(sdp.getDemarcationZ().getStp().getId()));
-                        }
-                        else {
-                            lastBundle.addStpType(topology.getStp(sdp.getDemarcationA().getStp().getId()));
-                        }
-                    }
+          // If we did not find an associated bundle the specified ERO STP may
+          // be an internal STP used for a domain's internal path computation.
+          if (nextBundle.isEmpty()) {
+            // The one rule we have is that an internal STP must be bounded by
+            // at least one externally visible STP from the same domain.  This
+            // check is to see if the previous STP was in the same domain.
+            //if (!nextStp.getNetworkId().equalsIgnoreCase(lastStp.getNetworkId())) {
+                //log.error("RouteObject: Internal STP not bounded by external STP: " + stp.getStp());
+                //throw Exceptions.invalidEroError(stp.getStp());
+            //}
 
-                    if (lastBundle.isEmpty()) {
-                        log.error("RouteObject: ERO STP not associated with SDP: " + stp.getStp());
-                        throw Exceptions.invalidEroError(stp.getStp());
-                    }
+            // Save this internal STP.
+            route.addInternalStp(stp.getStp());
+          }
+          else {
+              // We have an inter-domain STP so save it and get the SDP
+              // so we know the STP on far end.  We may need to filter some
+              // of these out if there is no corresponding SDP (mismatching
+              // labels on each end of the link).
+              nextBundle = nextBundle.getPeerReducedBundle();
+              if (nextBundle.isEmpty()) {
+                log.error("RouteObject: ERO STP not associated with SDP: " + stp.getStp());
+                throw Exceptions.invalidEroError(stp.getStp());
+              }
 
-                    route.setBundleA(lastBundle);
-                    lastStp = lastBundle.getSimpleStp();
-                }
+              // We have completed this path segment by finding a external
+              // interdomain STP.
+              route.setBundleZ(nextBundle);
+              routes.add(route);
+
+              // Now create the bundle associated with the other end of SDP.
+              route = new Route();
+
+              StpTypeBundle lastBundle = new StpTypeBundle();
+
+              for (StpType member : nextBundle.values()) {
+                  SdpType sdp = topology.getSdp(member.getSdp().getId());
+                  if (sdp == null) {
+                      log.error("RouteObject: ERO STP not associated with valid SDP in context of request: " + stp.getStp());
+                      throw Exceptions.invalidEroMember(stp.getStp());
+                  }
+                  if (member.getId().equalsIgnoreCase(sdp.getDemarcationA().getStp().getId())) {
+                      lastBundle.addStpType(topology.getStp(sdp.getDemarcationZ().getStp().getId()));
+                  }
+                  else {
+                      lastBundle.addStpType(topology.getStp(sdp.getDemarcationA().getStp().getId()));
+                  }
+              }
+
+              if (lastBundle.isEmpty()) {
+                  log.error("RouteObject: ERO STP not associated with SDP: " + stp.getStp());
+                  throw Exceptions.invalidEroError(stp.getStp());
+              }
+
+              route.setBundleA(lastBundle);
+              lastStp = lastBundle.getSimpleStp();
             }
+          }
         }
 
+        // Add the original destination endpoint after any inserted ERO points.
         StpTypeBundle dstBundle = new StpTypeBundle(topology, dstStpId, directionality);
         if (dstBundle.isEmpty()) {
             log.error("RouteObject: destination STP does not exist in topology: " + dstStpId.toString());
@@ -129,7 +166,31 @@ public class RouteObject {
         }
 
         route.setBundleZ(dstBundle);
+
+        // Add this last route to our list of one or more routes.
         routes.add(route);
+
+        // We have completed building the ERO but need to check for internal
+        // consistency.
+        routes.forEach(r -> {
+          StpTypeBundle bundleA = r.getBundleA();
+          StpTypeBundle bundleZ = r.getBundleZ();
+          SimpleStp stpA = bundleA.getSimpleStp();
+          SimpleStp stpZ = bundleZ.getSimpleStp();
+
+          String network = stpA.getNetworkId();
+          for (OrderedStpType internalStp : r.getInternalStp()) {
+            SimpleStp istp = new SimpleStp(internalStp.getStp());
+            if (!istp.getNetworkId().equalsIgnoreCase(network)) {
+              network = stpZ.getNetworkId();
+              if (!istp.getNetworkId().equalsIgnoreCase(network)) {
+                log.error("RouteObject: internal STP {} not a member of networkA {} or networkZ {}",
+                        istp.getStpId(), stpA.getNetworkId(), stpZ.getNetworkId());
+                throw Exceptions.invalidEroError(istp.getStpId());
+              }
+            }
+          }
+        });
     }
 
     public List<Route> getRoutes() {
