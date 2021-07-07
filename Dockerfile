@@ -1,5 +1,7 @@
 FROM maven:3-openjdk-8 AS MAVEN_BUILD
 
+LABEL org.opencontainers.image.source=https://github.com/bandwidthondemand/nsi-pce
+
 ENV HOME /nsi-pce
 WORKDIR $HOME
 COPY . .
