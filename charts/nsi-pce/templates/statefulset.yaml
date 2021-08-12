@@ -30,10 +30,7 @@ spec:
       - name: wait-for-dds
         image: curlimages/curl:latest
         command: ["sh", "-c",
-          {{ printf
-             "until [ $(curl -sw '%%{http_code}' http://%s-%s.%s.svc.cluster.local:80/dds/portal -o /dev/null) -eq 200 ]; do echo `date` sleeping 2 seconds ...; sleep 2; done"
-             .Release.Name .Chart.Name .Release.Namespace | quote
-          }}
+          {{ printf "until [ $(curl -sw '%%{http_code}' http://%s-%s.%s.svc.cluster.local:80/dds/portal -o /dev/null) -eq 200 ]; do echo `date` sleeping 2 seconds ...; sleep 2; done" .Release.Name .Chart.Name .Release.Namespace | quote }}
         ]
       containers:
         - name: {{ .Chart.Name }}
