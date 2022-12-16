@@ -13,7 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <jersey.version>2.23.1</jersey.version>
-        <spring.version>4.0.6.RELEASE</spring.version>
+        <spring.version>5.2.20.RELEASE</spring.version>
         <slf4j.version>1.7.32</slf4j.version>
         <jung.version>2.0.1</jung.version>
         <java.version>1.8</java.version>
