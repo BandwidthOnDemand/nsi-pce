@@ -30,7 +30,7 @@ spec:
       - name: wait-for-dds
         image: curlimages/curl:latest
         command: ["sh", "-c",
-          {{ printf "until [ $(curl -sw '%%{http_code}' http://%s-nsi-dds.%s.svc.cluster.local:80/dds/portal -o /dev/null) -eq 200 ]; do echo `date` sleeping 2 seconds ...; sleep 2; done" .Release.Name .Release.Namespace | quote }}
+          {{ printf "until [ $(curl -sw '%%{http_code}' %s -o /dev/null) -eq 200 ]; do echo `date` sleeping 2 seconds ...; sleep 2; done" .Values.config.ddsPortalUrl | quote }}
         ]
       containers:
         - name: {{ .Chart.Name }}
@@ -43,12 +43,14 @@ spec:
             - "-Xmx10000m"
             - "-Djava.net.preferIPv4Stack=true"
             - "-Dcom.sun.xml.bind.v2.runtime.JAXBContextImpl.fastBoot=true"
+            {{- if .Values.config.enableSSL }}
             - "-Djavax.net.ssl.trustStoreType=jks"
             - "-Djavax.net.ssl.keyStoreType=jks"
             - "-Djavax.net.ssl.trustStorePassword=secret"
             - "-Djavax.net.ssl.keyStorePassword=secret"
             - {{ printf "-Djavax.net.ssl.trustStore=%s/nsi-pce-truststore.jks" .Values.config.mountPath | quote }}
             - {{ printf "-Djavax.net.ssl.keyStore=%s/nsi-pce-keystore.jks" .Values.config.mountPath | quote }}
+            {{- end }}
             - {{ printf "-Djava.util.logging.config.file=%s/logging.properties" .Values.config.mountPath | quote }}
             - {{ printf "-Dlog4j.configuration=%s/log4j.xml" .Values.config.mountPath | quote }}
             - {{ printf "-Dapp.home=%s" .Values.image.home | quote }}
@@ -57,9 +59,19 @@ spec:
             - {{ printf "%s/pce.jar" .Values.image.home | quote }}
             - {{ printf "-topologyConfigFile=%s/topology-dds.xml" .Values.config.mountPath | quote }}
           volumeMounts:
-            - name: {{ .Values.config.name }}
+            - name: config
               mountPath: {{ .Values.config.mountPath }}
               readOnly: true
+          {{- if (((.Values.config).keystore).secretName) }}
+            - name: keystore
+              mountPath: "{{ .Values.config.mountPath }}/key"
+              readOnly: true
+          {{- end }}
+          {{- if (((.Values.config).truststore).secretName) }}
+            - name: truststore
+              mountPath: "{{ .Values.config.mountPath }}/trust"
+              readOnly: true
+          {{- end }}
           ports:
             - name: internal
               containerPort: {{ .Values.service.containerPort }}
@@ -87,9 +99,50 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
-        - name: {{ .Values.config.name }}
+        - name: config
           configMap:
-            name: {{ include "nsi-pce.fullname" . }}-{{ .Values.config.name }}
+            name: {{ .Release.Name }}-config
+            items:
+            - key: "topology-dds.xml"
+              path: "topology-dds.xml"
+            - key: "logging.properties"
+              path: "logging.properties"
+            - key: "log4j.xml"
+              path: "log4j.xml"
+            - key: "beans.xml"
+              path: "beans.xml"
+            - key: "http.json"
+              path: "http.json"
+            - key: "jetty.xml"
+              path: "jetty.xml"
+            - key: "log4j-viewer.xml"
+              path: "log4j-viewer.xml"
+            {{- if (((.Values.config).keystore).secretName) }}
+            {{- else if .Values.config.enableSSL }}
+            - key: "nsi-pce-keystore.jks"
+              path: "key/nsi-pce-keystore.jks"
+            {{- end }}
+            {{- if (((.Values.config).truststore).secretName) }}
+            {{- else if .Values.config.enableSSL }}
+            - key: "nsi-pce-truststore.jks"
+              path: "trust/nsi-pce-truststore.jks"
+            {{- end }}
+        {{- if (((.Values.config).keystore).secretName) }}
+        - name: keystore
+          secret:
+            secretName: {{ .Values.config.keystore.secretName }}
+            items:
+            - key: {{ .Values.config.keystore.key }}
+              path: nsi-pce-keystore.jks
+        {{- end }}
+        {{- if (((.Values.config).truststore).secretName) }}
+        - name: truststore
+          secret:
+            secretName: {{ .Values.config.truststore.secretName }}
+            items:
+            - key: {{ .Values.config.truststore.key }}
+              path: nsi-pce-truststore.jks
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
