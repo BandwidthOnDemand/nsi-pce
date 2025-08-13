@@ -27,11 +27,37 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
-      - name: wait-for-dds
-        image: curlimages/curl:latest
-        command: ["sh", "-c",
-          {{ printf "until [ $(curl -sw '%%{http_code}' %s -o /dev/null) -eq 200 ]; do echo `date` sleeping 2 seconds ...; sleep 2; done" .Values.config.ddsPortalUrl | quote }}
-        ]
+        {{- if .Values.config.caSecretName }}
+        - name: ca-to-truststore
+          securityContext:
+            runAsUser: 0
+          image: debian:trixie-slim
+          command:
+            - sh
+            - -c
+            - |
+              cd /truststore
+              cp /ca/ca.crt .
+              apt-get update
+              apt-get install -y --no-install-recommends openjdk-21-jdk-headless
+              awk '/-----BEGIN CERTIFICATE-----/ {out="cert" ++i ".pem"}; out {print >> out} /-----END CERTIFICATE-----/ {out=""}' ca.crt
+              for cert in cert*.pem; do
+                  cn=$(openssl x509 -in ${cert} -noout -subject | sed -n 's/^subject=//p')
+                  echo "${cn}"
+                  keytool -trustcacerts -storepass secret -importcert -alias "${cn}" -file ${cert} -keystore nsi-pce-truststore.jks -storetype jks -noprompt
+              done
+              rm cert*.pem
+          volumeMounts:
+            - name: truststore
+              mountPath: /truststore
+            - name: ca
+              mountPath: /ca
+        {{- end }}
+        - name: wait-for-dds
+          image: curlimages/curl:latest
+          command: ["sh", "-c",
+            {{ printf "until [ $(curl -sw '%%{http_code}' %s -o /dev/null) -eq 200 ]; do echo `date` sleeping 2 seconds ...; sleep 2; done" .Values.config.ddsPortalUrl | quote }}
+          ]
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -48,8 +74,8 @@ spec:
             - "-Djavax.net.ssl.keyStoreType=jks"
             - "-Djavax.net.ssl.trustStorePassword=secret"
             - "-Djavax.net.ssl.keyStorePassword=secret"
-            - {{ printf "-Djavax.net.ssl.trustStore=%s/nsi-pce-truststore.jks" .Values.config.mountPath | quote }}
-            - {{ printf "-Djavax.net.ssl.keyStore=%s/nsi-pce-keystore.jks" .Values.config.mountPath | quote }}
+            - {{ printf "-Djavax.net.ssl.trustStore=%s" .Values.config.trustStorePath | quote }}
+            - {{ printf "-Djavax.net.ssl.keyStore=%s" .Values.config.keyStorePath | quote }}
             {{- end }}
             - {{ printf "-Djava.util.logging.config.file=%s/logging.properties" .Values.config.mountPath | quote }}
             - {{ printf "-Dlog4j.configuration=%s/log4j.xml" .Values.config.mountPath | quote }}
@@ -71,6 +97,10 @@ spec:
             - name: truststore
               mountPath: "{{ .Values.config.mountPath }}/trust"
               readOnly: true
+          {{- end }}
+          {{- if .Values.config.caSecretName }}
+            - name: truststore
+              mountPath: /truststore
           {{- end }}
           ports:
             - name: internal
@@ -103,30 +133,30 @@ spec:
           configMap:
             name: {{ .Release.Name }}-config
             items:
-            - key: "topology-dds.xml"
-              path: "topology-dds.xml"
-            - key: "logging.properties"
-              path: "logging.properties"
-            - key: "log4j.xml"
-              path: "log4j.xml"
-            - key: "beans.xml"
-              path: "beans.xml"
-            - key: "http.json"
-              path: "http.json"
-            - key: "jetty.xml"
-              path: "jetty.xml"
-            - key: "log4j-viewer.xml"
-              path: "log4j-viewer.xml"
-            {{- if (((.Values.config).keystore).secretName) }}
-            {{- else if .Values.config.enableSSL }}
-            - key: "nsi-pce-keystore.jks"
-              path: "key/nsi-pce-keystore.jks"
-            {{- end }}
-            {{- if (((.Values.config).truststore).secretName) }}
-            {{- else if .Values.config.enableSSL }}
-            - key: "nsi-pce-truststore.jks"
-              path: "trust/nsi-pce-truststore.jks"
-            {{- end }}
+              - key: "topology-dds.xml"
+                path: "topology-dds.xml"
+              - key: "logging.properties"
+                path: "logging.properties"
+              - key: "log4j.xml"
+                path: "log4j.xml"
+              - key: "beans.xml"
+                path: "beans.xml"
+              - key: "http.json"
+                path: "http.json"
+              - key: "jetty.xml"
+                path: "jetty.xml"
+              - key: "log4j-viewer.xml"
+                path: "log4j-viewer.xml"
+              {{- if (((.Values.config).keystore).secretName) }}
+              {{- else if .Values.config.enableSSL }}
+              - key: "nsi-pce-keystore.jks"
+                path: "key/nsi-pce-keystore.jks"
+              {{- end }}
+              {{- if or (((.Values.config).truststore).secretName) ((.Values.config).caSecretName) }}
+              {{- else if .Values.config.enableSSL }}
+              - key: "nsi-pce-truststore.jks"
+                path: "trust/nsi-pce-truststore.jks"
+              {{- end }}
         {{- if (((.Values.config).keystore).secretName) }}
         - name: keystore
           secret:
@@ -142,6 +172,13 @@ spec:
             items:
             - key: {{ .Values.config.truststore.key }}
               path: nsi-pce-truststore.jks
+        {{- end }}
+        {{- if .Values.config.caSecretName }}
+        - name: ca
+          secret:
+            secretName: {{ .Values.config.caSecretName }}
+        - name: truststore
+          emptyDir: {}
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
