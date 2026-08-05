@@ -1,4 +1,4 @@
-FROM maven:3-openjdk-8 AS MAVEN_BUILD
+FROM --platform=$BUILDPLATFORM maven:3.9-eclipse-temurin-8 AS MAVEN_BUILD
 
 LABEL org.opencontainers.image.source=https://github.com/bandwidthondemand/nsi-pce
 
@@ -7,7 +7,7 @@ WORKDIR $HOME
 COPY . .
 RUN mvn clean install -Dmaven.test.skip=true -Ddocker.nocache
  
-FROM openjdk:8-jre-alpine3.9
+FROM eclipse-temurin:8u492-b09-jre-alpine
 
 ENV HOME /nsi-pce
 USER 1000:1000
