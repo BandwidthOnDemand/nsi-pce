@@ -114,12 +114,17 @@ certificate:
       create: false
       password: "secret"
 
+# Maximum JVM heap size (-Xmx). Keep this well below resources.limits.memory:
+# the JVM also needs metaspace, code cache, thread stacks and direct buffers on
+# top of the heap, and exceeding the container limit means an OOMKill, not a GC.
+maxHeapSize: "1024m"
+
 resources:
   requests:
-    memory: 5Gi
+    memory: 1536Mi
     cpu: 100m
   limits:
-    memory: 10Gi
+    memory: 1536Mi
     cpu: 1000m
 
 nodeSelector: {}
