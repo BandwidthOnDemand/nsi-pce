@@ -7,7 +7,7 @@ WORKDIR $HOME
 COPY . .
 RUN mvn clean install -Dmaven.test.skip=true -Ddocker.nocache
  
-FROM eclipse-temurin:8u492-b09-jre-alpine
+FROM amazoncorretto:8u462-alpine-jre
 
 ENV HOME /nsi-pce
 USER 1000:1000
