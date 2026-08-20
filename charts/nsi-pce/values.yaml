@@ -3,11 +3,10 @@
 # Declare variables to be passed into your templates.
 
 image:
-  registrey: docker.io
-  repository: hnstrmprt/nsi-pce
+  repository: ghcr.io/bandwidthondemand/nsi-pce
   pullPolicy: IfNotPresent
   # tag overrides the image tag whose default is the chart appVersion
-  #tag: "2.0.4"
+  tag: ""
   home: "/nsi-pce"
 
 startupProbe:
