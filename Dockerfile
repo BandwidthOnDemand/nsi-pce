@@ -2,10 +2,13 @@ FROM --platform=$BUILDPLATFORM maven:3.9-eclipse-temurin-8 AS MAVEN_BUILD
 
 LABEL org.opencontainers.image.source=https://github.com/bandwidthondemand/nsi-pce
 
+ARG VERSION
 ENV HOME /nsi-pce
 WORKDIR $HOME
 COPY . .
-RUN mvn clean install -Dmaven.test.skip=true -Ddocker.nocache
+RUN mvn org.codehaus.mojo:versions-maven-plugin:2.16.2:set \
+      -DnewVersion="${VERSION:?VERSION build argument is required}" -DgenerateBackupPoms=false \
+    && mvn clean install -Dmaven.test.skip=true -Ddocker.nocache
  
 FROM amazoncorretto:8u462-alpine-jre
 

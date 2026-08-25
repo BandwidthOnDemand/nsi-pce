@@ -153,6 +153,20 @@ application/vnd.ogf.nsi.topology.v1+xml
 ```
 - The Automated GOLE topology discovery v1 which utilizes a manifest file.
 
+## Versioning
+The release git tag is the only place a version is written by hand. The `pom.xml` version is the
+placeholder `0.0.0-SNAPSHOT`; `.github/workflows/build-push-container.yml` checks out with
+`fetch-depth: 0`, resolves the version with `git describe --tags --always`, and passes it as
+`--build-arg VERSION=...`. The `Dockerfile` then runs `versions:set` before packaging, so a tag
+builds `2.1.2` and any other commit builds `2.1.2-3-g1a2b3c4`. The plugin coordinate is pinned to
+2.16.2, the last release that runs on the Java 8 build image.
+
+A container build without the argument fails rather than producing a mislabelled image:
+
+```
+$ docker build --build-arg VERSION="$(git describe --tags --always)" -t nsi-pce .
+```
+
 ## Running the NSI-PCE
 
 ```

@@ -116,6 +116,10 @@ public class Main {
         // Load PCE configuration from disk.
         ConfigurationManager.INSTANCE.initialize(configPath);
 
+        log.info("Starting nsi-pce {} on Java {}",
+                Main.class.getPackage().getImplementationVersion(),
+                System.getProperty("java.version"));
+
         // Listen for a shutdown event so we can clean up.
         Runtime.getRuntime().addShutdownHook(
             new Thread() {
