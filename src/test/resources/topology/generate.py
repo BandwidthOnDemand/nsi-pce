@@ -160,5 +160,19 @@ VLAN_LOOP = [
     Domain("domain-c", label_swapping=True, ports=[Port("c-edge", "1000-1099"), ca, cb]),
 ]
 
+# Two links between B and C, and a domain D that only B reaches.
+#   - From a VLAN on A-B to a different one at b-edge, B can only change the VLAN by going out to C on
+#     one link and back on the other: a detour through different ports, the last-resort case.
+#   - A path from A to D whose ERO names b-to-c and later c2-to-b leaves B and comes back on purpose.
+bc2, cb2 = link(("domain-b", "b-to-c2"), ("domain-c", "c-to-b2"), "1000-1099")
+bd, db = link(("domain-b", "b-to-d"), ("domain-d", "d-to-b"), "1000-1099")
+TWO_LINKS = [
+    Domain("domain-a", label_swapping=True, ports=[Port("a-edge", "1000-1099"), ab]),
+    Domain("domain-b", label_swapping=False, ports=[Port("b-edge", "1000-1099"), ba, bc, bc2, bd]),
+    Domain("domain-c", label_swapping=True, ports=[cb, cb2]),
+    Domain("domain-d", label_swapping=True, ports=[Port("d-edge", "1000-1099"), db]),
+]
+
 if __name__ == "__main__":
     (HERE / "vlan-loop.xml").write_text(collection(VLAN_LOOP))
+    (HERE / "two-links.xml").write_text(collection(TWO_LINKS))

@@ -285,7 +285,10 @@ config:
           <bean id="reachabilityProcessor" class="net.es.nsi.pce.pf.api.gof3.ReachabilityProcessor" scope="singleton">
               <constructor-arg index="0" ref="topologyProvider"/>
           </bean>
-          <bean id="dijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="prototype" />
+          <!-- avoidLoops (default true) routes ERO legs together; false restores the per-leg random VLAN. -->
+          <bean id="dijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="prototype">
+              <property name="avoidLoops" value="true" />
+          </bean>
           <bean id="underspecifiedPCE" class="net.es.nsi.pce.pf.UnderspecifiedPCE" scope="prototype" />
           <bean id="reachabilityPCE" class="net.es.nsi.pce.pf.ReachabilityPCE" scope="prototype" />
           <bean id="authPCE" class="net.es.nsi.pce.pf.AuthPCE" scope="prototype" />

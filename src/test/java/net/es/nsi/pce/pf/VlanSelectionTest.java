@@ -2,7 +2,9 @@ package net.es.nsi.pce.pf;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -30,8 +32,8 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 /**
- * Characterization of which VLAN the SEQUENTIAL chain puts on each segment, on the vlan-loop
- * fixture: domains A and C swap labels, B does not, and the three form a triangle.
+ * Which VLAN the SEQUENTIAL chain puts on each segment. In both fixtures domains A and C swap labels
+ * and B does not; vlan-loop.xml is a triangle, two-links.xml has two links between B and C.
  *
  * Runs the path-finding modules of the SEQUENTIAL chain (policy, Dijkstra, underspecified) directly.
  * ResolvePCE is left out: it only maps segments to NSAs and needs the running topology provider.
@@ -40,50 +42,71 @@ import org.junit.runners.Parameterized.Parameters;
 public class VlanSelectionTest {
     private static final String NETWORK = "urn:ogf:network:%s.example.net:2026:topology:";
     private static final ObjectFactory FACTORY = new ObjectFactory();
-    private static NsiTopology topology;
+    private static final Map<String, NsiTopology> TOPOLOGIES = new HashMap<>();
 
     @Parameter(0)
     public String name;
     @Parameter(1)
-    public String source;
+    public String fixture;
     @Parameter(2)
-    public String destination;
+    public String source;
     @Parameter(3)
-    public List<String> ero;
+    public String destination;
     @Parameter(4)
+    public List<String> ero;
+    @Parameter(5)
     public List<String> expected;
 
     @Parameters(name = "{0}")
     public static Collection<Object[]> cases() {
         return Arrays.asList(new Object[][] {
             // B cannot swap, so the VLAN on A-B is forced to the destination's.
-            {"different VLANs, no ERO", "domain-a:a-edge?vlan=1000", "domain-b:b-edge?vlan=1050", none(),
+            {"different VLANs, no ERO", "vlan-loop.xml", "domain-a:a-edge?vlan=1000", "domain-b:b-edge?vlan=1050",
+                none(),
                 segments("domain-a:a-edge?vlan=1000 -> domain-a:a-to-b?vlan=1050",
                          "domain-b:b-to-a?vlan=1050 -> domain-b:b-edge?vlan=1050")},
-            {"same VLAN, no ERO", "domain-a:a-edge?vlan=1000", "domain-b:b-edge?vlan=1000", none(),
+            {"same VLAN, no ERO", "vlan-loop.xml", "domain-a:a-edge?vlan=1000", "domain-b:b-edge?vlan=1000", none(),
                 segments("domain-a:a-edge?vlan=1000 -> domain-a:a-to-b?vlan=1000",
                          "domain-b:b-to-a?vlan=1000 -> domain-b:b-edge?vlan=1000")},
-            // A VLAN pinned in the ERO avoids the loop the bare ERO causes (see the test below).
-            {"different VLANs, ERO pinned to the destination VLAN", "domain-a:a-edge?vlan=1000",
+            {"different VLANs, ERO pinned to the destination VLAN", "vlan-loop.xml", "domain-a:a-edge?vlan=1000",
                 "domain-b:b-edge?vlan=1050", Arrays.asList("domain-a:a-to-b?vlan=1050"),
                 segments("domain-a:a-edge?vlan=1000 -> domain-a:a-to-b?vlan=1050",
                          "domain-b:b-to-a?vlan=1050 -> domain-b:b-edge?vlan=1050")},
+            // The production bug: a bare ERO into B used to pick the A-B VLAN at random and loop
+            // through C. The leg into B needs 1050, so that is the VLAN chosen on A-B.
+            {"different VLANs, bare ERO into the non-swapping domain", "vlan-loop.xml",
+                "domain-a:a-edge?vlan=1000", "domain-b:b-edge?vlan=1050", Arrays.asList("domain-a:a-to-b"),
+                segments("domain-a:a-edge?vlan=1000 -> domain-a:a-to-b?vlan=1050",
+                         "domain-b:b-to-a?vlan=1050 -> domain-b:b-edge?vlan=1050")},
+            {"same VLAN, bare ERO into the non-swapping domain", "vlan-loop.xml", "domain-a:a-edge?vlan=1020",
+                "domain-b:b-edge?vlan=1020", Arrays.asList("domain-a:a-to-b"),
+                segments("domain-a:a-edge?vlan=1020 -> domain-a:a-to-b?vlan=1020",
+                         "domain-b:b-to-a?vlan=1020 -> domain-b:b-edge?vlan=1020")},
             // Between two swapping domains the SDP is widened to the whole common range and the
             // uPAs pick the VLAN; the PCE does not keep the source VLAN.
-            {"same VLAN, both domains swap", "domain-a:a-edge?vlan=1000", "domain-c:c-edge?vlan=1000", none(),
+            {"same VLAN, both domains swap", "vlan-loop.xml", "domain-a:a-edge?vlan=1000",
+                "domain-c:c-edge?vlan=1000", none(),
                 segments("domain-a:a-edge?vlan=1000 -> domain-a:a-to-c?vlan=1000-1099",
                          "domain-c:c-to-a?vlan=1000-1099 -> domain-c:c-edge?vlan=1000")},
+            // A second B-C link, but no reason to use it: no detour.
+            {"two links, no detour needed", "two-links.xml", "domain-a:a-edge?vlan=1000",
+                "domain-b:b-edge?vlan=1050", none(),
+                segments("domain-a:a-edge?vlan=1000 -> domain-a:a-to-b?vlan=1050",
+                         "domain-b:b-to-a?vlan=1050 -> domain-b:b-edge?vlan=1050")},
         });
     }
 
     @BeforeClass
-    public static void loadTopology() throws Exception {
-        topology = TopologyFixture.load("vlan-loop.xml");
+    public static void loadTopologies() throws Exception {
+        for (String fixture : Arrays.asList("vlan-loop.xml", "two-links.xml")) {
+            TOPOLOGIES.put(fixture, TopologyFixture.load(fixture));
+        }
     }
 
     @Test
     public void picksTheExpectedVlanOnEachSegment() throws Exception {
-        assertThat(describe(findPath(topology, source, destination, ero)), is(expected));
+        assertThat(describe(findPath(TOPOLOGIES.get(fixture), new DijkstraPCE(), source, destination, ero)),
+                is(expected));
     }
 
     static List<String> none() {
@@ -94,6 +117,7 @@ public class VlanSelectionTest {
         return Arrays.asList(segments);
     }
 
+    /** A short "domain-x:port" id in the example.net fixtures as a full STP id. */
     static String stp(String shortId) {
         String[] parts = shortId.split(":", 2);
         return String.format(NETWORK, parts[0]) + parts[1];
@@ -114,8 +138,8 @@ public class VlanSelectionTest {
     }
 
     /** Runs the path-finding modules of the SEQUENTIAL chain; source, destination and ERO in short form. */
-    static List<PathSegment> findPath(NsiTopology topology, String source, String destination, List<String> ero)
-            throws Exception {
+    static List<PathSegment> findPath(NsiTopology topology, DijkstraPCE dijkstra, String source, String destination,
+            List<String> ero) throws Exception {
         P2PServiceBaseType p2ps = FACTORY.createP2PServiceBaseType();
         p2ps.setDirectionality(DirectionalityType.BIDIRECTIONAL);
         p2ps.setSymmetricPath(Boolean.TRUE);
@@ -144,7 +168,7 @@ public class VlanSelectionTest {
                 NsiConstants.EVTS_AGOLE, null));
         pceData.setTopology(topology);
 
-        for (PCEModule module : Stream.of(new PolicyPCE(), new DijkstraPCE(), new UnderspecifiedPCE())
+        for (PCEModule module : Stream.of(new PolicyPCE(), dijkstra, new UnderspecifiedPCE())
                 .collect(Collectors.toList())) {
             pceData = module.apply(pceData);
         }

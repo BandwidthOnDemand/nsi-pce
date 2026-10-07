@@ -2,47 +2,75 @@ package net.es.nsi.pce.pf;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 import net.es.nsi.pce.pf.api.PathSegment;
+import net.es.nsi.pce.pf.simple.SimpleStp;
 import net.es.nsi.pce.topology.model.NsiTopology;
+import static net.es.nsi.pce.pf.VlanSelectionTest.describe;
+import static net.es.nsi.pce.pf.VlanSelectionTest.findPath;
+import static net.es.nsi.pce.pf.VlanSelectionTest.network;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * Characterizes a known bug, to be fixed in DijkstraPCE: an ERO STP without a VLAN lets the leg
- * before it pick the VLAN on that SDP at random, without regard to the leg after it. On the
- * vlan-loop fixture the leg into domain B, which cannot swap labels, can then only reach the
- * destination VLAN by leaving B for C, swapping there, and entering B again. uPAs refuse a
- * segment that starts and ends on the same port, so such a path can never be reserved.
+ * Re-entering a network within one leg of a request: refused out and back through one port, allowed
+ * through another port only as a last resort, and always allowed across ERO points. The cases with a
+ * single expected path are rows in VlanSelectionTest.
  */
 public class VlanLoopTest {
-    // The random pick matches the destination VLAN 1 time in 100; 5 tries make a false pass rare.
-    private static final int TRIES = 5;
-    private static NsiTopology topology;
+    // The old router picks the VLAN at random; it matches the destination 1 time in 100.
+    private static final int RUNS = 5;
+    private static NsiTopology vlanLoop;
+    private static NsiTopology twoLinks;
 
     @BeforeClass
-    public static void loadTopology() throws Exception {
-        topology = TopologyFixture.load("vlan-loop.xml");
+    public static void loadTopologies() throws Exception {
+        vlanLoop = TopologyFixture.load("vlan-loop.xml");
+        twoLinks = TopologyFixture.load("two-links.xml");
     }
 
     @Test
-    public void bareEroLoopsThroughTheSwappingNeighbour() {
-        boolean looped = IntStream.range(0, TRIES).anyMatch(attempt -> entersTwice(
-                findPath("domain-a:a-edge?vlan=1000", "domain-b:b-edge?vlan=1050", Arrays.asList("domain-a:a-to-b")),
-                VlanSelectionTest.network("domain-b")));
+    public void bareEroLoopsWhenLoopAvoidanceIsOff() throws Exception {
+        DijkstraPCE perLeg = new DijkstraPCE();
+        perLeg.setAvoidLoops(false);
+        boolean looped = false;
+        for (int run = 0; run < RUNS && !looped; run++) {
+            looped = entersTwice(findPath(vlanLoop, perLeg, "domain-a:a-edge?vlan=1000", "domain-b:b-edge?vlan=1050",
+                    Arrays.asList("domain-a:a-to-b")), "domain-b");
+        }
         assertTrue("expected a path that enters domain-b twice", looped);
     }
 
-    private static boolean entersTwice(List<PathSegment> path, String network) {
-        return path.stream().filter(segment -> network.equals(segment.getNetworkId())).count() > 1;
+    /**
+     * B cannot swap and the A-B VLAN is pinned; only a detour through C changes it. The detour must
+     * leave B on one B-C link and come back on the other; which link goes first does not matter.
+     */
+    @Test
+    public void detourThroughDifferentPortsIsALastResort() throws Exception {
+        List<String> path = describe(findPath(twoLinks, new DijkstraPCE(), "domain-a:a-edge?vlan=1000",
+                "domain-b:b-edge?vlan=1050", Arrays.asList("domain-a:a-to-b?vlan=1010")));
+        assertThat(path.size(), is(4));
+        assertThat(path.get(0), is("domain-a:a-edge?vlan=1000 -> domain-a:a-to-b?vlan=1010"));
+        assertThat(path.get(3).endsWith("?vlan=1050 -> domain-b:b-edge?vlan=1050"), is(true));
+        String out = SimpleStp.getId(path.get(1).split(" -> ")[1]);
+        String back = SimpleStp.getId(path.get(3).split(" -> ")[0]);
+        assertTrue(out + " and " + back + " must be the two B-C links",
+                out.startsWith("domain-b:b-to-c") && back.startsWith("domain-b:b-to-c") && !out.equals(back));
     }
 
-    private static List<PathSegment> findPath(String source, String destination, List<String> ero) {
-        try {
-            return VlanSelectionTest.findPath(topology, source, destination, ero);
-        } catch (Exception ex) {
-            throw new IllegalStateException(ex);
-        }
+    /** The ERO leaves B for C and comes back through the other link: a hairpin asked for. */
+    @Test
+    public void hairpinAcrossEroPointsIsKept() throws Exception {
+        List<PathSegment> path = findPath(twoLinks, new DijkstraPCE(), "domain-a:a-edge?vlan=1000",
+                "domain-d:d-edge?vlan=1000", Arrays.asList("domain-b:b-to-c", "domain-c:c-to-b2"));
+        assertTrue("expected the requested hairpin through domain-c", entersTwice(path, "domain-b"));
+        assertThat(describe(path).get(1).startsWith("domain-b:b-to-a"), is(true));
+        assertThat(describe(path).get(2).startsWith("domain-c:c-to-b?"), is(true));
+    }
+
+    private static boolean entersTwice(List<PathSegment> path, String domain) {
+        return path.stream().filter(segment -> network(domain).equals(segment.getNetworkId())).count() > 1;
     }
 }

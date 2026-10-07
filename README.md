@@ -91,6 +91,26 @@ The prototype NSI-DDS implementation used by the topology service is currently e
 
 * *defaultServiceType* - The service type used as a default for networks not announcing a service type in NML topology.  If not present, this value will be used to create a default *ServiceDefinition* entry and *ServiceDomain* entries in the NSI topology for the discovered network.
 
+### Path computation (beans.xml)
+
+`config/beans.xml` wires the path computation modules. The `dijkstraPCE` bean has one setting:
+
+* *avoidLoops* (default `true`) - Routes the legs of a request, split at each ERO STP, together.
+  The VLAN at an ERO STP is chosen to fit the leg after it, and within a leg a path:
+  * never leaves a network and comes back through the same port, a segment the uPA refuses;
+  * re-enters a network through another port only when no other path exists;
+  * keeps the VLAN of the STP before it where it can.
+
+  A hairpin across ERO STPs, leaving a network at one and coming back at a later one, is what the
+  request asked for and is kept. `false` restores the earlier behaviour: each leg is routed on its
+  own and the VLAN at an ERO STP without one is picked at random.
+
+```
+<bean id="dijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="prototype">
+    <property name="avoidLoops" value="true" />
+</bean>
+```
+
 ### DDS configuration (dds.xml)
 
 The NSI-PCE's internal NSI-DDS engine (NSI Document Discovery Service v1) is used for collection of NSA Description and NML Topology documents from all NSA with the network.  The DDS then makes these discovered documents available for application use thfought its RESTful API.  The NSI-PCE's internal topology services utilizes this DDS RESTful API for building a network topology view.
@@ -168,7 +188,8 @@ JVM with a 4 GB heap.
 
 Path-finding tests run against synthetic topologies in `src/test/resources/topology/`. The
 collection files there are generated: change `generate.py` and rerun it rather than editing the
-XML.
+XML. `vlan-loop.xml` is a triangle where one domain cannot swap labels; `two-links.xml` adds a
+second link into that domain, for the last-resort detour and a hairpin requested by the ERO.
 
 ```
 $ python3 src/test/resources/topology/generate.py
