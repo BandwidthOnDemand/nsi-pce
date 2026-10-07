@@ -161,6 +161,20 @@ placeholder `0.0.0-SNAPSHOT`; `.github/workflows/build-push-container.yml` check
 builds `2.1.2` and any other commit builds `2.1.2-3-g1a2b3c4`. The plugin coordinate is pinned to
 2.16.2, the last release that runs on the Java 8 build image.
 
+## Tests
+`.github/workflows/ci.yml` runs `./mvnw -B verify` on JDK 8 for every pull request and every push
+to `master`. The suite needs JDK 8 and takes about six minutes; each test class runs in its own
+JVM with a 4 GB heap.
+
+Path-finding tests run against synthetic topologies in `src/test/resources/topology/`. The
+collection files there are generated: change `generate.py` and rerun it rather than editing the
+XML.
+
+```
+$ python3 src/test/resources/topology/generate.py
+$ ./mvnw -B verify
+```
+
 A container build without the argument fails rather than producing a mislabelled image:
 
 ```
