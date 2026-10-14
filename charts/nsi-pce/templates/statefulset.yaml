@@ -1,3 +1,9 @@
+{{- include "nsi-pce.validateTls" . }}
+{{- $mode := .Values.config.tls.client.mode }}
+{{- $pem := .Values.config.tls.client.pem }}
+{{- $keystore := .Values.config.tls.client.keystore }}
+{{- $tlsPath := printf "%s-tls" .Values.config.mountPath }}
+{{- $curlTls := ternary (printf "--cert %s/tls.crt --key %s/tls.key --cacert %s/ca.crt " $tlsPath $tlsPath $tlsPath) "" (eq $mode "pem") }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -27,37 +33,17 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
-        {{- if .Values.config.caSecretName }}
-        - name: ca-to-truststore
-          securityContext:
-            runAsUser: 0
-          image: debian:trixie-slim
-          command:
-            - sh
-            - -c
-            - |
-              cd /truststore
-              cp /ca/ca.crt .
-              apt-get update
-              apt-get install -y --no-install-recommends openjdk-21-jdk-headless
-              awk '/-----BEGIN CERTIFICATE-----/ {out="cert" ++i ".pem"}; out {print >> out} /-----END CERTIFICATE-----/ {out=""}' ca.crt
-              for cert in cert*.pem; do
-                  cn=$(openssl x509 -in ${cert} -noout -subject | sed -n 's/^subject=//p')
-                  echo "${cn}"
-                  keytool -trustcacerts -storepass secret -importcert -alias "${cn}" -file ${cert} -keystore nsi-pce-truststore.jks -storetype jks -noprompt
-              done
-              rm cert*.pem
-          volumeMounts:
-            - name: truststore
-              mountPath: /truststore
-            - name: ca
-              mountPath: /ca
-        {{- end }}
         - name: wait-for-dds
           image: curlimages/curl:latest
           command: ["sh", "-c",
-            {{ printf "until [ $(curl -sw '%%{http_code}' %s -o /dev/null) -eq 200 ]; do echo `date` sleeping 2 seconds ...; sleep 2; done" .Values.config.ddsPortalUrl | quote }}
+            {{ printf "until [ $(curl -sw '%%{http_code}' %s%s -o /dev/null) -eq 200 ]; do echo `date` sleeping 2 seconds ...; sleep 2; done" $curlTls .Values.config.ddsPortalUrl | quote }}
           ]
+          {{- if eq $mode "pem" }}
+          volumeMounts:
+            - name: tls
+              mountPath: {{ $tlsPath }}
+              readOnly: true
+          {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -65,17 +51,34 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["java"]
+          {{- if eq $mode "keystore" }}
+          env:
+            - name: KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $keystore.passwordSecretName }}
+                  key: {{ $keystore.keyStorePasswordKey }}
+            - name: TRUSTSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $keystore.passwordSecretName }}
+                  key: {{ $keystore.trustStorePasswordKey }}
+          {{- end }}
           args:
             - {{ printf "-Xmx%s" .Values.maxHeapSize | quote }}
             - "-Djava.net.preferIPv4Stack=true"
             - "-Dorg.glassfish.jaxb.runtime.v2.runtime.JAXBContextImpl.fastBoot=true"
-            {{- if .Values.config.enableSSL }}
-            - "-Djavax.net.ssl.trustStoreType=jks"
-            - "-Djavax.net.ssl.keyStoreType=jks"
-            - "-Djavax.net.ssl.trustStorePassword=secret"
-            - "-Djavax.net.ssl.keyStorePassword=secret"
-            - {{ printf "-Djavax.net.ssl.trustStore=%s" .Values.config.trustStorePath | quote }}
-            - {{ printf "-Djavax.net.ssl.keyStore=%s" .Values.config.keyStorePath | quote }}
+            {{- if eq $mode "pem" }}
+            - "-Dnsi.tls.certificate={{ $tlsPath }}/tls.crt"
+            - "-Dnsi.tls.privateKey={{ $tlsPath }}/tls.key"
+            - "-Dnsi.tls.trustedCertificates={{ $tlsPath }}/ca.crt"
+            {{- end }}
+            {{- if eq $mode "keystore" }}
+            {{- /* The JVM detects JKS or PKCS12; Kubernetes expands $(VAR) from env above. */}}
+            - "-Djavax.net.ssl.keyStore={{ $tlsPath }}/keystore"
+            - "-Djavax.net.ssl.keyStorePassword=$(KEYSTORE_PASSWORD)"
+            - "-Djavax.net.ssl.trustStore={{ $tlsPath }}/truststore"
+            - "-Djavax.net.ssl.trustStorePassword=$(TRUSTSTORE_PASSWORD)"
             {{- end }}
             - {{ printf "-Djava.util.logging.config.file=%s/logging.properties" .Values.config.mountPath | quote }}
             - {{ printf "-Dapp.home=%s" .Values.image.home | quote }}
@@ -87,19 +90,10 @@ spec:
             - name: config
               mountPath: {{ .Values.config.mountPath }}
               readOnly: true
-          {{- if (((.Values.config).keystore).secretName) }}
-            - name: keystore
-              mountPath: "{{ .Values.config.mountPath }}/key"
+          {{- if $mode }}
+            - name: tls
+              mountPath: {{ $tlsPath }}
               readOnly: true
-          {{- end }}
-          {{- if (((.Values.config).truststore).secretName) }}
-            - name: truststore
-              mountPath: "{{ .Values.config.mountPath }}/trust"
-              readOnly: true
-          {{- end }}
-          {{- if .Values.config.caSecretName }}
-            - name: truststore
-              mountPath: /truststore
           {{- end }}
           ports:
             - name: internal
@@ -142,38 +136,34 @@ spec:
                 path: "http.json"
               - key: "jetty.xml"
                 path: "jetty.xml"
-              {{- if (((.Values.config).keystore).secretName) }}
-              {{- else if .Values.config.enableSSL }}
-              - key: "nsi-pce-keystore.jks"
-                path: "key/nsi-pce-keystore.jks"
-              {{- end }}
-              {{- if or (((.Values.config).truststore).secretName) ((.Values.config).caSecretName) }}
-              {{- else if .Values.config.enableSSL }}
-              - key: "nsi-pce-truststore.jks"
-                path: "trust/nsi-pce-truststore.jks"
-              {{- end }}
-        {{- if (((.Values.config).keystore).secretName) }}
-        - name: keystore
-          secret:
-            secretName: {{ .Values.config.keystore.secretName }}
-            items:
-            - key: {{ .Values.config.keystore.key }}
-              path: nsi-pce-keystore.jks
+        {{- if eq $mode "pem" }}
+        - name: tls
+          projected:
+            defaultMode: 0440
+            sources:
+            - secret:
+                name: {{ $pem.identitySecretName }}
+                items:
+                - key: tls.crt
+                  path: tls.crt
+                - key: tls.key
+                  path: tls.key
+            - secret:
+                name: {{ $pem.caSecretName }}
+                items:
+                - key: {{ $pem.caKey }}
+                  path: ca.crt
         {{- end }}
-        {{- if (((.Values.config).truststore).secretName) }}
-        - name: truststore
+        {{- if eq $mode "keystore" }}
+        - name: tls
           secret:
-            secretName: {{ .Values.config.truststore.secretName }}
+            secretName: {{ $keystore.secretName }}
+            defaultMode: 0440
             items:
-            - key: {{ .Values.config.truststore.key }}
-              path: nsi-pce-truststore.jks
-        {{- end }}
-        {{- if .Values.config.caSecretName }}
-        - name: ca
-          secret:
-            secretName: {{ .Values.config.caSecretName }}
-        - name: truststore
-          emptyDir: {}
+            - key: {{ $keystore.keyStoreKey }}
+              path: keystore
+            - key: {{ $keystore.trustStoreKey }}
+              path: truststore
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

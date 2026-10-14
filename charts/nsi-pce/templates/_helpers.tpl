@@ -60,3 +60,19 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/* Fail closed: a known outbound TLS mode, with the Secrets that mode needs. */}}
+{{- define "nsi-pce.validateTls" -}}
+{{- $client := .Values.config.tls.client -}}
+{{- if not (has $client.mode (list "" "pem" "keystore")) -}}
+{{- fail (printf "config.tls.client.mode must be pem, keystore or empty, not %q" $client.mode) -}}
+{{- end -}}
+{{- if eq $client.mode "pem" -}}
+{{- $_ := required "config.tls.client.pem.identitySecretName is required" $client.pem.identitySecretName -}}
+{{- $_ := required "config.tls.client.pem.caSecretName is required" $client.pem.caSecretName -}}
+{{- end -}}
+{{- if eq $client.mode "keystore" -}}
+{{- $_ := required "config.tls.client.keystore.secretName is required" $client.keystore.secretName -}}
+{{- $_ := required "config.tls.client.keystore.passwordSecretName is required" $client.keystore.passwordSecretName -}}
+{{- end -}}
+{{- end }}

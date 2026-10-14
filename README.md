@@ -219,38 +219,62 @@ $ docker build --build-arg VERSION="$(git describe --tags --always)" -t nsi-pce 
 ```
 
 ## Running the NSI-PCE
+`./run.sh` starts the PCE from `target/pce.jar` with the configuration in `config/`. Extra arguments
+are passed to the PCE, for example `-c <configDir>` or `-topologyConfigFile <file>`.
+
+## TLS
+The PCE serves plain HTTP; put a TLS-terminating proxy in front of it for inbound HTTPS. For its
+outbound calls, fetching topology from the DDS and posting FindPath results to `replyTo`, it can
+present a client certificate and use its own trusted CAs.
+
+From PEM files, through these system properties:
+
+| Property | File |
+|----------|------|
+| `nsi.tls.certificate` | Client certificate, optionally followed by its chain |
+| `nsi.tls.privateKey` | Its private key, PKCS#8 (`BEGIN PRIVATE KEY`) |
+| `nsi.tls.trustedCertificates` | CA bundle for the DDS and `replyTo` servers |
+
+The certificate and key go together; the CA bundle can be set on its own. The bundle replaces the
+JVM's default trust, so it must cover every server the PCE calls. Convert another key format with
+`openssl pkcs8 -topk8 -nocrypt -in <key> -out <key.pkcs8>`. `run.sh` and `viewer.sh` pass the files
+named by `TLS_CERT`, `TLS_KEY` and `TLS_CA`:
 
 ```
-#!/bin/bash
-
-# resolve links - $0 may be a softlink
-PRG="$0"
-
-while [ -h "$PRG" ]; do
-  ls=`ls -ld "$PRG"`
-  link=`expr "$ls" : '.*-> \(.*\)$'`
-  if expr "$link" : '/.*' > /dev/null; then
-    PRG="$link"
-  else
-    PRG=`dirname "$PRG"`/"$link"
-  fi
-done
-
-PRGDIR=`dirname "$PRG"`
-BASEDIR=`cd "$PRGDIR" >/dev/null; pwd`
-
-java -Xmx512m -Djava.net.preferIPv4Stack=true  \
-	-Dapp.home="$BASEDIR" \
-	-Dbasedir="$BASEDIR" \
-	-Djava.util.logging.config.file="$BASEDIR/config/logging.properties" \
-	-Dorg.glassfish.jaxb.runtime.v2.runtime.JAXBContextImpl.fastBoot=true \
-	-Djavax.net.ssl.trustStore=config/nsi-pce-truststore \
-	-Djavax.net.ssl.trustStorePassword=changeit \
-	-jar target/pce.jar \
-	-topologyConfigFile config/topology-dds.xml \
-	-ddsConfigFile config/dds.xml \
-	$*
+$ TLS_CERT=client.crt TLS_KEY=client.key TLS_CA=ca.crt ./run.sh
 ```
+
+Whatever the `nsi.tls.*` properties leave unset comes from the standard `javax.net.ssl.keyStore`,
+`keyStorePassword`, `trustStore` and `trustStorePassword` properties, so existing JKS or PKCS12
+stores still work, alone or with a PEM CA bundle. A changed certificate takes effect after a restart.
+
+The Helm chart supports either under `config.tls.client`, selected by `mode`:
+
+```yaml
+config:
+  tls:
+    client:
+      mode: pem
+      pem:
+        identitySecretName: nsi-pce-client-tls  # kubernetes.io/tls: tls.crt and tls.key
+        caSecretName: nsi-pce-peer-ca            # ca.crt
+```
+
+```yaml
+config:
+  tls:
+    client:
+      mode: keystore
+      keystore:
+        secretName: nsi-pce-stores               # keystore.p12 and truststore.p12
+        passwordSecretName: nsi-pce-store-passwords
+```
+
+The `wait-for-dds` init container uses the same PEM files, so `config.ddsPortalUrl` can be HTTPS.
+A cert-manager client Certificate for `pem.identitySecretName` needs `privateKey.encoding: PKCS8`
+and `usages: [client auth]`. The chart fails to render when the selected mode lacks a Secret. Store
+passwords reach the JVM through the environment, not the chart values.
+
 # References
 
 **[OGF NSF]** Guy Roberts, et al. “OGF Network Service Framework v2.0”, Group Working Draft (GWD), candidate Recommendation Proposed (R-P), January 28, 2014.

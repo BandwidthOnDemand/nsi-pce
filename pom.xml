@@ -192,6 +192,14 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!-- Mints throw-away certificates for the PEM TLS tests. -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk18on</artifactId>
+            <version>1.86</version>
+            <scope>test</scope>
+        </dependency>
      </dependencies>
 
     <build>
@@ -412,7 +420,7 @@
                          topology expands to about a million STPs, which needs the 4 GB. A fresh JVM per
                          class, because the integration tests share the ConfigurationManager singleton. -->
                     <reuseForks>false</reuseForks>
-                    <argLine>-Xmx4g -Djava.net.preferIPv4Stack=true -Dorg.glassfish.jaxb.runtime.v2.runtime.JAXBContextImpl.fastBoot=true -Djavax.net.ssl.trustStore=config/nsi-pce-truststore -Djavax.net.ssl.trustStorePassword=changeit</argLine>
+                    <argLine>-Xmx4g -Djava.net.preferIPv4Stack=true -Dorg.glassfish.jaxb.runtime.v2.runtime.JAXBContextImpl.fastBoot=true</argLine>
                 </configuration>
             </plugin>
 
