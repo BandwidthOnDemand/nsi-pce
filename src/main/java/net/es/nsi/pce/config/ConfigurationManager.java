@@ -5,7 +5,6 @@ import net.es.nsi.pce.sched.TopologyAudit;
 import net.es.nsi.pce.server.PCEServer;
 import net.es.nsi.pce.spring.SpringContext;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
-import net.es.nsi.pce.util.LogbackConfigurator;
 import org.quartz.SchedulerException;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -71,9 +70,6 @@ public enum ConfigurationManager {
      */
     public synchronized void initialize(String configPath) throws Exception {
         if (!isInitialized()) {
-            // Load the logging configuration; logback.xml sets its own scan interval.
-            LogbackConfigurator.configure(configPath, "logback.xml");
-
             final org.slf4j.Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
 
             // If absolute path then add "file:" so this will load properly.
