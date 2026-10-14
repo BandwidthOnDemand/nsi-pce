@@ -16,9 +16,11 @@ done
 PRGDIR=`dirname "$PRG"`
 BASEDIR=`cd "$PRGDIR" >/dev/null; pwd`
 
-KEYSTORE=$BASEDIR/config/keystore.jks
-TRUSTSTORE=$BASEDIR/config/truststore.jks
-PASSWORD="changeit"
+# Outbound TLS from PEM files, as in run.sh: TLS_CERT, TLS_KEY (PKCS#8) and TLS_CA, each optional.
+TLS_OPTS=()
+[ -n "$TLS_CERT" ] && TLS_OPTS+=("-Dnsi.tls.certificate=$TLS_CERT")
+[ -n "$TLS_KEY" ] && TLS_OPTS+=("-Dnsi.tls.privateKey=$TLS_KEY")
+[ -n "$TLS_CA" ] && TLS_OPTS+=("-Dnsi.tls.trustedCertificates=$TLS_CA")
 
 if [ ! -f "$BASEDIR/target/pce.jar" ]; then
     echo "$BASEDIR/target/pce.jar not found; build it first with ./mvnw -DskipTests package" >&2
@@ -33,10 +35,7 @@ java -Xmx1536m -Djava.net.preferIPv4Stack=true  \
         -Dbasedir="$BASEDIR" \
         -Djava.util.logging.config.file="$BASEDIR/config/logging.properties" \
         -Dorg.glassfish.jaxb.runtime.v2.runtime.JAXBContextImpl.fastBoot=true \
-        -Djavax.net.ssl.keyStore=$KEYSTORE \
-        -Djavax.net.ssl.keyStorePassword=$PASSWORD \
-        -Djavax.net.ssl.trustStore=$TRUSTSTORE \
-        -Djavax.net.ssl.trustStorePassword=$PASSWORD \
+        "${TLS_OPTS[@]}" \
 	-cp target/pce.jar net.es.nsi.pce.visualization.TopologyViewer \
         "$@"
 

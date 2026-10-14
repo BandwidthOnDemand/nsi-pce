@@ -33,7 +33,9 @@ public class RestClient {
     public RestClient() {
         ClientConfig clientConfig = new ClientConfig();
         configureClient(clientConfig);
-        client = ClientBuilder.newClient(clientConfig);
+        ClientBuilder builder = ClientBuilder.newBuilder().withConfig(clientConfig);
+        PemSslContext.fromSystemProperties().ifPresent(builder::sslContext);
+        client = builder.build();
     }
 
     public static RestClient getInstance() {
