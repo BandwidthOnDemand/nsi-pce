@@ -1,7 +1,7 @@
 package net.es.nsi.pce.schema;
 
 import java.io.IOException;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import net.es.nsi.pce.jaxb.topology.NmlTopologyType;
 import static org.junit.Assert.assertEquals;

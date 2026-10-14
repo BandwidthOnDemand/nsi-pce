@@ -1,0 +1,12 @@
+== response
+status: 200
+content-type: application/json
+last-modified: present
+{
+  "auditInterval": 300,
+  "lastAudit": "\u003cvolatile\u003e",
+  "lastAuditDuration": "\u003cvolatile\u003e",
+  "lastDiscovered": "\u003cvolatile\u003e",
+  "lastSuccessfulAudit": "\u003cvolatile\u003e",
+  "status": "Completed"
+}

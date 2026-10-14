@@ -1,8 +1,8 @@
 package net.es.nsi.pce.schema;
 
 import java.io.IOException;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
 import net.es.nsi.pce.jaxb.dds.CollectionType;
 import net.es.nsi.pce.jaxb.dds.DocumentListType;
 import net.es.nsi.pce.jaxb.dds.DocumentType;

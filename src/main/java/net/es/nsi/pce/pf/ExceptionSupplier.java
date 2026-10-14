@@ -7,7 +7,7 @@ package net.es.nsi.pce.pf;
 
 import java.util.Optional;
 import java.util.function.Supplier;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 import net.es.nsi.pce.path.api.Exceptions;
 
 /**

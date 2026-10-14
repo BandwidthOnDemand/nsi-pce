@@ -4,10 +4,10 @@
  */
 package net.es.nsi.pce.jersey;
 
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.xml.bind.JAXBElement;
+import jakarta.ws.rs.core.GenericEntity;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
+import jakarta.xml.bind.JAXBElement;
 import net.es.nsi.pce.description.api.NsaDescriptionService;
 import net.es.nsi.pce.path.api.FindPathService;
 import net.es.nsi.pce.management.api.ManagementService;

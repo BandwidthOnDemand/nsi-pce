@@ -4,8 +4,8 @@
  */
 package net.es.nsi.pce.path;
 
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import net.es.nsi.pce.test.TestConfig;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertTrue;

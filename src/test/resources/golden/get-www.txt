@@ -1,0 +1,7 @@
+== response
+status: 200
+content-type: text/html
+last-modified: present
+<html>
+<body>NSI-PCE Static Page Repository</body>
+</html>

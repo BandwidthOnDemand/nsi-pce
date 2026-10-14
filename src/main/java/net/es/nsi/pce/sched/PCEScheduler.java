@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
 import net.es.nsi.pce.jaxb.management.TimerStatusType;
 import net.es.nsi.pce.spring.SpringApplicationContext;
 import org.quartz.Job;
@@ -53,7 +53,6 @@ public class PCEScheduler {
     public void init() {
         try {
             Properties props = new Properties();
-            props.setProperty(StdSchedulerFactory.PROP_SCHED_SKIP_UPDATE_CHECK, "true");
             props.setProperty("org.quartz.jobStore.class", "org.quartz.simpl.RAMJobStore");
             props.setProperty("org.quartz.threadPool.class", "org.quartz.simpl.SimpleThreadPool");
             props.setProperty("org.quartz.threadPool.threadCount", "2");

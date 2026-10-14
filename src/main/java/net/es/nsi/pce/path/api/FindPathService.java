@@ -6,20 +6,20 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBElement;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.GenericEntity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.JAXBElement;
 import net.es.nsi.pce.jaxb.path.FindPathAlgorithmType;
 import net.es.nsi.pce.jaxb.path.FindPathRequestType;
 import net.es.nsi.pce.jaxb.path.FindPathResponseType;
@@ -165,7 +165,7 @@ public class FindPathService {
         // sequence and not sending all elements pf the serviceType into the
         // PCE at the same time.
         for (Object obj : request.getAny()) {
-           if (obj instanceof javax.xml.bind.JAXBElement) {
+           if (obj instanceof jakarta.xml.bind.JAXBElement) {
                 JAXBElement<?> jaxb = (JAXBElement<?>) obj;
 
                 // We need to pull out those service elements associated with

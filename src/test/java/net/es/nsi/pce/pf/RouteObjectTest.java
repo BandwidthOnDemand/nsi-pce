@@ -29,8 +29,6 @@ import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.model.NsiTopologyFactory;
 import net.es.nsi.pce.topology.model.SdpTest;
 import net.es.nsi.pce.topology.provider.DdsWrapper;
-import net.es.nsi.pce.util.Log4jHelper;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -64,8 +62,6 @@ public class RouteObjectTest {
   }
 
   public static NsiTopology setUp(String filename) throws Exception {
-    // Configure Log4J and use logs from this point forward.
-    DOMConfigurator.configureAndWatch(Log4jHelper.getLog4jConfig("src/test/resources/config/log4j.xml"), 45 * 1000);
     log = LoggerFactory.getLogger(SdpTest.class);
 
     CollectionType collection = DdsParser.getInstance().readCollection(filename);

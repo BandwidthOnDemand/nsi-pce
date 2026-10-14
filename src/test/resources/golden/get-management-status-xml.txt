@@ -1,0 +1,17 @@
+== response
+status: 200
+content-type: application/xml
+last-modified: present
+{http://schemas.es.net/nsi/2013/07/management/types}status
+  {}status
+    "Completed"
+  {}auditInterval
+    "300"
+  {}lastAudit
+    <volatile>
+  {}lastAuditDuration
+    <volatile>
+  {}lastSuccessfulAudit
+    <volatile>
+  {}lastDiscovered
+    <volatile>

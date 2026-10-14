@@ -21,6 +21,23 @@
         </ns2:document>
     </ns2:local>
     <ns2:documents>
+        <ns2:document id="urn:ogf:network:aggregator.example.net:2026:nsa" version="2026-01-01T00:00:00Z" expires="2099-01-01T00:00:00Z">
+            <nsa>urn:ogf:network:aggregator.example.net:2026:nsa</nsa>
+            <type>vnd.ogf.nsi.nsa.v1+xml</type>
+            <content contentType="text/plain" contentTransferEncoding="8bit"><![CDATA[<nsa:nsa xmlns:nsa="http://schemas.ogf.org/nsi/2014/02/discovery/nsa" id="urn:ogf:network:aggregator.example.net:2026:nsa" version="2026-01-01T00:00:00Z">
+    <name>aggregator</name>
+    <interface>
+        <type>application/vnd.ogf.nsi.cs.v2.provider+soap</type>
+        <href>https://aggregator.example.net/nsi/provider</href>
+    </interface>
+    <feature type="vnd.ogf.nsi.cs.v2.role.aggregator"/>
+    <peersWith role="RA">urn:ogf:network:domain-a.example.net:2026:nsa</peersWith>
+    <peersWith role="RA">urn:ogf:network:domain-b.example.net:2026:nsa</peersWith>
+    <peersWith role="RA">urn:ogf:network:domain-c.example.net:2026:nsa</peersWith>
+    <peersWith role="RA">urn:ogf:network:domain-d.example.net:2026:nsa</peersWith>
+</nsa:nsa>
+]]></content>
+        </ns2:document>
         <ns2:document id="urn:ogf:network:domain-a.example.net:2026:nsa" version="2026-01-01T00:00:00Z" expires="2099-01-01T00:00:00Z">
             <nsa>urn:ogf:network:domain-a.example.net:2026:nsa</nsa>
             <type>vnd.ogf.nsi.nsa.v1+xml</type>

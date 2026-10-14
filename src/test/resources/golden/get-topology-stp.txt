@@ -1,0 +1,45 @@
+== response
+status: 200
+content-type: application/json
+last-modified: present
+{
+  "discovered": "\u003cvolatile\u003e",
+  "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-edge?vlan\u003d1050",
+  "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-edge?vlan\u003d1050",
+  "inboundStp": {
+    "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-edge:in?vlan\u003d1050",
+    "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-edge:in?vlan\u003d1050"
+  },
+  "label": {
+    "type": "http://schemas.ogf.org/nml/2012/10/ethernet#vlan",
+    "value": "1050"
+  },
+  "localId": "urn:ogf:network:domain-b.example.net:2026:topology:b-edge",
+  "network": {
+    "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+    "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+  },
+  "networkId": "urn:ogf:network:domain-b.example.net:2026:topology",
+  "otherAttributes": {},
+  "outboundStp": {
+    "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-edge:out?vlan\u003d1050",
+    "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-edge:out?vlan\u003d1050"
+  },
+  "property": [
+    {
+      "type": "encoding",
+      "value": "http://schemas.ogf.org/nml/2012/10/ethernet"
+    },
+    {
+      "type": "labelType",
+      "value": "http://schemas.ogf.org/nml/2012/10/ethernet#vlan"
+    }
+  ],
+  "serviceDomain": {
+    "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1050",
+    "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1050",
+    "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+  },
+  "type": "BIDIRECTIONAL",
+  "version": "2026-01-01T00:00:00Z"
+}

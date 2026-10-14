@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
@@ -26,7 +26,7 @@ import net.es.nsi.pce.jaxb.topology.ServiceDefinitionType;
 import net.es.nsi.pce.jaxb.topology.ServiceDomainType;
 import net.es.nsi.pce.jaxb.topology.ServiceType;
 import net.es.nsi.pce.jaxb.topology.StpType;
-import org.apache.http.client.utils.DateUtils;
+import net.es.nsi.pce.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

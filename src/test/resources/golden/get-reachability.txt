@@ -1,0 +1,19 @@
+== response
+status: 200
+content-type: application/json
+{
+  "reachability": [
+    {
+      "cost": 1,
+      "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+    },
+    {
+      "cost": 1,
+      "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+    },
+    {
+      "cost": 1,
+      "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+    }
+  ]
+}

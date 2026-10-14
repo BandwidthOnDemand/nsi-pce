@@ -20,11 +20,11 @@ KEYSTORE=$BASEDIR/config/keystore.jks
 TRUSTSTORE=$BASEDIR/config/truststore.jks
 PASSWORD="changeit"
 
-java -Xmx2048m -XX:MaxPermSize=256m -XX:-UseConcMarkSweepGC -Djava.net.preferIPv4Stack=true  \
+java -Xmx2048m -Djava.net.preferIPv4Stack=true  \
 	-Dapp.home="$BASEDIR" \
 	-Dbasedir="$BASEDIR" \
 	-Djava.util.logging.config.file="$BASEDIR/config/logging.properties" \
-	-Dcom.sun.xml.bind.v2.runtime.JAXBContextImpl.fastBoot=true \
+	-Dorg.glassfish.jaxb.runtime.v2.runtime.JAXBContextImpl.fastBoot=true \
         -Djavax.net.ssl.keyStore=$KEYSTORE \
         -Djavax.net.ssl.keyStorePassword=$PASSWORD \
         -Djavax.net.ssl.trustStore=$TRUSTSTORE \

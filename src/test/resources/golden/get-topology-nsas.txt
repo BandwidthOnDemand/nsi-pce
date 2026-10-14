@@ -1,0 +1,126 @@
+== response
+status: 200
+content-type: application/json
+last-modified: present
+[
+  {
+    "_interface": [
+      {
+        "href": "https://aggregator.example.net/nsi/provider",
+        "type": "application/vnd.ogf.nsi.cs.v2.provider+soap"
+      }
+    ],
+    "discovered": "\u003cvolatile\u003e",
+    "feature": [
+      {
+        "type": "vnd.ogf.nsi.cs.v2.role.aggregator",
+        "value": ""
+      }
+    ],
+    "href": "http://localhost:8400/topology/nsas/urn%3Aogf%3Anetwork%3Aaggregator.example.net%3A2026%3Ansa",
+    "id": "urn:ogf:network:aggregator.example.net:2026:nsa",
+    "name": "aggregator",
+    "network": [],
+    "otherAttributes": {},
+    "peersWith": [
+      {
+        "href": "http://localhost:8400/topology/nsas/urn%3Aogf%3Anetwork%3Adomain-a.example.net%3A2026%3Ansa",
+        "id": "urn:ogf:network:domain-a.example.net:2026:nsa",
+        "role": "RA"
+      },
+      {
+        "href": "http://localhost:8400/topology/nsas/urn%3Aogf%3Anetwork%3Adomain-b.example.net%3A2026%3Ansa",
+        "id": "urn:ogf:network:domain-b.example.net:2026:nsa",
+        "role": "RA"
+      },
+      {
+        "href": "http://localhost:8400/topology/nsas/urn%3Aogf%3Anetwork%3Adomain-c.example.net%3A2026%3Ansa",
+        "id": "urn:ogf:network:domain-c.example.net:2026:nsa",
+        "role": "RA"
+      }
+    ],
+    "reachability": [],
+    "version": "2026-01-01T00:00:00Z"
+  },
+  {
+    "_interface": [
+      {
+        "href": "https://domain-a.example.net/nsi/provider",
+        "type": "application/vnd.ogf.nsi.cs.v2.provider+soap"
+      }
+    ],
+    "discovered": "\u003cvolatile\u003e",
+    "feature": [
+      {
+        "type": "vnd.ogf.nsi.cs.v2.role.uPA",
+        "value": ""
+      }
+    ],
+    "href": "http://localhost:8400/topology/nsas/urn%3Aogf%3Anetwork%3Adomain-a.example.net%3A2026%3Ansa",
+    "id": "urn:ogf:network:domain-a.example.net:2026:nsa",
+    "name": "domain-a",
+    "network": [
+      {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      }
+    ],
+    "otherAttributes": {},
+    "reachability": [],
+    "version": "2026-01-01T00:00:00Z"
+  },
+  {
+    "_interface": [
+      {
+        "href": "https://domain-b.example.net/nsi/provider",
+        "type": "application/vnd.ogf.nsi.cs.v2.provider+soap"
+      }
+    ],
+    "discovered": "\u003cvolatile\u003e",
+    "feature": [
+      {
+        "type": "vnd.ogf.nsi.cs.v2.role.uPA",
+        "value": ""
+      }
+    ],
+    "href": "http://localhost:8400/topology/nsas/urn%3Aogf%3Anetwork%3Adomain-b.example.net%3A2026%3Ansa",
+    "id": "urn:ogf:network:domain-b.example.net:2026:nsa",
+    "name": "domain-b",
+    "network": [
+      {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      }
+    ],
+    "otherAttributes": {},
+    "reachability": [],
+    "version": "2026-01-01T00:00:00Z"
+  },
+  {
+    "_interface": [
+      {
+        "href": "https://domain-c.example.net/nsi/provider",
+        "type": "application/vnd.ogf.nsi.cs.v2.provider+soap"
+      }
+    ],
+    "discovered": "\u003cvolatile\u003e",
+    "feature": [
+      {
+        "type": "vnd.ogf.nsi.cs.v2.role.uPA",
+        "value": ""
+      }
+    ],
+    "href": "http://localhost:8400/topology/nsas/urn%3Aogf%3Anetwork%3Adomain-c.example.net%3A2026%3Ansa",
+    "id": "urn:ogf:network:domain-c.example.net:2026:nsa",
+    "name": "domain-c",
+    "network": [
+      {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      }
+    ],
+    "otherAttributes": {},
+    "reachability": [],
+    "version": "2026-01-01T00:00:00Z"
+  }
+]

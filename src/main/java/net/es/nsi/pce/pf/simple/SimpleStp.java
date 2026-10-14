@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 import net.es.nsi.pce.jaxb.topology.NmlLabelType;
 import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.topology.model.NmlPort;

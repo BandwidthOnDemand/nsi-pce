@@ -1,0 +1,20 @@
+== response
+status: 202
+content-type: null
+(empty)
+== callback
+content-type: application/json
+{
+  "correlationId": "urn:uuid:00000000-0000-4000-8000-000000000004",
+  "m.findPathError": {
+    "code": "00702",
+    "description": "Could not resolve STP (urn:ogf:network:domain-a.example.net:2026:topology:nowhere?vlan\u003d1000).",
+    "label": "STP_RESOLUTION_ERROR",
+    "variable": {
+      "@namespace": "http://schemas.ogf.org/nsi/2013/12/services/point2point#p2ps",
+      "@type": "sourceSTP",
+      "value": "urn:ogf:network:domain-a.example.net:2026:topology:nowhere?vlan\u003d1000"
+    }
+  },
+  "status": "FAILED"
+}

@@ -1,0 +1,63 @@
+== response
+status: 200
+content-type: application/json
+last-modified: present
+[
+  {
+    "discovered": "\u003cvolatile\u003e",
+    "href": "/services/urn:ogf:network:domain-a.example.net:2026:topology:sd:EVTS.A-GOLE",
+    "id": "urn:ogf:network:domain-a.example.net:2026:topology:sd:EVTS.A-GOLE",
+    "name": "EVTS.A-GOLE",
+    "network": {
+      "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+      "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+    },
+    "otherAttributes": {},
+    "serviceDefinition": {
+      "id": "urn:ogf:network:domain-a.example.net:2026:topology:sd:EVTS.A-GOLE",
+      "name": "EVTS.A-GOLE",
+      "otherAttributes": {},
+      "serviceType": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+    },
+    "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE",
+    "version": "2026-01-01T00:00:00Z"
+  },
+  {
+    "discovered": "\u003cvolatile\u003e",
+    "href": "/services/urn:ogf:network:domain-b.example.net:2026:topology:sd:EVTS.A-GOLE",
+    "id": "urn:ogf:network:domain-b.example.net:2026:topology:sd:EVTS.A-GOLE",
+    "name": "EVTS.A-GOLE",
+    "network": {
+      "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+      "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+    },
+    "otherAttributes": {},
+    "serviceDefinition": {
+      "id": "urn:ogf:network:domain-b.example.net:2026:topology:sd:EVTS.A-GOLE",
+      "name": "EVTS.A-GOLE",
+      "otherAttributes": {},
+      "serviceType": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+    },
+    "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE",
+    "version": "2026-01-01T00:00:00Z"
+  },
+  {
+    "discovered": "\u003cvolatile\u003e",
+    "href": "/services/urn:ogf:network:domain-c.example.net:2026:topology:sd:EVTS.A-GOLE",
+    "id": "urn:ogf:network:domain-c.example.net:2026:topology:sd:EVTS.A-GOLE",
+    "name": "EVTS.A-GOLE",
+    "network": {
+      "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+      "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+    },
+    "otherAttributes": {},
+    "serviceDefinition": {
+      "id": "urn:ogf:network:domain-c.example.net:2026:topology:sd:EVTS.A-GOLE",
+      "name": "EVTS.A-GOLE",
+      "otherAttributes": {},
+      "serviceType": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+    },
+    "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE",
+    "version": "2026-01-01T00:00:00Z"
+  }
+]

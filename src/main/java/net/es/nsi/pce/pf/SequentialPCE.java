@@ -1,7 +1,7 @@
 package net.es.nsi.pce.pf;
 
 import java.util.List;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 import net.es.nsi.pce.pf.api.PCEData;
 import net.es.nsi.pce.pf.api.PCEModule;
 import org.slf4j.Logger;

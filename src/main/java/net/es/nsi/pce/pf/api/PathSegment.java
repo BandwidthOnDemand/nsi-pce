@@ -1,6 +1,6 @@
 package net.es.nsi.pce.pf.api;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import net.es.nsi.pce.pf.api.cons.AttrConstraints;
 
@@ -28,7 +28,7 @@ public class PathSegment implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("stpA", getA()).add("stpZ", getZ()).add("networkId", getNetworkId()).add("nsaId", getNsaId()).add("providerUrl", getCsProviderURL()).toString();
+        return MoreObjects.toStringHelper(this).add("stpA", getA()).add("stpZ", getZ()).add("networkId", getNetworkId()).add("nsaId", getNsaId()).add("providerUrl", getCsProviderURL()).toString();
     }
 
     /**

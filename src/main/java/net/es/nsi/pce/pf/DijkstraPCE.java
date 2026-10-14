@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.jaxb.topology.ResourceRefType;
 import net.es.nsi.pce.jaxb.topology.SdpType;

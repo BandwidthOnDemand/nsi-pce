@@ -5,7 +5,7 @@
 package net.es.nsi.pce.schema;
 
 import com.google.common.base.Strings;
-import javax.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBElement;
 import net.es.nsi.pce.jaxb.path.FindPathErrorType;
 import net.es.nsi.pce.jaxb.path.ObjectFactory;
 import net.es.nsi.pce.path.services.Point2PointTypes;

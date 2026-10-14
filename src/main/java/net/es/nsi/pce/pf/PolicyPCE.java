@@ -3,7 +3,7 @@ package net.es.nsi.pce.pf;
 import net.es.nsi.pce.pf.simple.SimpleStp;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.jaxb.topology.NetworkType;
 import net.es.nsi.pce.path.api.Exceptions;
