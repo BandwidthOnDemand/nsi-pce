@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
@@ -18,11 +19,12 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
 import org.glassfish.jersey.client.ChunkedInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +39,10 @@ public class JsonProxy {
 
     public JsonProxy() {
         GsonBuilder gson = new GsonBuilder();
-        gson.registerTypeAdapter(XMLGregorianCalendar.class, new XMLGregorianCalendarSerializer());
-        gson.registerTypeAdapter(XMLGregorianCalendar.class, new XMLGregorianCalendarDeserializer());
+        // Hierarchy adapters, so they also match the JDK's implementation classes: Gson can no longer
+        // reflect into the java.xml module. One registration per type, as a second replaces the first.
+        gson.registerTypeHierarchyAdapter(XMLGregorianCalendar.class, new XMLGregorianCalendarAdapter());
+        gson.registerTypeHierarchyAdapter(QName.class, new QNameAdapter());
         gson.setExclusionStrategies(new JsonExclusionStrategy());
         serializer = gson.create();
     }
@@ -123,23 +127,47 @@ public class JsonProxy {
         }
     }
 
-    private class XMLGregorianCalendarSerializer implements JsonSerializer<XMLGregorianCalendar> {
+    private class XMLGregorianCalendarAdapter implements JsonSerializer<XMLGregorianCalendar>, JsonDeserializer<XMLGregorianCalendar> {
         @Override
         public JsonElement serialize(XMLGregorianCalendar src, Type typeOfSrc, JsonSerializationContext context) {
             return new JsonPrimitive(src.toString());
         }
+
+        @Override
+        public XMLGregorianCalendar deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                throws JsonParseException {
+            try {
+                return DatatypeFactory.newInstance().newXMLGregorianCalendar(json.getAsJsonPrimitive().getAsString());
+            } catch (DatatypeConfigurationException ex) {
+                log.error("XMLGregorianCalendarDeserializer: Could not convert supplied date " +  json.getAsJsonPrimitive().getAsString());
+                return(null);
+            }
+        }
     }
 
-    private class XMLGregorianCalendarDeserializer implements JsonDeserializer<XMLGregorianCalendar> {
-      @Override
-      public XMLGregorianCalendar deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-          throws JsonParseException {
-          try {
-              return DatatypeFactory.newInstance().newXMLGregorianCalendar(json.getAsJsonPrimitive().getAsString());
-          } catch (DatatypeConfigurationException ex) {
-              log.error("XMLGregorianCalendarDeserializer: Could not convert supplied date " +  json.getAsJsonPrimitive().getAsString());
-              return(null);
-          }
-      }
+    /**
+     * The JSON Gson wrote by reflection before Java 9 closed the java.xml module to it. Map keys
+     * (otherAttributes) still use QName.toString().
+     */
+    private static class QNameAdapter implements JsonSerializer<QName>, JsonDeserializer<QName> {
+        @Override
+        public JsonElement serialize(QName src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonObject json = new JsonObject();
+            json.addProperty("namespaceURI", src.getNamespaceURI());
+            json.addProperty("localPart", src.getLocalPart());
+            json.addProperty("prefix", src.getPrefix());
+            return json;
+        }
+
+        @Override
+        public QName deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                throws JsonParseException {
+            if (json.isJsonPrimitive()) {
+                return QName.valueOf(json.getAsString());
+            }
+            JsonObject object = json.getAsJsonObject();
+            return new QName(object.get("namespaceURI").getAsString(), object.get("localPart").getAsString(),
+                    object.get("prefix").getAsString());
+        }
     }
 }

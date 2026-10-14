@@ -96,7 +96,6 @@ public enum TestServer {
                 .register(FindPathResponseService.class) // Remove this if packages gets fixed.
                 .register(new MoxyXmlFeature())
                 .register(new MoxyJsonFeature())
-                //.register(new LoggingFilter(java.util.logging.Logger.getGlobal(), true))
                 .register(new LoggingFeature(Logger.getLogger(TestServer.class.getName()), LoggingFeature.Verbosity.PAYLOAD_ANY))
                 .registerInstances(new JsonMoxyConfigurationContextResolver());
     }

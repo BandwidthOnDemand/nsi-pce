@@ -1,0 +1,10 @@
+== response
+status: 400
+content-type: application/xml
+{http://schemas.es.net/nsi/2013/08/pce/messages}findPathError
+  {}code
+    "00101"
+  {}label
+    "MISSING_PARAMETER"
+  {}description
+    "Invalid or missing parameter (mediaType)."

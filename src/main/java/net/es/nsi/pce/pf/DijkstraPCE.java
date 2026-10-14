@@ -4,14 +4,12 @@ import com.google.common.base.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.SortedSparseMultigraph;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.jaxb.topology.ResourceRefType;
 import net.es.nsi.pce.jaxb.topology.SdpType;
@@ -48,6 +46,18 @@ public class DijkstraPCE implements PCEModule {
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final net.es.nsi.pce.jaxb.path.ObjectFactory factory = new net.es.nsi.pce.jaxb.path.ObjectFactory();
 
+    // Route ERO legs together with LoopAvoidingRouter; false restores the per-leg random VLAN choice.
+    private boolean avoidLoops = true;
+
+    public boolean isAvoidLoops() {
+        return avoidLoops;
+    }
+
+    /** Set from beans.xml: {@code <property name="avoidLoops" value="false"/>} on the dijkstraPCE bean. */
+    public void setAvoidLoops(boolean avoidLoops) {
+        this.avoidLoops = avoidLoops;
+    }
+
     /**
      * This path computation module supports pathfinding for the P2PS service
      * specification restricted to bidirectional symmetricPath services with
@@ -69,7 +79,7 @@ public class DijkstraPCE implements PCEModule {
         Request request = new Request(pceData);
 
         // Find a path satisfying the requested criteria.
-        List<GraphEdge> path = route(request);
+        List<GraphEdge> path = avoidLoops ? new LoopAvoidingRouter(request).route() : route(request);
 
         // Check to see if there is a valid path.
         if (path.isEmpty()) {
@@ -139,7 +149,6 @@ public class DijkstraPCE implements PCEModule {
         // and destination STP.  We will need to remove any SDP that are
         // associated with the source or destination STP.
         Map<String, GraphVertex> verticies = new HashMap<>();
-        Graph<GraphVertex, GraphEdge> graph = new SortedSparseMultigraph<>();
         Transformer<GraphEdge, Number> trans = new EdgeTrasnsformer(pceData);
 
         // There are four possible cases for our request STP endpoints:
@@ -157,14 +166,7 @@ public class DijkstraPCE implements PCEModule {
         // TODO: Add path finding support for STP not in topology.
 
         // Build the graph.
-        GraphUtils.addStpVerticies(graph, verticies, srcBundle);
-        GraphUtils.addStpVerticies(graph, verticies, dstBundle);
-        GraphUtils.addServiceDomainVerticies(graph, verticies, nsiTopology.getServiceDomains());
-        GraphUtils.linkStpAndServiceDomainVerticies(nsiTopology, graph, verticies, srcBundle, nsiTopology.getServiceDomains());
-        GraphUtils.linkStpAndServiceDomainVerticies(nsiTopology, graph, verticies, dstBundle, nsiTopology.getServiceDomains());
-        Set<String> exclusionSdp = nsiTopology.getExclusionSdp(srcBundle);
-        exclusionSdp.addAll(nsiTopology.getExclusionSdp(dstBundle));
-        GraphUtils.addSdpEdges(nsiTopology, graph, verticies, exclusionSdp);
+        Graph<GraphVertex, GraphEdge> graph = GraphUtils.buildRoutingGraph(nsiTopology, srcBundle, dstBundle, verticies);
         DijkstraShortestPath<GraphVertex, GraphEdge> alg = new DijkstraShortestPath<>(graph, trans, true);
 
         // We now try to find a viable path based on the graph we just built.
@@ -235,7 +237,7 @@ public class DijkstraPCE implements PCEModule {
         return consolidatedPath;
     }
 
-    protected List<StpPair> getIndividualSegments(NsiTopology topology, List<GraphEdge> path) {
+    protected static List<StpPair> getIndividualSegments(NsiTopology topology, List<GraphEdge> path) {
         List<StpPair> segments = new ArrayList<>();
 
         Optional<StpType> start = Optional.absent();

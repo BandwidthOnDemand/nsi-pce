@@ -4,6 +4,7 @@ import net.es.nsi.pce.pf.graph.SdpEdge;
 import net.es.nsi.pce.pf.graph.StpEdge;
 import com.google.common.base.Optional;
 import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.SortedSparseMultigraph;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +26,24 @@ import org.slf4j.LoggerFactory;
  */
 public class GraphUtils {
     private final static Logger log = LoggerFactory.getLogger(GraphUtils.class);
+
+    /**
+     * The routing graph between two STP bundles: the STPs, every service domain, and the SDPs
+     * between service domains, minus the SDPs on the source and destination ports.
+     */
+    public static Graph<GraphVertex, GraphEdge> buildRoutingGraph(NsiTopology topology, StpTypeBundle source,
+            StpTypeBundle destination, Map<String, GraphVertex> verticies) {
+        Graph<GraphVertex, GraphEdge> graph = new SortedSparseMultigraph<>();
+        addStpVerticies(graph, verticies, source);
+        addStpVerticies(graph, verticies, destination);
+        addServiceDomainVerticies(graph, verticies, topology.getServiceDomains());
+        linkStpAndServiceDomainVerticies(topology, graph, verticies, source, topology.getServiceDomains());
+        linkStpAndServiceDomainVerticies(topology, graph, verticies, destination, topology.getServiceDomains());
+        Set<String> exclusionSdp = topology.getExclusionSdp(source);
+        exclusionSdp.addAll(topology.getExclusionSdp(destination));
+        addSdpEdges(topology, graph, verticies, exclusionSdp);
+        return graph;
+    }
 
     public static void addStpVerticies(Graph<GraphVertex, GraphEdge> graph, Map<String, GraphVertex> verticies, StpTypeBundle bundle) {
         for (StpType stp : bundle.values()) {

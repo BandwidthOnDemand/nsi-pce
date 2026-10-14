@@ -32,7 +32,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -58,16 +57,13 @@ import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.topology.model.NsiStpFactory;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
+import net.es.nsi.pce.config.StartupArgs;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.collections15.functors.ChainedTransformer;
-import org.apache.log4j.xml.DOMConfigurator;
+import net.es.nsi.pce.util.LogbackConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -126,12 +122,11 @@ public class TopologyViewer extends JPanel {
      */
     @SuppressWarnings("unchecked")
     public TopologyViewer(String configDir) throws Exception {
-        // Configure path to log4j configuration.
-        String log4jConfig = new StringBuilder(configDir).append("log4j-viewer.xml").toString().replace("/", File.separator);
-        String beanConfig = new StringBuilder(configDir).append("beans.xml").toString().replace("/", File.separator);
+        // Spring reads a path without a scheme as relative, so an absolute one needs "file:".
+        String beanConfig = (configDir.startsWith("/") ? "file:" : "") + configDir + "beans.xml";
 
-        // Load and watch the log4j configuration file for changes.
-        DOMConfigurator.configureAndWatch(log4jConfig, 45 * 1000);
+        // Load the logging configuration.
+        LogbackConfigurator.configure(configDir, "logback-viewer.xml");
 
         log = LoggerFactory.getLogger(getClass());
 
@@ -885,11 +880,6 @@ public class TopologyViewer extends JPanel {
         return null;
     }
 
-    private static final String CONFIG_PATH = "configPath";
-    private static final String CONFIG_DEFAULT_PATH = "config/";
-    private static final String DEFAULT_TOPOLOGY_FILE = CONFIG_DEFAULT_PATH + "topology-dds.xml";
-    public static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
-
     /**
      * Main for the TopologyViewer.
      *
@@ -898,58 +888,25 @@ public class TopologyViewer extends JPanel {
      * @throws Exception If there is any issue.
      */
     public static void main(String[] args) throws Exception {
-        // Create Options object to hold our command line options.
-        Options options = new Options();
-
-        // Configuration directory option.
-        Option topologyOption = new Option(TOPOLOGY_CONFIG_FILE_ARGNAME, true, "Path to your topology configuration file");
-        topologyOption.setRequired(false);
-        options.addOption(topologyOption);
-
-        Option configOption = new Option("c", true, "Where you keep your other configfiles (defaults to ./config)");
-        configOption.setRequired(false);
-        options.addOption(configOption);
-
-        // Parse the command line options.
-        CommandLineParser parser = new GnuParser();
-
         CommandLine cmd;
         try {
-            cmd = parser.parse(options, args);
+            cmd = StartupArgs.parse(args);
         } catch (ParseException e) {
             System.err.println("You did not provide the correct arguments, see usage below.");
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("java -jar TopologyViewer.jar  [-c <configDir>] [-topologyConfigFile <filename>]", options);
+            formatter.printHelp("viewer.sh  [-c <configDir>] [-topologyConfigFile <filename>]", StartupArgs.options());
             System.exit(1);
             return;
         }
 
-        String configPath = cmd.getOptionValue("c");
-        if (configPath == null) {
-            configPath = CONFIG_DEFAULT_PATH;
-        } else {
-            configPath = configPath.trim();
-
-            if (!configPath.endsWith("/")) {
-                configPath = configPath + "/";
-            }
-        }
-
-        System.setProperty(CONFIG_PATH, configPath);
-
-        String topologyFile = cmd.getOptionValue(TOPOLOGY_CONFIG_FILE_ARGNAME);
-        if (topologyFile == null || topologyFile.isEmpty()) {
-            topologyFile = DEFAULT_TOPOLOGY_FILE;
-        }
-
-        System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, topologyFile);
+        String configPath = StartupArgs.apply(cmd);
 
         // Our main GUI frame.
         JFrame jf = new JFrame();
         jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Pupulate frame with content.
-        jf.getContentPane().add(new TopologyViewer("config/"));
+        jf.getContentPane().add(new TopologyViewer(configPath));
         jf.pack();
 
         // Display the frame content.

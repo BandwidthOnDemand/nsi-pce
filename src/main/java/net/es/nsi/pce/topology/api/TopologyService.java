@@ -6,15 +6,15 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.PostConstruct;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.annotation.PostConstruct;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -40,7 +40,7 @@ import net.es.nsi.pce.topology.model.NsiServiceFactory;
 import net.es.nsi.pce.topology.model.NsiStpFactory;
 import net.es.nsi.pce.topology.model.NsiTopology;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
-import org.apache.http.client.utils.DateUtils;
+import net.es.nsi.pce.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -186,7 +186,7 @@ public class TopologyService {
         else if (labelValue != null && !labelValue.isEmpty()) {
             // We do not allow a filter of label value without a label type.
             log.error("getStps: Query filter on labelValue must first contain labelType.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.BAD_REQUEST).entity("Query filter on labelValue must contain labelType.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.BAD_REQUEST).entity("Query filter on labelValue must contain labelType.").build());
         }
 
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
@@ -226,7 +226,7 @@ public class TopologyService {
         // would ever happen.
         if (stpId == null || stpId.isEmpty()) {
             log.error("getStp: Path parameter stpId must be provided.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter stpId must be provided.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter stpId must be provided.").build());
         }
         // Get a reference to topology provider and get the NSI Topology model.
         NsiTopology nsiTopology = topologyProvider.getTopology();
@@ -235,7 +235,7 @@ public class TopologyService {
         StpType stp = nsiTopology.getStp(stpId);
         if (stp == null) {
             log.error("getStp: Requested stpId does not exist.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested stpId does not exist.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested stpId does not exist.").build());
         }
 
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
@@ -340,7 +340,7 @@ public class TopologyService {
         // would ever happen.
         if (networkId == null || networkId.isEmpty()) {
             log.error("getNetwork: Path parameter networkId must be provided.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
         }
 
         // Get a reference to topology provider and get the NSI Topology model.
@@ -350,7 +350,7 @@ public class TopologyService {
         NetworkType network = nsiTopology.getNetwork(networkId);
         if (network == null) {
             log.error("getNetwork: Requested networkId does not exist.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested networkId does not exist.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested networkId does not exist.").build());
         }
 
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
@@ -383,7 +383,7 @@ public class TopologyService {
         // would ever happen.
         if (networkId == null || networkId.isEmpty()) {
             log.error("getStpsByNetwork: Path parameter networkId must be provided.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
         }
 
         return getStps(networkId, serviceType, labelType, labelValue, ifModifiedSince);
@@ -440,7 +440,7 @@ public class TopologyService {
         // would ever happen.
         if (nsaId == null || nsaId.isEmpty()) {
             log.error("getNsa: Path parameter nsaId must be provided.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter nsaId must be provided.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter nsaId must be provided.").build());
         }
 
         // Get a reference to topology provider and get the NSI Topology model.
@@ -450,7 +450,7 @@ public class TopologyService {
         NsaType nsa = nsiTopology.getNsa(nsaId);
         if (nsa == null) {
             log.error("getNsa: Requested nsaId does not exist.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested nsaId does not exist.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested nsaId does not exist.").build());
         }
 
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
@@ -561,7 +561,7 @@ public class TopologyService {
         // would ever happen.
         if (id == null || id.isEmpty()) {
             log.error("getServiceDomain: Path parameter serviceDomain Id must be provided.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter serviceDomain Id must be provided.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter serviceDomain Id must be provided.").build());
         }
 
         // Get a reference to topology provider and get the NSI Topology model.
@@ -571,7 +571,7 @@ public class TopologyService {
         ServiceDomainType serviceDomain = nsiTopology.getServiceDomain(id);
         if (serviceDomain == null) {
             log.error("getServiceDomain: Requested serviceDomain id does not exist.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested serviceDomain id does not exist.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested serviceDomain id does not exist.").build());
         }
 
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
@@ -604,7 +604,7 @@ public class TopologyService {
         // would ever happen.
         if (networkId == null || networkId.isEmpty()) {
             log.error("getServiceDomainsByNetwork: Path parameter networkId must be provided.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
         }
 
         return getServiceDomains(networkId, serviceType, ifModifiedSince);
@@ -703,7 +703,7 @@ public class TopologyService {
         // sure if this would ever happen.
         if (id == null || id.isEmpty()) {
             log.error("getServiceAdaptation: Path parameter serviceAdaptation Id must be provided.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter serviceAdaptation Id must be provided.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter serviceAdaptation Id must be provided.").build());
         }
 
         // Get a reference to topology provider and get the NSI Topology model.
@@ -713,7 +713,7 @@ public class TopologyService {
         ServiceAdaptationType serviceAdaptation = nsiTopology.getServiceAdaptation(id);
         if (serviceAdaptation == null) {
             log.error("getServiceAdaptation: Requested serviceAdaptation id does not exist.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested serviceAdaptation id does not exist.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested serviceAdaptation id does not exist.").build());
         }
 
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
@@ -746,7 +746,7 @@ public class TopologyService {
         // would ever happen.
         if (networkId == null || networkId.isEmpty()) {
             log.error("getServiceAdaptationsByNetwork: Path parameter networkId must be provided.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
         }
 
         return getServiceAdaptations(networkId, serviceType, ifModifiedSince);
@@ -845,7 +845,7 @@ public class TopologyService {
         // this would ever happen.
         if (id == null || id.isEmpty()) {
             log.error("getService: Path parameter service Id must be provided.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter service Id must be provided.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter service Id must be provided.").build());
         }
 
         // Get a reference to topology provider and get the NSI Topology model.
@@ -855,7 +855,7 @@ public class TopologyService {
         ServiceType service = nsiTopology.getService(id);
         if (service == null) {
             log.error("getService: Requested service id does not exist.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested service id does not exist.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested service id does not exist.").build());
         }
 
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);
@@ -888,7 +888,7 @@ public class TopologyService {
         // would ever happen.
         if (networkId == null || networkId.isEmpty()) {
             log.error("getServiceDomainsByNetwork: Path parameter networkId must be provided.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter networkId must be provided.").build());
         }
 
         return getServices(networkId, serviceType, ifModifiedSince);
@@ -1016,7 +1016,7 @@ public class TopologyService {
         // this would ever happen.
         if (id == null || id.isEmpty()) {
             log.error("getService: Path parameter SDP Id must be provided.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter SDP Id must be provided.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Path parameter SDP Id must be provided.").build());
         }
 
         // Get a reference to topology provider and get the NSI Topology model.
@@ -1026,7 +1026,7 @@ public class TopologyService {
         SdpType sdp = nsiTopology.getSdp(id);
         if (sdp == null) {
             log.error("getSdp: Requested SDP id does not exist.");
-            throw new javax.ws.rs.WebApplicationException(javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested SDP id does not exist.").build());
+            throw new jakarta.ws.rs.WebApplicationException(jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity("Requested SDP id does not exist.").build());
         }
 
         String date = DateUtils.formatDate(new Date(nsiTopology.getLastDiscovered()), DateUtils.PATTERN_RFC1123);

@@ -2,10 +2,10 @@ package net.es.nsi.pce.topology.api;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
+import jakarta.ws.rs.core.GenericEntity;
+import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
 import net.es.nsi.pce.jaxb.topology.ObjectFactory;
 import net.es.nsi.pce.jaxb.topology.TopologyErrorType;
 import net.es.nsi.pce.topology.provider.TopologyParser;
@@ -71,24 +71,24 @@ public enum TopologyError {
         return fp;
     }
 
-    public static Response badRequest(TopologyError error, String resource, String info) throws javax.ws.rs.WebApplicationException {
+    public static Response badRequest(TopologyError error, String resource, String info) throws jakarta.ws.rs.WebApplicationException {
         TopologyErrorType fp = factory.createTopologyErrorType();
         fp.setCode(error.getCode());
         fp.setLabel(error.getLabel());
         fp.setResource(resource);
         fp.setDescription(String.format(error.getDescription(), info));
         JAXBElement<TopologyErrorType> element = factory.createTopologyError(fp);
-        return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<TopologyErrorType>>(element){}).build();
+        return jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.BAD_REQUEST).entity(new GenericEntity<JAXBElement<TopologyErrorType>>(element){}).build();
     }
 
-    public static Response notFound(TopologyError error, String resource, String info) throws javax.ws.rs.WebApplicationException {
+    public static Response notFound(TopologyError error, String resource, String info) throws jakarta.ws.rs.WebApplicationException {
         TopologyErrorType fp = factory.createTopologyErrorType();
         fp.setCode(error.getCode());
         fp.setLabel(error.getLabel());
         fp.setResource(resource);
         fp.setDescription(String.format(error.getDescription(), info));
         JAXBElement<TopologyErrorType> element = factory.createTopologyError(fp);
-        return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<TopologyErrorType>>(element){}).build();
+        return jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND).entity(new GenericEntity<JAXBElement<TopologyErrorType>>(element){}).build();
     }
 
     public static TopologyErrorType getErrorType(String xml) {

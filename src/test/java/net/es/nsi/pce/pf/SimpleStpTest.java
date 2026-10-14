@@ -2,15 +2,13 @@ package net.es.nsi.pce.pf;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.Status;
-import javax.xml.bind.JAXBElement;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response.Status;
+import jakarta.xml.bind.JAXBElement;
 import net.es.nsi.pce.jaxb.path.FindPathErrorType;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.pf.simple.SimpleLabel;
 import net.es.nsi.pce.pf.simple.SimpleStp;
-import net.es.nsi.pce.util.Log4jHelper;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -43,8 +41,6 @@ public class SimpleStpTest {
 
     @Before
     public void setUp() throws Exception {
-        // Configure Log4J and use logs from this point forward.
-        DOMConfigurator.configureAndWatch(Log4jHelper.getLog4jConfig("src/test/resources/config/log4j.xml"), 45 * 1000);
         log = LoggerFactory.getLogger(SimpleStpTest.class);
     }
 

@@ -71,7 +71,7 @@ public class NmlTest {
         }
     }
 
-    @Test(expected=javax.xml.bind.UnmarshalException.class)
+    @Test(expected=jakarta.xml.bind.UnmarshalException.class)
     public void failedTest() throws Exception {
         NmlTopologyType topology = NmlParser.getInstance().xml2Nml("");
     }

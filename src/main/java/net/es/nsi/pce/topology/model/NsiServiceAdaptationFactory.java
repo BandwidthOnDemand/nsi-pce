@@ -9,7 +9,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import net.es.nsi.pce.jaxb.topology.NsiResourceType;
 import net.es.nsi.pce.jaxb.topology.ServiceAdaptationType;
-import org.apache.http.client.utils.DateUtils;
+import net.es.nsi.pce.util.DateUtils;
 
 /**
  * A factory class for generating NSI ServiceDomain resource objects.

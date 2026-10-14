@@ -1,0 +1,4 @@
+== response
+status: 404
+content-type: application/json
+Requested networkId does not exist.

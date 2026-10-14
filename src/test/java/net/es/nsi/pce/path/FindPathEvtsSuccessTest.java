@@ -8,12 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.UUID;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBElement;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.GenericEntity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeFactory;
 import net.es.nsi.pce.client.TestServer;
 import net.es.nsi.pce.config.http.HttpConfig;
@@ -398,8 +398,8 @@ public class FindPathEvtsSuccessTest {
         FindPathResponseType response = testSuccessfulPath(mediaType, test, algorithm);
 
         response.getPath().stream().map((path) -> path.getAny())
-                .filter((any) -> (any instanceof javax.xml.bind.JAXBElement))
-                .map((any) -> javax.xml.bind.JAXBElement.class.cast(any))
+                .filter((any) -> (any instanceof jakarta.xml.bind.JAXBElement))
+                .map((any) -> jakarta.xml.bind.JAXBElement.class.cast(any))
                 .filter((jaxb) -> (jaxb.getValue() instanceof P2PServiceBaseType))
                 .map((jaxb) -> P2PServiceBaseType.class.cast(jaxb.getValue()))
                 .map((cast) -> cast.getParameter())
@@ -437,8 +437,8 @@ public class FindPathEvtsSuccessTest {
         FindPathResponseType response = testSuccessfulPath(MediaType.APPLICATION_JSON, test7, FindPathAlgorithmType.SEQUENTIAL);
         for (ResolvedPathType path : response.getPath()) {
             for (Object any : path.getAny()) {
-                if (any instanceof javax.xml.bind.JAXBElement) {
-                    javax.xml.bind.JAXBElement jaxb = javax.xml.bind.JAXBElement.class.cast(any);
+                if (any instanceof jakarta.xml.bind.JAXBElement) {
+                    jakarta.xml.bind.JAXBElement jaxb = jakarta.xml.bind.JAXBElement.class.cast(any);
                     if (jaxb.getValue() instanceof P2PServiceBaseType) {
                         P2PServiceBaseType cast = P2PServiceBaseType.class.cast(jaxb.getValue());
                         if (ESNET.equalsIgnoreCase(cast.getSourceSTP()) ||
@@ -469,8 +469,8 @@ public class FindPathEvtsSuccessTest {
         FindPathResponseType response = testSuccessfulPath(MediaType.APPLICATION_JSON, test7b, FindPathAlgorithmType.SEQUENTIAL);
         for (ResolvedPathType path : response.getPath()) {
             for (Object any : path.getAny()) {
-                if (any instanceof javax.xml.bind.JAXBElement) {
-                    javax.xml.bind.JAXBElement jaxb = javax.xml.bind.JAXBElement.class.cast(any);
+                if (any instanceof jakarta.xml.bind.JAXBElement) {
+                    jakarta.xml.bind.JAXBElement jaxb = jakarta.xml.bind.JAXBElement.class.cast(any);
                     if (jaxb.getValue() instanceof P2PServiceBaseType) {
                         P2PServiceBaseType cast = P2PServiceBaseType.class.cast(jaxb.getValue());
                         if (ESNET.equalsIgnoreCase(cast.getSourceSTP()) ||

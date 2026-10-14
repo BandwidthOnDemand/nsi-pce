@@ -2,8 +2,8 @@ package net.es.nsi.pce.schema;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
 import net.es.nsi.pce.jaxb.topology.NmlTopologyType;
 import net.es.nsi.pce.jaxb.topology.ObjectFactory;
 import net.es.nsi.pce.jaxb.topology.TopologyErrorType;

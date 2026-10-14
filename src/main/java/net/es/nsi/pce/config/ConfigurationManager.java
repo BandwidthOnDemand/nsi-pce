@@ -5,7 +5,6 @@ import net.es.nsi.pce.sched.TopologyAudit;
 import net.es.nsi.pce.server.PCEServer;
 import net.es.nsi.pce.spring.SpringContext;
 import net.es.nsi.pce.topology.provider.TopologyProvider;
-import org.apache.log4j.xml.DOMConfigurator;
 import org.quartz.SchedulerException;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -71,9 +70,6 @@ public enum ConfigurationManager {
      */
     public synchronized void initialize(String configPath) throws Exception {
         if (!isInitialized()) {
-            // Load and watch the log4j configuration file for changes.
-            DOMConfigurator.configureAndWatch(getLog4jConfig(configPath), 45 * 1000);
-
             final org.slf4j.Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
 
             // If absolute path then add "file:" so this will load properly.
@@ -119,14 +115,6 @@ public enum ConfigurationManager {
             setInitialized(true);
             log.info("Loaded configuration from: " + configPath);
         }
-    }
-
-    private String getLog4jConfig(String configPath) {
-        String log4jConfig = System.getProperty("log4j.configuration");
-        if (log4jConfig == null) {
-            log4jConfig = configPath + "log4j.xml";
-        }
-        return log4jConfig;
     }
 
     public ApplicationContext getApplicationContext() {

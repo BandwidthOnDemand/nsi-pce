@@ -1,6 +1,6 @@
 package net.es.nsi.pce.pf.api;
 
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 
 
 public interface PCEModule {

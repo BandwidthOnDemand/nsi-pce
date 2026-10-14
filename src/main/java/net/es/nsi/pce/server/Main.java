@@ -4,12 +4,10 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import net.es.nsi.pce.config.ConfigurationManager;
+import net.es.nsi.pce.config.StartupArgs;
+import net.es.nsi.pce.util.LogbackConfigurator;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
@@ -25,10 +23,6 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 public class Main {
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
 
-    private static final String CONFIG_PATH = "configPath";
-    private static final String CONFIG_DEFAULT_PATH = "config/";
-    private static final String DEFAULT_TOPOLOGY_FILE = CONFIG_DEFAULT_PATH + "topology-dds.xml";
-    public static final String TOPOLOGY_CONFIG_FILE_ARGNAME = "topologyConfigFile";
     public static final String PCE_SERVER_CONFIG_NAME = "pce";
 
     // Keep running PCE while true.
@@ -66,52 +60,25 @@ public class Main {
       SLF4JBridgeHandler.install();
       Logger.getLogger("global").setLevel(Level.FINEST);
 
-        // Create Options object to hold our command line options.
-        Options options = new Options();
-
-        // Configuration directory option.
-        Option topologyOption = new Option(TOPOLOGY_CONFIG_FILE_ARGNAME, true, "Path to your topology configuration file");
-        topologyOption.setRequired(false);
-        options.addOption(topologyOption);
-
-        Option configOption = new Option("c", true, "Where you keep your other configfiles (defaults to ./config)");
-        configOption.setRequired(false);
-        options.addOption(configOption);
-
-        // Parse the command line options.
-        CommandLineParser parser = new GnuParser();
-
         CommandLine cmd = null;
         try {
-            cmd = parser.parse(options, args);
+            cmd = StartupArgs.parse(args);
         } catch (ParseException e) {
             System.err.println("You did not provide the correct arguments, see usage below.");
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("java -jar pce.jar  [-c <configDir>] [-topologyConfigFile <filename>]", options);
+            formatter.printHelp("java -jar pce.jar  [-c <configDir>] [-topologyConfigFile <filename>]", StartupArgs.options());
             System.exit(1);
             return;
         }
 
-        String configPath = cmd.getOptionValue("c");
-        if(configPath == null) {
-            configPath = CONFIG_DEFAULT_PATH;
-        }
-        else {
-            configPath = configPath.trim();
+        String configPath = StartupArgs.apply(cmd);
 
-            if (!configPath.endsWith("/")) {
-                configPath = configPath + "/";
-            }
-        }
+        // Load the logging configuration; logback.xml sets its own scan interval.
+        LogbackConfigurator.configure(configPath, "logback.xml");
 
-        System.setProperty(CONFIG_PATH, configPath);
-
-        String topologyFile = cmd.getOptionValue(TOPOLOGY_CONFIG_FILE_ARGNAME);
-        if (topologyFile == null || topologyFile.isEmpty()) {
-            topologyFile = DEFAULT_TOPOLOGY_FILE;
-        }
-
-        System.setProperty(TOPOLOGY_CONFIG_FILE_ARGNAME, topologyFile);
+        log.info("Starting nsi-pce {} on Java {}",
+                Main.class.getPackage().getImplementationVersion(),
+                System.getProperty("java.version"));
 
         // Load PCE configuration from disk.
         ConfigurationManager.INSTANCE.initialize(configPath);

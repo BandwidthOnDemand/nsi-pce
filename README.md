@@ -16,7 +16,7 @@ In the near future the NSI-PCE will be decoupled into two separate runtime packa
 
 ## Getting Started
 
-The NSI-PCE utilizes maven as a build environment.  Once you have downloaded the `nsi-pce` project just type `maven clean install` in the project directory to build the NSI-PCE application.  The project includes a set of REST API test cases that demonstrate the use of available REST API.  To bypass running of the test suite during build include the maven skip test option `mvn install -Dmaven.test.skip=true`.
+The NSI-PCE needs Java 17 and builds with the Maven wrapper (`./mvnw`).  Once you have downloaded the `nsi-pce` project just type `maven clean install` in the project directory to build the NSI-PCE application.  The project includes a set of REST API test cases that demonstrate the use of available REST API.  To bypass running of the test suite during build include the maven skip test option `mvn install -Dmaven.test.skip=true`.
 ```
 > git clone https://github.com/BandwidthOnDemand/nsi-pce.git
 Cloning into 'nsi-pce'...
@@ -91,6 +91,26 @@ The prototype NSI-DDS implementation used by the topology service is currently e
 
 * *defaultServiceType* - The service type used as a default for networks not announcing a service type in NML topology.  If not present, this value will be used to create a default *ServiceDefinition* entry and *ServiceDomain* entries in the NSI topology for the discovered network.
 
+### Path computation (beans.xml)
+
+`config/beans.xml` wires the path computation modules. The `dijkstraPCE` bean has one setting:
+
+* *avoidLoops* (default `true`) - Routes the legs of a request, split at each ERO STP, together.
+  The VLAN at an ERO STP is chosen to fit the leg after it, and within a leg a path:
+  * never leaves a network and comes back through the same port, a segment the uPA refuses;
+  * re-enters a network through another port only when no other path exists;
+  * keeps the VLAN of the STP before it where it can.
+
+  A hairpin across ERO STPs, leaving a network at one and coming back at a later one, is what the
+  request asked for and is kept. `false` restores the earlier behaviour: each leg is routed on its
+  own and the VLAN at an ERO STP without one is picked at random.
+
+```
+<bean id="dijkstraPCE" class="net.es.nsi.pce.pf.DijkstraPCE" scope="prototype">
+    <property name="avoidLoops" value="true" />
+</bean>
+```
+
 ### DDS configuration (dds.xml)
 
 The NSI-PCE's internal NSI-DDS engine (NSI Document Discovery Service v1) is used for collection of NSA Description and NML Topology documents from all NSA with the network.  The DDS then makes these discovered documents available for application use thfought its RESTful API.  The NSI-PCE's internal topology services utilizes this DDS RESTful API for building a network topology view.
@@ -153,6 +173,51 @@ application/vnd.ogf.nsi.topology.v1+xml
 ```
 - The Automated GOLE topology discovery v1 which utilizes a manifest file.
 
+## Versioning
+The release git tag is the only place a version is written by hand. The `pom.xml` version is the
+placeholder `0.0.0-SNAPSHOT`; `.github/workflows/build-push-container.yml` checks out with
+`fetch-depth: 0`, resolves the version with `git describe --tags --always`, and passes it as
+`--build-arg VERSION=...`. The `Dockerfile` then runs `versions:set` before packaging, so a tag
+builds `2.1.2` and any other commit builds `2.1.2-3-g1a2b3c4`.
+
+## Logging
+The PCE logs through SLF4J and Logback. At startup it loads `logback.xml` from the configuration
+directory, or the file named by `-Dlogback.configurationFile`; without either it logs at DEBUG to
+the console, from the `logback.xml` in the jar. `config/logback.xml` also writes the error, info and
+debug files under `var/log`. The TopologyViewer reads `logback-viewer.xml` from that directory if
+present.
+
+## Tests
+`.github/workflows/ci.yml` runs `./mvnw -B verify` on JDK 17 under Xvfb for every pull request and
+every push to `master`. The suite takes about seven minutes; each test class runs in its own JVM
+with a 4 GB heap. `TopologyViewerTest` needs a display and is skipped without one.
+
+`ApiCharacterizationTest` calls every REST endpoint and FindPath over plain HTTP against
+`topology/api.xml` and compares status, content type and body with the files in
+`src/test/resources/golden`. Those files were recorded on the Java 8 code (2.2.0), so a difference
+is a change in what clients see. After an intended change, rewrite them and review the diff:
+
+```
+$ ./mvnw -B test -Dtest=ApiCharacterizationTest -Dgolden.update=true
+```
+
+Path-finding tests run against synthetic topologies in `src/test/resources/topology/`. The
+collection files there are generated: change `generate.py` and rerun it rather than editing the
+XML. `vlan-loop.xml` is a triangle where one domain cannot swap labels; `two-links.xml` adds a
+second link into that domain, for the last-resort detour and a hairpin requested by the ERO.
+`api.xml` is the triangle with three VLANs per port, which keeps the golden files small.
+
+```
+$ python3 src/test/resources/topology/generate.py
+$ ./mvnw -B verify
+```
+
+A container build without the argument fails rather than producing a mislabelled image:
+
+```
+$ docker build --build-arg VERSION="$(git describe --tags --always)" -t nsi-pce .
+```
+
 ## Running the NSI-PCE
 
 ```
@@ -174,11 +239,11 @@ done
 PRGDIR=`dirname "$PRG"`
 BASEDIR=`cd "$PRGDIR" >/dev/null; pwd`
 
-java -Xmx512m -XX:MaxPermSize=256m -Djava.net.preferIPv4Stack=true  \
+java -Xmx512m -Djava.net.preferIPv4Stack=true  \
 	-Dapp.home="$BASEDIR" \
 	-Dbasedir="$BASEDIR" \
 	-Djava.util.logging.config.file="$BASEDIR/config/logging.properties" \
-	-Dcom.sun.xml.bind.v2.runtime.JAXBContextImpl.fastBoot=true \
+	-Dorg.glassfish.jaxb.runtime.v2.runtime.JAXBContextImpl.fastBoot=true \
 	-Djavax.net.ssl.trustStore=config/nsi-pce-truststore \
 	-Djavax.net.ssl.trustStorePassword=changeit \
 	-jar target/pce.jar \

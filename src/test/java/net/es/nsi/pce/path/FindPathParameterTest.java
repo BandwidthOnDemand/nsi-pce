@@ -4,12 +4,12 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.UUID;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBElement;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.GenericEntity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import net.es.nsi.pce.client.TestServer;
@@ -205,7 +205,7 @@ public class FindPathParameterTest {
         FindPathRequestType req = getSuccessfulPathRequest(mediaType);
 
         for (Object obj: req.getAny()) {
-            if (obj instanceof javax.xml.bind.JAXBElement) {
+            if (obj instanceof jakarta.xml.bind.JAXBElement) {
                 JAXBElement<?> jaxb = (JAXBElement) obj;
                 if (jaxb.getValue() instanceof P2PServiceBaseType) {
                     P2PServiceBaseType p2ps = (P2PServiceBaseType) jaxb.getValue();

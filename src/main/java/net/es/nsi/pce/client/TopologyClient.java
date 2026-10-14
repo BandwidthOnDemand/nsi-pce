@@ -5,12 +5,12 @@
 package net.es.nsi.pce.client;
 
 import java.util.Date;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import net.es.nsi.pce.jaxb.management.LogListType;
 import net.es.nsi.pce.jaxb.management.LogType;
 import net.es.nsi.pce.jaxb.management.StatusType;
@@ -18,7 +18,7 @@ import net.es.nsi.pce.jaxb.topology.CollectionType;
 import net.es.nsi.pce.jaxb.topology.NetworkType;
 import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.jersey.RestClient;
-import org.apache.http.client.utils.DateUtils;
+import net.es.nsi.pce.util.DateUtils;
 import org.glassfish.jersey.client.ClientConfig;
 
 /**

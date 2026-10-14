@@ -1,7 +1,7 @@
 package net.es.nsi.pce.pf.simple;
 
 import java.util.HashMap;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.topology.model.NmlEthernet;
 

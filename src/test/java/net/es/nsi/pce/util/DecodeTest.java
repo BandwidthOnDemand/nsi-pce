@@ -2,7 +2,7 @@ package net.es.nsi.pce.util;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 import net.es.nsi.pce.jaxb.dds.CollectionType;
 import net.es.nsi.pce.jaxb.dds.DocumentType;
@@ -12,7 +12,6 @@ import net.es.nsi.pce.schema.DdsParser;
 import net.es.nsi.pce.schema.NmlParser;
 import net.es.nsi.pce.schema.NsaParser;
 import net.es.nsi.pce.schema.NsiConstants;
-import org.apache.log4j.xml.DOMConfigurator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -31,8 +30,6 @@ public class DecodeTest {
 
     @Before
     public void setUp() throws IllegalArgumentException, JAXBException, FileNotFoundException, NullPointerException, IOException {
-        // Load and watch the log4j configuration file for changes.
-        DOMConfigurator.configureAndWatch(Log4jHelper.getLog4jConfig("src/test/resources/config/log4j.xml"), 45 * 1000);
         log = LoggerFactory.getLogger(DecodeTest.class);
 
     }
