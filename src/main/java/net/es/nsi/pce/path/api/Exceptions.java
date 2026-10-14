@@ -5,10 +5,10 @@
 package net.es.nsi.pce.path.api;
 
 import com.google.common.base.Optional;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBElement;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.GenericEntity;
+import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.JAXBElement;
 import net.es.nsi.pce.jaxb.path.FindPathErrorType;
 import net.es.nsi.pce.jaxb.path.ObjectFactory;
 import net.es.nsi.pce.path.services.Point2PointTypes;

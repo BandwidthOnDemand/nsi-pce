@@ -23,7 +23,7 @@ import net.es.nsi.pce.jaxb.topology.SdpDirectionalityType;
 import net.es.nsi.pce.jaxb.topology.SdpType;
 import net.es.nsi.pce.jaxb.topology.StpDirectionalityType;
 import net.es.nsi.pce.jaxb.topology.StpType;
-import org.apache.http.client.utils.DateUtils;
+import net.es.nsi.pce.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

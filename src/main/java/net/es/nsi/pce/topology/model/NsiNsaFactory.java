@@ -3,7 +3,7 @@ package net.es.nsi.pce.topology.model;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
-import javax.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
@@ -21,7 +21,7 @@ import net.es.nsi.pce.jaxb.topology.ResourceRefType;
 import net.es.nsi.pce.jaxb.topology.TopologyReachabilityType;
 import net.es.nsi.pce.jaxb.topology.TopologyType;
 import net.es.nsi.pce.jaxb.topology.VectorType;
-import org.apache.http.client.utils.DateUtils;
+import net.es.nsi.pce.util.DateUtils;
 
 /**
  * A factory class for generating NSI NSA resource objects.

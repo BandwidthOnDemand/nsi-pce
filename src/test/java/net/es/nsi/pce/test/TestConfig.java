@@ -4,9 +4,9 @@
  */
 package net.es.nsi.pce.test;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
 import net.es.nsi.pce.config.ConfigurationManager;
 import net.es.nsi.pce.jersey.RestClient;
 import org.glassfish.jersey.client.ClientConfig;

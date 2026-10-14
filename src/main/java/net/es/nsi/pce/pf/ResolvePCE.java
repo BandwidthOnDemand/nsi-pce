@@ -2,7 +2,7 @@ package net.es.nsi.pce.pf;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 import net.es.nsi.pce.jaxb.topology.NetworkType;
 import net.es.nsi.pce.path.api.Exceptions;
 import net.es.nsi.pce.pf.api.PCEData;

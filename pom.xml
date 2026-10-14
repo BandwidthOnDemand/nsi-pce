@@ -12,11 +12,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <jersey.version>2.23.1</jersey.version>
-        <spring.version>4.0.6.RELEASE</spring.version>
-        <slf4j.version>1.7.32</slf4j.version>
+        <java.version>17</java.version>
+        <jersey.version>3.1.12</jersey.version>
+        <spring.version>6.2.19</spring.version>
+        <slf4j.version>2.0.20</slf4j.version>
+        <jaxb.plugins.version>4.0.16</jaxb.plugins.version>
+        <!-- 2.0.1 is the last JUNG with the collections15 Transformer API; 2.1 moved to Guava Function. -->
         <jung.version>2.0.1</jung.version>
-        <java.version>1.8</java.version>
     </properties>
 
     <dependencies>
@@ -28,47 +30,62 @@
         </dependency>
 
         <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-moxy</artifactId>
             <version>${jersey.version}</version>
         </dependency>
 
+        <!-- The XML readers and writers; Jersey 2 had them in jersey-common, MOXy only resolves the context. -->
         <dependency>
-            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-            <artifactId>jersey-test-framework-provider-bundle</artifactId>
-            <version>${jersey.version}</version>
-            <type>pom</type>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.jersey.ext</groupId>
-            <artifactId>jersey-proxy-client</artifactId>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-jaxb</artifactId>
             <version>${jersey.version}</version>
         </dependency>
 
+        <!-- JAXB reference implementation for our own parsers and the WADL; MOXy serves the REST API. -->
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>javax.mail-api</artifactId>
-            <version>1.5.4</version>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>4.0.9</version>
+        </dependency>
+
+        <!-- equals, hashCode and toString support for the generated JAXB classes. -->
+        <dependency>
+            <groupId>org.jvnet.jaxb</groupId>
+            <artifactId>jaxb-plugins-runtime</artifactId>
+            <version>${jaxb.plugins.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-            <version>1.5.4</version>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>2.1.1</version>
         </dependency>
 
-        <!-- SLF and Log4j for logging infrestructure. -->
+        <!-- MIME transfer decoding of DDS document content. -->
+        <dependency>
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+            <version>2.1.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+            <version>2.0.5</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- SLF4J and Logback for logging infrastructure. -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
 
@@ -79,23 +96,23 @@
         </dependency>
 
         <dependency>
-          <groupId>org.projectlombok</groupId>
-          <artifactId>lombok</artifactId>
-          <version>1.18.10</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.38</version>
         </dependency>
 
         <!-- Google JSON parsers for reading configuration data from files. -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.2.3</version>
+            <version>2.14.0</version>
         </dependency>
 
         <!-- For FileUtils -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>1.3.2</version>
+            <version>2.22.0</version>
         </dependency>
 
         <!-- For spring beans to drive configuration loading. -->
@@ -115,27 +132,13 @@
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
-            <version>2.2.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz-jobs</artifactId>
-            <version>2.2.1</version>
-        </dependency>
-
-        <!-- Quartz is dependent on this. -->
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2</version>
-            <scope>runtime</scope>
+            <version>2.5.2</version>
         </dependency>
 
         <dependency>
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
-            <version>1.2</version>
+            <version>1.11.0</version>
         </dependency>
 
         <!-- graphs -->
@@ -143,46 +146,44 @@
             <groupId>net.sf.jung</groupId>
             <artifactId>jung-algorithms</artifactId>
             <version>${jung.version}</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>net.sf.jung</groupId>
             <artifactId>jung-graph-impl</artifactId>
             <version>${jung.version}</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>net.sf.jung</groupId>
             <artifactId>jung-visualization</artifactId>
             <version>${jung.version}</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>17.0</version>
-        </dependency>
-
-        <!-- For HTTP header utilities. -->
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.3.6</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.10</artifactId>
-            <version>2.3.2</version>
+            <version>33.7.2-jre</version>
         </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>1.9.5</version>
+            <version>5.24.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+            <version>3.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -191,52 +192,54 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-basics</artifactId>
-            <version>0.9.4</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jvnet.jaxb2.maven2</groupId>
-            <artifactId>maven-jaxb2-plugin</artifactId>
-            <version>0.13.0</version>
-        </dependency>
-
      </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>2.21.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.15.0</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <compilerArgument>-Xlint:deprecation</compilerArgument>
+                    <release>${java.version}</release>
+                    <compilerArgs>
+                        <arg>-Xlint:deprecation</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 
             <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb2-plugin</artifactId>
-                <version>0.13.0</version>
+                <groupId>org.jvnet.jaxb</groupId>
+                <artifactId>jaxb-maven-plugin</artifactId>
+                <version>${jaxb.plugins.version}</version>
+                <configuration>
+                    <args>
+                        <arg>-Xfluent-api</arg>
+                        <arg>-Xequals</arg>
+                        <arg>-XhashCode</arg>
+                        <arg>-XtoString</arg>
+                    </args>
+                    <bindingDirectory>${basedir}/src/main/xsd</bindingDirectory>
+                    <schemaDirectory>${basedir}/src/main/xsd</schemaDirectory>
+                    <markGenerated>true</markGenerated>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.jvnet.jaxb</groupId>
+                            <artifactId>jaxb-plugins</artifactId>
+                            <version>${jaxb.plugins.version}</version>
+                        </plugin>
+                    </plugins>
+                </configuration>
                 <executions>
                     <!-- We break the schema up into bundles for compile.  This
                       allows us to load schema by package name and reduce the
@@ -247,49 +250,16 @@
                         <goal>generate</goal>
                     </goals>
                     <configuration>
-                        <args>
-                            <arg>-Xfluent-api</arg>
-                            <arg>-Xequals</arg>
-                            <arg>-XhashCode</arg>
-                            <arg>-XtoString</arg>
-                        </args>
-                        <bindingDirectory>${basedir}/src/main/xsd</bindingDirectory>
                         <bindingIncludes>
                             <bindingInclude>pce.xjb</bindingInclude>
                         </bindingIncludes>
-                        <schemas>
-                            <schema>
-                                <fileset>
-                                    <directory>${basedir}/src/main/xsd</directory>
-                                    <includes>
-                                        <include>pce-messages.xsd</include>
-                                        <include>ogf_nsi_services_p2p_v2_0.xsd</include>
-                                        <include>ogf_nsi_services_types_v2_0.xsd</include>
-                                    </includes>
-                                </fileset>
-                            </schema>
-                        </schemas>
+                        <schemaIncludes>
+                            <include>pce-messages.xsd</include>
+                            <include>ogf_nsi_services_p2p_v2_0.xsd</include>
+                            <include>ogf_nsi_services_types_v2_0.xsd</include>
+                        </schemaIncludes>
                         <generatePackage>net.es.nsi.pce.jaxb.path</generatePackage>
                         <generateDirectory>${project.build.directory}/generated-sources/pce</generateDirectory>
-                        <clearOutputDir>true</clearOutputDir>
-                        <markGenerated>true</markGenerated>
-                        <plugins>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-basics</artifactId>
-                                <version>0.9.4</version>
-                            </plugin>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-fluent-api</artifactId>
-                                <version>3.0</version>
-                            </plugin>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-namespace-prefix</artifactId>
-                                <version>1.1</version>
-                            </plugin>
-                        </plugins>
                     </configuration>
                   </execution>
 
@@ -299,202 +269,71 @@
                         <goal>generate</goal>
                     </goals>
                     <configuration>
-                        <args>
-                            <arg>-Xfluent-api</arg>
-                            <arg>-Xequals</arg>
-                            <arg>-XhashCode</arg>
-                            <arg>-XtoString</arg>
-                        </args>
-                        <bindingDirectory>${basedir}/src/main/xsd</bindingDirectory>
                         <bindingIncludes>
                             <bindingInclude>topology.xjb</bindingInclude>
                         </bindingIncludes>
-                        <schemas>
-                            <schema>
-                                <fileset>
-                                    <directory>${basedir}/src/main/xsd</directory>
-                                    <includes>
-                                        <include>nsi-topology.xsd</include>
-                                        <include>ogf_nsi_services_definition_v2_0.xsd</include>
-                                        <include>nmlbase.xsd</include>
-                                        <include>nml-ethernet.xsd</include>
-                                        <include>ogf_nsi_discovery_nsa_v1_0.xsd</include>
-                                        <include>gnsbod.xsd</include>
-                                    </includes>
-                                </fileset>
-                            </schema>
-                        </schemas>
+                        <schemaIncludes>
+                            <include>nsi-topology.xsd</include>
+                            <include>ogf_nsi_services_definition_v2_0.xsd</include>
+                            <include>nmlbase.xsd</include>
+                            <include>nml-ethernet.xsd</include>
+                            <include>ogf_nsi_discovery_nsa_v1_0.xsd</include>
+                            <include>gnsbod.xsd</include>
+                        </schemaIncludes>
                         <generatePackage>net.es.nsi.pce.jaxb.topology</generatePackage>
                         <generateDirectory>${project.build.directory}/generated-sources/topology</generateDirectory>
-                        <clearOutputDir>true</clearOutputDir>
-                        <markGenerated>true</markGenerated>
-                        <plugins>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-basics</artifactId>
-                                <version>0.9.4</version>
-                            </plugin>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-fluent-api</artifactId>
-                                <version>3.0</version>
-                            </plugin>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-namespace-prefix</artifactId>
-                                <version>1.1</version>
-                            </plugin>
-                        </plugins>
                     </configuration>
                   </execution>
 
                   <execution>
                     <id>dds.rest.api</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
+                    <goals>
+                        <goal>generate</goal>
+                    </goals>
                     <configuration>
-                        <args>
-                            <arg>-Xfluent-api</arg>
-                            <arg>-Xequals</arg>
-                            <arg>-XhashCode</arg>
-                            <arg>-XtoString</arg>
-                        </args>
-                        <bindingDirectory>${basedir}/src/main/xsd</bindingDirectory>
                         <bindingIncludes>
                             <bindingInclude>dds.xjb</bindingInclude>
                         </bindingIncludes>
-                        <schemas>
-                            <schema>
-                                <fileset>
-                                    <directory>${basedir}/src/main/xsd</directory>
-                                    <includes>
-                                        <include>ogf_nsi_discovery_protocol_v1_0.xsd</include>
-                                    </includes>
-                                </fileset>
-                            </schema>
-                        </schemas>
+                        <schemaIncludes>
+                            <include>ogf_nsi_discovery_protocol_v1_0.xsd</include>
+                        </schemaIncludes>
                         <generatePackage>net.es.nsi.pce.jaxb.dds</generatePackage>
                         <generateDirectory>${project.build.directory}/generated-sources/dds</generateDirectory>
-                        <clearOutputDir>true</clearOutputDir>
-                        <markGenerated>true</markGenerated>
-                        <plugins>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-basics</artifactId>
-                                <version>0.9.4</version>
-                            </plugin>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-fluent-api</artifactId>
-                                <version>3.0</version>
-                            </plugin>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-namespace-prefix</artifactId>
-                                <version>1.1</version>
-                            </plugin>
-                        </plugins>
                     </configuration>
                   </execution>
 
                   <execution>
                     <id>topology-config</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
+                    <goals>
+                        <goal>generate</goal>
+                    </goals>
                     <configuration>
-                        <args>
-                            <arg>-Xfluent-api</arg>
-                            <arg>-Xequals</arg>
-                            <arg>-XhashCode</arg>
-                            <arg>-XtoString</arg>
-                        </args>
-                        <bindingDirectory>${basedir}/src/main/xsd</bindingDirectory>
                         <bindingIncludes>
                             <bindingInclude>topology-config.xjb</bindingInclude>
                         </bindingIncludes>
-                        <schemas>
-                            <schema>
-                                <fileset>
-                                    <directory>${basedir}/src/main/xsd</directory>
-                                    <includes>
-                                        <include>pce-topology-configuration.xsd</include>
-                                    </includes>
-                                </fileset>
-                            </schema>
-                        </schemas>
+                        <schemaIncludes>
+                            <include>pce-topology-configuration.xsd</include>
+                        </schemaIncludes>
                         <generatePackage>net.es.nsi.pce.jaxb.config</generatePackage>
                         <generateDirectory>${project.build.directory}/generated-sources/config</generateDirectory>
-                        <clearOutputDir>true</clearOutputDir>
-                        <markGenerated>true</markGenerated>
-                        <plugins>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-basics</artifactId>
-                                <version>0.9.4</version>
-                            </plugin>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-fluent-api</artifactId>
-                                <version>3.0</version>
-                            </plugin>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-namespace-prefix</artifactId>
-                                <version>1.1</version>
-                            </plugin>
-                        </plugins>
                     </configuration>
                   </execution>
 
                   <execution>
                     <id>management</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
+                    <goals>
+                        <goal>generate</goal>
+                    </goals>
                     <configuration>
-                        <args>
-                            <arg>-Xfluent-api</arg>
-                            <arg>-Xequals</arg>
-                            <arg>-XhashCode</arg>
-                            <arg>-XtoString</arg>
-                        </args>
-                        <bindingDirectory>${basedir}/src/main/xsd</bindingDirectory>
+                        <!-- No binding file; an empty include keeps the shared ones out. -->
                         <bindingIncludes>
-                            <bindingInclude>management.xjb</bindingInclude>
+                            <bindingInclude>none</bindingInclude>
                         </bindingIncludes>
-                        <schemas>
-                            <schema>
-                                <fileset>
-                                    <directory>${basedir}/src/main/xsd</directory>
-                                    <includes>
-                                        <include>pce-management.xsd</include>
-                                    </includes>
-                                </fileset>
-                            </schema>
-                        </schemas>
+                        <schemaIncludes>
+                            <include>pce-management.xsd</include>
+                        </schemaIncludes>
                         <generatePackage>net.es.nsi.pce.jaxb.management</generatePackage>
                         <generateDirectory>${project.build.directory}/generated-sources/management</generateDirectory>
-                        <clearOutputDir>true</clearOutputDir>
-                        <markGenerated>true</markGenerated>
-                        <plugins>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-basics</artifactId>
-                                <version>0.9.4</version>
-                            </plugin>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-fluent-api</artifactId>
-                                <version>3.0</version>
-                            </plugin>
-                            <plugin>
-                                <groupId>org.jvnet.jaxb2_commons</groupId>
-                                <artifactId>jaxb2-namespace-prefix</artifactId>
-                                <version>1.1</version>
-                            </plugin>
-                        </plugins>
                     </configuration>
                   </execution>
                 </executions>
@@ -503,6 +342,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.5.1</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -512,33 +352,53 @@
                 </configuration>
             </plugin>
 
-            <!-- puts all code & libraries in one jar -->
+            <!-- One runnable jar with all dependencies. viewer.sh starts the TopologyViewer from it. -->
             <plugin>
-                <groupId>com.jolira</groupId>
-                <artifactId>onejar-maven-plugin</artifactId>
-                <version>1.4.4</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.2</version>
                 <executions>
                     <execution>
-                        <id>PCE</id>
-                        <configuration>
-                            <mainClass>net.es.nsi.pce.server.Main</mainClass>
-                            <classifier>onejar</classifier>
-                            <filename>pce.jar</filename>
-                        </configuration>
+                        <phase>package</phase>
                         <goals>
-                            <goal>one-jar</goal>
+                            <goal>shade</goal>
                         </goals>
-                    </execution>
-                    <execution>
-                        <id>Visualization</id>
                         <configuration>
-                            <mainClass>net.es.nsi.pce.visualization.TopologyViewer</mainClass>
-                            <classifier>onejar</classifier>
-                            <filename>TopologyViewer.jar</filename>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <outputFile>${project.build.directory}/pce.jar</outputFile>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>module-info.class</exclude>
+                                        <exclude>META-INF/versions/*/module-info.class</exclude>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>net.es.nsi.pce.server.Main</mainClass>
+                                    <manifestEntries>
+                                        <Implementation-Version>${project.version}</Implementation-Version>
+                                        <Multi-Release>true</Multi-Release>
+                                    </manifestEntries>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.handlers</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.schemas</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/hk2-locator/default</resource>
+                                </transformer>
+                            </transformers>
                         </configuration>
-                        <goals>
-                            <goal>one-jar</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -546,19 +406,19 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.16</version>
+                <version>3.5.6</version>
                 <configuration>
                     <!-- One argLine: Maven keeps only the last of repeated elements. The ES.net test
                          topology expands to about a million STPs, which needs the 4 GB. A fresh JVM per
                          class, because the integration tests share the ConfigurationManager singleton. -->
                     <reuseForks>false</reuseForks>
-                    <argLine>-Xmx4g -Djava.net.preferIPv4Stack=true -Djersey.config.test.container.port=8400 -Dcom.sun.xml.bind.v2.runtime.JAXBContextImpl.fastBoot=true -Djavax.net.ssl.trustStore=config/nsi-pce-truststore -Djavax.net.ssl.trustStorePassword=changeit</argLine>
+                    <argLine>-Xmx4g -Djava.net.preferIPv4Stack=true -Dorg.glassfish.jaxb.runtime.v2.runtime.JAXBContextImpl.fastBoot=true -Djavax.net.ssl.trustStore=config/nsi-pce-truststore -Djavax.net.ssl.trustStorePassword=changeit</argLine>
                 </configuration>
             </plugin>
 
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>2.5</version>
+                <version>3.5.0</version>
                 <configuration>
                   <filesets>
                     <fileset>

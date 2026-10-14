@@ -10,8 +10,6 @@ import net.es.nsi.pce.jaxb.dds.ObjectFactory;
 import net.es.nsi.pce.jaxb.topology.SdpType;
 import net.es.nsi.pce.schema.DdsParser;
 import net.es.nsi.pce.topology.provider.DdsWrapper;
-import net.es.nsi.pce.util.Log4jHelper;
-import org.apache.log4j.xml.DOMConfigurator;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import org.junit.BeforeClass;
@@ -31,8 +29,6 @@ public class SdpTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        // Configure Log4J and use logs from this point forward.
-        DOMConfigurator.configureAndWatch(Log4jHelper.getLog4jConfig("src/test/resources/config/log4j.xml"), 45 * 1000);
         log = LoggerFactory.getLogger(SdpTest.class);
 
         ObjectFactory factory = new ObjectFactory();

@@ -140,14 +140,13 @@ config:
   # DDS portal URL used by wait-for-dds init container
   ddsPortalUrl: http://development-nsi-dds.development.svc.cluster.local:80/dds/portal
   #
-  # nsi-pce needs the following four configuration files:
+  # nsi-pce needs the following configuration files:
   # - topology-dds.xml
   # - logging.properties
-  # - log4j.xml
   # - beans.xml
   # - http.json
   # - jetty.xml
-  # - log4j-viewer.xml
+  # The PCE logs at DEBUG to the console with the logback.xml in its jar.
   #
   # When config.configMapName is defined it must point to an existing configmap, managed outside of Helm,
   # that contains all necessary configuration files. Otherwise, Helm will create a configmap with files from
@@ -177,86 +176,6 @@ config:
       java.util.logging.SimpleFormatter.format=%1$tF %1$tT.%1$tL %4$-5s [%2$s] %5$s%n
       org.glassfish.jersey.config.feature.Trace=true
       org.glassfish.grizzly.config.feature.Trace=true
-    log4j.xml: |-
-      <?xml version="1.0" encoding="UTF-8" ?>
-      <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
-      <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-        <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-          <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p [%t] (%C:%L) - %m%n" />
-          </layout>
-          <filter class="org.apache.log4j.varia.LevelRangeFilter">
-            <param name="levelMin" value="DEBUG" />
-            <param name="levelMax" value="ERROR" />
-          </filter>
-        </appender>
-        <appender name="ERR_FILE" class="org.apache.log4j.RollingFileAppender">
-          <param name="MaxFileSize" value="100MB" />
-          <param name="MaxBackupIndex" value="20"/>
-          <param name="encoding" value="UTF-8" />
-          <param name="File" value="${basedir}/var/log/nsi-pce.err.log" />
-          <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p [%t] (%C:%L) - %m%n" />
-          </layout>
-          <filter class="org.apache.log4j.varia.LevelRangeFilter">
-            <param name="levelMin" value="WARN" />
-            <param name="levelMax" value="ERROR" />
-          </filter>
-        </appender>
-        <appender name="INFO_FILE" class="org.apache.log4j.RollingFileAppender">
-          <param name="MaxFileSize" value="100MB" />
-          <param name="MaxBackupIndex" value="20"/>
-          <param name="encoding" value="UTF-8" />
-          <param name="File" value="${basedir}/var/log/nsi-pce.info.log" />
-          <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p [%t] (%C:%L) - %m%n" />
-          </layout>
-          <filter class="org.apache.log4j.varia.LevelRangeFilter">
-            <param name="levelMin" value="INFO" />
-            <param name="levelMax" value="ERROR" />
-          </filter>
-        </appender>
-        <appender name="DEBUG_FILE" class="org.apache.log4j.RollingFileAppender">
-          <param name="MaxFileSize" value="100MB" />
-          <param name="MaxBackupIndex" value="20"/>
-          <param name="encoding" value="UTF-8" />
-          <param name="File" value="${basedir}/var/log/nsi-pce.debug.log" />
-          <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p [%t] (%C:%L) - %m%n" />
-          </layout>
-          <filter class="org.apache.log4j.varia.LevelRangeFilter">
-            <param name="levelMin" value="DEBUG" />
-            <param name="levelMax" value="ERROR" />
-          </filter>
-        </appender>
-        <logger name="org.springframework">
-          <level value="WARN" />
-        </logger>                
-        <logger name="org.eclipse">
-          <level value="DEBUG" />
-        </logger>
-        <logger name="org.apache">
-         <level value="DEBUG" />
-        </logger>
-        <logger name="org.glassfish.jersey">
-          <level value="DEBUG" />
-        </logger>
-        <logger name="org.hibernate">
-          <level value="WARN" />
-        </logger>
-        <logger name="net.es.nsi.pce">
-          <level value="DEBUG" />
-        </logger>
-        <root>
-          <level value="DEBUG" />
-          <appender-ref ref="CONSOLE" />
-          <!--
-          <appender-ref ref="INFO_FILE" />
-          <appender-ref ref="ERR_FILE" />
-          <appender-ref ref="DEBUG_FILE" />
-          -->
-        </root>
-      </log4j:configuration>
     beans.xml: |-
       <?xml version="1.0" encoding="UTF-8"?>
       <beans xmlns="http://www.springframework.org/schema/beans"
@@ -352,42 +271,6 @@ config:
               http://cxf.apache.org/configuration/security                http://cxf.apache.org/schemas/configuration/security.xsd
               http://cxf.apache.org/jaxrs                                 http://cxf.apache.org/schemas/jaxrs.xsd">
       </beans>
-    log4j-viewer.xml: |-
-      <?xml version="1.0" encoding="UTF-8" ?>
-      <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
-      <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-        <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-          <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d %-5p [%t] (%C:%L) - %m%n" />
-          </layout>
-          <filter class="org.apache.log4j.varia.LevelRangeFilter">
-            <param name="levelMin" value="DEBUG" />
-            <param name="levelMax" value="ERROR" />
-          </filter>
-        </appender>
-        <logger name="org.springframework">
-          <level value="WARN" />
-        </logger>
-        <logger name="org.eclipse">
-          <level value="DEBUG" />
-        </logger>
-        <logger name="org.apache">
-          <level value="DEBUG" />
-        </logger>
-        <logger name="org.glassfish.jersey">
-          <level value="DEBUG" />
-        </logger>
-        <logger name="org.hibernate">
-          <level value="WARN" />
-        </logger>
-        <logger name="net.es.nsi.pce">
-          <level value="DEBUG" />
-        </logger>
-        <root>
-          <level value="DEBUG" />
-          <appender-ref ref="CONSOLE" />
-        </root>
-      </log4j:configuration>
   # When using inline key and trust stores, please replace the Lorem Ipsum below with actual stores.
   inlineBinaryData: |-
     nsi-pce-keystore.jks: |-

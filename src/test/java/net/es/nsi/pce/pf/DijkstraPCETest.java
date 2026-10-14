@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
-import javax.ws.rs.WebApplicationException;
+import jakarta.ws.rs.WebApplicationException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.jaxb.topology.DemarcationType;
@@ -33,8 +33,6 @@ import net.es.nsi.pce.pf.simple.SimpleStp;
 import net.es.nsi.pce.schema.NsiConstants;
 import net.es.nsi.pce.schema.XmlUtilities;
 import net.es.nsi.pce.topology.model.NsiTopology;
-import net.es.nsi.pce.util.Log4jHelper;
-import org.apache.log4j.xml.DOMConfigurator;
 import static org.hamcrest.CoreMatchers.is;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -43,7 +41,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
@@ -60,7 +58,6 @@ public class DijkstraPCETest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        DOMConfigurator.configureAndWatch(Log4jHelper.getLog4jConfig("src/test/resources/config/log4j.xml"), 45 * 1000);
         log = LoggerFactory.getLogger(DijkstraPCETest.class);
     }
 
@@ -70,7 +67,7 @@ public class DijkstraPCETest {
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         nsiTopology = getMockedTopology();
     }
 

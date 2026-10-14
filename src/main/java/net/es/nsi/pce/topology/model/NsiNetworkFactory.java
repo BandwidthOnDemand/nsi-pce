@@ -12,7 +12,7 @@ import net.es.nsi.pce.jaxb.topology.NmlTopologyType;
 import net.es.nsi.pce.jaxb.topology.NsaType;
 import net.es.nsi.pce.jaxb.topology.NsiResourceType;
 import net.es.nsi.pce.jaxb.topology.ResourceRefType;
-import org.apache.http.client.utils.DateUtils;
+import net.es.nsi.pce.util.DateUtils;
 
 /**
  * A factory class for generating NSI Network resource objects.

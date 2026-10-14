@@ -1,0 +1,1005 @@
+== response
+status: 200
+content-type: application/json
+last-modified: present
+[
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1000"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1000",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1000"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1000::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1000",
+    "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1000::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1000",
+    "name": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1000::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1000",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1020"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1020",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1020"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1020::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1020",
+    "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1020::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1020",
+    "name": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1020::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1020",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1050"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1050",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1050"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1050::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1050",
+    "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1050::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1050",
+    "name": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:out?vlan\u003d1050::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:in?vlan\u003d1050",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1000"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1000",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1000"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1000::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1000",
+    "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1000::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1000",
+    "name": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1000::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1000",
+    "otherAttributes": {},
+    "type": "BIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1020"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1020",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1020"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1020::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1020",
+    "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1020::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1020",
+    "name": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1020::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1020",
+    "otherAttributes": {},
+    "type": "BIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1050"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1050",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1050"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1050::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1050",
+    "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1050::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1050",
+    "name": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1050::urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1050",
+    "otherAttributes": {},
+    "type": "BIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1000"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1000"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1000::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1000",
+    "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1000::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1000",
+    "name": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1000::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1000",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1020"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1020"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1020::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1020",
+    "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1020::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1020",
+    "name": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1020::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1020",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1050"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1050"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1050::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1050",
+    "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1050::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1050",
+    "name": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:out?vlan\u003d1050::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:in?vlan\u003d1050",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1000"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1000"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1000::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1000",
+    "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1000::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1000",
+    "name": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1000::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1000",
+    "otherAttributes": {},
+    "type": "BIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1020"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1020"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1020::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1020",
+    "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1020::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1020",
+    "name": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1020::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1020",
+    "otherAttributes": {},
+    "type": "BIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1050"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1050"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1050::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1050",
+    "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1050::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1050",
+    "name": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c?vlan\u003d1050::urn:ogf:network:domain-c.example.net:2026:topology:c-to-a?vlan\u003d1050",
+    "otherAttributes": {},
+    "type": "BIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1000",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1000"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1000"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1000::urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1000",
+    "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1000::urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1000",
+    "name": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1000::urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1000",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1000",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1000"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1000"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1000::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1000",
+    "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1000::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1000",
+    "name": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1000::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1000",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1000",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1000"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1000"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1000::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1000",
+    "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1000::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1000",
+    "name": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1000::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1000",
+    "otherAttributes": {},
+    "type": "BIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1020",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1020"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1020"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1020::urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1020",
+    "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1020::urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1020",
+    "name": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1020::urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1020",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1020",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1020"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1020"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1020::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1020",
+    "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1020::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1020",
+    "name": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1020::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1020",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1020",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1020"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1020"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1020::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1020",
+    "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1020::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1020",
+    "name": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1020::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1020",
+    "otherAttributes": {},
+    "type": "BIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1050",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1050"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1050"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1050::urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1050",
+    "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1050::urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1050",
+    "name": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a:out?vlan\u003d1050::urn:ogf:network:domain-a.example.net:2026:topology:a-to-b:in?vlan\u003d1050",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1050",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1050"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1050"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1050::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1050",
+    "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1050::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1050",
+    "name": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:out?vlan\u003d1050::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:in?vlan\u003d1050",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1050",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1050"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1050"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1050::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1050",
+    "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1050::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1050",
+    "name": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c?vlan\u003d1050::urn:ogf:network:domain-c.example.net:2026:topology:c-to-b?vlan\u003d1050",
+    "otherAttributes": {},
+    "type": "BIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1000"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1000"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1000::urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1000",
+    "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1000::urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1000",
+    "name": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1000::urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1000",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1020"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1020"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1020::urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1020",
+    "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1020::urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1020",
+    "name": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1020::urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1020",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1050"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-a.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1050"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1050::urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1050",
+    "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1050::urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1050",
+    "name": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-a:out?vlan\u003d1050::urn:ogf:network:domain-a.example.net:2026:topology:a-to-c:in?vlan\u003d1050",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1000"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1000",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1000",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1000"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1000::urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1000",
+    "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1000::urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1000",
+    "name": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1000::urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1000",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1020"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1020",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1020",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1020"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1020::urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1020",
+    "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1020::urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1020",
+    "name": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1020::urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1020",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  },
+  {
+    "demarcationA": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-c.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:switch:EVTS.A-GOLE",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1050"
+      }
+    },
+    "demarcationZ": {
+      "network": {
+        "href": "/networks/urn:ogf:network:domain-b.example.net:2026:topology",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology"
+      },
+      "serviceDomain": {
+        "href": "/serviceDomains/urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:switch:EVTS.A-GOLE?vlan\u003d1050",
+        "type": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+      },
+      "stp": {
+        "href": "/stps/urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1050",
+        "id": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1050"
+      }
+    },
+    "href": "/sdps/urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1050::urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1050",
+    "id": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1050::urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1050",
+    "name": "urn:ogf:network:domain-c.example.net:2026:topology:c-to-b:out?vlan\u003d1050::urn:ogf:network:domain-b.example.net:2026:topology:b-to-c:in?vlan\u003d1050",
+    "otherAttributes": {},
+    "type": "UNIDIRECTIONAL"
+  }
+]

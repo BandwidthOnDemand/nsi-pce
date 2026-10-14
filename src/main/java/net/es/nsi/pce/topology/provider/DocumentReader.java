@@ -6,8 +6,8 @@ package net.es.nsi.pce.topology.provider;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
-import javax.ws.rs.NotFoundException;
-import javax.xml.bind.JAXBException;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.xml.bind.JAXBException;
 import net.es.nsi.pce.jaxb.dds.DocumentListType;
 
 /**

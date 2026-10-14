@@ -1,11 +1,11 @@
 package net.es.nsi.pce.management;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBElement;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.GenericEntity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.xml.bind.JAXBElement;
 import net.es.nsi.pce.jaxb.management.ObjectFactory;
 import net.es.nsi.pce.jaxb.management.TimerListType;
 import net.es.nsi.pce.jaxb.management.TimerStatusType;

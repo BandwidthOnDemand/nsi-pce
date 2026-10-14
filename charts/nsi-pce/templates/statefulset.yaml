@@ -68,7 +68,7 @@ spec:
           args:
             - {{ printf "-Xmx%s" .Values.maxHeapSize | quote }}
             - "-Djava.net.preferIPv4Stack=true"
-            - "-Dcom.sun.xml.bind.v2.runtime.JAXBContextImpl.fastBoot=true"
+            - "-Dorg.glassfish.jaxb.runtime.v2.runtime.JAXBContextImpl.fastBoot=true"
             {{- if .Values.config.enableSSL }}
             - "-Djavax.net.ssl.trustStoreType=jks"
             - "-Djavax.net.ssl.keyStoreType=jks"
@@ -78,7 +78,6 @@ spec:
             - {{ printf "-Djavax.net.ssl.keyStore=%s" .Values.config.keyStorePath | quote }}
             {{- end }}
             - {{ printf "-Djava.util.logging.config.file=%s/logging.properties" .Values.config.mountPath | quote }}
-            - {{ printf "-Dlog4j.configuration=%s/log4j.xml" .Values.config.mountPath | quote }}
             - {{ printf "-Dapp.home=%s" .Values.image.home | quote }}
             - {{ printf "-Dbasedir=%s" .Values.image.home | quote }}
             - "-jar"
@@ -137,16 +136,12 @@ spec:
                 path: "topology-dds.xml"
               - key: "logging.properties"
                 path: "logging.properties"
-              - key: "log4j.xml"
-                path: "log4j.xml"
               - key: "beans.xml"
                 path: "beans.xml"
               - key: "http.json"
                 path: "http.json"
               - key: "jetty.xml"
                 path: "jetty.xml"
-              - key: "log4j-viewer.xml"
-                path: "log4j-viewer.xml"
               {{- if (((.Values.config).keystore).secretName) }}
               {{- else if .Values.config.enableSSL }}
               - key: "nsi-pce-keystore.jks"

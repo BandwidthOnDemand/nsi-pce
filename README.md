@@ -16,7 +16,7 @@ In the near future the NSI-PCE will be decoupled into two separate runtime packa
 
 ## Getting Started
 
-The NSI-PCE utilizes maven as a build environment.  Once you have downloaded the `nsi-pce` project just type `maven clean install` in the project directory to build the NSI-PCE application.  The project includes a set of REST API test cases that demonstrate the use of available REST API.  To bypass running of the test suite during build include the maven skip test option `mvn install -Dmaven.test.skip=true`.
+The NSI-PCE needs Java 17 and builds with the Maven wrapper (`./mvnw`).  Once you have downloaded the `nsi-pce` project just type `maven clean install` in the project directory to build the NSI-PCE application.  The project includes a set of REST API test cases that demonstrate the use of available REST API.  To bypass running of the test suite during build include the maven skip test option `mvn install -Dmaven.test.skip=true`.
 ```
 > git clone https://github.com/BandwidthOnDemand/nsi-pce.git
 Cloning into 'nsi-pce'...
@@ -178,18 +178,34 @@ The release git tag is the only place a version is written by hand. The `pom.xml
 placeholder `0.0.0-SNAPSHOT`; `.github/workflows/build-push-container.yml` checks out with
 `fetch-depth: 0`, resolves the version with `git describe --tags --always`, and passes it as
 `--build-arg VERSION=...`. The `Dockerfile` then runs `versions:set` before packaging, so a tag
-builds `2.1.2` and any other commit builds `2.1.2-3-g1a2b3c4`. The plugin coordinate is pinned to
-2.16.2, the last release that runs on the Java 8 build image.
+builds `2.1.2` and any other commit builds `2.1.2-3-g1a2b3c4`.
+
+## Logging
+The PCE logs through SLF4J and Logback. At startup it loads `logback.xml` from the configuration
+directory, or the file named by `-Dlogback.configurationFile`; without either it logs at DEBUG to
+the console, from the `logback.xml` in the jar. `config/logback.xml` also writes the error, info and
+debug files under `var/log`. The TopologyViewer reads `logback-viewer.xml` from that directory if
+present.
 
 ## Tests
-`.github/workflows/ci.yml` runs `./mvnw -B verify` on JDK 8 for every pull request and every push
-to `master`. The suite needs JDK 8 and takes about six minutes; each test class runs in its own
-JVM with a 4 GB heap.
+`.github/workflows/ci.yml` runs `./mvnw -B verify` on JDK 17 under Xvfb for every pull request and
+every push to `master`. The suite takes about seven minutes; each test class runs in its own JVM
+with a 4 GB heap. `TopologyViewerTest` needs a display and is skipped without one.
+
+`ApiCharacterizationTest` calls every REST endpoint and FindPath over plain HTTP against
+`topology/api.xml` and compares status, content type and body with the files in
+`src/test/resources/golden`. Those files were recorded on the Java 8 code (2.2.0), so a difference
+is a change in what clients see. After an intended change, rewrite them and review the diff:
+
+```
+$ ./mvnw -B test -Dtest=ApiCharacterizationTest -Dgolden.update=true
+```
 
 Path-finding tests run against synthetic topologies in `src/test/resources/topology/`. The
 collection files there are generated: change `generate.py` and rerun it rather than editing the
 XML. `vlan-loop.xml` is a triangle where one domain cannot swap labels; `two-links.xml` adds a
 second link into that domain, for the last-resort detour and a hairpin requested by the ERO.
+`api.xml` is the triangle with three VLANs per port, which keeps the golden files small.
 
 ```
 $ python3 src/test/resources/topology/generate.py
@@ -223,11 +239,11 @@ done
 PRGDIR=`dirname "$PRG"`
 BASEDIR=`cd "$PRGDIR" >/dev/null; pwd`
 
-java -Xmx512m -XX:MaxPermSize=256m -Djava.net.preferIPv4Stack=true  \
+java -Xmx512m -Djava.net.preferIPv4Stack=true  \
 	-Dapp.home="$BASEDIR" \
 	-Dbasedir="$BASEDIR" \
 	-Djava.util.logging.config.file="$BASEDIR/config/logging.properties" \
-	-Dcom.sun.xml.bind.v2.runtime.JAXBContextImpl.fastBoot=true \
+	-Dorg.glassfish.jaxb.runtime.v2.runtime.JAXBContextImpl.fastBoot=true \
 	-Djavax.net.ssl.trustStore=config/nsi-pce-truststore \
 	-Djavax.net.ssl.trustStorePassword=changeit \
 	-jar target/pce.jar \

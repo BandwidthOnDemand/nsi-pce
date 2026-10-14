@@ -2,7 +2,7 @@ package net.es.nsi.pce.pf.api;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBElement;
 import net.es.nsi.pce.jaxb.path.FindPathErrorType;
 import net.es.nsi.pce.jaxb.path.ObjectFactory;
 import net.es.nsi.pce.jaxb.path.VariableType;

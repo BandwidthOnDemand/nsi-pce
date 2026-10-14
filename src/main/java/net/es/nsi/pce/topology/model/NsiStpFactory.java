@@ -16,7 +16,7 @@ import net.es.nsi.pce.jaxb.topology.ResourceRefType;
 import net.es.nsi.pce.jaxb.topology.StpDirectionalityType;
 import net.es.nsi.pce.jaxb.topology.StpType;
 import net.es.nsi.pce.jaxb.topology.TypeValueType;
-import org.apache.http.client.utils.DateUtils;
+import net.es.nsi.pce.util.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

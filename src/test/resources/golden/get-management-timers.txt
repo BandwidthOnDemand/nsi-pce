@@ -1,0 +1,14 @@
+== response
+status: 200
+content-type: application/json
+{
+  "timer": [
+    {
+      "@href": "/timers/FullTopologyAudit:TopologyManagement",
+      "@id": "FullTopologyAudit:TopologyManagement",
+      "nextExecution": "\u003cvolatile\u003e",
+      "timerInterval": 300000,
+      "timerStatus": "Scheduled"
+    }
+  ]
+}

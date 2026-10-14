@@ -1,0 +1,8 @@
+== response
+status: 400
+content-type: application/json
+{
+  "code": "00101",
+  "description": "Invalid or missing parameter (replyTo).",
+  "label": "MISSING_PARAMETER"
+}

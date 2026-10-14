@@ -1,0 +1,52 @@
+== response
+status: 202
+content-type: null
+(empty)
+== callback
+content-type: application/json
+{
+  "correlationId": "urn:uuid:00000000-0000-4000-8000-000000000001",
+  "path": [
+    {
+      "csProviderURL": "https://domain-a.example.net/nsi/provider",
+      "nsa": "urn:ogf:network:domain-a.example.net:2026:nsa",
+      "p.p2ps": [
+        {
+          "capacity": 100,
+          "destSTP": "urn:ogf:network:domain-a.example.net:2026:topology:a-to-b?vlan\u003d1050",
+          "directionality": "Bidirectional",
+          "parameter": [
+            {
+              "@type": "protection",
+              "value": "PROTECTED"
+            }
+          ],
+          "sourceSTP": "urn:ogf:network:domain-a.example.net:2026:topology:a-edge?vlan\u003d1000",
+          "symmetricPath": true
+        }
+      ],
+      "serviceType": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+    },
+    {
+      "csProviderURL": "https://domain-b.example.net/nsi/provider",
+      "nsa": "urn:ogf:network:domain-b.example.net:2026:nsa",
+      "p.p2ps": [
+        {
+          "capacity": 100,
+          "destSTP": "urn:ogf:network:domain-b.example.net:2026:topology:b-edge?vlan\u003d1050",
+          "directionality": "Bidirectional",
+          "parameter": [
+            {
+              "@type": "protection",
+              "value": "PROTECTED"
+            }
+          ],
+          "sourceSTP": "urn:ogf:network:domain-b.example.net:2026:topology:b-to-a?vlan\u003d1050",
+          "symmetricPath": true
+        }
+      ],
+      "serviceType": "http://services.ogf.org/nsi/2013/12/descriptions/EVTS.A-GOLE"
+    }
+  ],
+  "status": "SUCCESS"
+}

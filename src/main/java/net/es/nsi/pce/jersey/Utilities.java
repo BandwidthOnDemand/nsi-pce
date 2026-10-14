@@ -7,7 +7,7 @@ package net.es.nsi.pce.jersey;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 /**
  *
