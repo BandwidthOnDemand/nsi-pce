@@ -5,6 +5,7 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import net.es.nsi.pce.config.ConfigurationManager;
 import net.es.nsi.pce.config.StartupArgs;
+import net.es.nsi.pce.util.LogbackConfigurator;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
@@ -72,12 +73,15 @@ public class Main {
 
         String configPath = StartupArgs.apply(cmd);
 
-        // Load PCE configuration from disk.
-        ConfigurationManager.INSTANCE.initialize(configPath);
+        // Load the logging configuration; logback.xml sets its own scan interval.
+        LogbackConfigurator.configure(configPath, "logback.xml");
 
         log.info("Starting nsi-pce {} on Java {}",
                 Main.class.getPackage().getImplementationVersion(),
                 System.getProperty("java.version"));
+
+        // Load PCE configuration from disk.
+        ConfigurationManager.INSTANCE.initialize(configPath);
 
         // Listen for a shutdown event so we can clean up.
         Runtime.getRuntime().addShutdownHook(
