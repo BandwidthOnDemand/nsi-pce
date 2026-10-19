@@ -1,0 +1,39 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices"
+  ],
+  "minimumReleaseAge": "8 days",
+  "internalChecksFilter": "strict",
+  "rebaseWhen": "behind-base-branch",
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch",
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": ["pin", "digest", "pinDigest"],
+      "minimumReleaseAge": "0 days",
+      "automerge": true
+    },
+    {
+      "matchManagers": ["helm-values"],
+      "matchPackageNames": ["ghcr.io/bandwidthondemand/nsi-pce"],
+      "pinDigests": false
+    },
+    {
+      "description": "CI tests the Java the Dockerfile ships; move both to a new major together",
+      "matchDatasources": ["java-version"],
+      "matchPackageNames": ["java-jdk"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
+      "description": "JUNG 2.1 replaces the collections15 Transformer API the path finder uses",
+      "matchPackageNames": ["net.sf.jung:**"],
+      "allowedVersions": "<2.1"
+    }
+  ]
+}
