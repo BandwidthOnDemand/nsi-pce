@@ -125,17 +125,6 @@ spec:
         - name: config
           configMap:
             name: {{ .Release.Name }}-config
-            items:
-              - key: "topology-dds.xml"
-                path: "topology-dds.xml"
-              - key: "logging.properties"
-                path: "logging.properties"
-              - key: "beans.xml"
-                path: "beans.xml"
-              - key: "http.json"
-                path: "http.json"
-              - key: "jetty.xml"
-                path: "jetty.xml"
         {{- if eq $mode "pem" }}
         - name: tls
           projected:

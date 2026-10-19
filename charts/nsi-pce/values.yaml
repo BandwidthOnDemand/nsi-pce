@@ -159,7 +159,8 @@ config:
   # - beans.xml
   # - http.json
   # - jetty.xml
-  # The PCE logs at DEBUG to the console with the logback.xml in its jar.
+  # Optional: logback.xml. Without it the PCE logs at INFO to the console. Every key in the
+  # configmap is mounted under mountPath.
   #
   # When config.configMapName is defined it must point to an existing configmap, managed outside of Helm,
   # that contains all necessary configuration files. Otherwise, Helm will create a configmap with files from

@@ -48,7 +48,8 @@ public class RestClient {
         clientConfig.register(new MoxyXmlFeature());
         clientConfig.register(new MoxyJsonFeature());
         clientConfig.register(FollowRedirectFilter.class);
-        clientConfig.register(new LoggingFeature(java.util.logging.Logger.getGlobal(), Level.INFO, LoggingFeature.Verbosity.PAYLOAD_ANY, null));
+        // FINE reaches Logback as DEBUG, so request and payload dumps only show at DEBUG.
+        clientConfig.register(new LoggingFeature(java.util.logging.Logger.getGlobal(), Level.FINE, LoggingFeature.Verbosity.PAYLOAD_ANY, null));
         clientConfig.property(MarshallerProperties.NAMESPACE_PREFIX_MAPPER, Utilities.getNameSpace());
         clientConfig.property(MarshallerProperties.JSON_ATTRIBUTE_PREFIX, "@");
         clientConfig.property(MarshallerProperties.JSON_NAMESPACE_SEPARATOR, '.');
