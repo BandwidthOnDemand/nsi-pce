@@ -87,9 +87,8 @@ public class UnderspecifiedPCE implements PCEModule {
             if (!request.getSourceStp().equalsIgnoreCase(pathSegment.getA()) &&
                     !request.getDestStp().equalsIgnoreCase(pathSegment.getA())) {
                 // We can try to expand the A end of this segment.
-                log.debug("UnderspecifiedPCE: original A " + pathSegment.getA());
                 SimpleStp result = expand(pathSegment.getA(), ero);
-                log.debug("UnderspecifiedPCE: modified A " + result.getStpId());
+                log.info("UnderspecifiedPCE: widened {} to {}", pathSegment.getA(), result.getStpId());
                 pathSegment.setA(result.getStpId());
                 p2ps.setSourceSTP(pathSegment.getA());
             }
@@ -99,9 +98,8 @@ public class UnderspecifiedPCE implements PCEModule {
             if (!request.getSourceStp().equalsIgnoreCase(pathSegment.getZ()) &&
                     !request.getDestStp().equalsIgnoreCase(pathSegment.getZ())) {
                 // We can try to expand the Z end of this segment.
-                log.debug("UnderspecifiedPCE: original Z " + pathSegment.getZ());
                 SimpleStp result = expand(pathSegment.getZ(), ero);
-                log.debug("UnderspecifiedPCE: modified Z " + result.getStpId());
+                log.info("UnderspecifiedPCE: widened {} to {}", pathSegment.getZ(), result.getStpId());
                 pathSegment.setZ(result.getStpId());
                 p2ps.setDestSTP(pathSegment.getZ());
             }

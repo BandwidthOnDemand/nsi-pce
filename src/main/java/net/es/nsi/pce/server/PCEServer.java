@@ -45,7 +45,7 @@ public class PCEServer {
                         log.debug("PCEServer.start: Waiting for Grizzly to start ...");
                         Thread.sleep(1000);
                     }
-                    log.debug("PCEServer.start: Started Grizzly.");
+                    log.info("PCEServer.start: listening on {}", config.getUrl());
                 } catch (IOException ex) {
                     log.error("Could not start HTTP server.", ex);
                     throw ex;

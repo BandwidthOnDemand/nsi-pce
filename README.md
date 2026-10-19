@@ -183,8 +183,9 @@ builds `2.1.2` and any other commit builds `2.1.2-3-g1a2b3c4`.
 ## Logging
 The PCE logs through SLF4J and Logback. At startup it loads `logback.xml` from the configuration
 directory, or the file named by `-Dlogback.configurationFile`; without either it logs at INFO to
-the console, from the `logback.xml` in the jar. HTTP requests and payloads to the DDS and `replyTo`
-are logged at DEBUG. `config/logback.xml` also writes the error, info and debug files under
+the console, from the `logback.xml` in the jar. INFO traces topology audits (DDS document
+changes, topology size) and FindPath requests by `correlationId` (STPs, ERO, route, segments,
+reply). HTTP requests and payloads to the DDS and `replyTo` are logged at DEBUG. `config/logback.xml` also writes the error, info and debug files under
 `var/log`. The TopologyViewer reads `logback-viewer.xml` from that directory if present.
 
 The Helm chart mounts every file in its ConfigMap, so a `logback.xml` in `config.inlineData`

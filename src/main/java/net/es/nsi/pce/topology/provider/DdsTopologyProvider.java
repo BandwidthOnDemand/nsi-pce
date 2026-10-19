@@ -165,13 +165,15 @@ public class DdsTopologyProvider implements TopologyProvider {
 
         // If no change then get out of here.
         if (!changed) {
-            log.debug("loadNetworkTopology: no change in topology.");
+            log.info("loadNetworkTopology: no change in topology.");
             ddsAuditSuccess();
             return true;
         }
 
         // Now that we have a new set of documents (at least some were new or
         // modified), we must rebuild our entire topology model.
+        log.info("loadNetworkTopology: rebuilding topology from {} NSA and {} topology documents",
+                nsaDocuments.size(), topologyDocuments.size());
         NsiTopologyFactory nsiFactory = new NsiTopologyFactory();
         nsiFactory.setDefaultServiceType(configuration.getDefaultServiceType());
         nsiFactory.setBaseURL(configuration.getBaseURL());
@@ -186,6 +188,9 @@ public class DdsTopologyProvider implements TopologyProvider {
 
         // We are done so update the map with the new view.
         nsiTopology = newTopology;
+        log.info("loadNetworkTopology: local NSA {}, {} NSAs, {} networks, {} STPs, {} SDPs",
+                newTopology.getLocalNsaId(), newTopology.getNsaMap().size(), newTopology.getNetworkMap().size(),
+                newTopology.getStpMap().size(), newTopology.getSdpMap().size());
         return true;
     }
 

@@ -126,7 +126,7 @@ public class DdsDocumentReader implements DocumentReader {
 
             // Have we seen a version of this document before?
             if (current == null) {
-                log.debug("read: new document " + discovered.getId());
+                log.info("read: new document {}, version {}", discovered.getId(), discovered.getVersion());
 
                 // This is a new entry so we need to retrieve the full entry.
                 DocumentType entry;
@@ -151,7 +151,7 @@ public class DdsDocumentReader implements DocumentReader {
                 }
             }
             else if (current.getDocument().getVersion().compare(discovered.getVersion()) == DatatypeConstants.LESSER) {
-                log.debug("read: new version of existing document " + discovered.getId());
+                log.info("read: updated document {}, version {}", discovered.getId(), discovered.getVersion());
 
                 // This is a newer version so replace the current one.
                 DocumentType entry;
@@ -185,12 +185,12 @@ public class DdsDocumentReader implements DocumentReader {
         if (!delete.isEmpty()) {
             isChanged = true;
             for (String id : delete) {
-                log.debug("read: deleting document "  + id);
+                log.info("read: removed document {}", id);
                 ddsDocuments.remove(id);
             }
         }
 
-        log.debug("read: isChanged=" + isChanged + ", ddsDocuments=" + ddsDocuments.size());
+        log.info("read: {} {} documents, changed={}", ddsDocuments.size(), type, isChanged);
 
         return isChanged;
     }

@@ -161,7 +161,7 @@ public class ReachabilityPCE implements PCEModule {
     private Optional<Path> findLocalPath(final Stp sourceStp, final Stp destStp, final NsiTopology topology) {
         checkArgument(sourceStp.getNetworkId().equals(destStp.getNetworkId()));
 
-        logger.debug("Trying to find a only local path");
+        logger.info("findLocalPath: {} and {} are both local", sourceStp.getId(), destStp.getId());
 
         Optional<String> localProviderUrl = topology.getLocalProviderUrl();
         if (localProviderUrl.isPresent()) {
@@ -180,10 +180,8 @@ public class ReachabilityPCE implements PCEModule {
 
     @VisibleForTesting
     protected Optional<Path> findSplitPath(Stp localStp, Stp remoteStp, NsiTopology topology, Map<String, Map<String, Integer>> reachabilityTable, List<String> connectionTrace) {
-        logger.debug("Trying to find a split (local and remote part) path");
-
         Optional<Reachability> remoteNsa = findPeerWithLowestCostToReachNetwork(remoteStp.getNetworkId(), topology.getNsaMap(), reachabilityTable);
-        logger.debug("found lowest cost peer: {}", remoteNsa);
+        logger.info("findSplitPath: {} is local, {} via lowest cost peer {}", localStp.getId(), remoteStp.getId(), remoteNsa.orNull());
 
         checkNotIntroducingLoop(remoteNsa, connectionTrace);
 
@@ -295,9 +293,8 @@ public class ReachabilityPCE implements PCEModule {
 
     @VisibleForTesting
     protected Optional<Path> findForwardPath(final Stp sourceStp, final Stp destStp, final NsiTopology topology, Map<String, Map<String, Integer>> reachabilityTable, List<String> connectionTrace) {
-        logger.debug("Trying to find a forward path for srcSTP=:" + sourceStp + ", destStp=" + destStp);
-
         final Optional<Reachability> forwardNsa = findCheapestForwardNsa(sourceStp, destStp, topology.getNsaMap(), reachabilityTable);
+        logger.info("findForwardPath: {} and {} are both remote, forwarding to {}", sourceStp.getId(), destStp.getId(), forwardNsa.orNull());
 
         checkNotIntroducingLoop(forwardNsa, connectionTrace);
 

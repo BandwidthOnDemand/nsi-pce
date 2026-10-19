@@ -77,6 +77,9 @@ public class DijkstraPCE implements PCEModule {
 
         // Extract the request data we need.
         Request request = new Request(pceData);
+        log.info("apply: routing {} leg(s) over {} STPs and {} SDPs, avoidLoops={}",
+                request.getRo().getRoutes().size(), request.getNsiTopology().getStpMap().size(),
+                request.getNsiTopology().getSdpMap().size(), avoidLoops);
 
         // Find a path satisfying the requested criteria.
         List<GraphEdge> path = avoidLoops ? new LoopAvoidingRouter(request).route() : route(request);
@@ -193,7 +196,8 @@ public class DijkstraPCE implements PCEModule {
             }
         }
 
-        log.debug("Path computation completed with " + shortestPath.size() + " SDP returned.");
+        log.info("getShortestPath: {} hops from {} to {}", shortestPath.size(),
+                srcBundle.getSimpleStp().getId(), dstBundle.getSimpleStp().getId());
         return shortestPath;
     }
 

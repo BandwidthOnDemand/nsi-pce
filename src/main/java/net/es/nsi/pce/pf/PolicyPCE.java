@@ -105,6 +105,8 @@ public class PolicyPCE implements PCEModule {
         // Now we restrict routing of two enpoints in the same domain to only
         // route within that domain, otherwise use the full topology.
         if (srcNetwork.get().getId().equalsIgnoreCase(dstNetwork.get().getId())) {
+            log.info("stpPolicy: source and destination in {}, routing within that network only",
+                    srcNetwork.get().getId());
             // Build a new topology containing only elements from this network.
             NsiTopology tp = nsiTopology.getTopologyByNetworkId(srcStp.getNetworkId());
             pceData.setTopology(tp);

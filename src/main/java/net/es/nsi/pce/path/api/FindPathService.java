@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
@@ -25,9 +26,11 @@ import net.es.nsi.pce.jaxb.path.FindPathRequestType;
 import net.es.nsi.pce.jaxb.path.FindPathResponseType;
 import net.es.nsi.pce.jaxb.path.FindPathStatusType;
 import net.es.nsi.pce.jaxb.path.ObjectFactory;
+import net.es.nsi.pce.jaxb.path.OrderedStpType;
 import net.es.nsi.pce.jaxb.path.P2PServiceBaseType;
 import net.es.nsi.pce.jaxb.path.ReplyToType;
 import net.es.nsi.pce.jaxb.path.ResolvedPathType;
+import net.es.nsi.pce.jaxb.path.StpListType;
 import net.es.nsi.pce.jaxb.path.TraceType;
 import net.es.nsi.pce.jersey.RestClient;
 import net.es.nsi.pce.jersey.RestServer;
@@ -38,6 +41,7 @@ import net.es.nsi.pce.pf.Algorithms;
 import net.es.nsi.pce.pf.PathfinderCore;
 import net.es.nsi.pce.pf.api.NsiError;
 import net.es.nsi.pce.pf.api.PCEConstraints;
+import net.es.nsi.pce.pf.api.PathSegment;
 import net.es.nsi.pce.pf.api.cons.Constraint;
 import net.es.nsi.pce.schema.PathApiParser;
 import net.es.nsi.pce.schema.XmlUtilities;
@@ -142,6 +146,9 @@ public class FindPathService {
             return RestServer.getBadRequestError("serviceType");
         }
 
+        log.info("findPath: correlationId={}, algorithm={}, serviceType={}, replyTo={}",
+                correlationId, algorithm, serviceType, replyTo.getUrl());
+
         // TODO: Place the Path Finding and FindPathResponse building code
         // in a separate model and route via Scala.
 
@@ -195,8 +202,18 @@ public class FindPathService {
                         Constraint p2pContstraint = p2p.addConstraint(p2ps);
                         contraints.add(p2pContstraint);
 
+                        log.info("findPath: correlationId={}, sourceSTP={}, destSTP={}, ero={}", correlationId,
+                                p2ps.getSourceSTP(), p2ps.getDestSTP(), eroToString(p2ps.getEro()));
+
                         try {
+                            long start = System.currentTimeMillis();
                             net.es.nsi.pce.pf.api.Path path = pathfinderCore.findPath(algorithm, contraints, convertTrace(request.getTrace()));
+                            log.info("findPath: correlationId={}, found {} segment(s) in {} ms", correlationId,
+                                    path.getPathSegments().size(), System.currentTimeMillis() - start);
+                            for (PathSegment segment : path.getPathSegments()) {
+                                log.info("findPath: correlationId={}, segment {} -> {} via {}", correlationId,
+                                        segment.getA(), segment.getZ(), segment.getNsaId());
+                            }
                             List<ResolvedPathType> resolved = p2p.resolvePath(path);
                             resp.getPath().addAll(resolved);
                         }
@@ -238,8 +255,9 @@ public class FindPathService {
         try {
             response = webTarget.request(mediaType).post(Entity.entity(new GenericEntity<JAXBElement<FindPathResponseType>>(jaxbRequest) {}, mediaType));
 
+            log.info("findPath: correlationId={}, sent {} to {}, HTTP {}", correlationId,
+                    resp.getStatus().name(), replyTo.getUrl(), response.getStatus());
             if (log.isDebugEnabled()) {
-                log.debug("FindPathService: sent response " + resp.getStatus().name() + " to client " + replyTo.getUrl() + ", result = " + response.getStatusInfo().getReasonPhrase());
                 String element = PathApiParser.getInstance().jaxbToString(jaxbRequest);
                 log.debug(element);
             }
@@ -255,6 +273,16 @@ public class FindPathService {
 
         response.close();
         return Response.accepted().build();
+    }
+
+    private static String eroToString(StpListType ero) {
+        if (ero == null) {
+            return "[]";
+        }
+        return ero.getOrderedSTP().stream()
+                .sorted(Comparator.comparingInt(OrderedStpType::getOrder))
+                .map(OrderedStpType::getStp)
+                .collect(Collectors.joining(", ", "[", "]"));
     }
 
     public List<String> convertTrace(List<TraceType> trace) {

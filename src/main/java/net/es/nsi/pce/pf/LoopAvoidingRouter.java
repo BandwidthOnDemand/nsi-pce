@@ -62,7 +62,7 @@ final class LoopAvoidingRouter {
             }
         }
         Partial best = partials.stream().min(Partial.RANKING).get();
-        LOG.debug("route: {} hops, {} re-entries, {} VLAN changes",
+        LOG.info("route: {} hops, {} re-entries, {} VLAN changes",
                 best.edges.size(), best.reentries, best.vlanChanges);
         return best.edges;
     }
