@@ -272,8 +272,9 @@ config:
 
 The `wait-for-dds` init container uses the same PEM files, so `config.ddsPortalUrl` can be HTTPS.
 A cert-manager client Certificate for `pem.identitySecretName` needs `privateKey.encoding: PKCS8`
-and `usages: [client auth]`. The chart fails to render when the selected mode lacks a Secret. Store
-passwords reach the JVM through the environment, not the chart values.
+and `usages: [client auth]`; the chart's own `certificate` sets PKCS8 by default. The chart fails
+to render when the selected mode lacks a Secret. Store passwords reach the JVM through the
+environment, not the chart values.
 
 # References
 

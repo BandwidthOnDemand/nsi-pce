@@ -105,6 +105,8 @@ certificate:
   secretName: chart-example-tls
   privateKey:
     rotationPolicy: Always
+    # PemSslContext reads only PKCS#8 keys; cert-manager's own default is PKCS1.
+    encoding: PKCS8
 
 # Maximum JVM heap size (-Xmx). Keep this well below resources.limits.memory:
 # the JVM also needs metaspace, code cache, thread stacks and direct buffers on

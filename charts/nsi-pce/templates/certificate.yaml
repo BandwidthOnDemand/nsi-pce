@@ -13,4 +13,5 @@ spec:
   secretName: {{ .Values.certificate.secretName }}
   privateKey:
     rotationPolicy: {{ .Values.certificate.privateKey.rotationPolicy }}
+    encoding: {{ .Values.certificate.privateKey.encoding }}
 {{- end }}
