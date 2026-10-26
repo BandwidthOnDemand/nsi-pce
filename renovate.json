@@ -30,7 +30,7 @@
       "enabled": false
     },
     {
-      "description": "JUNG 2.1 replaces the collections15 Transformer API the path finder uses",
+      "description": "JUNG 2.1 replaces the collections15 Transformer API the path finder uses. Not worth migrating: 2.1.1 (2016) is unmaintained too, and the collections-generic CVEs need Java deserialization, which nsi-pce does not do",
       "matchPackageNames": ["net.sf.jung:**"],
       "allowedVersions": "<2.1"
     }
