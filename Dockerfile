@@ -11,7 +11,7 @@ RUN mvn versions:set \
     && mvn clean install -Dmaven.test.skip=true -Ddocker.nocache
 
 # The Ubuntu-based JRE: the Alpine one is amd64 only, and the image is built for arm64 too.
-FROM eclipse-temurin:17-jre@sha256:8b16f59326a08c566ced5e6250fcdb55112a2a736a19f1fb4ff12a15f4aa26ff
+FROM eclipse-temurin:17-jre@sha256:bdc6c4d91efc63515085e1288be79290cb4806c5e5148dd8035d49b24fa55707
 
 ENV HOME=/nsi-pce
 USER 1000:1000
