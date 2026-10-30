@@ -14,7 +14,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
         <jersey.version>4.0.3</jersey.version>
-        <spring.version>7.0.9</spring.version>
+        <spring.version>7.0.10</spring.version>
         <slf4j.version>2.0.20</slf4j.version>
         <jaxb.plugins.version>4.0.16</jaxb.plugins.version>
         <!-- 2.0.1 is the last JUNG with the collections15 Transformer API; 2.1 moved to Guava Function. -->
@@ -414,7 +414,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.6.1</version>
                 <configuration>
                     <!-- One argLine: Maven keeps only the last of repeated elements. The ES.net test
                          topology expands to about a million STPs, which needs the 4 GB. A fresh JVM per
