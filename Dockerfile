@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM maven:3.10-eclipse-temurin-17@sha256:7d92f4b97ceca94699c70dfe41e186115de1a9e34dd50413ab3f96ce32bc60ec AS MAVEN_BUILD
+FROM --platform=$BUILDPLATFORM maven:3.10-eclipse-temurin-17@sha256:01dbb85e5c7236970e0a3b5dc47994af3f5774e2bb0a11156b905a8f4c68ff96 AS MAVEN_BUILD
 
 LABEL org.opencontainers.image.source=https://github.com/bandwidthondemand/nsi-pce
 
