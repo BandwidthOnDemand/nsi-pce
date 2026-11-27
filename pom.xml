@@ -14,7 +14,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
         <jersey.version>4.0.3</jersey.version>
-        <spring.version>7.0.10</spring.version>
+        <spring.version>7.1.0</spring.version>
         <slf4j.version>2.0.20</slf4j.version>
         <jaxb.plugins.version>4.0.16</jaxb.plugins.version>
         <!-- 2.0.1 is the last JUNG with the collections15 Transformer API; 2.1 moved to Guava Function. -->
@@ -98,7 +98,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.6.7</version>
+            <version>1.6.8</version>
         </dependency>
 
         <!-- Google JSON parsers for reading configuration data from files. -->
